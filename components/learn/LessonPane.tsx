@@ -264,35 +264,40 @@ function CourseFinishedPane({
         </Link>
       )}
       {isCourseComplete ? (
-        feedbackGiven ? (
-          <>
-            <p className="text-lg font-bold">Selamat, Anda telah menyelesaikan {courseTitle}.</p>
-            <p className="-mt-3 text-sm text-muted-foreground">Sertifikat Anda siap diunduh.</p>
-            <div className="flex gap-3">
-              <Button
-                className="bg-brand-gradient text-white hover:brightness-105"
-                render={<Link href="/learner/profile?tab=certificates" />}
-                nativeButton={false}
-              >
-                Lihat Sertifikat Anda
-              </Button>
-              <Button variant="outline" render={<Link href="/learner/courses" />} nativeButton={false}>
-                Cari kursus lain
-              </Button>
-            </div>
-          </>
-        ) : (
-          <>
-            <p className="text-lg font-bold">Selamat, Anda telah menyelesaikan {courseTitle}.</p>
-            <p className="-mt-3 text-sm text-muted-foreground">
-              Satu langkah lagi: beri ulasan untuk membuka sertifikat Anda.
-            </p>
-            <CourseFeedbackForm courseId={courseId} />
+        /*
+         * Sertifikat diberikan begitu syarat belajarnya terpenuhi, dan ulasan
+         * ditawarkan sesudahnya sebagai pilihan. Sebelumnya sertifikat ditahan
+         * sampai peserta menulis ulasan minimal 10 karakter -- itu menaruh
+         * hadiah di balik permintaan yang tidak ada hubungannya dengan belajar,
+         * yaitu dark pattern obstruksi yang dilarang STANDAR-DIGITAL-LEARNING
+         * §6 dan §17.
+         */
+        <>
+          <p className="text-lg font-bold">Selamat, Anda telah menyelesaikan {courseTitle}.</p>
+          <p className="-mt-3 text-sm text-muted-foreground">Sertifikat Anda siap diunduh.</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Button
+              className="bg-brand-gradient text-white hover:brightness-105"
+              render={<Link href="/learner/profile?tab=certificates" />}
+              nativeButton={false}
+            >
+              Lihat Sertifikat Anda
+            </Button>
             <Button variant="outline" render={<Link href="/learner/courses" />} nativeButton={false}>
               Cari kursus lain
             </Button>
-          </>
-        )
+          </div>
+
+          {!feedbackGiven && (
+            <div className="mt-6 w-full max-w-md border-t border-border pt-6">
+              <p className="mb-3 text-sm text-muted-foreground">
+                Punya waktu sebentar? Ulasan Anda membantu peserta berikutnya memilih kursus.
+                Ini opsional.
+              </p>
+              <CourseFeedbackForm courseId={courseId} />
+            </div>
+          )}
+        </>
       ) : (
         <>
           <p className="text-lg font-bold">Anda telah menyelesaikan pelajaran terakhir di kursus ini.</p>

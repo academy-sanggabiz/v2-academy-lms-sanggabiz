@@ -108,6 +108,7 @@ export function SignupForm() {
           <Input
             type="text"
             id="signup-fullName"
+            autoComplete="name"
             placeholder="Nama lengkap"
             aria-label="Nama lengkap"
             aria-invalid={errors.fullName ? true : undefined}
@@ -124,6 +125,7 @@ export function SignupForm() {
           <Input
             type="email"
             id="signup-email"
+            autoComplete="username"
             placeholder="Email"
             aria-label="Email"
             aria-invalid={errors.email ? true : undefined}
@@ -139,6 +141,7 @@ export function SignupForm() {
         <div>
           <PasswordInput
             id="signup-password"
+            autoComplete="new-password"
             placeholder="Kata sandi"
             aria-label="Kata sandi"
             aria-invalid={errors.password ? true : undefined}
@@ -154,6 +157,7 @@ export function SignupForm() {
         <div>
           <PasswordInput
             id="signup-confirmPassword"
+            autoComplete="new-password"
             placeholder="Konfirmasi kata sandi"
             aria-label="Konfirmasi kata sandi"
             aria-invalid={errors.confirmPassword ? true : undefined}

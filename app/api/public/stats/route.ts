@@ -85,7 +85,11 @@ export async function GET() {
       enrollment_count: 0,
     }
 
-    const demoCount = totals.demo_learner_count + totals.demo_course_count
+    // Dijaga dari nilai hilang: respons view yang masih ter-cache dari sebelum
+    // sebuah kolom ditambahkan membuat penjumlahannya NaN, dan `NaN > 0` bernilai
+    // false -- diam-diam memilih cabang "tidak ada data demo", yaitu persis
+    // kebalikan dari gunanya catatan ini.
+    const demoCount = (totals.demo_learner_count ?? 0) + (totals.demo_course_count ?? 0)
 
     return NextResponse.json(
       {

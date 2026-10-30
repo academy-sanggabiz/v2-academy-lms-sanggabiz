@@ -213,13 +213,28 @@ export function QuizPlayer({
 
         <StatusMessage>{error}</StatusMessage>
 
+        {/*
+         * Tombolnya sengaja tidak dimatikan saat jawaban masih kosong. Tombol
+         * mati tidak bisa ditanyai: peserta menekannya, tidak terjadi apa-apa,
+         * dan tidak ada yang memberi tahu kenapa (STANDAR-DIGITAL-LEARNING §14,
+         * "tombol submit tidak mati tanpa penjelasan"). Sekarang ia menjawab.
+         */}
         <Button
           size="xl"
-          disabled={!hasAnswer}
           pending={isPending}
           pendingLabel={isLast ? "Mengirim…" : "Memuat…"}
-          onClick={() => handleNext(isLast)}
-          className="w-full bg-brand-gradient text-white hover:brightness-105 disabled:bg-none disabled:bg-muted-foreground/40"
+          onClick={() => {
+            if (!hasAnswer) {
+              setError(
+                isChoice
+                  ? "Pilih salah satu jawaban dulu sebelum lanjut."
+                  : "Tuliskan jawaban Anda dulu sebelum lanjut."
+              )
+              return
+            }
+            handleNext(isLast)
+          }}
+          className="w-full bg-brand-gradient text-white hover:brightness-105"
         >
           {isLast ? "Kirim Kuis" : "Soal Berikutnya"}
         </Button>

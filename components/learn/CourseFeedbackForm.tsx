@@ -9,8 +9,6 @@ import { StatusMessage } from "@/components/ui/status-message"
 import { StarRating } from "@/components/learner/StarRating"
 import { submitCourseFeedback } from "@/app/learner/courses/feedback-actions"
 
-const MIN_COMMENT_LENGTH = 10
-
 export function CourseFeedbackForm({ courseId }: { courseId: string }) {
   const router = useRouter()
   const [rating, setRating] = useState(0)
@@ -18,9 +16,14 @@ export function CourseFeedbackForm({ courseId }: { courseId: string }) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
-  const canSubmit = rating > 0 && comment.trim().length >= MIN_COMMENT_LENGTH
-
   function handleSubmit() {
+    // Tombol tidak pernah dimatikan tanpa penjelasan (STANDAR-DIGITAL-LEARNING
+    // §14): kalau bintangnya belum diisi, katakan alasannya alih-alih membuat
+    // tombol mati yang tidak bisa ditanyai.
+    if (rating === 0) {
+      setError("Pilih bintang dulu untuk mengirim ulasan.")
+      return
+    }
     setError(null)
     startTransition(async () => {
       const result = await submitCourseFeedback({ courseId, rating, comment })
@@ -40,24 +43,19 @@ export function CourseFeedbackForm({ courseId }: { courseId: string }) {
       <Textarea
         value={comment}
         onChange={(e) => setComment(e.target.value)}
-        placeholder="Bagaimana pendapat Anda tentang kursus ini?"
+        placeholder="Bagaimana pendapat Anda tentang kursus ini? (opsional)"
         aria-label="Ulasan kursus"
         className="min-h-[90px] bg-card"
         disabled={isPending}
       />
-      <div className="flex w-full items-center justify-between text-xs text-muted-foreground">
-        <span>Minimal {MIN_COMMENT_LENGTH} karakter</span>
-        <span>{comment.trim().length}/{MIN_COMMENT_LENGTH}</span>
-      </div>
       <StatusMessage className="w-full">{error}</StatusMessage>
       <Button
         className="w-full bg-brand-gradient text-white hover:brightness-105"
-        disabled={!canSubmit}
         pending={isPending}
         pendingLabel="Mengirim…"
         onClick={handleSubmit}
       >
-        Kirim ulasan &amp; buka sertifikat
+        Kirim ulasan
       </Button>
     </div>
   )

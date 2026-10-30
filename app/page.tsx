@@ -52,6 +52,13 @@ export default async function Home() {
         </div>
       </header>
 
+      {/*
+        * Target tautan "Langsung ke konten utama" di app/layout.tsx. Sebelumnya
+        * halaman publik sama sekali tidak punya <main id="main-content">,
+        * sehingga kontrol pertama yang dipakai pengguna screen reader justru
+        * tidak membawa ke mana pun (WCAG 2.4.1).
+        */}
+      <main id="main-content" tabIndex={-1} className="outline-none">
       <section className="flex flex-col items-center bg-gradient-to-b from-card to-background px-6 py-28 text-center sm:py-32">
         <h1 className="max-w-4xl text-4xl leading-tight font-bold tracking-tight sm:text-6xl">
           {hero.heading} <span className="text-ring">{hero.highlightWord}</span>
@@ -122,7 +129,7 @@ export default async function Home() {
           Bergabunglah dengan ribuan peserta yang sudah mengembangkan diri
           melalui kursus kami.
         </p>
-        <div className="mt-9 flex justify-center gap-3.5">
+        <div className="mt-9 flex flex-wrap justify-center gap-3.5">
           <Button
             size="xl"
             className="bg-brand-gradient text-white hover:brightness-105"
@@ -136,6 +143,8 @@ export default async function Home() {
         </div>
       </section>
 
+      </main>
+
       <footer className="flex flex-col items-center gap-4 border-t border-border bg-card px-6 py-14 text-center">
         <div className="flex items-center gap-2">
           <img src="/logo.png" alt="Sanggabiz" className="size-6 object-contain" />
@@ -145,9 +154,16 @@ export default async function Home() {
           Kembangkan diri Anda melalui pengetahuan bersama Sanggabiz. Akses kursus
           berkualitas yang dirancang untuk membantu Anda mencapai tujuan.
         </p>
+        {/*
+         * Dulu keduanya `href="#"` -- kontrol yang terlihat bisa dipakai tetapi
+         * tidak membawa ke mana-mana, anti-pattern yang dilarang
+         * STANDAR-DIGITAL-LEARNING §17. "Ketentuan" belum ditulis, jadi untuk
+         * sekarang ia memang tidak ditampilkan daripada ditampilkan mati.
+         */}
         <div className="flex gap-4.5 text-[13.5px]">
-          <a href="#">Ketentuan</a>
-          <a href="#">Privasi</a>
+          <Link href="/legal/privasi" className="underline underline-offset-4">
+            Privasi
+          </Link>
         </div>
         <div className="text-xs text-muted-foreground">© 2026 Sanggabiz</div>
       </footer>

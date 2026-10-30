@@ -135,8 +135,8 @@ export function LoginForm() {
       </StatusMessage>
 
       <form onSubmit={onSubmit} className="space-y-3">
-        <Input type="email" name="email" placeholder="Email" aria-label="Email" required />
-        <PasswordInput name="password" placeholder="Kata sandi" aria-label="Kata sandi" required />
+        <Input type="email" name="email" placeholder="Email" aria-label="Email" autoComplete="username" required />
+        <PasswordInput name="password" placeholder="Kata sandi" aria-label="Kata sandi" autoComplete="current-password" required />
         <Button type="submit" className="w-full" pending={isSigningIn} pendingLabel="Sedang masuk…">
           Masuk
         </Button>

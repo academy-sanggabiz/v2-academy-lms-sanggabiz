@@ -5,6 +5,7 @@ import { Bell, Shield } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { BusyRegion } from "@/components/ui/busy-region"
+import { cn } from "@/lib/utils"
 import { Spinner } from "@/components/ui/spinner"
 import { StatusMessage } from "@/components/ui/status-message"
 import { Switch } from "@/components/ui/switch"
@@ -93,18 +94,34 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
           }}
         />
       </div>
-      <div className="mt-2.5 min-h-5">
+      {/*
+       * Satu live region yang tetap, isinya saja yang berganti. Sebelumnya
+       * keadaan "menyimpan" dan keadaan "hasil" adalah dua elemen berbeda yang
+       * saling menggantikan, sehingga hasilnya sering tidak diumumkan sama
+       * sekali: screen reader memantau elemen yang justru baru saja dilepas
+       * (WCAG 2.2 SC 4.1.3).
+       */}
+      <p
+        role="status"
+        aria-live="polite"
+        className={cn(
+          "mt-2.5 flex min-h-5 items-center gap-1.5 text-sm",
+          isPending
+            ? "text-muted-foreground"
+            : status?.type === "error"
+              ? "text-destructive"
+              : "text-success-foreground"
+        )}
+      >
         {isPending ? (
-          <p role="status" aria-live="polite" className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <>
             <Spinner className="size-3.5" />
             Menyimpan…
-          </p>
+          </>
         ) : (
-          <StatusMessage variant={status?.type === "error" ? "error" : "success"}>
-            {status?.message}
-          </StatusMessage>
+          status?.message
         )}
-      </div>
+      </p>
     </div>
   )
 }

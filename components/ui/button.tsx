@@ -11,11 +11,14 @@ import { Spinner } from "@/components/ui/spinner"
 import { useBusyGuard } from "@/components/ui/busy-guard"
 
 const buttonVariants = cva(
+  // ring-offset wajib: --ring (#167384) di atas --primary (#13707f) hanya
+  // 1,05:1, jadi tanpa jarak putih pemisah, cincin fokus di tombol utama
+  // praktis tidak terlihat (WCAG 2.4.7 / 1.4.11).
   // data-[locked]: tombol yang ditahan karena proses lain. Base UI memakai
   // aria-disabled (bukan atribut disabled) agar fokus tidak hilang, sehingga
   // varian :disabled tidak menyala -- tanpa kelas ini tombolnya tampak normal
   // tapi diam saja saat diklik.
-  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 data-[locked]:cursor-not-allowed data-[locked]:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 data-[locked]:cursor-not-allowed data-[locked]:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {

@@ -18,9 +18,10 @@ export async function submitCourseFeedback(input: {
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
     return { ok: false, error: "Pilih penilaian dari 1 sampai 5." }
   }
-  if (trimmedComment.length < 10) {
-    return { ok: false, error: "Tuliskan ulasan sedikit lebih panjang tentang kursus ini." }
-  }
+  // Komentar opsional: bintangnya saja sudah ulasan yang sah. Panjang minimum
+  // dulu dipakai saat sertifikat masih disandera ulasan; sertifikat kini
+  // diberikan begitu syarat belajarnya terpenuhi, jadi memaksa peserta menulis
+  // sekian karakter tidak lagi punya pembenaran.
 
   const supabase = await createClient()
   const { data: claimsData } = await supabase.auth.getClaims()
