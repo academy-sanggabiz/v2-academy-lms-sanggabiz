@@ -1,3 +1,5 @@
+import { cache } from "react"
+
 import { createClient } from "@/lib/supabase/server"
 
 const ADMIN_ROLES = new Set(["admin", "superadmin"])
@@ -9,7 +11,7 @@ export type UserRole = "learner" | "admin" | "superadmin"
  * fallback as resolveAdminProfile, but for *any* role (not just admin ones).
  * Returns null when there's no authenticated session.
  */
-export async function resolveUserRole(): Promise<{ userId: string; role: UserRole } | null> {
+export const resolveUserRole = cache(async function resolveUserRole(): Promise<{ userId: string; role: UserRole } | null> {
   const supabase = await createClient()
   const { data } = await supabase.auth.getClaims()
   const claims = data?.claims
@@ -29,7 +31,7 @@ export async function resolveUserRole(): Promise<{ userId: string; role: UserRol
   const normalized: UserRole =
     role === "admin" || role === "superadmin" ? role : "learner"
   return { userId: claims.sub, role: normalized }
-}
+})
 
 /** Single source of truth for where each role lands after login. */
 export function roleHomePath(role: UserRole): string {
@@ -60,8 +62,14 @@ export type AdminProfileResult =
  * lookup when the role claim isn't in the JWT yet (the
  * custom_access_token_hook may not be enabled) rather than trusting the
  * claim alone -- this is the same fallback app/auth/login/actions.ts uses.
+ *
+ * Dibungkus `cache()` karena satu render halaman admin memanggilnya berkali-kali
+ * lewat jalur berbeda (layout `requireAdmin`, lalu tiap query yang memfilter
+ * per pemilik). Tanpa dedupe ini, setiap pemanggilan membayar satu verifikasi
+ * sesi -- dan satu query `profiles` lagi bila hook JWT belum aktif. `cache()`
+ * hanya berlaku dalam satu request, jadi tidak ada kebocoran antar pengguna.
  */
-export async function resolveAdminProfile(): Promise<AdminProfileResult> {
+export const resolveAdminProfile = cache(async function resolveAdminProfile(): Promise<AdminProfileResult> {
   const supabase = await createClient()
   const { data } = await supabase.auth.getClaims()
   const claims = data?.claims
@@ -81,7 +89,7 @@ export async function resolveAdminProfile(): Promise<AdminProfileResult> {
   if (!role || !ADMIN_ROLES.has(role)) return { status: "unauthorized" }
 
   return { status: "ok", profile: { userId: claims.sub, role: role as "admin" | "superadmin" } }
-}
+})
 
 /** Returns null if the caller isn't authenticated / isn't admin-or-superadmin. */
 export async function getAdminProfile(): Promise<AdminProfile | null> {

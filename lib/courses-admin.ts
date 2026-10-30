@@ -197,6 +197,15 @@ export async function getAdminCourseStats(): Promise<AdminCourseStats> {
 
 export async function getCourseDetailForAdmin(id: string): Promise<AdminCourseDetail | null> {
   const supabase = await createClient()
+
+  // Jumlah peserta hanya perlu `id`, jadi dijalankan bersamaan dengan select
+  // besar di bawah alih-alih menunggunya selesai -- satu perjalanan jaringan
+  // lebih sedikit di jalur yang menahan tampilnya editor.
+  const enrolledCountPromise = supabase
+    .from("enrollments")
+    .select("*", { count: "exact", head: true })
+    .eq("course_id", id)
+
   const { data, error } = await supabase
     .from("courses")
     .select(
@@ -284,7 +293,7 @@ export async function getCourseDetailForAdmin(id: string): Promise<AdminCourseDe
     lessonIds.length > 0
       ? supabase.from("resources").select("*", { count: "exact", head: true }).in("lesson_id", lessonIds)
       : Promise.resolve({ count: 0 }),
-    supabase.from("enrollments").select("*", { count: "exact", head: true }).eq("course_id", id),
+    enrolledCountPromise,
   ])
 
   return {

@@ -19,21 +19,24 @@ export default async function EditCoursePage({
     defaultSort: "enrolled_at",
     defaultDir: "desc",
   })
-  const [course, instructors, availableCoursesForPrerequisites, roster] = await Promise.all([
-    getCourseDetailForAdmin(id),
-    listInstructors(),
-    listCoursesForPrerequisitePicker(id),
-    getCourseRoster(id, rosterParams),
-  ])
+  // Keempatnya tetap berjalan bersamaan, tetapi hanya `course` yang ditunggu:
+  // ia satu-satunya yang dibutuhkan untuk menampilkan editor. Instruktur,
+  // prasyarat, dan daftar peserta hanya dipakai tab Pengaturan dan Peserta,
+  // jadi promise-nya dioper apa adanya dan diselesaikan di balik <Suspense> --
+  // editor tidak lagi menunggu query paling lambat sebelum muncul.
+  const instructorsPromise = listInstructors()
+  const prerequisitesPromise = listCoursesForPrerequisitePicker(id)
+  const rosterPromise = getCourseRoster(id, rosterParams)
 
+  const course = await getCourseDetailForAdmin(id)
   if (!course) notFound()
 
   return (
     <CourseFormShell
       course={course}
-      instructors={instructors}
-      availableCoursesForPrerequisites={availableCoursesForPrerequisites}
-      roster={roster}
+      instructorsPromise={instructorsPromise}
+      prerequisitesPromise={prerequisitesPromise}
+      rosterPromise={rosterPromise}
       isNew={raw.new === "1"}
     />
   )

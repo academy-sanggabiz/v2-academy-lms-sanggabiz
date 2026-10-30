@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useEffect, useState, useTransition } from "react"
+import { Suspense, use, useEffect, useState, useTransition } from "react"
 import { ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 
@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { BusyGuardProvider } from "@/components/ui/busy-guard"
 import { SaveStatus, type SaveState } from "@/components/ui/save-status"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -45,9 +46,13 @@ import { SettingsTab } from "./tabs/SettingsTab"
 
 type ShellProps = {
   course: AdminCourseDetail
-  instructors: Instructor[]
-  availableCoursesForPrerequisites: CoursePrerequisite[]
-  roster: Paginated<CourseRosterEntry>
+  /**
+   * Dioper sebagai promise, bukan nilai: ketiganya hanya dipakai tab Pengaturan
+   * dan Peserta, jadi editor sudah bisa tampil sebelum ketiganya selesai.
+   */
+  instructorsPromise: Promise<Instructor[]>
+  prerequisitesPromise: Promise<CoursePrerequisite[]>
+  rosterPromise: Promise<Paginated<CourseRosterEntry>>
   isNew?: boolean
 }
 
@@ -61,9 +66,9 @@ export function CourseFormShell(props: ShellProps) {
 
 function CourseFormShellInner({
   course,
-  instructors,
-  availableCoursesForPrerequisites,
-  roster,
+  instructorsPromise,
+  prerequisitesPromise,
+  rosterPromise,
   isNew = false,
 }: ShellProps) {
   const router = useRouter()
@@ -314,15 +319,19 @@ function CourseFormShellInner({
           </TabsContent>
 
           <TabsContent value="settings">
-            <SettingsTab
-              status={course.status}
-              instructors={instructors}
-              availableCoursesForPrerequisites={availableCoursesForPrerequisites}
-            />
+            <Suspense fallback={<TabLoadingSkeleton label="Memuat pengaturan…" />}>
+              <SettingsTabStreamed
+                status={course.status}
+                instructorsPromise={instructorsPromise}
+                prerequisitesPromise={prerequisitesPromise}
+              />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="learners">
-            <LearnersTab courseId={course.id} roster={roster} />
+            <Suspense fallback={<TabLoadingSkeleton label="Memuat peserta…" />}>
+              <LearnersTabStreamed courseId={course.id} rosterPromise={rosterPromise} />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="preview">
@@ -333,4 +342,46 @@ function CourseFormShellInner({
     </div>
     </BusyGuardProvider>
   )
+}
+
+/** Bentuk sementara saat data tab masih mengalir dari server. */
+function TabLoadingSkeleton({ label }: { label: string }) {
+  return (
+    <div className="space-y-4">
+      <p role="status" aria-live="polite" className="text-sm text-muted-foreground">
+        {label}
+      </p>
+      <Skeleton className="h-10 w-full" />
+      <Skeleton className="h-24 w-full" />
+      <Skeleton className="h-10 w-2/3" />
+    </div>
+  )
+}
+
+function SettingsTabStreamed({
+  status,
+  instructorsPromise,
+  prerequisitesPromise,
+}: {
+  status: AdminCourseDetail["status"]
+  instructorsPromise: Promise<Instructor[]>
+  prerequisitesPromise: Promise<CoursePrerequisite[]>
+}) {
+  return (
+    <SettingsTab
+      status={status}
+      instructors={use(instructorsPromise)}
+      availableCoursesForPrerequisites={use(prerequisitesPromise)}
+    />
+  )
+}
+
+function LearnersTabStreamed({
+  courseId,
+  rosterPromise,
+}: {
+  courseId: string
+  rosterPromise: Promise<Paginated<CourseRosterEntry>>
+}) {
+  return <LearnersTab courseId={courseId} roster={use(rosterPromise)} />
 }
