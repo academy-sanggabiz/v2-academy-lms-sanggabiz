@@ -6,7 +6,7 @@ import { ChevronDown, FileText, HelpCircle, Presentation, Video } from "lucide-r
 
 import { cn } from "@/lib/utils"
 import { formatDuration, type CourseSection, type LessonContentType } from "@/lib/courses"
-import { toggleLessonComplete } from "@/app/learn/[courseId]/actions"
+import { LessonCompleteCheckbox } from "@/components/learn/LessonCompleteCheckbox"
 
 const typeIcon: Record<LessonContentType, typeof Video> = {
   video: Video,
@@ -124,31 +124,12 @@ function ContentTab({
                       )}
                     >
                       {mode === "learner" && (
-                        <form action={toggleLessonComplete}>
-                          <input type="hidden" name="courseId" value={courseId} />
-                          <input type="hidden" name="lessonId" value={lesson.id} />
-                          <input type="hidden" name="completed" value={(!isDone).toString()} />
-                          {/* 24px hit area around the 18px box (WCAG 2.5.8 target size). */}
-                          <button
-                            type="submit"
-                            aria-pressed={isDone}
-                            aria-label={isDone ? `Tandai "${lesson.title}" belum selesai` : `Tandai "${lesson.title}" selesai`}
-                            className="-m-[3px] flex size-6 shrink-0 items-center justify-center rounded"
-                          >
-                            <span
-                              className={cn(
-                                "flex size-[18px] items-center justify-center rounded border",
-                                isDone ? "border-ring bg-ring" : "border-input bg-card"
-                              )}
-                            >
-                              {isDone && (
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" aria-hidden>
-                                  <path d="M5 13 L10 18 L19 7" />
-                                </svg>
-                              )}
-                            </span>
-                          </button>
-                        </form>
+                        <LessonCompleteCheckbox
+                          courseId={courseId}
+                          lessonId={lesson.id}
+                          title={lesson.title}
+                          isDone={isDone}
+                        />
                       )}
 
                       <Link

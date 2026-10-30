@@ -1,17 +1,19 @@
 "use client"
 
-import { memo, useCallback, useMemo, useState, useTransition } from "react"
+import { memo, useCallback, useEffect, useMemo, useState, useTransition } from "react"
 import Link from "next/link"
 import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
 import { Eye } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { BusyRegion } from "@/components/ui/busy-region"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ListToolbar } from "@/components/admin/ListToolbar"
 import { ListPagination } from "@/components/admin/ListPagination"
+import { useNavigationBlocker } from "@/components/admin/NavigationBlockerContext"
 import type { CourseGradingMatrix, GradingCell, GradingColumn, GradingMatrixRow } from "@/lib/grading-server"
 import { gradeAttemptsAction, type BulkGradeEntry, type BulkGradeResult } from "@/app/admin/grading/actions"
 import { AssignmentColumnHeader } from "@/components/admin/grading/AssignmentColumnHeader"
@@ -24,6 +26,8 @@ type PendingEdit = {
   questionId: string
   value: string
   maxPoints: number
+  /** Poin di server saat suntingan ini dibuat -- lihat dropSupersededEdits. */
+  baseline: string
 }
 
 /** Per-attempt slice of pendingEdits: { [questionId]: value }. */
@@ -47,13 +51,66 @@ function pendingKey(attemptId: string, questionId: string) {
   return `${attemptId}:${questionId}`
 }
 
+/** Poin yang saat ini tersimpan di server, per "attemptId:questionId". */
+function serverBaselinesOf(rows: GradingMatrixRow[]) {
+  const map = new Map<string, string>()
+  for (const row of rows) {
+    for (const cell of Object.values(row.cells)) {
+      if (!cell.attemptId) continue
+      for (const grade of cell.grades) {
+        map.set(pendingKey(cell.attemptId, grade.questionId), String(grade.pointsAwarded ?? 0))
+      }
+    }
+  }
+  return map
+}
+
+/**
+ * Membuang suntingan yang sudah didahului server.
+ *
+ * `pendingEdits` bertahan melewati pemuatan ulang data, jadi nilai yang baru
+ * masuk lewat Impor Nilai (atau dari tab lain) bisa tertimpa lagi oleh angka
+ * lama yang masih tertinggal di layar pada "Simpan" berikutnya. Suntingan yang
+ * baselinenya tidak lagi cocok dengan poin di server karena itu dilepas, dan
+ * selnya kembali menampilkan nilai terbaru dari server.
+ *
+ * Sel yang sama sekali tidak ada di halaman ini (karena pencarian atau
+ * paginasi) sengaja dibiarkan: tidak ada data server yang membantahnya, dan
+ * membuangnya berarti menghapus ketikan admin yang belum sempat disimpan.
+ */
+function dropSupersededEdits(
+  edits: Record<string, PendingEdit>,
+  baselines: Map<string, string>
+): Record<string, PendingEdit> {
+  const next: Record<string, PendingEdit> = {}
+  let changed = false
+  for (const [key, edit] of Object.entries(edits)) {
+    const serverValue = baselines.get(key)
+    if (serverValue === undefined || serverValue === edit.baseline) next[key] = edit
+    else changed = true
+  }
+  return changed ? next : edits
+}
+
 export function GradingCourseMatrix({ matrix }: { matrix: CourseGradingMatrix }) {
   const [previewTarget, setPreviewTarget] = useState<PreviewTarget | null>(null)
   const [pendingEdits, setPendingEdits] = useState<Record<string, PendingEdit>>({})
   const [saveSummary, setSaveSummary] = useState<BulkGradeResult | null>(null)
   const [isSaving, startSaving] = useTransition()
 
+  const { setIsBlocked } = useNavigationBlocker()
+
   const { rows: pageRows, ...pageMeta } = matrix.rows
+
+  const serverBaselines = useMemo(() => serverBaselinesOf(pageRows), [pageRows])
+  const [knownBaselines, setKnownBaselines] = useState(serverBaselines)
+  // Disesuaikan saat render, bukan di useEffect: lint React Compiler menolak
+  // setState di dalam efek, dan sel tidak boleh sempat menampilkan angka lama
+  // untuk satu frame setelah data server berubah.
+  if (knownBaselines !== serverBaselines) {
+    setKnownBaselines(serverBaselines)
+    setPendingEdits((prev) => dropSupersededEdits(prev, serverBaselines))
+  }
 
   /**
    * Cells read their pending value from this per-attempt slice rather than
@@ -80,7 +137,7 @@ export function GradingCourseMatrix({ matrix }: { matrix: CourseGradingMatrix })
         if (value === baseline) {
           delete next[key]
         } else {
-          next[key] = { attemptId, questionId, value, maxPoints }
+          next[key] = { attemptId, questionId, value, maxPoints, baseline }
         }
         return next
       })
@@ -110,6 +167,8 @@ export function GradingCourseMatrix({ matrix }: { matrix: CourseGradingMatrix })
       entriesByAttempt.set(edit.attemptId, entry)
     }
 
+    setSaveSummary(null)
+
     startSaving(async () => {
       const result = await gradeAttemptsAction(Array.from(entriesByAttempt.values()))
       if (!result.ok) {
@@ -134,11 +193,37 @@ export function GradingCourseMatrix({ matrix }: { matrix: CourseGradingMatrix })
 
       if (result.data.failed.length === 0) {
         toast.success(`${result.data.succeeded.length} percobaan dinilai`)
+      } else if (result.data.succeeded.length === 0) {
+        toast.error("Gagal menyimpan nilai. Periksa rinciannya di atas tabel, lalu coba lagi.")
+      } else {
+        toast.error(
+          `${result.data.failed.length} dari ${result.data.failed.length + result.data.succeeded.length} percobaan gagal dinilai. Periksa rinciannya di atas tabel, lalu coba lagi.`
+        )
       }
     })
   }
 
   const isDirty = Object.keys(pendingEdits).length > 0
+
+  // Nilai yang diketik hanya ada di browser sampai "Simpan" ditekan. Tanpa dua
+  // penjaga ini, menekan "Peserta" di bilah sisi atau menutup tab membuang
+  // seluruhnya tanpa peringatan apa pun (STANDAR-UMPAN-BALIK-UI.md R16).
+  useEffect(() => {
+    setIsBlocked(isDirty)
+    return () => setIsBlocked(false)
+  }, [isDirty, setIsBlocked])
+
+  useEffect(() => {
+    if (!isDirty) return
+
+    function handleBeforeUnload(e: BeforeUnloadEvent) {
+      e.preventDefault()
+      e.returnValue = ""
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
+  }, [isDirty])
 
   const columns = useMemo<ColumnDef<GradingMatrixRow>[]>(() => {
     return [
@@ -228,29 +313,49 @@ export function GradingCourseMatrix({ matrix }: { matrix: CourseGradingMatrix })
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <ListToolbar placeholder="Cari peserta..." />
-        <Button onClick={handleSaveAll} disabled={!isDirty || isSaving}>
-          {isSaving ? "Menyimpan..." : "Simpan"}
+        {/*
+         * Mencari atau berpindah halaman saat penyimpanan berjalan menukar
+         * seluruh baris di layar: suntingan yang sedang dikirim ikut hilang
+         * dari pandangan, dan ringkasan hasil di bawah menyebut percobaan yang
+         * sudah tidak ada barisnya (STANDAR-UMPAN-BALIK-UI.md R16).
+         */}
+        <BusyRegion
+          busy={isSaving}
+          label="Menyimpan nilai…"
+          showOverlay={false}
+          className={cn(isSaving && "opacity-60")}
+        >
+          <ListToolbar placeholder="Cari peserta..." />
+        </BusyRegion>
+        <Button
+          onClick={handleSaveAll}
+          disabled={!isDirty}
+          pending={isSaving}
+          pendingLabel="Menyimpan…"
+        >
+          Simpan
         </Button>
       </div>
 
-      {saveSummary && (
-        <div className="mb-4 rounded-lg bg-muted p-3 text-sm">
-          <div>{saveSummary.succeeded.length} percobaan berhasil dinilai.</div>
-          {saveSummary.failed.length > 0 && (
-            <div className="mt-2 text-destructive">
-              {saveSummary.failed.length} percobaan gagal:
-              <ul className="mt-1 list-disc pl-4">
-                {saveSummary.failed.map((f, i) => (
-                  <li key={i}>
-                    {f.attemptId}: {f.error}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
+      <div role="status" aria-live="polite">
+        {saveSummary && (
+          <div className="mb-4 rounded-lg bg-muted p-3 text-sm">
+            <div>{saveSummary.succeeded.length} percobaan berhasil dinilai.</div>
+            {saveSummary.failed.length > 0 && (
+              <div className="mt-2 text-destructive">
+                {saveSummary.failed.length} percobaan gagal:
+                <ul className="mt-1 list-disc pl-4">
+                  {saveSummary.failed.map((f, i) => (
+                    <li key={i}>
+                      {f.attemptId}: {f.error}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       <div className="overflow-hidden rounded-xl border border-border">
         <Table>
@@ -294,7 +399,15 @@ export function GradingCourseMatrix({ matrix }: { matrix: CourseGradingMatrix })
       </div>
 
       <div className="mt-4">
-        <ListPagination meta={pageMeta} />
+        {/* label kosong: statusnya sudah diumumkan oleh wilayah pencarian di atas. */}
+        <BusyRegion
+          busy={isSaving}
+          label=""
+          showOverlay={false}
+          className={cn(isSaving && "opacity-60")}
+        >
+          <ListPagination meta={pageMeta} />
+        </BusyRegion>
       </div>
 
       {previewTarget && (

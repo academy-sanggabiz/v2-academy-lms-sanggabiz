@@ -40,7 +40,12 @@ export type CourseDraftAction =
   | { type: "setCorrectOption"; questionId: string; optionId: string }
   | { type: "deleteOption"; id: string }
   | { type: "replaceDraft"; draft: CourseDraft }
-  | { type: "commitSaved"; saved: CourseDraft }
+  /**
+   * `saved` adalah hasil normalisasi zod yang dikirim ke server; `from` adalah
+   * isi draf tepat saat penyimpanan dimulai. Keduanya dibutuhkan untuk tahu
+   * apakah pengguna menyunting lagi selama penyimpanan berjalan.
+   */
+  | { type: "commitSaved"; saved: CourseDraft; from: CourseDraft }
 
 // -- tree-walk helpers ------------------------------------------------------
 // Every id in the draft is globally unique (client-generated uuids), so
@@ -328,8 +333,19 @@ function reducer(state: State, action: CourseDraftAction): State {
     case "replaceDraft":
       return { ...state, draft: action.draft }
 
-    case "commitSaved":
-      return { baseline: action.saved, draft: action.saved }
+    case "commitSaved": {
+      // Penyimpanan mengirim potret draf, bukan draf yang hidup. Bila pengguna
+      // menyunting lagi selama penyimpanan berjalan, menimpa `draft` dengan
+      // potret itu menghapus suntingannya tanpa peringatan -- dan karena
+      // isDirty ikut menjadi false, salinan cadangan di localStorage pun
+      // terhapus. Jadi suntingan yang lebih baru dipertahankan dan tetap
+      // ditandai belum tersimpan (STANDAR-UMPAN-BALIK-UI.md R17).
+      const editedWhileSaving = serializeDraft(state.draft) !== serializeDraft(action.from)
+      return {
+        baseline: action.saved,
+        draft: editedWhileSaving ? state.draft : action.saved,
+      }
+    }
 
     default:
       return state

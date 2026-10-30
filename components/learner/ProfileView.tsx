@@ -3,10 +3,12 @@
 import Link from "next/link"
 import { useState, useTransition } from "react"
 import { ArrowLeft, Award, BookOpen, Calendar, CheckCircle2, Clock, Download, Lock, Mail, Pencil } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { StatusMessage } from "@/components/ui/status-message"
 import { cn } from "@/lib/utils"
 import { updateProfileName } from "@/app/learner/profile/actions"
 import type { EnrolledCourseSummary } from "@/lib/enrollments-server"
@@ -255,6 +257,9 @@ function EditProfileForm({
               setError(result.error)
               return
             }
+            // Kembali ke tampilan profil tidak cukup terbaca sebagai
+            // keberhasilan, jadi satu toast menutup aksi ini (R6).
+            toast.success("Nama tersimpan.")
             onDone()
           })
         }}
@@ -277,11 +282,16 @@ function EditProfileForm({
         <Input id="email" value={email} disabled className="w-full bg-muted" />
         <p className="mt-1.5 mb-4 text-xs text-muted-foreground">Email tidak dapat diubah</p>
 
-        {error && <p className="mb-4 text-sm text-destructive">{error}</p>}
+        <StatusMessage className="mb-4">{error}</StatusMessage>
 
         <div className="flex gap-3">
-          <Button type="submit" disabled={isPending} className="bg-brand-gradient text-white hover:brightness-105">
-            {isPending ? "Menyimpan..." : "Simpan Perubahan"}
+          <Button
+            type="submit"
+            pending={isPending}
+            pendingLabel="Menyimpan…"
+            className="bg-brand-gradient text-white hover:brightness-105"
+          >
+            Simpan Perubahan
           </Button>
           <Button type="button" variant="outline" onClick={onDone}>
             Batal

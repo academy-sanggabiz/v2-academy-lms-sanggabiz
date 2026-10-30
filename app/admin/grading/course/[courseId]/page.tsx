@@ -3,9 +3,9 @@ import { notFound } from "next/navigation"
 import { getCourseGradingMatrix } from "@/lib/grading-server"
 import { requireAdmin } from "@/lib/auth/require-admin"
 import { parseListParams, type RawSearchParams } from "@/lib/pagination"
-import { Button } from "@/components/ui/button"
 import { GradingCourseMatrix } from "@/components/admin/grading/GradingCourseMatrix"
 import { GradingBreadcrumb } from "@/components/admin/grading/GradingBreadcrumb"
+import { ExportCourseCsvButton } from "@/components/admin/grading/ExportCourseCsvButton"
 import { ImportGradesDialog } from "@/components/admin/grading/ImportGradesDialog"
 
 export default async function AdminGradingCoursePage({
@@ -39,13 +39,7 @@ export default async function AdminGradingCoursePage({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            render={<a href={`/admin/grading/export?courseId=${courseId}`} />}
-            nativeButton={false}
-          >
-            Ekspor CSV Kursus
-          </Button>
+          <ExportCourseCsvButton courseId={courseId} />
           <ImportGradesDialog />
         </div>
       </div>

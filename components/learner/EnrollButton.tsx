@@ -66,9 +66,10 @@ export function EnrollButton({
       size={size}
       className={cn("bg-brand-gradient text-white hover:brightness-105", className)}
       onClick={handleEnroll}
-      disabled={pending}
+      pending={pending}
+      pendingLabel="Mendaftarkan…"
     >
-      {pending ? "Mendaftarkan…" : "Ikuti kursus"}
+      Ikuti kursus
     </Button>
   )
 }

@@ -68,14 +68,22 @@ export function FeaturedCoursesPicker({
               className="flex items-center gap-2.5 rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-sm"
             >
               <span className="min-w-0 flex-1 truncate">{course.title}</span>
-              <button
+              {/*
+               * Memakai Button, bukan elemen button biasa: hanya Button yang membaca
+               * BusyGuard, sehingga daftar ini ikut terkunci saat halaman depan
+               * sedang disimpan -- menghapus entri di tengah penyimpanan
+               * menggeser indeks array yang sedang dikirim (R14, R17).
+               */}
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon-sm"
                 onClick={() => handleRemove(course.id)}
-                className="shrink-0 text-destructive"
+                className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
                 aria-label={`Hapus ${course.title}`}
               >
                 <X className="size-3.5" />
-              </button>
+              </Button>
             </div>
           ))}
         </div>

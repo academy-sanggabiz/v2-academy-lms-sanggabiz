@@ -62,5 +62,7 @@ export async function deleteAccount() {
 
   const supabase = await createClient()
   await supabase.auth.signOut()
-  redirect("/")
+  // Aksi tak dapat dibatalkan harus ditutup dengan konfirmasi (R8); halaman
+  // masuk membacanya dari parameter ini.
+  redirect("/auth/login?akun=terhapus")
 }

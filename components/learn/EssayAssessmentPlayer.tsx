@@ -1,18 +1,52 @@
 "use client"
 
-import { useRef, useState, useTransition, type ReactNode } from "react"
+import { useEffect, useRef, useState, useTransition, type ReactNode } from "react"
 import { CheckCircle2, Clock, LinkIcon } from "lucide-react"
+import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { BusyGuardProvider } from "@/components/ui/busy-guard"
+import { BusyRegion } from "@/components/ui/busy-region"
 import { Input } from "@/components/ui/input"
+import { Spinner } from "@/components/ui/spinner"
+import { StatusMessage } from "@/components/ui/status-message"
 import type { Question, Quiz } from "@/lib/courses"
 import type { QuizAttemptInfo } from "@/lib/learn-server"
 import { saveDraft, startAssessmentAttempt, submitQuiz } from "@/app/learn/[courseId]/quiz-actions"
+import { useLearnBusy } from "@/components/learn/LearnBusyContext"
 import { RichTextEditor } from "@/components/admin/courses/RichTextEditor"
 import { QuestionPrompt } from "@/components/learn/QuestionPrompt"
 
 type Phase = "form" | "pending" | "graded"
+
+/**
+ * Penyimpanan terakhir berjalan saat komponen sudah dilepas, jadi tidak ada
+ * tempat di layar untuk menaruh pesannya. Toast membawa jawabannya sendiri di
+ * dalam closure, sehingga "Coba lagi" bisa mengirim ulang teks yang sama tanpa
+ * menahan perpindahan halaman.
+ */
+function warnDraftNotSaved(attemptId: string, answers: Record<string, string>, message: string) {
+  toast.error(`${message} Draf terakhir Anda belum tersimpan.`, {
+    duration: Infinity,
+    action: {
+      label: "Coba lagi",
+      onClick: () => {
+        saveDraft(attemptId, answers)
+          .then((res) => {
+            if ("error" in res) {
+              warnDraftNotSaved(attemptId, answers, res.error)
+              return
+            }
+            toast.success("Draf studi kasus tersimpan.")
+          })
+          .catch(() =>
+            warnDraftNotSaved(attemptId, answers, "Draf studi kasus belum tersimpan. Periksa koneksi Anda.")
+          )
+      },
+    },
+  })
+}
 
 export function EssayAssessmentPlayer({
   quiz,
@@ -39,16 +73,52 @@ export function EssayAssessmentPlayer({
   // update -- this ref is the source of truth save/submit actually read
   // from, kept in lockstep with `answers` on every change.
   const answersRef = useRef(answers)
+  // Isi yang sudah benar-benar ada di server, untuk membandingkan apakah masih
+  // ada pekerjaan yang belum tersimpan saat halaman atau pelajaran ditinggalkan.
+  const savedAnswersRef = useRef(JSON.stringify(attemptInfo?.draftAnswers ?? {}))
+  const attemptIdRef = useRef(attemptId)
+  const submittedRef = useRef(initialPhase !== "form")
   const [error, setError] = useState<string | null>(null)
   const [savedAt, setSavedAt] = useState<string | null>(null)
   const [isSaving, startSaving] = useTransition()
   const [isSubmitting, startSubmitting] = useTransition()
+  const { setBusy } = useLearnBusy()
 
   function setAnswer(questionId: string, value: string) {
     const next = { ...answersRef.current, [questionId]: value }
     answersRef.current = next
     setAnswers(next)
   }
+
+  // Esai studi kasus bisa panjang dan tidak punya autosave, jadi menutup tab
+  // atau berpindah pelajaran tidak boleh membuangnya diam-diam. Penjaga ini
+  // menyalin pola di LessonNotes.tsx.
+  useEffect(() => {
+    function hasUnsavedWork() {
+      return !submittedRef.current && JSON.stringify(answersRef.current) !== savedAnswersRef.current
+    }
+    function onBeforeUnload(e: BeforeUnloadEvent) {
+      if (hasUnsavedWork()) e.preventDefault()
+    }
+    window.addEventListener("beforeunload", onBeforeUnload)
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeUnload)
+      const id = attemptIdRef.current
+      if (!id || !hasUnsavedWork()) return
+      const pending = answersRef.current
+      saveDraft(id, pending)
+        .then((res) => {
+          if ("error" in res) warnDraftNotSaved(id, pending, res.error)
+        })
+        .catch(() =>
+          warnDraftNotSaved(
+            id,
+            pending,
+            "Draf studi kasus belum tersimpan. Periksa koneksi Anda."
+          )
+        )
+    }
+  }, [])
 
   // Get-or-create the learner's open attempt, caching its id locally so repeated
   // saves/submit reuse the same attempt rather than spawning duplicates.
@@ -60,6 +130,7 @@ export function EssayAssessmentPlayer({
       return null
     }
     setAttemptId(res.attemptId)
+    attemptIdRef.current = res.attemptId
     return res.attemptId
   }
 
@@ -68,26 +139,40 @@ export function EssayAssessmentPlayer({
     startSaving(async () => {
       const id = await ensureAttempt()
       if (!id) return
-      const res = await saveDraft(id, answersRef.current)
+      const sent = answersRef.current
+      const res = await saveDraft(id, sent)
       if ("error" in res) {
         setError(res.error)
         return
       }
+      savedAnswersRef.current = JSON.stringify(sent)
       setSavedAt(new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }))
     })
   }
 
   function handleSubmit() {
     setError(null)
+    // Sama seperti kuis biasa: pengiriman memakai satu percobaan, jadi daftar
+    // isi dan panah pindah pelajaran dikunci sampai fase berganti ke "pending"
+    // -- pergi di tengah membuat peserta tidak pernah melihat konfirmasinya
+    // (STANDAR-UMPAN-BALIK-UI.md R16).
+    setBusy(true, "Mengirim studi kasus…")
     startSubmitting(async () => {
-      const id = await ensureAttempt()
-      if (!id) return
-      const res = await submitQuiz(id, answersRef.current)
-      if ("error" in res) {
-        setError(res.error)
-        return
+      try {
+        const id = await ensureAttempt()
+        if (!id) return
+        const sent = answersRef.current
+        const res = await submitQuiz(id, sent)
+        if ("error" in res) {
+          setError(res.error)
+          return
+        }
+        savedAnswersRef.current = JSON.stringify(sent)
+        submittedRef.current = true
+        setPhase("pending")
+      } finally {
+        setBusy(false)
       }
-      setPhase("pending")
     })
   }
 
@@ -139,6 +224,9 @@ export function EssayAssessmentPlayer({
               className="mt-2"
               onClick={() => {
                 answersRef.current = {}
+                savedAnswersRef.current = "{}"
+                attemptIdRef.current = null
+                submittedRef.current = false
                 setAnswers({})
                 setAttemptId(null)
                 setSavedAt(null)
@@ -165,39 +253,68 @@ export function EssayAssessmentPlayer({
 
   const isBusy = isSaving || isSubmitting
 
+  // Permukaan ini dikunci sebatas formulirnya saja (kelas (c)): tombol Simpan
+  // Draf berhenti menerima klik lewat guard -- bukan `disabled` -- supaya fokus
+  // keyboard tidak hilang di tengah pengiriman (R11, R14).
   return (
-    <Shell>
-      <div className="text-2xl font-bold">{quiz.title}</div>
+    <BusyGuardProvider
+      busy={isBusy}
+      reason={isSubmitting ? "Mengirim studi kasus…" : "Menyimpan draf…"}
+    >
+      <Shell>
+        <div className="text-2xl font-bold">{quiz.title}</div>
 
-      {quiz.questions.map((question, index) => (
-        <QuestionCard
-          key={question.id}
-          question={question}
-          index={index}
-          value={answers[question.id] ?? ""}
-          onChange={(value) => setAnswer(question.id, value)}
-        />
-      ))}
+        {/* Esainya tidak boleh berubah selama yang lama sedang dikirim (R17). */}
+        <BusyRegion busy={isSubmitting} label="Mengirim studi kasus…">
+          <div className="flex flex-col gap-4">
+            {quiz.questions.map((question, index) => (
+              <QuestionCard
+                key={question.id}
+                question={question}
+                index={index}
+                value={answers[question.id] ?? ""}
+                onChange={(value) => setAnswer(question.id, value)}
+              />
+            ))}
+          </div>
+        </BusyRegion>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+        <StatusMessage>{error}</StatusMessage>
 
-      <div className="sticky bottom-0 flex items-center gap-3 rounded-2xl border border-border bg-card/95 p-4 backdrop-blur">
-        <div className="flex-1 text-xs text-muted-foreground">
-          {savedAt ? `Draf tersimpan pukul ${savedAt}` : "Belum disimpan"}
+        <div className="sticky bottom-0 flex items-center gap-3 rounded-2xl border border-border bg-card/95 p-4 backdrop-blur">
+          <div role="status" aria-live="polite" className="flex-1 text-xs text-muted-foreground">
+            {isSaving ? (
+              <span className="flex items-center gap-1.5">
+                <Spinner className="size-3.5" />
+                Menyimpan…
+              </span>
+            ) : savedAt ? (
+              `Draf tersimpan pukul ${savedAt}`
+            ) : (
+              "Belum disimpan"
+            )}
+          </div>
+          <Button
+            variant="outline"
+            size="lg"
+            pending={isSaving}
+            pendingLabel="Menyimpan…"
+            onClick={handleSaveDraft}
+          >
+            Simpan Draf
+          </Button>
+          <Button
+            size="lg"
+            pending={isSubmitting}
+            pendingLabel="Mengirim…"
+            onClick={handleSubmit}
+            className="bg-brand-gradient text-white hover:brightness-105"
+          >
+            Kirim Studi Kasus
+          </Button>
         </div>
-        <Button variant="outline" size="lg" disabled={isBusy} onClick={handleSaveDraft}>
-          {isSaving ? "Menyimpan…" : "Simpan Draf"}
-        </Button>
-        <Button
-          size="lg"
-          disabled={isBusy}
-          onClick={handleSubmit}
-          className="bg-brand-gradient text-white hover:brightness-105"
-        >
-          {isSubmitting ? "Mengirim…" : "Kirim Studi Kasus"}
-        </Button>
-      </div>
-    </Shell>
+      </Shell>
+    </BusyGuardProvider>
   )
 }
 

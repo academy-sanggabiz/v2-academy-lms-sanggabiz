@@ -24,7 +24,7 @@ export async function markNotificationsReadAction(): Promise<{ error?: string }>
 
   if (error) {
     console.error("markNotificationsReadAction failed:", error.message)
-    return { error: error.message }
+    return { error: "Gagal menandai notifikasi terbaca. Buka ulang daftar ini untuk mencoba lagi." }
   }
 
   // The bell lives in the learner layout, so the whole segment needs revalidating

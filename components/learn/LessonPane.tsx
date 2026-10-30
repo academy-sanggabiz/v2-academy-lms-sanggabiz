@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState, useTransition } from "react"
 import Link from "next/link"
 import { ArrowRight, Check, ChevronLeft, ChevronRight, Maximize2, MessageCircleQuestion, Minimize2 } from "lucide-react"
+import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { BusyGuardProvider } from "@/components/ui/busy-guard"
 import {
   formatDuration,
   getGoogleSlidesEmbedUrl,
@@ -20,6 +22,7 @@ import { QuizPreview } from "@/components/learn/QuizPreview"
 import { EssayAssessmentPlayer } from "@/components/learn/EssayAssessmentPlayer"
 import { CourseFeedbackForm } from "@/components/learn/CourseFeedbackForm"
 import { LessonNotes } from "@/components/learn/LessonNotes"
+import { useLearnBusy } from "@/components/learn/LearnBusyContext"
 import type { LessonNote } from "@/lib/notes"
 import { toggleLessonComplete } from "@/app/learn/[courseId]/actions"
 
@@ -109,7 +112,12 @@ export function LessonPane({
                   ) : lesson.quiz.is_assessment ? (
                     <EssayAssessmentPlayer quiz={lesson.quiz} attemptInfo={quizAttempt} />
                   ) : (
-                    <QuizPlayer quiz={lesson.quiz} attemptInfo={quizAttempt} />
+                    <QuizPlayer
+                      quiz={lesson.quiz}
+                      attemptInfo={quizAttempt}
+                      nextHref={nextLessonId ? `${basePath}/${courseId}?lesson=${nextLessonId}` : null}
+                      onReachEnd={() => setShowFinished(true)}
+                    />
                   )
                 ) : (
                   <QuizPlaceholder />
@@ -170,9 +178,12 @@ function LessonNavArrows({
   const visibility = revealOnHover
     ? "opacity-0 transition-opacity duration-150 group-hover:opacity-100"
     : "opacity-100"
+  const { busy } = useLearnBusy()
 
   return (
-    <>
+    // Pembungkus statis: panahnya tetap memposisikan diri terhadap leluhur
+    // relatif yang sama, tetapi bisa dikunci sekaligus saat pemutar sibuk.
+    <div inert={busy}>
       {prevLessonId ? (
         <Link
           href={`${basePath}/${courseId}?lesson=${prevLessonId}`}
@@ -222,7 +233,7 @@ function LessonNavArrows({
           <ChevronRight className="size-5" aria-hidden />
         </button>
       )}
-    </>
+    </div>
   )
 }
 
@@ -512,8 +523,42 @@ function LessonFooter({
   mode?: "learner" | "admin-preview"
 }) {
   const nextHref = nextLessonId ? `${basePath}/${courseId}?lesson=${nextLessonId}` : null
+  const [completing, startCompleting] = useTransition()
+  const { setBusy } = useLearnBusy()
+
+  // Aksi ini berakhir dengan redirect dari server, jadi `finally` belum tentu
+  // sempat berjalan sebelum komponen dilepas. Tanpa pembersihan ini, sidebar
+  // bisa tetap terkunci setelah pindah pelajaran -- LearnShell (pemilik state)
+  // tidak ikut dilepas saat hanya ?lesson= yang berubah.
+  useEffect(() => () => setBusy(false), [setBusy])
+
+  function onComplete() {
+    // Kotak centang pelajaran ini di sidebar menulis baris progres yang sama,
+    // jadi sidebar dikunci selama tombol ini bekerja -- dua tulisan bersamaan
+    // ke baris yang sama membuat hasil akhirnya tidak bisa ditebak (R17).
+    setBusy(true, "Menyimpan…")
+    startCompleting(async () => {
+      try {
+        const result = await toggleLessonComplete({
+          courseId,
+          lessonId,
+          completed: true,
+          continueTo: nextLessonId,
+        })
+        // Sukses berakhir dengan pindah pelajaran, dan perpindahan itu sendiri
+        // sudah menjadi konfirmasinya (R6) -- jadi hanya kegagalan yang bersuara.
+        if (!result.ok) toast.error(result.error)
+      } finally {
+        setBusy(false)
+      }
+    })
+  }
 
   return (
+    // "Sebelumnya" menulis tidak apa-apa, tetapi meninggalkan pelajaran saat
+    // progresnya sedang disimpan membuat peserta tidak melihat hasilnya; guard
+    // ini mengunci tombol tetangga tanpa melepas fokus (R14, R16).
+    <BusyGuardProvider busy={completing} reason="Menyimpan…">
     <nav
       aria-label="Navigasi pelajaran"
       className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-card px-5 py-4 sm:px-7"
@@ -535,16 +580,16 @@ function LessonFooter({
           </span>
         )}
         {mode === "learner" && !isDone ? (
-          <form action={toggleLessonComplete}>
-            <input type="hidden" name="courseId" value={courseId} />
-            <input type="hidden" name="lessonId" value={lessonId} />
-            <input type="hidden" name="completed" value="true" />
-            {nextLessonId && <input type="hidden" name="continueTo" value={nextLessonId} />}
-            <Button type="submit" className="bg-brand-gradient text-white hover:brightness-105">
-              {nextLessonId ? "Selesai & lanjut" : "Selesaikan pelajaran"}
-              <ArrowRight className="size-4" aria-hidden />
-            </Button>
-          </form>
+          <Button
+            type="button"
+            onClick={onComplete}
+            pending={completing}
+            pendingLabel="Menyimpan…"
+            className="bg-brand-gradient text-white hover:brightness-105"
+          >
+            {nextLessonId ? "Selesai & lanjut" : "Selesaikan pelajaran"}
+            <ArrowRight className="size-4" aria-hidden />
+          </Button>
         ) : nextHref ? (
           <Button
             className="bg-brand-gradient text-white hover:brightness-105"
@@ -562,6 +607,7 @@ function LessonFooter({
         )}
       </div>
     </nav>
+    </BusyGuardProvider>
   )
 }
 

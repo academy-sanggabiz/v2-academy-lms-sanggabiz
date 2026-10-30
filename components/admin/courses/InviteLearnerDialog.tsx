@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
-import { Loader2, Search } from "lucide-react"
+import { useEffect, useState, useTransition, type TransitionStartFunction } from "react"
+import { Search } from "lucide-react"
 import { toast } from "sonner"
 
 import {
@@ -13,7 +13,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { BusyGuardProvider } from "@/components/ui/busy-guard"
 import { Input } from "@/components/ui/input"
+import { Spinner } from "@/components/ui/spinner"
 import type { LearnerSearchResult } from "@/lib/learners-admin"
 import { enrollLearnerAction, searchLearnersAction } from "@/app/admin/courses/roster-actions"
 
@@ -30,11 +32,35 @@ export function InviteLearnerDialog({
   onClose: () => void
   onEnrolled: () => void
 }) {
+  // Transisinya dipegang di sini, bukan di dalam isi dialog, supaya penutupan
+  // dialog bisa ditolak selama pendaftaran masih ditulis ke server.
+  const [isPending, startTransition] = useTransition()
+
   return (
-    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        // Escape, klik di luar, dan tombol X semuanya lewat sini. Menutup di
+        // tengah pendaftaran menghilangkan catatan siapa yang baru didaftarkan
+        // (STANDAR-UMPAN-BALIK-UI.md R16).
+        if (!next && isPending) return
+        if (!next) onClose()
+      }}
+    >
       <DialogContent className="max-w-[460px]">
-        {/* Remount per open so the query/results don't persist between sessions */}
-        {open && <InviteLearnerDialogContent courseId={courseId} onClose={onClose} onEnrolled={onEnrolled} />}
+        {/* "Selesai" ikut menolak klik selama proses. */}
+        <BusyGuardProvider busy={isPending} reason="Mendaftarkan…">
+          {/* Remount per open so the query/results don't persist between sessions */}
+          {open && (
+            <InviteLearnerDialogContent
+              courseId={courseId}
+              onClose={onClose}
+              onEnrolled={onEnrolled}
+              isPending={isPending}
+              startTransition={startTransition}
+            />
+          )}
+        </BusyGuardProvider>
       </DialogContent>
     </Dialog>
   )
@@ -44,16 +70,22 @@ function InviteLearnerDialogContent({
   courseId,
   onClose,
   onEnrolled,
+  isPending,
+  startTransition,
 }: {
   courseId: string
   onClose: () => void
   onEnrolled: () => void
+  isPending: boolean
+  startTransition: TransitionStartFunction
 }) {
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<LearnerSearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
-  const [isPending, startTransition] = useTransition()
+  // The transition is shared by every row, so the row actually being enrolled
+  // is tracked separately -- otherwise the whole list reads as busy.
+  const [busyLearnerId, setBusyLearnerId] = useState<string | null>(null)
   // Locally enrolled this session, so rows disappear without a round trip.
   const [justEnrolled, setJustEnrolled] = useState<Set<string>>(() => new Set())
 
@@ -90,8 +122,10 @@ function InviteLearnerDialogContent({
   }, [trimmed, courseId])
 
   function handleEnroll(learner: LearnerSearchResult) {
+    setBusyLearnerId(learner.id)
     startTransition(async () => {
       const result = await enrollLearnerAction(courseId, learner.id)
+      setBusyLearnerId(null)
       if (!result.ok) {
         toast.error(result.error)
         return
@@ -131,37 +165,47 @@ function InviteLearnerDialogContent({
             Ketik minimal {MIN_QUERY_LENGTH} karakter untuk mencari.
           </p>
         ) : isSearching ? (
-          <p className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" />
+          <p
+            role="status"
+            aria-live="polite"
+            aria-busy="true"
+            className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground"
+          >
+            <Spinner className="size-4" />
             Mencari…
           </p>
         ) : selectable.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">
+          <p role="status" aria-live="polite" className="py-8 text-center text-sm text-muted-foreground">
             {hasSearched && results.length > 0
               ? "Semua peserta yang cocok sudah terdaftar."
               : "Peserta tidak ditemukan."}
           </p>
         ) : (
-          selectable.map((learner) => (
-            <button
-              key={learner.id}
-              type="button"
-              disabled={isPending}
-              onClick={() => handleEnroll(learner)}
-              className="flex items-center gap-3 rounded-xl border border-border p-3 text-left hover:bg-muted disabled:opacity-60"
-            >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-ring">
-                {learner.initial}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-semibold">{learner.name}</span>
-                <span className="block truncate text-xs text-muted-foreground">{learner.email}</span>
-              </span>
-              <span className="shrink-0 rounded-full bg-muted px-3 py-1 text-xs font-semibold whitespace-nowrap">
-                Daftarkan
-              </span>
-            </button>
-          ))
+          selectable.map((learner) => {
+            const busy = busyLearnerId === learner.id
+            return (
+              <button
+                key={learner.id}
+                type="button"
+                disabled={isPending}
+                aria-busy={busy || undefined}
+                onClick={() => handleEnroll(learner)}
+                className="flex items-center gap-3 rounded-xl border border-border p-3 text-left hover:bg-muted disabled:pointer-events-none disabled:opacity-60"
+              >
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-ring">
+                  {learner.initial}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold">{learner.name}</span>
+                  <span className="block truncate text-xs text-muted-foreground">{learner.email}</span>
+                </span>
+                <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-semibold whitespace-nowrap">
+                  {busy && <Spinner className="size-3" />}
+                  {busy ? "Mendaftarkan…" : "Daftarkan"}
+                </span>
+              </button>
+            )
+          })
         )}
       </div>
 

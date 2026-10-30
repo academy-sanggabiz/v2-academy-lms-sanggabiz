@@ -5,20 +5,38 @@ import { redirect } from "next/navigation"
 
 import { createClient } from "@/lib/supabase/server"
 import { checkAndIssueCertificate } from "@/lib/certificates"
+import { dbErrorMessage } from "@/lib/db-error-message"
 
-export async function toggleLessonComplete(formData: FormData) {
-  const courseId = String(formData.get("courseId") ?? "")
-  const lessonId = String(formData.get("lessonId") ?? "")
-  const completed = formData.get("completed") === "true"
-  // Optional: the "Complete & continue" button sends the next lesson so the
-  // learner lands on it in one step (DL standard: one clear next action).
-  const continueTo = String(formData.get("continueTo") ?? "")
-  if (!courseId || !lessonId) return
+export type ToggleLessonResult = { ok: true } | { ok: false; error: string }
+
+/**
+ * Mengembalikan hasil, bukan `void`: progres pelajaran menentukan kelayakan
+ * sertifikat, jadi kegagalan yang diam-diam membuat peserta mengira sudah
+ * selesai padahal belum (STANDAR-UMPAN-BALIK-UI.md R7).
+ */
+export async function toggleLessonComplete({
+  courseId,
+  lessonId,
+  completed,
+  // "Selesai & lanjut" mengirim pelajaran berikutnya supaya peserta pindah
+  // dalam satu langkah (standar DL: satu aksi berikutnya yang jelas).
+  continueTo,
+}: {
+  courseId: string
+  lessonId: string
+  completed: boolean
+  continueTo?: string | null
+}): Promise<ToggleLessonResult> {
+  if (!courseId || !lessonId) {
+    return { ok: false, error: "Pelajaran tidak dikenali. Muat ulang halaman, lalu coba lagi." }
+  }
 
   const supabase = await createClient()
   const { data: claimsData } = await supabase.auth.getClaims()
   const userId = claimsData?.claims?.sub
-  if (!userId) return
+  if (!userId) {
+    return { ok: false, error: "Sesi Anda sudah berakhir. Masuk kembali untuk menyimpan progres." }
+  }
 
   const { data: enrollment, error: enrollmentError } = await supabase
     .from("enrollments")
@@ -28,8 +46,12 @@ export async function toggleLessonComplete(formData: FormData) {
     .maybeSingle()
 
   if (enrollmentError || !enrollment) {
-    console.error("toggleLessonComplete: no enrollment found", enrollmentError?.message)
-    return
+    return {
+      ok: false,
+      error: enrollmentError
+        ? dbErrorMessage(enrollmentError.message, "Gagal menyimpan progres. Coba lagi.")
+        : "Anda belum terdaftar di kursus ini.",
+    }
   }
 
   const { error } = await supabase.from("lesson_progress").upsert(
@@ -43,8 +65,7 @@ export async function toggleLessonComplete(formData: FormData) {
   )
 
   if (error) {
-    console.error("toggleLessonComplete failed:", error.message)
-    return
+    return { ok: false, error: dbErrorMessage(error.message, "Gagal menyimpan progres. Coba lagi.") }
   }
 
   if (completed) {
@@ -56,4 +77,6 @@ export async function toggleLessonComplete(formData: FormData) {
   if (continueTo) {
     redirect(`/learn/${encodeURIComponent(courseId)}?lesson=${encodeURIComponent(continueTo)}`)
   }
+
+  return { ok: true }
 }

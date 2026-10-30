@@ -65,7 +65,9 @@ export function SubmissionPreviewDialog({
 
         <div className="flex flex-col gap-4">
           {error ? (
-            <p className="text-sm text-destructive">{error}</p>
+            <p role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
           ) : !responses ? (
             <div className="flex flex-col gap-2" aria-busy="true">
               <div className="h-3 w-1/3 animate-pulse rounded bg-muted" />

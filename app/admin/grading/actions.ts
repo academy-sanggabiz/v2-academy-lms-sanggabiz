@@ -94,7 +94,14 @@ export async function importGradesAction(csvText: string): Promise<ActionResult<
   }
 
   const parsed = Papa.parse<string[]>(csvText.trim(), { skipEmptyLines: true })
-  if (parsed.errors.length > 0) return { ok: false, error: `Berkas CSV tidak dapat dibaca (${parsed.errors[0].message})` }
+  if (parsed.errors.length > 0) {
+    // Pesan PapaParse berbahasa Inggris, jadi hanya dicatat di log server.
+    console.error("importGrades: CSV parse failed:", parsed.errors[0].message)
+    return {
+      ok: false,
+      error: "Berkas CSV tidak dapat dibaca. Ekspor ulang dari halaman ini, lalu unggah kembali.",
+    }
+  }
 
   const [header, ...rows] = parsed.data
   if (!header) return { ok: false, error: "Berkas CSV kosong" }
@@ -143,6 +150,10 @@ export async function importGradesAction(csvText: string): Promise<ActionResult<
     }
   }
 
+  // Impor dijalankan dari matriks per-kursus juga, jadi halaman itu ikut
+  // direvalidasi -- tanpa ini matriks tetap menampilkan nilai lama setelah
+  // impor, dan "Simpan" berikutnya menimpa nilai hasil impor.
   revalidatePath("/admin/grading")
+  revalidatePath("/admin/grading/course/[courseId]", "page")
   return { ok: true, data: { gradedCount, failedRows } }
 }

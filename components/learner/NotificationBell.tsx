@@ -2,9 +2,11 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useTransition } from "react"
+import { useState, useTransition } from "react"
 import { Bell } from "lucide-react"
 
+import { Spinner } from "@/components/ui/spinner"
+import { StatusMessage } from "@/components/ui/status-message"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,14 +30,21 @@ export function NotificationBell({
   seeAllHref?: string | null
 }) {
   const router = useRouter()
-  const [, startTransition] = useTransition()
+  const [isMarking, startTransition] = useTransition()
+  const [markError, setMarkError] = useState<string | null>(null)
 
   function handleOpenChange(open: boolean) {
-    // Mark everything read on open. Fire-and-forget: the badge clears via the
-    // action's revalidate, and a failure just leaves the badge up.
+    // Menandai terbaca tetap berjalan sendiri di latar -- peserta tidak
+    // menunggunya -- tetapi kegagalannya tidak boleh diam: lencana yang tetap
+    // menyala butuh penjelasan (R7).
     if (!open || unreadCount === 0) return
+    setMarkError(null)
     startTransition(async () => {
-      await markNotificationsReadAction()
+      const result = await markNotificationsReadAction()
+      if (result?.error) {
+        setMarkError(result.error)
+        return
+      }
       router.refresh()
     })
   }
@@ -46,6 +55,7 @@ export function NotificationBell({
         aria-label={
           unreadCount > 0 ? `Notifikasi (${unreadCount} belum dibaca)` : "Notifikasi"
         }
+        aria-busy={isMarking || undefined}
         className="relative mr-1 flex size-9 items-center justify-center rounded-lg text-muted-foreground outline-none hover:bg-muted hover:text-foreground"
       >
         <Bell className="size-[18px]" />
@@ -59,9 +69,18 @@ export function NotificationBell({
       <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="px-2 py-1.5 text-sm font-semibold">
-            Notifikasi
+            <span className="flex items-center justify-between gap-2">
+              Notifikasi
+              {isMarking && (
+                <span role="status" className="flex items-center gap-1.5 text-xs font-normal text-muted-foreground">
+                  <Spinner className="size-3.5" />
+                  Menandai terbaca…
+                </span>
+              )}
+            </span>
           </DropdownMenuLabel>
         </DropdownMenuGroup>
+        <StatusMessage className="px-2 text-xs">{markError}</StatusMessage>
         <DropdownMenuSeparator />
 
         {items.length === 0 ? (

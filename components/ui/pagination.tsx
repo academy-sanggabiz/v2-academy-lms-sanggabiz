@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PAGE_SIZES, pageWindow } from "@/lib/pagination"
 
@@ -41,8 +42,20 @@ export function Pagination({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-3 py-3">
-      <p className="text-[13px] text-muted-foreground">
-        Menampilkan {from}–{to} dari {total}
+      {/*
+       * Teks hitungan ini merangkap indikator: saat halaman berikutnya sedang
+       * diambil, tombol-tombol hanya meredup dan itu tidak terbaca sebagai
+       * "sedang memuat" (STANDAR-UMPAN-BALIK-UI.md R4).
+       */}
+      <p role="status" aria-live="polite" className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
+        {disabled ? (
+          <>
+            <Spinner className="size-3.5" />
+            Memuat…
+          </>
+        ) : (
+          `Menampilkan ${from}–${to} dari ${total}`
+        )}
       </p>
 
       <div className="flex items-center gap-1">

@@ -61,6 +61,23 @@ Seluruh antarmuka Sanggabiz Academy memakai Bahasa Indonesia (STANDAR-DIGITAL-LE
 | Skip to main content | Langsung ke konten utama |
 | My learning (judul halaman) | Belajar saya |
 
+## Keadaan aksi (sedang bekerja / selesai / gagal)
+
+Aturan lengkapnya ada di `STANDAR-UMPAN-BALIK-UI.md` §4. Bentuk "sedang bekerja" memakai kata kerja ber-`me-` plus elipsis **`…` (satu karakter U+2026, bukan tiga titik)**.
+
+| Aksi | Sedang bekerja | Berhasil | Gagal |
+| --- | --- | --- | --- |
+| Simpan | Menyimpan… | Tersimpan | Gagal menyimpan |
+| Kirim | Mengirim… | Terkirim | Gagal mengirim |
+| Hapus | Menghapus… | Terhapus | Gagal menghapus |
+| Terbitkan | Menerbitkan… | Terbit | Gagal menerbitkan |
+| Unggah | Mengunggah… | Terunggah | Gagal mengunggah |
+| Impor | Mengimpor… | Impor selesai | Gagal mengimpor |
+| Muat | Memuat… | — | Gagal memuat |
+| Ikut kursus | Mendaftarkan… | Terdaftar | Gagal mendaftar |
+
+Tombol pemulihan selalu bernama "Coba lagi". Pesan gagal berpola `<apa yang gagal>. <apa yang harus dilakukan>.`
+
 ## Istilah turunan yang sudah dipakai
 
 | Inggris | Indonesia |

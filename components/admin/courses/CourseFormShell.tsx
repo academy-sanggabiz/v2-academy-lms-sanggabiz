@@ -16,6 +16,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import { BusyGuardProvider } from "@/components/ui/busy-guard"
+import { SaveStatus, type SaveState } from "@/components/ui/save-status"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useNavigationBlocker } from "@/components/admin/NavigationBlockerContext"
 import type { Instructor } from "@/lib/courses"
@@ -75,14 +77,32 @@ function CourseFormShellInner({
     data: CourseDraft
     destructive: { lessons: number; questions: number }
   } | null>(null)
-  const { setIsBlocked } = useNavigationBlocker()
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null)
+  const { setIsBlocked, setBlockMessage } = useNavigationBlocker()
   const { draft, baseline, dispatch, isDirty, courseId } = useCourseDraft()
   const autosave = useDraftAutosave({ courseId, draft, baseline, isDirty, dispatch })
 
+  const saveState: SaveState = isPending
+    ? "saving"
+    : isDirty
+      ? "unsaved"
+      : lastSavedAt
+        ? "saved"
+        : "idle"
+
   useEffect(() => {
-    setIsBlocked(isDirty)
-    return () => setIsBlocked(false)
-  }, [isDirty, setIsBlocked])
+    // Saat penyimpanan sedang berjalan, pesan baku ("belum disimpan") keliru:
+    // penyimpanannya akan mendarat. Pergi sekarang hanya membuat admin tidak
+    // pernah melihat hasilnya (R16).
+    setIsBlocked(isDirty || isPending)
+    setBlockMessage(
+      isPending ? "Penyimpanan sedang berjalan. Tinggalkan halaman tanpa menunggu hasilnya?" : null
+    )
+    return () => {
+      setIsBlocked(false)
+      setBlockMessage(null)
+    }
+  }, [isDirty, isPending, setIsBlocked, setBlockMessage])
 
   useEffect(() => {
     if (!isDirty) return
@@ -105,14 +125,22 @@ function CourseFormShellInner({
   }
 
   function performSave(status: "draft" | "published", data: CourseDraft) {
+    // Potret draf saat penyimpanan dimulai, supaya reducer bisa membedakan
+    // "tidak ada perubahan" dari "disunting lagi selama menyimpan".
+    const from = draft
+
     startTransition(async () => {
       const result = await saveCourseDraftAction(course.id, data, status)
       if (!result.ok) {
         toast.error(result.error)
         return
       }
-      toast.success(status === "published" ? "Kursus diterbitkan" : "Disimpan sebagai draf")
-      dispatch({ type: "commitSaved", saved: data })
+      // Simpan draf sudah dikonfirmasi oleh penanda "Tersimpan pukul …" di
+      // sebelah tombolnya, jadi toast tambahan menjadi pesan kedua untuk satu
+      // aksi (R6). Terbit tetap pakai toast: itu aksi berdampak luas (R8).
+      if (status === "published") toast.success("Kursus diterbitkan")
+      setLastSavedAt(new Date())
+      dispatch({ type: "commitSaved", saved: data, from })
       router.refresh()
     })
   }
@@ -158,6 +186,14 @@ function CourseFormShellInner({
   }
 
   return (
+    /*
+     * Satu penyimpanan menulis seluruh pohon kursus sekaligus. Selama itu
+     * berjalan, setiap tombol penulis lain di editor ikut terkunci -- menekan
+     * "Terbitkan" saat "Simpan Draf" masih jalan, atau menghapus pelajaran yang
+     * sedang ikut terkirim, menghasilkan dua tulisan untuk data yang sama
+     * (STANDAR-UMPAN-BALIK-UI.md R14, R17).
+     */
+    <BusyGuardProvider busy={isPending} reason="Menyimpan…">
     <div className="mx-auto max-w-[900px]">
       {autosave.pendingRestore && (
         <RestoreDraftDialog
@@ -227,11 +263,29 @@ function CourseFormShellInner({
         </AlertDialog>
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="mr-3 text-xl font-bold">{isNew ? "Kursus Baru" : "Ubah Kursus"}</h1>
-          <Button variant="outline" disabled={isPending} onClick={() => onSubmit("draft")}>
+          {/*
+           * Mengetik di tab mana pun hanya mengubah draf di browser; tidak ada
+           * yang sampai ke database sebelum tombol di sebelah ditekan. Tanpa
+           * penanda ini admin tidak bisa membedakan "sudah tersimpan" dari
+           * "masih di layar saya saja" (STANDAR-UMPAN-BALIK-UI.md R12).
+           */}
+          <SaveStatus
+            state={saveState}
+            savedAt={lastSavedAt}
+            unsavedLabel="Perubahan belum disimpan"
+            className="mr-1"
+          />
+          <Button
+            variant="outline"
+            pending={isPending}
+            pendingLabel="Menyimpan…"
+            onClick={() => onSubmit("draft")}
+          >
             Simpan Draf
           </Button>
           <Button
-            disabled={isPending}
+            pending={isPending}
+            pendingLabel="Menyimpan…"
             className="bg-brand-gradient text-white hover:brightness-105"
             onClick={() => onSubmit("published")}
           >
@@ -277,5 +331,6 @@ function CourseFormShellInner({
         </Tabs>
       </div>
     </div>
+    </BusyGuardProvider>
   )
 }

@@ -4,6 +4,9 @@ import { useState, useTransition } from "react"
 import { Bell, Shield } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { BusyRegion } from "@/components/ui/busy-region"
+import { Spinner } from "@/components/ui/spinner"
+import { StatusMessage } from "@/components/ui/status-message"
 import { Switch } from "@/components/ui/switch"
 import { PasswordInput } from "@/components/auth/PasswordInput"
 import { changePassword, deleteAccount, updateNotificationPref } from "@/app/learner/settings/actions"
@@ -13,16 +16,36 @@ export function SettingsView({
 }: {
   notificationEmailEnabled: boolean
 }) {
+  const [isDeleting, startDeleting] = useTransition()
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+
   return (
     <div>
       <div className="mb-6 text-3xl font-bold">Pengaturan</div>
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+        {/* Penghapusan akun tidak dapat dibatalkan, jadi pengaturan lain ikut
+            dikunci selama prosesnya (R15 kelas (d)): mengubah kata sandi akun
+            yang sedang dihapus tidak pernah menjadi yang diinginkan pengguna.
+            Tombol pemicunya sengaja tetap di luar wilayah ini, karena `inert`
+            akan melempar fokus keyboard keluar (R18). */}
+        <BusyRegion busy={isDeleting} label="Menghapus akun…">
+          <div className="flex flex-col gap-6">
+            <NotificationsCard initialEnabled={notificationEmailEnabled} />
+            <SecurityCard />
+          </div>
+        </BusyRegion>
         <div className="flex flex-col gap-6">
-          <NotificationsCard initialEnabled={notificationEmailEnabled} />
-          <SecurityCard />
-        </div>
-        <div className="flex flex-col gap-6">
-          <DeleteAccountCard />
+          <DeleteAccountCard
+            isPending={isDeleting}
+            error={deleteError}
+            onConfirm={() => {
+              setDeleteError(null)
+              startDeleting(async () => {
+                const result = await deleteAccount()
+                if (result?.error) setDeleteError(result.error)
+              })
+            }}
+          />
         </div>
       </div>
     </div>
@@ -31,6 +54,7 @@ export function SettingsView({
 
 function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
   const [enabled, setEnabled] = useState(initialEnabled)
+  const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [isPending, startTransition] = useTransition()
 
   return (
@@ -48,16 +72,38 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
         </div>
         <Switch
           aria-label="Notifikasi email"
+          aria-busy={isPending || undefined}
           checked={enabled}
           disabled={isPending}
           onCheckedChange={(checked) => {
             setEnabled(checked)
+            setStatus(null)
             startTransition(async () => {
               const result = await updateNotificationPref(checked)
-              if (result?.error) setEnabled(!checked)
+              if (result?.error) {
+                setEnabled(!checked)
+                setStatus({ type: "error", message: result.error })
+                return
+              }
+              setStatus({
+                type: "success",
+                message: checked ? "Notifikasi email dinyalakan" : "Notifikasi email dimatikan",
+              })
             })
           }}
         />
+      </div>
+      <div className="mt-2.5 min-h-5">
+        {isPending ? (
+          <p role="status" aria-live="polite" className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Spinner className="size-3.5" />
+            Menyimpan…
+          </p>
+        ) : (
+          <StatusMessage variant={status?.type === "error" ? "error" : "success"}>
+            {status?.message}
+          </StatusMessage>
+        )}
       </div>
     </div>
   )
@@ -82,7 +128,7 @@ function SecurityCard() {
             if (result?.error) {
               setStatus({ type: "error", message: result.error })
             } else {
-              setStatus({ type: "success", message: "Kata sandi diperbarui" })
+              setStatus({ type: "success", message: "Kata sandi tersimpan" })
               ;(document.getElementById("password-form") as HTMLFormElement)?.reset()
             }
           })
@@ -97,23 +143,34 @@ function SecurityCard() {
           className="flex-1"
           required
         />
-        <Button type="submit" disabled={isPending} className="bg-brand-gradient text-white hover:brightness-105">
-          {isPending ? "Menyimpan..." : "Simpan"}
+        <Button
+          type="submit"
+          pending={isPending}
+          pendingLabel="Menyimpan…"
+          className="bg-brand-gradient text-white hover:brightness-105"
+        >
+          Simpan
         </Button>
       </form>
-      {status && (
-        <p className={`mt-2.5 text-sm ${status.type === "error" ? "text-destructive" : "text-ring"}`}>
-          {status.message}
-        </p>
-      )}
+      <StatusMessage
+        variant={status?.type === "error" ? "error" : "success"}
+        className="mt-2.5"
+      >
+        {status?.message}
+      </StatusMessage>
     </div>
   )
 }
 
-function DeleteAccountCard() {
-  const [isPending, startTransition] = useTransition()
-  const [error, setError] = useState<string | null>(null)
-
+function DeleteAccountCard({
+  isPending,
+  error,
+  onConfirm,
+}: {
+  isPending: boolean
+  error: string | null
+  onConfirm: () => void
+}) {
   return (
     <div className="rounded-2xl border border-border bg-card p-7">
       <div className="mb-5 text-lg font-bold">Hapus Akun</div>
@@ -122,10 +179,11 @@ function DeleteAccountCard() {
         <div className="mt-1 mb-3.5 text-[13px] text-destructive">
           Akun yang sudah dihapus tidak dapat dipulihkan
         </div>
-        {error && <p className="mb-3 text-sm text-destructive">{error}</p>}
+        <StatusMessage className="mb-3">{error}</StatusMessage>
         <Button
           type="button"
-          disabled={isPending}
+          pending={isPending}
+          pendingLabel="Menghapus…"
           className="w-full bg-destructive text-white hover:bg-destructive/90"
           onClick={() => {
             const confirmed = window.confirm(
@@ -133,15 +191,16 @@ function DeleteAccountCard() {
             )
             if (!confirmed) return
 
-            setError(null)
-            startTransition(async () => {
-              const result = await deleteAccount()
-              if (result?.error) setError(result.error)
-            })
+            onConfirm()
           }}
         >
-          {isPending ? "Menghapus..." : "Hapus Akun"}
+          Hapus Akun
         </Button>
+        {isPending && (
+          <p className="mt-3 text-[13px] text-destructive">
+            Pengaturan lain dikunci. Jangan tutup halaman ini sampai penghapusan selesai.
+          </p>
+        )}
       </div>
     </div>
   )

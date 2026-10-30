@@ -1,10 +1,13 @@
 "use client"
 
+import { useTransition } from "react"
 import Link from "next/link"
 import { ChevronDown, LogOut, Settings, User } from "lucide-react"
+import { toast } from "sonner"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Spinner } from "@/components/ui/spinner"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +22,7 @@ import { logout } from "@/app/auth/login/actions"
 export function AdminUserMenu({ name, role }: { name: string; role: "admin" | "superadmin" }) {
   const initial = name.charAt(0).toUpperCase()
   const roleLabel = role === "superadmin" ? "Superadmin" : "Admin"
+  const [isLoggingOut, startLogout] = useTransition()
 
   return (
     <DropdownMenu>
@@ -47,9 +51,25 @@ export function AdminUserMenu({ name, role }: { name: string; role: "admin" | "s
           Pengaturan
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive" onClick={() => logout()}>
-          <LogOut />
-          Keluar
+        <DropdownMenuItem
+          variant="destructive"
+          // The menu must stay open while the sign-out runs, otherwise the
+          // pending state unmounts the instant it is clicked.
+          closeOnClick={false}
+          disabled={isLoggingOut}
+          aria-busy={isLoggingOut || undefined}
+          onClick={() => {
+            startLogout(async () => {
+              try {
+                await logout()
+              } catch {
+                toast.error("Gagal keluar. Periksa koneksi Anda, lalu coba lagi.")
+              }
+            })
+          }}
+        >
+          {isLoggingOut ? <Spinner /> : <LogOut />}
+          {isLoggingOut ? "Keluar…" : "Keluar"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

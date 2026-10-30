@@ -5,8 +5,21 @@ import { useState, useTransition } from "react"
 import { Lock, UserPlus, X } from "lucide-react"
 import { toast } from "sonner"
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { BusyRegion } from "@/components/ui/busy-region"
+import { cn } from "@/lib/utils"
 import type { Paginated } from "@/lib/pagination"
 import type { CourseRosterEntry } from "@/lib/learners-admin"
 import { unenrollLearnerAction } from "@/app/admin/courses/roster-actions"
@@ -41,6 +54,9 @@ export function LearnersTab({
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [inviteOpen, setInviteOpen] = useState(false)
+  // Which row's confirmation is open -- also the row whose button shows the
+  // pending state, since the transition itself is shared by the whole list.
+  const [confirmFor, setConfirmFor] = useState<string | null>(null)
 
   function handleUnenroll(entry: CourseRosterEntry) {
     startTransition(async () => {
@@ -49,6 +65,7 @@ export function LearnersTab({
         toast.error(result.error)
         return
       }
+      setConfirmFor(null)
       toast.success(`${entry.name} dikeluarkan`)
       router.refresh()
     })
@@ -74,7 +91,20 @@ export function LearnersTab({
       </div>
 
       {roster.total > 0 && (
-        <ListToolbar placeholder="Cari peserta terdaftar..." prefix={ROSTER_PREFIX} />
+        /*
+         * Mencari saat pengeluaran peserta masih berjalan menyusun ulang daftar
+         * ini, sehingga `confirmFor` menunjuk peserta yang sudah tidak ada di
+         * `roster.rows` dan kotak konfirmasinya lenyap di tengah aksi
+         * (STANDAR-UMPAN-BALIK-UI.md R16).
+         */
+        <BusyRegion
+          busy={isPending}
+          label="Mengeluarkan peserta…"
+          showOverlay={false}
+          className={cn(isPending && "opacity-60")}
+        >
+          <ListToolbar placeholder="Cari peserta terdaftar..." prefix={ROSTER_PREFIX} />
+        </BusyRegion>
       )}
 
       {roster.rows.length === 0 ? (
@@ -118,19 +148,57 @@ export function LearnersTab({
                 <span className="hidden shrink-0 text-xs text-muted-foreground sm:block">
                   {formatEnrolledAt(entry.enrolledAt)}
                 </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  disabled={isPending}
-                  aria-label={`Keluarkan ${entry.name}`}
-                  onClick={() => handleUnenroll(entry)}
+                <AlertDialog
+                  open={confirmFor === entry.learnerId}
+                  onOpenChange={(next) => {
+                    if (!next && isPending) return
+                    setConfirmFor(next ? entry.learnerId : null)
+                  }}
                 >
-                  <X className="size-4" />
-                </Button>
+                  <AlertDialogTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        aria-label={`Keluarkan ${entry.name}`}
+                      />
+                    }
+                  >
+                    <X className="size-4" />
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Keluarkan {entry.name}?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Pendaftaran peserta ini beserta progres belajarnya di kursus ini akan
+                        dihapus. Tindakan ini tidak dapat dibatalkan.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-destructive/10 text-destructive hover:bg-destructive/20"
+                        pending={isPending}
+                        pendingLabel="Mengeluarkan…"
+                        onClick={() => handleUnenroll(entry)}
+                      >
+                        Keluarkan
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </li>
             ))}
           </ul>
-          <ListPagination meta={roster} prefix={ROSTER_PREFIX} />
+          {/* label kosong: statusnya sudah diumumkan oleh wilayah pencarian di atas. */}
+          <BusyRegion
+            busy={isPending}
+            label=""
+            showOverlay={false}
+            className={cn(isPending && "opacity-60")}
+          >
+            <ListPagination meta={roster} prefix={ROSTER_PREFIX} />
+          </BusyRegion>
         </>
       )}
 

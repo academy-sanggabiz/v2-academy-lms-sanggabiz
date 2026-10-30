@@ -1,24 +1,32 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { CheckCircle2, CircleHelp, XCircle } from "lucide-react"
+import Link from "next/link"
+import { ArrowRight, CheckCircle2, CircleHelp, XCircle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { StatusMessage } from "@/components/ui/status-message"
 import { REGULAR_QUIZ_MAX_ATTEMPTS, type Quiz } from "@/lib/courses"
 import type { QuizAttemptInfo } from "@/lib/learn-server"
 import { startQuiz, submitQuiz, type SubmitQuizResult } from "@/app/learn/[courseId]/quiz-actions"
 import { FileUploadAnswer } from "@/components/learn/EssayAssessmentPlayer"
 import { QuestionPrompt } from "@/components/learn/QuestionPrompt"
+import { useLearnBusy } from "@/components/learn/LearnBusyContext"
 
 type Stage = "intro" | "active" | "results"
 
 export function QuizPlayer({
   quiz,
   attemptInfo,
+  nextHref,
+  onReachEnd,
 }: {
   quiz: Quiz
   attemptInfo?: QuizAttemptInfo
+  /** Pelajaran berikutnya, atau null bila kuis ini yang terakhir. */
+  nextHref: string | null
+  onReachEnd: () => void
 }) {
   const [stage, setStage] = useState<Stage>("intro")
   const [isPending, startTransition] = useTransition()
@@ -28,6 +36,7 @@ export function QuizPlayer({
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [result, setResult] = useState<SubmitQuizResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const { setBusy } = useLearnBusy()
 
   const attemptsUsed = attemptInfo?.attemptsUsed ?? 0
   const attemptsRemaining = REGULAR_QUIZ_MAX_ATTEMPTS - attemptsUsed
@@ -57,14 +66,22 @@ export function QuizPlayer({
     }
     if (!attemptId) return
     setError(null)
+    // Pengiriman memakai satu jatah percobaan dan layar hasilnya tidak bisa
+    // dibuka ulang, jadi daftar isi dan panah pindah pelajaran dikunci sampai
+    // hasilnya tampil (STANDAR-UMPAN-BALIK-UI.md R16).
+    setBusy(true, "Menilai jawaban Anda…")
     startTransition(async () => {
-      const res = await submitQuiz(attemptId, answers)
-      if ("error" in res) {
-        setError(res.error)
-        return
+      try {
+        const res = await submitQuiz(attemptId, answers)
+        if ("error" in res) {
+          setError(res.error)
+          return
+        }
+        setResult(res)
+        setStage("results")
+      } finally {
+        setBusy(false)
       }
-      setResult(res)
-      setStage("results")
     })
   }
 
@@ -83,11 +100,12 @@ export function QuizPlayer({
             {attemptInfo?.pendingReview && (
               <p className="text-sm text-muted-foreground">Percobaan terakhir Anda sedang menunggu penilaian instruktur.</p>
             )}
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            <StatusMessage>{error}</StatusMessage>
             {canAttempt ? (
               <Button
                 size="xl"
-                disabled={isPending}
+                pending={isPending}
+                pendingLabel="Menyiapkan…"
                 onClick={handleStart}
                 className="bg-brand-gradient text-white hover:brightness-105"
               >
@@ -193,11 +211,13 @@ export function QuizPlayer({
           </div>
         )}
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        <StatusMessage>{error}</StatusMessage>
 
         <Button
           size="xl"
-          disabled={!hasAnswer || isPending}
+          disabled={!hasAnswer}
+          pending={isPending}
+          pendingLabel={isLast ? "Mengirim…" : "Memuat…"}
           onClick={() => handleNext(isLast)}
           className="w-full bg-brand-gradient text-white hover:brightness-105 disabled:bg-none disabled:bg-muted-foreground/40"
         >
@@ -310,7 +330,6 @@ export function QuizPlayer({
               size="xl"
               variant="outline"
               className="flex-1"
-              disabled={isPending}
               onClick={() => {
                 setResult(null)
                 setStage("intro")
@@ -319,13 +338,26 @@ export function QuizPlayer({
               Ulangi Kuis
             </Button>
           )}
-          <Button
-            size="xl"
-            className="flex-1 bg-brand-gradient text-white hover:brightness-105"
-            onClick={() => setStage("intro")}
-          >
-            Lanjutkan
-          </Button>
+          {nextHref ? (
+            <Button
+              size="xl"
+              className="flex-1 bg-brand-gradient text-white hover:brightness-105"
+              render={<Link href={nextHref} />}
+              nativeButton={false}
+            >
+              Pelajaran berikutnya
+              <ArrowRight className="size-4" aria-hidden />
+            </Button>
+          ) : (
+            <Button
+              size="xl"
+              className="flex-1 bg-brand-gradient text-white hover:brightness-105"
+              onClick={onReachEnd}
+            >
+              Selesaikan kursus
+              <ArrowRight className="size-4" aria-hidden />
+            </Button>
+          )}
         </div>
       </div>
     )

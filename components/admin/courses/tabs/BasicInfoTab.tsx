@@ -25,8 +25,14 @@ export function BasicInfoTab({ errors = {} }: { errors?: Partial<Record<BasicFie
           value={draft.title}
           onChange={(e) => setField("title", e.target.value)}
           placeholder="misal: Pengantar Pengembangan Web"
+          aria-invalid={errors.title ? true : undefined}
+          aria-describedby={errors.title ? "title-error" : undefined}
         />
-        {errors.title && <p className="text-xs text-destructive">{errors.title}</p>}
+        {errors.title && (
+          <p id="title-error" className="text-xs text-destructive">
+            {errors.title}
+          </p>
+        )}
       </div>
 
       <div className="space-y-1.5">

@@ -62,5 +62,10 @@ export async function deleteAccount() {
 
   const supabase = await createClient()
   await supabase.auth.signOut()
-  redirect("/")
+  // Penghapusan akun tidak dapat dibatalkan, jadi konfirmasinya diberikan di
+  // halaman tujuan -- tanpa ini admin mendarat di layar masuk tanpa penjelasan
+  // apa pun (STANDAR-UMPAN-BALIK-UI.md R8).
+  // /auth/admin/login hanya mengalihkan ke /auth/login dan membuang query-nya,
+  // jadi tujuannya ditulis langsung.
+  redirect("/auth/login?akun=terhapus")
 }

@@ -10,10 +10,12 @@ import { Mail } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { StatusMessage } from "@/components/ui/status-message"
 import { PasswordInput } from "@/components/auth/PasswordInput"
 import { GoogleIcon } from "@/components/auth/GoogleIcon"
 import { signupSchema, type SignupFormValues } from "@/components/auth/schema"
 import { signup, type SignupState } from "@/app/auth/learner/actions"
+import { authErrorMessage } from "@/lib/auth/auth-error-message"
 import { createClient } from "@/lib/supabase/client"
 
 const HCAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? ""
@@ -23,15 +25,20 @@ export function SignupForm() {
   const [captchaToken, setCaptchaToken] = React.useState<string | null>(null)
   const captchaRef = React.useRef<HCaptcha>(null)
   const [isGoogleLoading, setIsGoogleLoading] = React.useState(false)
+  const [googleError, setGoogleError] = React.useState<string | null>(null)
 
   const handleGoogleSignIn = async () => {
+    setGoogleError(null)
     setIsGoogleLoading(true)
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
-    if (error) setIsGoogleLoading(false)
+    if (error) {
+      setIsGoogleLoading(false)
+      setGoogleError(authErrorMessage(error.message))
+    }
   }
 
   const {
@@ -77,6 +84,8 @@ export function SignupForm() {
     React.startTransition(() => formAction(formData))
   })
 
+  const formError = googleError ?? (state && "error" in state ? state.error : null)
+
   return (
     <>
       <div className="space-y-1 text-center">
@@ -84,35 +93,77 @@ export function SignupForm() {
         <p className="text-sm text-muted-foreground">Mulai belajar bersama Sanggabiz.</p>
       </div>
 
-      {state && "error" in state && (
-        <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {state.error}
-        </p>
-      )}
+      <StatusMessage className={formError ? "rounded-lg bg-destructive/10 px-3 py-2" : undefined}>
+        {formError}
+      </StatusMessage>
 
       <form onSubmit={onSubmit} className="space-y-3">
+        {/*
+         * Pesan per-kolom disambungkan ke inputnya dengan aria-describedby dan
+         * aria-invalid, bukan dibuat live region sendiri: pembaca layar
+         * membacakannya saat fokus masuk ke kolom yang bermasalah, dan kolomnya
+         * ikut ditandai (WCAG 2.2 SC 3.3.1).
+         */}
         <div>
-          <Input type="text" placeholder="Nama lengkap" aria-label="Nama lengkap" {...register("fullName")} />
+          <Input
+            type="text"
+            id="signup-fullName"
+            placeholder="Nama lengkap"
+            aria-label="Nama lengkap"
+            aria-invalid={errors.fullName ? true : undefined}
+            aria-describedby={errors.fullName ? "signup-fullName-error" : undefined}
+            {...register("fullName")}
+          />
           {errors.fullName && (
-            <p className="mt-1 text-xs text-destructive">{errors.fullName.message}</p>
+            <p id="signup-fullName-error" className="mt-1 text-xs text-destructive">
+              {errors.fullName.message}
+            </p>
           )}
         </div>
         <div>
-          <Input type="email" placeholder="Email" aria-label="Email" {...register("email")} />
+          <Input
+            type="email"
+            id="signup-email"
+            placeholder="Email"
+            aria-label="Email"
+            aria-invalid={errors.email ? true : undefined}
+            aria-describedby={errors.email ? "signup-email-error" : undefined}
+            {...register("email")}
+          />
           {errors.email && (
-            <p className="mt-1 text-xs text-destructive">{errors.email.message}</p>
+            <p id="signup-email-error" className="mt-1 text-xs text-destructive">
+              {errors.email.message}
+            </p>
           )}
         </div>
         <div>
-          <PasswordInput placeholder="Kata sandi" aria-label="Kata sandi" {...register("password")} />
+          <PasswordInput
+            id="signup-password"
+            placeholder="Kata sandi"
+            aria-label="Kata sandi"
+            aria-invalid={errors.password ? true : undefined}
+            aria-describedby={errors.password ? "signup-password-error" : undefined}
+            {...register("password")}
+          />
           {errors.password && (
-            <p className="mt-1 text-xs text-destructive">{errors.password.message}</p>
+            <p id="signup-password-error" className="mt-1 text-xs text-destructive">
+              {errors.password.message}
+            </p>
           )}
         </div>
         <div>
-          <PasswordInput placeholder="Konfirmasi kata sandi" aria-label="Konfirmasi kata sandi" {...register("confirmPassword")} />
+          <PasswordInput
+            id="signup-confirmPassword"
+            placeholder="Konfirmasi kata sandi"
+            aria-label="Konfirmasi kata sandi"
+            aria-invalid={errors.confirmPassword ? true : undefined}
+            aria-describedby={errors.confirmPassword ? "signup-confirmPassword-error" : undefined}
+            {...register("confirmPassword")}
+          />
           {errors.confirmPassword && (
-            <p className="mt-1 text-xs text-destructive">{errors.confirmPassword.message}</p>
+            <p id="signup-confirmPassword-error" className="mt-1 text-xs text-destructive">
+              {errors.confirmPassword.message}
+            </p>
           )}
         </div>
 
@@ -128,9 +179,11 @@ export function SignupForm() {
         <Button
           type="submit"
           className="w-full"
-          disabled={isPending || (!!HCAPTCHA_SITE_KEY && !captchaToken)}
+          disabled={!!HCAPTCHA_SITE_KEY && !captchaToken}
+          pending={isPending}
+          pendingLabel="Mendaftarkan…"
         >
-          {isPending ? "Mendaftar..." : "Daftar"}
+          Daftar
         </Button>
       </form>
 
@@ -145,10 +198,11 @@ export function SignupForm() {
         variant="outline"
         className="w-full"
         onClick={handleGoogleSignIn}
-        disabled={isGoogleLoading}
+        pending={isGoogleLoading}
+        pendingLabel="Mengalihkan…"
       >
         <GoogleIcon className="size-4" />
-        {isGoogleLoading ? "Mengalihkan..." : "Lanjutkan dengan Google"}
+        Lanjutkan dengan Google
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">

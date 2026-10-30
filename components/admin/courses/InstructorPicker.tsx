@@ -16,6 +16,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import { BusyGuardProvider } from "@/components/ui/busy-guard"
 import {
   Dialog,
   DialogContent,
@@ -86,6 +87,13 @@ export function InstructorPicker({ instructors: initialInstructors }: { instruct
   }
 
   return (
+    /*
+     * Menghapus atau membuat instruktur menulis langsung ke server. Guard ini
+     * menahan tombol tetangganya tanpa melepas fokus keyboard, menggantikan
+     * `disabled` yang membuat tombol keluar dari urutan tab di tengah aksi
+     * (STANDAR-UMPAN-BALIK-UI.md R11, R14).
+     */
+    <BusyGuardProvider busy={isPending} reason="Menyimpan…">
     <div className="space-y-3">
       {instructors.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
@@ -122,7 +130,6 @@ export function InstructorPicker({ instructors: initialInstructors }: { instruct
                         type="button"
                         variant="ghost"
                         size="icon"
-                        disabled={isPending}
                         aria-label={`Hapus ${instructor.name}`}
                         className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
                       />
@@ -143,7 +150,8 @@ export function InstructorPicker({ instructors: initialInstructors }: { instruct
                       <AlertDialogAction
                         className="bg-destructive/10 text-destructive hover:bg-destructive/20"
                         onClick={() => handleDelete(instructor.id)}
-                        disabled={isPending}
+                        pending={isPending}
+                        pendingLabel="Menghapus…"
                       >
                         Hapus
                       </AlertDialogAction>
@@ -176,12 +184,18 @@ export function InstructorPicker({ instructors: initialInstructors }: { instruct
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleCreate} disabled={!name.trim() || isPending}>
+            <Button
+              onClick={handleCreate}
+              disabled={!name.trim()}
+              pending={isPending}
+              pendingLabel="Membuat…"
+            >
               Buat
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
+    </BusyGuardProvider>
   )
 }

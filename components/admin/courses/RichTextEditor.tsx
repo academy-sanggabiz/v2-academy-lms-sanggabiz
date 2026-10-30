@@ -22,7 +22,6 @@ import {
   Italic,
   List,
   ListOrdered,
-  Loader2,
   Palette,
   Quote,
   Rows3,
@@ -41,6 +40,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { uploadLessonImage } from "@/lib/storage"
 
@@ -89,10 +89,27 @@ function askAltText(current = ""): string | null {
   return answer === null ? null : answer.trim()
 }
 
-async function uploadAndInsert(view: EditorView, file: File, pos?: number) {
-  const toastId = toast.loading("Mengunggah gambar…")
+/**
+ * Tempel dan seret-lepas memakai keadaan unggah yang sama dengan tombol gambar
+ * di toolbar, bukan `toast.loading`: toast adalah penutup sebuah aksi, bukan
+ * indikator proses (STANDAR-UMPAN-BALIK-UI.md §3).
+ */
+async function uploadAndInsert(
+  view: EditorView,
+  file: File,
+  pos: number | undefined,
+  setUploading: (uploading: boolean) => void
+) {
+  setUploading(true)
+  try {
+    await insertUploadedImage(view, file, pos)
+  } finally {
+    setUploading(false)
+  }
+}
+
+async function insertUploadedImage(view: EditorView, file: File, pos?: number) {
   const result = await uploadLessonImage(file)
-  toast.dismiss(toastId)
 
   if ("error" in result) {
     toast.error(result.error)
@@ -119,6 +136,10 @@ export function RichTextEditor({
   /** Accessible name of the editable area (WCAG 4.1.2). */
   ariaLabel?: string
 }) {
+  // Keadaan unggah hidup di sini, bukan di Toolbar: handler tempel dan
+  // seret-lepas dipasang pada editor di komponen ini, dan keduanya harus
+  // menyalakan penanda sibuk yang sama dengan tombol gambar di toolbar.
+  const [isUploading, setIsUploading] = useState(false)
   const onChangeRef = useRef(onChange)
   useEffect(() => {
     onChangeRef.current = onChange
@@ -175,7 +196,7 @@ export function RichTextEditor({
         const image = Array.from(event.clipboardData?.files ?? []).find((f) => f.type.startsWith("image/"))
         if (!image) return false
         event.preventDefault()
-        void uploadAndInsert(view, image)
+        void uploadAndInsert(view, image, undefined, setIsUploading)
         return true
       },
       handleDrop: (view, event) => {
@@ -183,7 +204,7 @@ export function RichTextEditor({
         if (!image) return false
         event.preventDefault()
         const coords = view.posAtCoords({ left: event.clientX, top: event.clientY })
-        void uploadAndInsert(view, image, coords?.pos)
+        void uploadAndInsert(view, image, coords?.pos, setIsUploading)
         return true
       },
     },
@@ -205,15 +226,22 @@ export function RichTextEditor({
 
   return (
     <div>
-      <Toolbar editor={editor} />
+      <Toolbar editor={editor} isUploading={isUploading} setIsUploading={setIsUploading} />
       <EditorContent editor={editor} />
     </div>
   )
 }
 
-function Toolbar({ editor }: { editor: Editor }) {
+function Toolbar({
+  editor,
+  isUploading,
+  setIsUploading,
+}: {
+  editor: Editor
+  isUploading: boolean
+  setIsUploading: (uploading: boolean) => void
+}) {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [isUploading, setIsUploading] = useState(false)
 
   async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -352,12 +380,14 @@ function Toolbar({ editor }: { editor: Editor }) {
         type="button"
         variant="ghost"
         size="icon-sm"
-        title="Sisipkan gambar"
-        aria-label="Sisipkan gambar"
+        title={isUploading ? "Mengunggah gambar…" : "Sisipkan gambar"}
+        aria-label={isUploading ? "Mengunggah gambar…" : "Sisipkan gambar"}
+        aria-busy={isUploading || undefined}
         disabled={isUploading}
+        focusableWhenDisabled={isUploading}
         onClick={() => fileInputRef.current?.click()}
       >
-        {isUploading ? <Loader2 className="size-3.5 animate-spin" /> : <ImageIcon className="size-3.5" />}
+        {isUploading ? <Spinner className="size-3.5" /> : <ImageIcon className="size-3.5" />}
       </Button>
 
       {editor.isActive("image") && (

@@ -1,10 +1,11 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { Loader2, Upload, X } from "lucide-react"
+import { Upload, X } from "lucide-react"
 import { toast } from "sonner"
 
 import { Label } from "@/components/ui/label"
+import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 
 export function ImageDropzone({
@@ -47,14 +48,25 @@ export function ImageDropzone({
         role="button"
         tabIndex={0}
         onClick={() => !isUploading && fileInputRef.current?.click()}
-        onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
+        // `!isUploading` sama seperti pada onClick: tanpa itu Enter membuka
+        // pemilih berkas kedua selama unggahan pertama masih jalan, dan blob
+        // yang kalah lomba tertinggal di Storage tanpa pemilik.
+        onKeyDown={(e) => e.key === "Enter" && !isUploading && fileInputRef.current?.click()}
+        aria-busy={isUploading || undefined}
         className={cn(
           "relative flex h-40 w-full max-w-xs items-center justify-center overflow-hidden rounded-lg border border-dashed border-border bg-muted/30 text-center",
           !isUploading && "cursor-pointer hover:bg-muted/50"
         )}
       >
         {isUploading ? (
-          <Loader2 className="size-5 animate-spin text-muted-foreground" />
+          <span
+            role="status"
+            aria-live="polite"
+            className="flex flex-col items-center gap-1.5 text-muted-foreground"
+          >
+            <Spinner className="size-5" />
+            <span className="text-xs">Mengunggah…</span>
+          </span>
         ) : value ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={value} alt={label} className="size-full object-cover" />

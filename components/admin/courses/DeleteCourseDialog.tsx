@@ -60,9 +60,10 @@ export function DeleteCourseDialog({
           <AlertDialogAction
             className="bg-destructive/10 text-destructive hover:bg-destructive/20"
             onClick={handleDelete}
-            disabled={isPending}
+            pending={isPending}
+            pendingLabel="Menghapus…"
           >
-            {isPending ? "Menghapus…" : "Hapus"}
+            Hapus
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -93,13 +93,13 @@ function NavLink({
 }) {
   const pathname = usePathname()
   const active = pathname === href || pathname?.startsWith(`${href}/`)
-  const { isBlocked } = useNavigationBlocker()
+  const { isBlocked, blockMessage } = useNavigationBlocker()
 
   return (
     <Link
       href={href}
       onNavigate={(e) => {
-        if (isBlocked && !window.confirm("Ada perubahan yang belum disimpan. Tinggalkan tanpa menyimpan?")) {
+        if (isBlocked && !window.confirm(blockMessage)) {
           e.preventDefault()
         }
       }}

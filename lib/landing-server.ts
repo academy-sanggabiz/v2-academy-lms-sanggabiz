@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { dbErrorMessage } from "@/lib/db-error-message"
 import {
   defaultFeaturedCourseIds,
   defaultFeatures,
@@ -64,6 +65,6 @@ export async function saveLandingContent(
     { onConflict: "id" }
   )
 
-  if (error) return { error: error.message }
+  if (error) return { error: dbErrorMessage(error.message, "Gagal menyimpan halaman depan. Coba lagi.") }
   return { ok: true }
 }

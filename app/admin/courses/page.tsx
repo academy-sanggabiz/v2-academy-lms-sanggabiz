@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
+import { SubmitButton } from "@/components/ui/submit-button"
 import { getAdminCourseList, type AdminCourseFilters } from "@/lib/courses-admin"
 import { parseListParams, type RawSearchParams } from "@/lib/pagination"
 import { createDraftCourseAction } from "@/app/admin/courses/actions"
@@ -34,10 +34,13 @@ export default async function AdminCoursesPage({
           </p>
         </div>
         <form action={createDraftCourseAction}>
-          <Button type="submit" className="bg-brand-gradient text-white hover:brightness-105">
+          <SubmitButton
+            pendingLabel="Membuat…"
+            className="bg-brand-gradient text-white hover:brightness-105"
+          >
             <Plus className="size-4" />
             Buat Kursus
-          </Button>
+          </SubmitButton>
         </form>
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react"
 import { AlertCircle, Check, Loader2, Lock } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -12,6 +13,33 @@ import { saveLessonNote } from "@/app/learn/[courseId]/notes-actions"
 const AUTOSAVE_DELAY_MS = 800
 /** Show the character counter once the note passes this share of the limit. */
 const COUNTER_THRESHOLD = 0.9
+
+/**
+ * Penyimpanan terakhir berjalan saat komponen sudah dilepas, jadi indikator di
+ * layar sudah tidak ada. Toast membawa teks catatannya di dalam closure,
+ * sehingga "Coba lagi" bisa menyimpan ulang tanpa menahan perpindahan halaman.
+ */
+function warnNoteNotSaved(lessonId: string, content: string, message: string) {
+  toast.error(`${message} Catatan terakhir Anda belum tersimpan.`, {
+    duration: Infinity,
+    action: {
+      label: "Coba lagi",
+      onClick: () => {
+        saveLessonNote({ lessonId, content })
+          .then((res) => {
+            if (!res.ok) {
+              warnNoteNotSaved(lessonId, content, res.error)
+              return
+            }
+            toast.success("Catatan tersimpan.")
+          })
+          .catch(() =>
+            warnNoteNotSaved(lessonId, content, "Catatan belum tersimpan. Periksa koneksi Anda.")
+          )
+      },
+    },
+  })
+}
 
 type SaveState =
   | { kind: "idle" }
@@ -92,7 +120,18 @@ export function LessonNotes({ lessonId, initialNote }: { lessonId: string; initi
       window.removeEventListener("beforeunload", onBeforeUnload)
       if (timerRef.current) clearTimeout(timerRef.current)
       if (latestRef.current !== savedRef.current) {
-        void saveLessonNote({ lessonId, content: latestRef.current })
+        const pending = latestRef.current
+        saveLessonNote({ lessonId, content: pending })
+          .then((res) => {
+            if (!res.ok) warnNoteNotSaved(lessonId, pending, res.error)
+          })
+          .catch(() =>
+            warnNoteNotSaved(
+              lessonId,
+              pending,
+              "Catatan belum tersimpan. Periksa koneksi Anda."
+            )
+          )
       }
     }
   }, [lessonId])

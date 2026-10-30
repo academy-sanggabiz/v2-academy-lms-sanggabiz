@@ -2,10 +2,12 @@
 
 import { useState, useTransition } from "react"
 import { ArrowLeft, Calendar, Mail, Pencil } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { StatusMessage } from "@/components/ui/status-message"
 import { updateProfileName } from "@/app/admin/profile/actions"
 
 type AdminProfileViewProps = {
@@ -107,6 +109,9 @@ function EditProfileForm({
               setError(result.error)
               return
             }
+            // The form closes back to the read-only profile, which looks the
+            // same as cancelling, so say that the change was actually saved.
+            toast.success("Profil tersimpan")
             onDone()
           })
         }}
@@ -129,11 +134,16 @@ function EditProfileForm({
         <Input id="email" value={email} disabled className="w-full bg-muted" />
         <p className="mt-1.5 mb-4 text-xs text-muted-foreground">Email tidak dapat diubah</p>
 
-        {error && <p className="mb-4 text-sm text-destructive">{error}</p>}
+        <StatusMessage className="mb-4">{error}</StatusMessage>
 
         <div className="flex gap-3">
-          <Button type="submit" disabled={isPending} className="bg-brand-gradient text-white hover:brightness-105">
-            {isPending ? "Menyimpan..." : "Simpan Perubahan"}
+          <Button
+            type="submit"
+            pending={isPending}
+            pendingLabel="Menyimpan…"
+            className="bg-brand-gradient text-white hover:brightness-105"
+          >
+            Simpan Perubahan
           </Button>
           <Button type="button" variant="outline" onClick={onDone}>
             Batal

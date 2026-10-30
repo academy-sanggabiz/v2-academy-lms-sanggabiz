@@ -1,9 +1,12 @@
 "use client"
 
 import Link from "next/link"
+import { useTransition } from "react"
 import { ChevronDown, LogOut, Settings, User } from "lucide-react"
+import { toast } from "sonner"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Spinner } from "@/components/ui/spinner"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +20,7 @@ import { logout } from "@/app/auth/login/actions"
 
 export function UserMenu({ name, email }: { name: string; email: string }) {
   const initial = name.charAt(0).toUpperCase()
+  const [isLoggingOut, startLoggingOut] = useTransition()
 
   return (
     <DropdownMenu>
@@ -44,9 +48,25 @@ export function UserMenu({ name, email }: { name: string; email: string }) {
           Pengaturan
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive" onClick={() => logout()}>
-          <LogOut />
-          Keluar
+        <DropdownMenuItem
+          variant="destructive"
+          // Menu yang menutup seketika akan membawa serta indikator "sedang
+          // keluar"; biarkan terbuka sampai server mengalihkan halaman.
+          closeOnClick={false}
+          aria-busy={isLoggingOut || undefined}
+          onClick={() => {
+            if (isLoggingOut) return
+            startLoggingOut(async () => {
+              try {
+                await logout()
+              } catch {
+                toast.error("Gagal keluar. Periksa koneksi Anda, lalu coba lagi.")
+              }
+            })
+          }}
+        >
+          {isLoggingOut ? <Spinner /> : <LogOut />}
+          {isLoggingOut ? "Keluar…" : "Keluar"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
