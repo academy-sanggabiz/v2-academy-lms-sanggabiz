@@ -30,6 +30,7 @@ type TotalsRow = {
   learner_count: number
   demo_learner_count: number
   course_count: number
+  demo_course_count: number
   enrollment_count: number
 }
 
@@ -41,7 +42,9 @@ type CourseRow = {
   language: string | null
   lesson_count: number | null
   duration_hours: number | null
-  learner_count: number
+  /** null berarti "di bawah ambang, sengaja disembunyikan", bukan nol. */
+  learner_count: number | null
+  is_demo: boolean
 }
 
 async function readView<T>(view: string, select: string): Promise<T[]> {
@@ -70,7 +73,7 @@ export async function GET() {
       readView<TotalsRow>("public_platform_totals", "*"),
       readView<CourseRow>(
         "public_course_stats",
-        "id,title,description,level,language,lesson_count,duration_hours,learner_count"
+        "id,title,description,level,language,lesson_count,duration_hours,learner_count,is_demo"
       ),
     ])
 
@@ -78,8 +81,11 @@ export async function GET() {
       learner_count: 0,
       demo_learner_count: 0,
       course_count: 0,
+      demo_course_count: 0,
       enrollment_count: 0,
     }
+
+    const demoCount = totals.demo_learner_count + totals.demo_course_count
 
     return NextResponse.json(
       {
@@ -98,15 +104,23 @@ export async function GET() {
             language: course.language,
             lessons: course.lesson_count ?? 0,
             duration_hours: course.duration_hours ?? 0,
+            // null = jumlahnya terlalu kecil untuk diterbitkan. Pada platform
+            // kecil, "1 peserta di kursus ini" adalah pernyataan tentang satu
+            // orang tertentu -- yaitu fakta siapa-ikut-apa yang memang tidak
+            // boleh dipublikasikan.
             learners: course.learner_count,
+            is_demo: course.is_demo,
           }))
-          .sort((a, b) => b.learners - a.learners || a.title.localeCompare(b.title, "id")),
+          .sort(
+            (a, b) =>
+              (b.learners ?? -1) - (a.learners ?? -1) || a.title.localeCompare(b.title, "id")
+          ),
         // Endpoint ini menyatakan sendiri bila sebagian isinya masih data uji,
         // supaya angkanya tidak pernah dibaca sebagai capaian nyata.
         notice:
-          totals.demo_learner_count > 0
-            ? `Sebagian data masih data demo untuk uji coba (${totals.demo_learner_count} dari ${totals.learner_count} peserta).`
-            : null,
+          demoCount > 0
+            ? "Sebagian isi masih data demo untuk uji coba; entri demo ditandai is_demo. Jumlah peserta di bawah 5 sengaja disembunyikan (null)."
+            : "Jumlah peserta di bawah 5 sengaja disembunyikan (null).",
       },
       {
         headers: {
