@@ -1,10 +1,7 @@
-import { Plus } from "lucide-react"
-
-import { SubmitButton } from "@/components/ui/submit-button"
 import { getAdminCourseList, type AdminCourseFilters } from "@/lib/courses-admin"
 import { parseListParams, type RawSearchParams } from "@/lib/pagination"
-import { createDraftCourseAction } from "@/app/admin/courses/actions"
 import { CourseManagementClient } from "@/components/admin/courses/CourseManagementClient"
+import { CreateCourseButton } from "@/components/admin/courses/CreateCourseButton"
 
 export default async function AdminCoursesPage({
   searchParams,
@@ -33,15 +30,7 @@ export default async function AdminCoursesPage({
             Buat, ubah, dan kelola semua kursus di platform belajar Anda
           </p>
         </div>
-        <form action={createDraftCourseAction}>
-          <SubmitButton
-            pendingLabel="Membuat…"
-            className="bg-brand-gradient text-white hover:brightness-105"
-          >
-            <Plus className="size-4" />
-            Buat Kursus
-          </SubmitButton>
-        </form>
+        <CreateCourseButton />
       </div>
 
       <CourseManagementClient page={page} />

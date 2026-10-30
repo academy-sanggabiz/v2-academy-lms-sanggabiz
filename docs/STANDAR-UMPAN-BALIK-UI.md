@@ -57,6 +57,7 @@ Dasar: Nielsen 1993 (sudah dikutip di §16), dan panduan NN/g tentang indikator 
 | Aksi berisiko | Dialog konfirmasi + tombol aksi yang punya keadaan pending | `<AlertDialog>` + `<Button pending>` |
 | Tombol lain di permukaan yang sama ikut dikunci | Guard sepermukaan; `<Button>` membacanya sendiri | `<BusyGuardProvider busy={…}>` |
 | Wilayah yang sedang ditunggu dan tidak boleh disentuh | `inert` + lapisan penanda | `<BusyRegion busy={…} label="…">` |
+| Aksi yang berakhir dengan pindah halaman | Seluruh kerangka dikunci + skeleton satu layar | `useAdminBusy().setBusy(true, "…")` lalu `router.push` di dalam transition yang sama |
 
 **Jangan** memakai toast untuk mengumumkan bahwa sesuatu *sedang* berjalan — toast adalah penutup, bukan indikator proses. Indikator proses tinggal di kontrol yang diklik.
 
@@ -110,6 +111,7 @@ Aturan §1–§5 membuat pengguna **tahu** ada proses berjalan. Bagian ini mence
 | **R18** | Penguncian tidak boleh membuang fokus keyboard. Pakai `useBusyGuard` untuk sesama kontrol (tetap bisa difokus dan terbaca screen reader), dan `<BusyRegion>` (`inert`) hanya untuk wilayah yang memang sedang **ditunggu** dan tidak memuat tombol pemicunya — `inert` mengeluarkan isinya dari pohon aksesibilitas. |
 | **R19** | Perpindahan halaman memakai **skeleton**, bukan penguncian. Pengguna yang sedang menunggu halaman baru tidak sedang merusak apa pun; yang ia butuhkan adalah bentuk halaman yang akan datang (`app/**/loading.tsx` + `components/loading/*`). |
 | **R20** | Penguncian di klien bukan pengaman data. Aksi yang benar-benar tidak boleh terjadi dua kali tetap harus dijaga di server (unik di basis data, pemeriksaan status, atau upsert idempoten) — tab kedua, koneksi ulang, dan klik cepat tetap bisa menembus UI. |
+| **R21** | **Aksi yang berakhir dengan perpindahan halaman dikunci sampai halaman tujuan tampil**, bukan sampai datanya selesai ditulis. Jalankan navigasinya di dalam `startTransition` yang sama dengan aksinya, dan jangan memakai `redirect()` dari server untuk alur seperti ini: berpindah halaman di tengahnya membatalkan perpindahan sementara datanya sudah terlanjur ditulis, sehingga terlihat gagal dan percobaan ulang meninggalkan baris yatim. Selama itu seluruh kerangka dikunci dan isinya diganti kerangka (skeleton) halaman tujuan. |
 
 **Lingkup penguncian menurut jangkauan kerusakan (R15)**
 
@@ -120,6 +122,7 @@ Aturan §1–§5 membuat pengguna **tahu** ada proses berjalan. Bagian ini mence
 | (c) | Beberapa detik, satu form atau dialog | Semua kontrol penulis di dalamnya, termasuk isiannya | `<BusyGuardProvider>` (+ `<BusyRegion>` untuk isian) |
 | (d) | Lama atau tidak dapat dibatalkan | Seluruh permukaan **dan** jalan keluarnya, dengan alasan tertulis | `<BusyRegion>` + penolakan penutupan |
 | (e) | Pindah halaman atau muat ulang daftar | Tidak ada | skeleton (`loading.tsx`) atau `<PendingRegion>` |
+| (f) | Aksi yang **berakhir** dengan pindah halaman | Seluruh kerangka, sampai halaman tujuan tampil | `AdminBusyProvider` + skeleton satu layar |
 
 **Jangan naikkan kelas tanpa alasan.** Menyelimuti aplikasi dengan lapisan pemblokir melanggar §1 R6 dan membuat aplikasi terasa lambat. Kalau satu aksi hanya mengubah satu baris, cukup baris itu yang membeku.
 

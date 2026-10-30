@@ -6,31 +6,66 @@ import { Toaster } from "sonner"
 
 import { useMobileNav } from "@/hooks/use-mobile-nav"
 
+import { Spinner } from "@/components/ui/spinner"
+import { GenericPageSkeleton } from "@/components/loading/GenericPageSkeleton"
 import { AdminSidebar } from "@/components/admin/AdminSidebar"
+import { AdminBusyProvider, useAdminBusy } from "@/components/admin/AdminBusyContext"
 import { AdminUserMenu } from "@/components/admin/AdminUserMenu"
 import { NavigationBlockerProvider } from "@/components/admin/NavigationBlockerContext"
 import { NotificationBell } from "@/components/learner/NotificationBell"
 import type { Notification } from "@/lib/notifications-server"
 
-export function AdminShell({
-  name,
-  role,
-  notifications,
-  unreadCount,
-  children,
-}: {
+type AdminShellProps = {
   name: string
   role: "admin" | "superadmin"
   notifications: Notification[]
   unreadCount: number
   children: React.ReactNode
-}) {
+}
+
+export function AdminShell(props: AdminShellProps) {
+  return (
+    <AdminBusyProvider>
+      <AdminShellInner {...props} />
+    </AdminBusyProvider>
+  )
+}
+
+function AdminShellInner({ name, role, notifications, unreadCount, children }: AdminShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const mobileNav = useMobileNav()
+  const { busy, label } = useAdminBusy()
 
   return (
     <NavigationBlockerProvider>
-      <div className="flex min-h-screen">
+      {/*
+       * Kerangka halaman tujuan menutupi seluruh layar, dan statusnya sengaja
+       * berada di luar subtree yang dikunci supaya tetap dibacakan screen
+       * reader (R10, R18).
+       */}
+      {busy && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-background p-4 sm:p-6 lg:p-8">
+          <p
+            role="status"
+            aria-live="polite"
+            className="mx-auto mb-4 flex w-full max-w-6xl items-center gap-2 text-sm font-medium text-muted-foreground"
+          >
+            <Spinner className="size-4" />
+            {label ?? "Memuat…"}
+          </p>
+          <div className="mx-auto w-full max-w-6xl">
+            <GenericPageSkeleton />
+          </div>
+        </div>
+      )}
+
+      {/*
+       * Saat aksi yang berakhir dengan perpindahan halaman sedang berjalan,
+       * seluruh kerangka dikunci: sidebar, header, dan isi halaman. Mengklik
+       * menu lain di tengahnya membatalkan perpindahan padahal datanya sudah
+       * ditulis (STANDAR-UMPAN-BALIK-UI.md R21).
+       */}
+      <div className="flex min-h-screen" inert={busy}>
         <AdminSidebar
           open={sidebarOpen}
           mobileOpen={mobileNav.open}

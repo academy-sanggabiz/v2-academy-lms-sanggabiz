@@ -1,7 +1,6 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
 
 import {
   createDraftCourse,
@@ -24,14 +23,26 @@ function revalidateCoursePaths() {
   revalidatePath("/learner/dashboard")
 }
 
-export async function createDraftCourseAction(): Promise<void> {
-  await requireAdmin()
+/**
+ * Mengembalikan id, bukan `redirect` dari server. Dengan redirect server,
+ * berpindah halaman di tengah aksi membatalkan perpindahannya sementara baris
+ * kursusnya sudah terlanjur dibuat -- admin mengira gagal lalu menekan lagi,
+ * dan draf "Kursus tanpa judul" menumpuk. Sekarang klien yang menavigasi, di
+ * dalam transition yang sama, sehingga layar tetap terkunci sampai halaman
+ * tujuan benar-benar tampil (STANDAR-UMPAN-BALIK-UI.md R16, R21).
+ */
+export async function createDraftCourseAction(): Promise<ActionResult<{ id: string }>> {
+  try {
+    await requireAdmin()
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Anda tidak berwenang" }
+  }
 
   const result = await createDraftCourse()
-  if ("error" in result) throw new Error(result.error)
+  if ("error" in result) return { ok: false, error: result.error }
 
   revalidatePath("/admin/courses")
-  redirect(`/admin/courses/${result.id}/edit?new=1`)
+  return { ok: true, data: { id: result.id } }
 }
 
 export async function saveCourseDraftAction(
