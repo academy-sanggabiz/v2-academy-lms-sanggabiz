@@ -28,8 +28,8 @@ export function CreateCourseButton() {
 
       // Navigasi ikut di dalam transition ini, jadi layar tetap terkunci sampai
       // halaman editor benar-benar tampil -- bukan hanya sampai barisnya dibuat.
-      // `busy` tidak dimatikan di sini: kerangka admin halaman tujuan membawa
-      // provider barunya sendiri.
+      // Kuncinya dilepas oleh AdminBusyProvider begitu path berubah; layout
+      // admin dipakai bersama, jadi ia tidak me-mount ulang dengan sendirinya.
       router.push(`/admin/courses/${result.data.id}/edit?new=1`)
     })
   }
