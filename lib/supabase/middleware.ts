@@ -113,6 +113,20 @@ export async function updateSession(request: NextRequest) {
       url.searchParams.set('error', 'Anda tidak berwenang mengakses area admin')
       return redirectKeeping(url, supabaseResponse)
     }
+
+    // Editor halaman depan hanya untuk superadmin. Penjagaannya ada juga di
+    // dalam page-nya, tetapi `redirect()` dari Server Component async itu
+    // berjalan setelah shell mulai di-stream, sehingga Next jatuh ke
+    // `<meta http-equiv="refresh">`: admin biasa melihat halaman kosong lebih
+    // dulu, statusnya tetap 200, dan klien yang mematikan meta-refresh mentok
+    // di situ. Dari proxy, pengalihannya 307 sebelum satu byte HTML terkirim.
+    // Sama persis dengan alasan penjaga /auth/sandi-baru di atas.
+    if (request.nextUrl.pathname.startsWith('/admin/landing') && role && role !== 'superadmin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin/dashboard'
+      url.search = ''
+      return redirectKeeping(url, supabaseResponse)
+    }
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
