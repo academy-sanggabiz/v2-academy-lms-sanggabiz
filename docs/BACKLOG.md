@@ -53,6 +53,13 @@ Keluaran risetnya: daftar data apa yang boleh dikumpulkan, dasar hukum untuk
 masing-masing, bentuk pemberitahuan dan persetujuan yang perlu ditampilkan,
 dan berapa lama data boleh disimpan.
 
+Yang sudah tersedia dan tinggal ditampilkan: **jumlah percobaan kuis dan
+seluruh riwayat skornya**. Mencabut batas percobaan tidak menghilangkan data
+ini -- tiap percobaan tetap satu baris di `quiz_attempts` lengkap dengan nomor
+urut, skor, dan waktunya, dan tidak ada yang dihapus. Jadi "berapa kali seorang
+peserta mencoba sampai lulus" dan "peserta mana yang paling konsisten" bisa
+dihitung kapan saja tanpa perubahan basis data.
+
 ### 4. Halaman depan yang bisa dikustomisasi superadmin
 
 Meniru pola CMS di `github.com/attoyibi/cms-online-store-glasses`. Editor

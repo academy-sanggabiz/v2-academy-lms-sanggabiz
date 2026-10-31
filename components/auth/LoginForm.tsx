@@ -13,6 +13,8 @@ import { GoogleIcon } from "@/components/auth/GoogleIcon"
 import { login, type LoginState } from "@/app/auth/login/actions"
 import { authErrorMessage } from "@/lib/auth/auth-error-message"
 import { createClient } from "@/lib/supabase/client"
+import { useI18n } from "@/components/i18n/LocaleProvider"
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher"
 
 const HCAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? ""
 /**
@@ -120,14 +122,15 @@ export function LoginForm() {
     captchaRef.current.execute()
   }
 
+  const { t } = useI18n()
   const isSigningIn = isVerifying || isPending
   const errorMessage = clientError ?? (state && "error" in state ? state.error : null)
 
   return (
     <>
       <div className="space-y-1 text-center">
-        <h1 className="text-xl font-bold">Masuk</h1>
-        <p className="text-sm text-muted-foreground">Masuk ke Sanggabiz untuk melanjutkan.</p>
+        <h1 className="text-xl font-bold">{t.auth.signInTitle}</h1>
+        <p className="text-sm text-muted-foreground">{t.auth.signInSubtitle}</p>
       </div>
 
       <StatusMessage className={errorMessage ? "rounded-lg bg-destructive/10 px-3 py-2" : undefined}>
@@ -143,15 +146,28 @@ export function LoginForm() {
         Dengan post, pengiriman pra-hidrasi gagal tanpa membocorkan apa pun.
       */}
       <form method="post" onSubmit={onSubmit} className="space-y-3">
-        <Input type="email" name="email" placeholder="Email" aria-label="Email" autoComplete="username" required />
-        <PasswordInput name="password" placeholder="Kata sandi" aria-label="Kata sandi" autoComplete="current-password" required />
+        <Input
+          type="email"
+          name="email"
+          placeholder={t.auth.email}
+          aria-label={t.auth.email}
+          autoComplete="username"
+          required
+        />
+        <PasswordInput
+          name="password"
+          placeholder={t.auth.password}
+          aria-label={t.auth.password}
+          autoComplete="current-password"
+          required
+        />
         <div className="text-right">
           <Link href="/auth/lupa-sandi" className="text-sm text-ring underline underline-offset-4">
-            Lupa kata sandi?
+            {t.auth.forgotPassword}
           </Link>
         </div>
-        <Button type="submit" className="w-full" pending={isSigningIn} pendingLabel="Sedang masuk…">
-          Masuk
+        <Button type="submit" className="w-full" pending={isSigningIn} pendingLabel={t.auth.signingIn}>
+          {t.auth.signIn}
         </Button>
       </form>
 
@@ -175,7 +191,7 @@ export function LoginForm() {
 
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-border" />
-        <span className="text-xs text-muted-foreground">Atau lanjutkan dengan</span>
+        <span className="text-xs text-muted-foreground">{t.auth.orContinueWith}</span>
         <div className="h-px flex-1 bg-border" />
       </div>
 
@@ -188,13 +204,17 @@ export function LoginForm() {
         pendingLabel="Mengalihkan…"
       >
         <GoogleIcon className="size-4" />
-        Lanjutkan dengan Google
+        {t.auth.continueWithGoogle}
       </Button>
 
+      <div className="flex justify-center">
+        <LanguageSwitcher />
+      </div>
+
       <p className="text-center text-sm text-muted-foreground">
-        Belum punya akun?{" "}
+        {t.auth.noAccount}{" "}
         <Link href="/auth/learner/signup" className="text-ring underline underline-offset-4">
-          Daftar
+          {t.auth.register}
         </Link>
       </p>
     </>
