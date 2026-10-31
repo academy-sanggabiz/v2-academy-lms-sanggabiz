@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { dbErrorMessage } from "@/lib/db-error-message"
+import { sanitizeRichText } from "@/lib/sanitize-content"
 import {
   defaultFeaturedCourseIds,
   defaultFeatures,
@@ -55,10 +56,16 @@ export async function saveLandingContent(
       id: true,
       heading: input.hero.heading,
       highlight_word: input.hero.highlightWord,
-      subheading: input.hero.subheading,
+      // Subjudul dan deskripsi keunggulan dirender dengan
+      // dangerouslySetInnerHTML di halaman depan publik, jadi keduanya
+      // dibersihkan di titik simpan seperti isi pelajaran (C-09).
+      subheading: sanitizeRichText(input.hero.subheading),
       primary_cta_text: input.hero.primaryCtaText,
       primary_cta_href: input.hero.primaryCtaHref,
-      features: input.features,
+      features: input.features.map((feature) => ({
+        ...feature,
+        description: sanitizeRichText(feature.description),
+      })),
       featured_course_ids: input.featuredCourseIds,
       updated_at: new Date().toISOString(),
     },

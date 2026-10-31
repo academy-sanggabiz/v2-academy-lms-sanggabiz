@@ -3,6 +3,7 @@ import { getAdminProfile } from "@/lib/auth/require-admin"
 import { paginated, rangeFor, type ListParams, type Paginated } from "@/lib/pagination"
 import { describeQuizIssue, linesToArray, validateQuizzes, type CourseDraft } from "@/lib/course-draft"
 import { QUESTION_TYPE_POINTS } from "@/lib/courses"
+import { sanitizeRichText } from "@/lib/sanitize-content"
 import type {
   AuthorableQuestionType,
   Course,
@@ -608,7 +609,10 @@ export async function saveCourseDraft(
           title: lesson.title,
           content_type: lesson.content_type,
           video_url: lesson.video_url,
-          content: lesson.content,
+          // Disanitasi di sini, bukan saat dirender: ini satu-satunya pintu
+          // masuk HTML buatan admin ke database, dan sanitasi di titik simpan
+          // berarti tidak ada lagi baris berbahaya yang bisa tersimpan (C-09).
+          content: sanitizeRichText(lesson.content),
           duration_seconds: lesson.duration_seconds,
           position: lessonIndex,
         })
@@ -679,7 +683,7 @@ export async function saveCourseDraft(
               id: question.id,
               quiz_id: quizId,
               type: question.type,
-              prompt: question.prompt,
+              prompt: sanitizeRichText(question.prompt),
               points,
               allow_multiple: question.allow_multiple,
               case_sensitive: question.case_sensitive,
@@ -687,7 +691,7 @@ export async function saveCourseDraft(
             })
           }
 
-          const explanation = question.explanation ?? ""
+          const explanation = sanitizeRichText(question.explanation)
           if ((existingQuestion?.explanation ?? "") !== explanation) {
             explanationRows.push({
               question_id: question.id,
