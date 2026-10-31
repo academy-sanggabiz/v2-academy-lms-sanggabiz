@@ -15,12 +15,15 @@ import { NavigationBlockerProvider } from "@/components/admin/NavigationBlockerC
 import { NotificationBell } from "@/components/learner/NotificationBell"
 import type { Notification } from "@/lib/notifications-server"
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher"
+import { DisplaySettings } from "@/components/preferences/DisplaySettings"
+import type { DisplayPreferences } from "@/lib/preferences/display"
 
 type AdminShellProps = {
   name: string
   role: "mentor" | "superadmin"
   notifications: Notification[]
   unreadCount: number
+  displayPreferences: DisplayPreferences
   children: React.ReactNode
 }
 
@@ -32,7 +35,14 @@ export function AdminShell(props: AdminShellProps) {
   )
 }
 
-function AdminShellInner({ name, role, notifications, unreadCount, children }: AdminShellProps) {
+function AdminShellInner({
+  name,
+  role,
+  notifications,
+  unreadCount,
+  displayPreferences,
+  children,
+}: AdminShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const mobileNav = useMobileNav()
   const { busy, label } = useAdminBusy()
@@ -112,7 +122,8 @@ function AdminShellInner({ name, role, notifications, unreadCount, children }: A
             )}
             <div className="flex-1" />
             <NotificationBell items={notifications} unreadCount={unreadCount} seeAllHref={null} />
-            <LanguageSwitcher className="mr-1 hidden sm:inline-flex" />
+            <DisplaySettings preferences={displayPreferences} className="mr-1" />
+          <LanguageSwitcher className="mr-1 hidden sm:inline-flex" />
             <AdminUserMenu name={name} role={role} />
           </header>
 

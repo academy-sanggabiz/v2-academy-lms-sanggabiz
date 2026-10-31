@@ -156,6 +156,47 @@
       scroll-behavior: auto !important;
     }
   }
+
+  /* Preferensi tampilan pengguna (lib/preferences/display.ts).
+     Atribut ini hanya ada bila orangnya memang menimpa pengaturan
+     perangkatnya; tanpa atribut, aturan @media di atas yang berlaku. */
+  html[data-motion="reduced"] *,
+  html[data-motion="reduced"] *::before,
+  html[data-motion="reduced"] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Ukuran teks dinaikkan lewat font-size akar, bukan lewat zoom: seluruh
+     jarak dan ukuran di aplikasi ini memakai satuan rem, jadi tata letaknya
+     ikut melonggar secara proporsional alih-alih berdesakan. Peramban tetap
+     bisa dipakai memperbesar seperti biasa (WCAG 1.4.4), dan keduanya bisa
+     dipakai bersamaan. */
+  html[data-text-size="large"] {
+    font-size: 112.5%;
+  }
+  html[data-text-size="larger"] {
+    font-size: 125%;
+  }
+
+  /* Kontras tinggi: menggelapkan teks dan menegaskan garis. Bukan tema gelap
+     -- itu hal lain. Nilai di sini dipilih supaya rasio kontras teks utama
+     terhadap latarnya melewati 7:1 (WCAG 2.2 SC 1.4.6 tingkat AAA), sementara
+     palet bawaan dirancang untuk 4.5:1 (AA). */
+  html[data-contrast="high"] {
+    --background: #ffffff;
+    --foreground: #000000;
+    --card: #ffffff;
+    --card-foreground: #000000;
+    --muted-foreground: #26383d;
+    --border: #5a6b70;
+    --input: #5a6b70;
+    --primary: #0b4f5a;
+    --secondary-foreground: #0b4f5a;
+    --ring: #0b4f5a;
+  }
 }
 
 @layer utilities {

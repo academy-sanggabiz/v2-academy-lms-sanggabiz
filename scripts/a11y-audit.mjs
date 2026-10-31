@@ -63,6 +63,18 @@ const WIDTHS = [
 ]
 
 /**
+ * Preferensi tampilan ikut diaudit, bukan hanya tampilan bawaannya. Mode
+ * kontras tinggi dan teks lebih besar mengubah warna dan tata letak, jadi
+ * keduanya bisa melanggar aturan yang dipenuhi tampilan bawaan -- misalnya
+ * teks yang mulai bertumpuk, atau sasaran sentuh yang menyusut.
+ * Cookie-nya dibaca lib/preferences/display.ts.
+ */
+const DISPLAY_MODES = [
+  { label: "kontras tinggi", value: { textSize: "device", contrast: "high", motion: "device" } },
+  { label: "teks lebih besar", value: { textSize: "larger", contrast: "device", motion: "device" } },
+]
+
+/**
  * `networkidle` saja terlalu cepat. Sebagian widget menetapkan atribut
  * aksesibilitasnya di dalam effect React yang berjalan setelah jaringan diam --
  * tablist base-ui, misalnya, baru menaikkan satu tab ke `tabindex="0"`
@@ -118,6 +130,26 @@ try {
     "/legal/privasi",
   ])
     await visit(anon, path)
+
+  // Sampel halaman publik diaudit ulang pada tiap mode tampilan.
+  for (const mode of DISPLAY_MODES) {
+    await anon.context().addCookies([
+      {
+        name: "tampilan",
+        value: JSON.stringify(mode.value),
+        url: BASE,
+      },
+    ])
+    for (const path of ["/", "/auth/login"]) {
+      for (const { label, width, height } of WIDTHS) {
+        await anon.setViewportSize({ width, height })
+        await anon.goto(BASE + path)
+        await settle(anon)
+        await audit(anon, `${path} [${mode.label} · ${label}]`)
+      }
+    }
+  }
+  await anon.context().clearCookies()
 
   const { AUDIT_LEARNER_EMAIL, AUDIT_LEARNER_PASSWORD, AUDIT_ADMIN_EMAIL, AUDIT_ADMIN_PASSWORD } = process.env
 

@@ -141,6 +141,23 @@ export type Dictionary = {
   notifications: {
     all: string
   }
+  display: {
+    title: string
+    openPanel: string
+    intro: string
+    textSize: string
+    textSizeDevice: string
+    textSizeLarge: string
+    textSizeLarger: string
+    contrast: string
+    contrastDevice: string
+    contrastHigh: string
+    motion: string
+    motionDevice: string
+    motionReduced: string
+    deviceHint: string
+    browserZoomHint: string
+  }
   profile: {
     edit: string
     editTitle: string
@@ -350,6 +367,25 @@ const id: Dictionary = {
   },
   notifications: {
     all: "Semua notifikasi",
+  },
+  display: {
+    title: "Tampilan",
+    openPanel: "Atur tampilan",
+    intro:
+      "Pengaturan ini mengubah tampilan halaman di perangkat ini saja. Bawaannya mengikuti pengaturan perangkat Anda.",
+    textSize: "Ukuran teks",
+    textSizeDevice: "Ikut perangkat",
+    textSizeLarge: "Besar",
+    textSizeLarger: "Lebih besar",
+    contrast: "Kontras",
+    contrastDevice: "Ikut perangkat",
+    contrastHigh: "Tinggi",
+    motion: "Animasi",
+    motionDevice: "Ikut perangkat",
+    motionReduced: "Dikurangi",
+    deviceHint: "Tersimpan di perangkat ini, tidak dikirim ke mana pun.",
+    browserZoomHint:
+      "Anda juga bisa memperbesar seluruh halaman dengan Ctrl + dan Ctrl - di peramban; keduanya bisa dipakai bersamaan.",
   },
   profile: {
     edit: "Ubah profil",
@@ -566,6 +602,25 @@ const en: Dictionary = {
   },
   notifications: {
     all: "All notifications",
+  },
+  display: {
+    title: "Display",
+    openPanel: "Display settings",
+    intro:
+      "These settings change how pages look on this device only. By default they follow your device settings.",
+    textSize: "Text size",
+    textSizeDevice: "Follow device",
+    textSizeLarge: "Large",
+    textSizeLarger: "Larger",
+    contrast: "Contrast",
+    contrastDevice: "Follow device",
+    contrastHigh: "High",
+    motion: "Motion",
+    motionDevice: "Follow device",
+    motionReduced: "Reduced",
+    deviceHint: "Saved on this device; never sent anywhere.",
+    browserZoomHint:
+      "You can also zoom the whole page with Ctrl + and Ctrl - in your browser; both work together.",
   },
   profile: {
     edit: "Edit profile",

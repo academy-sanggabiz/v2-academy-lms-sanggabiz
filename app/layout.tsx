@@ -4,6 +4,8 @@ import "./globals.css";
 
 import { LocaleProvider } from "@/components/i18n/LocaleProvider";
 import { getTranslations } from "@/lib/i18n/server";
+import { getDisplayPreferences } from "@/lib/preferences/server";
+import { displayAttributes } from "@/lib/preferences/display";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -30,11 +32,12 @@ export default async function RootLayout({
   // suara dan aturan pelafalan dari atribut ini (WCAG 2.2 SC 3.1.1). Halaman
   // berbahasa Inggris dengan lang="id" akan dibacakan dengan pelafalan
   // Indonesia.
-  const { locale, t } = await getTranslations();
+  const [{ locale, t }, display] = await Promise.all([getTranslations(), getDisplayPreferences()]);
 
   return (
     <html
       lang={locale}
+      {...displayAttributes(display)}
       className={`${poppins.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
