@@ -7,7 +7,19 @@ alasannya. Diperbarui 31 Oktober 2026.
 
 ## Belum dikerjakan
 
-### 1. Dwibahasa Indonesia–Inggris
+### 1. Dwibahasa Indonesia–Inggris — *sedang berjalan*
+
+**Sudah selesai:** kerangkanya (`lib/i18n/`), pemilih bahasa di header peserta
+dan pengelola, atribut `lang` yang ikut berganti, judul tab, dan **seluruh
+layar yang dilihat peserta**: masuk, daftar, lupa dan ganti kata sandi,
+navigasi, dasbor, katalog kursus, riwayat pembelian, notifikasi, pengaturan,
+profil beserta form penyuntingannya, pemutar pelajaran, dan kotak catatan.
+
+**Belum:** seluruh area pengelola (`/admin/**`) — dasbor, kursus, editor
+kursus, peserta, penilaian, pelacakan, mentor, halaman depan, pengaturan.
+Juga: teks notifikasi, yang ditulis trigger basis data dan karena itu tidak
+tersentuh kamus antarmuka; menerjemahkannya berarti menyimpan kedua bahasa di
+baris notifikasi atau menyimpan kunci alih-alih kalimat jadi.
 
 **Kenapa ini lebih dulu.** Hampir setiap kalimat di aplikasi ini masih ditulis
 langsung di dalam komponen. Setiap fitur baru yang ditambahkan sebelum
