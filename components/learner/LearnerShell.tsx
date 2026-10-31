@@ -79,7 +79,7 @@ export function LearnerShell({
           {/* Pemilih bahasa di header, bukan terkubur di Pengaturan: orang yang
               salah bahasa justru kesulitan menemukan halaman Pengaturan. */}
           <DisplaySettings className="mr-1" />
-          <LanguageSwitcher className="mr-1 hidden sm:inline-flex" />
+          <LanguageSwitcher className="mr-1" />
           <NotificationBell items={notifications} unreadCount={unreadCount} />
           <UserMenu name={name} email={email} />
         </header>

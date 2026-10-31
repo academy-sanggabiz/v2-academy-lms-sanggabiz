@@ -120,7 +120,7 @@ function AdminShellInner({
             <div className="flex-1" />
             <NotificationBell items={notifications} unreadCount={unreadCount} seeAllHref={null} />
             <DisplaySettings className="mr-1" />
-          <LanguageSwitcher className="mr-1 hidden sm:inline-flex" />
+          <LanguageSwitcher className="mr-1" />
             <AdminUserMenu name={name} role={role} />
           </header>
 

@@ -88,10 +88,24 @@ Kerangkanya sudah berdiri dan dipakai. Yang sudah diterjemahkan: atribut
 `lang`, tautan lewati-ke-konten, dan seluruh halaman masuk. Sisanya menyusul
 bertahap; setiap layar yang disentuh berikutnya dipindahkan ke kamus sekalian.
 
-Pemilih bahasanya berupa dua tombol, bukan menu: untuk dua pilihan, dropdown
-hanya menyembunyikan keduanya di balik satu ketukan tambahan. Keadaan aktif
-dinyatakan `aria-pressed`, jadi pembaca layar menyebutkannya tanpa perlu
-membuka apa pun.
+Pemilih bahasanya satu tombol yang menampilkan bahasa aktif, membuka menu
+berisi kedua pilihan.
+
+Semula bentuknya dua tombol berdampingan, dengan alasan bahwa untuk dua pilihan
+dropdown hanya menyembunyikan keduanya di balik satu ketukan tambahan. Alasan
+itu benar bila dilihat sendirian, tetapi mengabaikan tempatnya: di header
+halaman depan ia berdiri bersama tombol preferensi tampilan, "Masuk", dan
+"Mulai". Empat kelompok kontrol berebut lebar yang sama membuat header sesak,
+dan jalan keluar yang sempat dipakai -- menyembunyikan pemilih bahasa di layar
+sempit -- justru menghilangkannya dari pengguna yang paling mungkin
+membutuhkannya.
+
+Satu tombol memberi informasi yang sama dengan ruang jauh lebih kecil, jadi ia
+tidak perlu lagi disembunyikan di mana pun. Isinya memakai `RadioGroup`, bukan
+daftar tombol: pilihannya tunggal dan saling meniadakan, dan radio menyampaikan
+persis itu ke pembaca layar termasuk mana yang sedang terpilih. Tiap baris
+diberi atribut `lang` sendiri supaya "English" dilafalkan sebagai bahasa
+Inggris meski menu di sekitarnya berbahasa Indonesia.
 
 ## 5. Sumber
 

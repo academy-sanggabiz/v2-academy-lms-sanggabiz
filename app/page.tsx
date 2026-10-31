@@ -36,10 +36,11 @@ export default async function Home() {
             Pemilih bahasa dan preferensi tampilan juga ada di sini, bukan
             hanya di balik login. Pengunjung yang belum punya akun justru yang
             paling mungkin butuh mengganti bahasa atau memperbesar teks, dan
-            sebelumnya tidak punya cara apa pun melakukannya.
+            sebelumnya tidak punya cara apa pun melakukannya. Keduanya kini
+            cukup ringkas untuk ikut tampil di layar sempit.
           */}
           <DisplaySettings />
-          <LanguageSwitcher className="hidden sm:inline-flex" />
+          <LanguageSwitcher />
           <Button
             variant="ghost"
             size="lg"
