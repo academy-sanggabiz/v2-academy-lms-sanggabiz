@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { dbErrorMessage } from "@/lib/db-error-message"
 import { sanitizeRichText } from "@/lib/sanitize-content"
 import { defaultBlocks, parseBlocks, type LandingBlock } from "@/lib/landing-blocks"
+import { checkTheme, parseTheme, type LandingTheme } from "@/lib/landing-theme"
 import {
   defaultFeaturedCourseIds,
   defaultFeatures,
@@ -185,4 +186,42 @@ export async function getLandingTestimonials(limit = 6): Promise<LandingTestimon
       comment: row.comment as string,
     }
   })
+}
+
+
+/** Tema halaman depan; jatuh ke bawaan bila belum diatur atau gagal kontras. */
+export async function getLandingTheme(): Promise<LandingTheme> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("landing_content")
+    .select("theme")
+    .eq("id", true)
+    .maybeSingle<{ theme: unknown }>()
+
+  return parseTheme(data?.theme)
+}
+
+/**
+ * Menyimpan tema. Ditolak bila ada pasangan warna yang gagal ambang kontras --
+ * dengan menyebutkan angkanya, bukan sekadar "tidak boleh". Pemeriksaan ini
+ * ada di server, bukan hanya di layar, karena server action bisa dipanggil
+ * langsung lewat jaringan.
+ */
+export async function saveLandingTheme(
+  theme: LandingTheme
+): Promise<{ ok: true } | { error: string }> {
+  const check = checkTheme(theme)
+  if (!check.ok) return { error: check.problems.join(". ") }
+
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from("landing_content")
+    .upsert({ id: true, theme, updated_at: new Date().toISOString() })
+
+  if (error) {
+    console.error("saveLandingTheme failed:", error.message)
+    return { error: dbErrorMessage(error.message) }
+  }
+
+  return { ok: true }
 }

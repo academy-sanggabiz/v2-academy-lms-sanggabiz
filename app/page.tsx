@@ -2,7 +2,8 @@ import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import { getPublishedCourses } from "@/lib/courses-server"
-import { getLandingBlocks, getLandingTestimonials } from "@/lib/landing-server"
+import { getLandingBlocks, getLandingTestimonials, getLandingTheme } from "@/lib/landing-server"
+import { themeStyle } from "@/lib/landing-theme"
 import { LandingBlocks } from "@/components/landing/LandingBlocks"
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher"
 import { DisplaySettings } from "@/components/preferences/DisplaySettings"
@@ -12,15 +13,19 @@ export default async function Home() {
   // Susunan halaman depan kini data, bukan tata letak: superadmin bisa
   // menambah, menghapus, menyembunyikan, dan mengurutkan bloknya sendiri
   // (lib/landing-blocks.ts).
-  const [blocks, courses, testimonials, { t }] = await Promise.all([
+  const [blocks, courses, testimonials, { t }, theme] = await Promise.all([
     getLandingBlocks(),
     getPublishedCourses(),
     getLandingTestimonials(),
     getTranslations(),
+    getLandingTheme(),
   ])
 
+  // Variabel warna dipasang di pembungkus ini saja, bukan di :root, supaya
+  // penggantian warna berhenti di halaman depan dan tidak ikut mengubah layar
+  // belajar maupun layar pengelola (lib/landing-theme.ts).
   return (
-    <div className="min-h-screen bg-card">
+    <div className="min-h-screen bg-card" style={themeStyle(theme)}>
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border bg-card/90 px-6 backdrop-blur-sm sm:px-10">
         <div className="flex items-center gap-2">
           <img src="/logo.png" alt="Sanggabiz" className="size-8 object-contain" />

@@ -5,6 +5,7 @@ import { ArrowDown, ArrowUp, Eye, EyeOff, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { saveLandingBlocksAction } from "@/app/admin/landing/actions"
+import { LandingPreview } from "@/components/admin/landing/LandingPreview"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -40,6 +41,9 @@ import { cn } from "@/lib/utils"
 export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }) {
   const [blocks, setBlocks] = useState(initialBlocks)
   const [pending, startTransition] = useTransition()
+  // Naik setiap kali penyimpanan berhasil; pratinjau memakainya sebagai aba-aba
+  // memuat ulang, supaya ia tidak memuat ulang pada setiap ketikan.
+  const [savedAt, setSavedAt] = useState(0)
 
   const usedTypes = new Set(blocks.map((b) => b.type))
   const addableTypes = LANDING_BLOCK_TYPES.filter(
@@ -67,6 +71,7 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
         toast.error(result.error)
         return
       }
+      setSavedAt(Date.now())
       toast.success("Halaman depan tersimpan")
     })
   }
@@ -110,6 +115,10 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
             Simpan
           </Button>
         </div>
+      </div>
+
+      <div className="mb-6">
+        <LandingPreview reloadToken={savedAt} />
       </div>
 
       <ol className="space-y-4">
