@@ -19,9 +19,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { logout } from "@/app/auth/login/actions"
 
-export function AdminUserMenu({ name, role }: { name: string; role: "admin" | "superadmin" }) {
+export function AdminUserMenu({ name, role }: { name: string; role: "mentor" | "superadmin" }) {
   const initial = name.charAt(0).toUpperCase()
-  const roleLabel = role === "superadmin" ? "Superadmin" : "Admin"
+  const roleLabel = role === "superadmin" ? "Superadmin" : "Mentor"
   const [isLoggingOut, startLogout] = useTransition()
 
   return (

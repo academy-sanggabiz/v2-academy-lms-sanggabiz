@@ -151,6 +151,7 @@ try {
       "/admin/purchases",
       "/admin/grading",
       "/admin/tracking",
+      "/admin/mentor",
       "/admin/landing",
       "/admin/settings",
       "/admin/profile",

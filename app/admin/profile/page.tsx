@@ -15,7 +15,7 @@ export default async function AdminProfilePage() {
     .eq("id", result.profile.userId)
     .single()
 
-  const name = profile?.full_name || profile?.email || "Admin"
+  const name = profile?.full_name || profile?.email || "Pengelola"
   const email = profile?.email || ""
   const joinedYear = profile?.created_at
     ? new Date(profile.created_at).getFullYear()

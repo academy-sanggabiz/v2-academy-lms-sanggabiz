@@ -17,7 +17,7 @@ import type { Notification } from "@/lib/notifications-server"
 
 type AdminShellProps = {
   name: string
-  role: "admin" | "superadmin"
+  role: "mentor" | "superadmin"
   notifications: Notification[]
   unreadCount: number
   children: React.ReactNode

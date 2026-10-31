@@ -2,9 +2,9 @@ import { cache } from "react"
 
 import { createClient } from "@/lib/supabase/server"
 
-const ADMIN_ROLES = new Set(["admin", "superadmin"])
+const ADMIN_ROLES = new Set(["mentor", "superadmin"])
 
-export type UserRole = "learner" | "admin" | "superadmin"
+export type UserRole = "learner" | "mentor" | "superadmin"
 
 /**
  * Resolves the current session's role using the same JWT-claim-then-profiles
@@ -29,14 +29,14 @@ export const resolveUserRole = cache(async function resolveUserRole(): Promise<{
   }
 
   const normalized: UserRole =
-    role === "admin" || role === "superadmin" ? role : "learner"
+    role === "mentor" || role === "superadmin" ? role : "learner"
   return { userId: claims.sub, role: normalized }
 })
 
 /** Single source of truth for where each role lands after login. */
 export function roleHomePath(role: UserRole): string {
   switch (role) {
-    case "admin":
+    case "mentor":
     case "superadmin":
       // Superadmin is a superset of admin and the admin area grants full
       // access, including the superadmin-only landing-page editor.
@@ -49,7 +49,7 @@ export function roleHomePath(role: UserRole): string {
 
 export type AdminProfile = {
   userId: string
-  role: "admin" | "superadmin"
+  role: "mentor" | "superadmin"
 }
 
 export type AdminProfileResult =
@@ -88,7 +88,7 @@ export const resolveAdminProfile = cache(async function resolveAdminProfile(): P
 
   if (!role || !ADMIN_ROLES.has(role)) return { status: "unauthorized" }
 
-  return { status: "ok", profile: { userId: claims.sub, role: role as "admin" | "superadmin" } }
+  return { status: "ok", profile: { userId: claims.sub, role: role as "mentor" | "superadmin" } }
 })
 
 /** Returns null if the caller isn't authenticated / isn't admin-or-superadmin. */
@@ -100,7 +100,7 @@ export async function getAdminProfile(): Promise<AdminProfile | null> {
 /** Throws if the current session isn't admin/superadmin. */
 export async function requireAdmin(): Promise<AdminProfile> {
   const admin = await getAdminProfile()
-  if (!admin) throw new Error("Anda tidak berwenang mengakses area admin")
+  if (!admin) throw new Error("Anda tidak berwenang mengakses area pengelola")
   return admin
 }
 

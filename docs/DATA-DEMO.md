@@ -22,6 +22,22 @@ Akun-akun ini juga dipakai gerbang aksesibilitas. Dengan `AUDIT_LEARNER_EMAIL`
 dan `AUDIT_LEARNER_PASSWORD` terisi, `npm run audit:a11y` ikut memeriksa
 delapan halaman di balik login, bukan hanya halaman publik.
 
+## Akun mentor
+
+| Nama | Email | Keadaan yang diperlihatkan |
+| --- | --- | --- |
+| Rizky Hartono | `admin.demo@contoh.test` | Peran `mentor`: hanya melihat dan menyunting kursus miliknya sendiri |
+
+Dialah pemilik kursus draf "Menyusun Laporan Penjualan Bulanan". Masuk sebagai
+dia memperlihatkan perbedaan level dengan jelas: dasbornya berbunyi "Kursus
+Saya" alih-alih "Total Kursus", daftar kursusnya hanya memuat satu baris, dan
+menu "Mentor" serta "Halaman Depan" tidak ada karena keduanya khusus
+superadmin. Mencoba membuka `/admin/landing` langsung akan dipantulkan ke
+dasbor dengan 307.
+
+Kata sandinya ada di `.env.local` sebagai `DEMO_ADMIN_PASSWORD`, tidak di
+repositori ini. Peran dan batasannya dijelaskan di `docs/STANDAR-PERAN.md`.
+
 ## Isi kursus
 
 | Kursus | Status | Isi |

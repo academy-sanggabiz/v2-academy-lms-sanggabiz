@@ -14,13 +14,13 @@ type AdminProfileViewProps = {
   name: string
   email: string
   joinedYear: number
-  role: "admin" | "superadmin"
+  role: "mentor" | "superadmin"
 }
 
 export function AdminProfileView({ name, email, joinedYear, role }: AdminProfileViewProps) {
   const [isEditing, setIsEditing] = useState(false)
   const initial = name.charAt(0).toUpperCase()
-  const roleLabel = role === "superadmin" ? "Superadmin" : "Admin"
+  const roleLabel = role === "superadmin" ? "Superadmin" : "Mentor"
 
   if (isEditing) {
     return (

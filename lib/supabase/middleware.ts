@@ -73,7 +73,7 @@ export async function updateSession(request: NextRequest) {
     // learners out) since there's no learner-layout equivalent of
     // app/admin/layout.tsx's authoritative DB check to fall back on.
     const role = user.app_metadata?.role as string | undefined
-    if (role === 'admin' || role === 'superadmin') {
+    if (role === 'mentor' || role === 'superadmin') {
       const url = request.nextUrl.clone()
       url.pathname = '/admin/dashboard'
       url.search = ''
@@ -107,10 +107,10 @@ export async function updateSession(request: NextRequest) {
     // is absent, defer to app/admin/layout.tsx's authoritative DB check
     // rather than locking admins out here.
     const role = user.app_metadata?.role as string | undefined
-    if (role && role !== 'admin' && role !== 'superadmin') {
+    if (role && role !== 'mentor' && role !== 'superadmin') {
       const url = request.nextUrl.clone()
       url.pathname = '/auth/login'
-      url.searchParams.set('error', 'Anda tidak berwenang mengakses area admin')
+      url.searchParams.set('error', 'Anda tidak berwenang mengakses area pengelola')
       return redirectKeeping(url, supabaseResponse)
     }
 

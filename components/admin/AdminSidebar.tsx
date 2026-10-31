@@ -12,6 +12,7 @@ import {
   Layout,
   ClipboardCheck,
   Activity,
+  UserCog,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -38,7 +39,7 @@ export function AdminSidebar({
   mobileOpen: boolean
   onToggle: () => void
   onCloseMobile: () => void
-  role: "admin" | "superadmin"
+  role: "mentor" | "superadmin"
 }) {
   return (
     <aside id="app-sidebar" aria-label="Navigasi utama" className={sidebarClasses(open, mobileOpen)}>
@@ -68,8 +69,14 @@ export function AdminSidebar({
         {navItems.map(({ href, label, icon: Icon }) => (
           <NavLink key={href} href={href} label={label} icon={Icon} />
         ))}
+        {/* Dua layar khusus superadmin: evaluasi mentor menyilangkan data
+            seluruh mentor, dan halaman depan adalah wajah perusahaan.
+            docs/STANDAR-PERAN.md §2. */}
         {role === "superadmin" && (
-          <NavLink href="/admin/landing" label="Halaman Depan" icon={Layout} />
+          <>
+            <NavLink href="/admin/mentor" label="Mentor" icon={UserCog} />
+            <NavLink href="/admin/landing" label="Halaman Depan" icon={Layout} />
+          </>
         )}
       </nav>
 

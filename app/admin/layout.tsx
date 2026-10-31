@@ -6,7 +6,7 @@ import { resolveAdminProfile } from "@/lib/auth/require-admin"
 import { createClient } from "@/lib/supabase/server"
 import { getNotifications } from "@/lib/notifications-server"
 
-export const metadata: Metadata = { title: "Admin" }
+export const metadata: Metadata = { title: "Pengelola" }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const result = await resolveAdminProfile()
@@ -15,7 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/auth/login")
   }
   if (result.status === "unauthorized") {
-    redirect("/auth/login?error=Anda tidak berwenang mengakses area admin")
+    redirect("/auth/login?error=Anda tidak berwenang mengakses area pengelola")
   }
 
   const supabase = await createClient()
@@ -24,7 +24,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     getNotifications(5),
   ])
 
-  const name = profile?.full_name || profile?.email || "Admin"
+  const name = profile?.full_name || profile?.email || "Pengelola"
 
   return (
     <AdminShell
