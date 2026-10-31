@@ -1,30 +1,19 @@
 import Link from "next/link"
-import { Award, GraduationCap, Layers, type LucideIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { FeaturedCoursesCarousel } from "@/components/FeaturedCoursesCarousel"
-import type { Course } from "@/lib/courses"
 import { getPublishedCourses } from "@/lib/courses-server"
-import { getLandingContent } from "@/lib/landing-server"
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  "graduation-cap": GraduationCap,
-  layers: Layers,
-  award: Award,
-}
+import { getLandingBlocks, getLandingTestimonials } from "@/lib/landing-server"
+import { LandingBlocks } from "@/components/landing/LandingBlocks"
 
 export default async function Home() {
-  const [{ hero, features, featuredCourseIds }, courses] = await Promise.all([
-    getLandingContent(),
+  // Susunan halaman depan kini data, bukan tata letak: superadmin bisa
+  // menambah, menghapus, menyembunyikan, dan mengurutkan bloknya sendiri
+  // (lib/landing-blocks.ts).
+  const [blocks, courses, testimonials] = await Promise.all([
+    getLandingBlocks(),
     getPublishedCourses(),
+    getLandingTestimonials(),
   ])
-
-  const featured =
-    featuredCourseIds.length > 0
-      ? featuredCourseIds
-          .map((id) => courses.find((c) => c.id === id))
-          .filter((c): c is Course => !!c)
-      : courses.slice(0, 4)
 
   return (
     <div className="min-h-screen bg-card">
@@ -59,90 +48,7 @@ export default async function Home() {
         * tidak membawa ke mana pun (WCAG 2.4.1).
         */}
       <main id="main-content" tabIndex={-1} className="outline-none">
-      <section className="flex flex-col items-center bg-gradient-to-b from-card to-background px-6 py-28 text-center sm:py-32">
-        <h1 className="max-w-4xl text-4xl leading-tight font-bold tracking-tight sm:text-6xl">
-          {hero.heading} <span className="text-ring">{hero.highlightWord}</span>
-        </h1>
-        <div
-          className="lesson-prose mt-7 max-w-xl text-lg text-muted-foreground"
-          dangerouslySetInnerHTML={{ __html: hero.subheading }}
-        />
-        <div className="mt-10 flex flex-wrap justify-center gap-3.5">
-          <Button
-            size="xl"
-            className="bg-brand-gradient text-white hover:brightness-105"
-            render={<Link href={hero.primaryCtaHref} />} nativeButton={false}
-          >
-            {hero.primaryCtaText}
-          </Button>
-          <Button size="xl" variant="outline" render={<Link href="/auth/login" />} nativeButton={false}>
-            Jelajahi Kursus
-          </Button>
-        </div>
-      </section>
-
-      <section className="bg-background px-6 py-24 sm:px-10">
-        <h2 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">
-          Kursus Unggulan
-        </h2>
-        <p className="mt-3 mb-11 text-center text-muted-foreground">
-          Mulai dari kursus terpopuler kami.
-        </p>
-        <FeaturedCoursesCarousel courses={featured} />
-      </section>
-
-      <section className="bg-card px-6 py-24 sm:px-10">
-        <h2 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">
-          Mengapa Sanggabiz?
-        </h2>
-        <p className="mx-auto mt-3 mb-13 max-w-lg text-center text-muted-foreground">
-          Kami berkomitmen menghadirkan pengalaman belajar berkualitas yang
-          memberi hasil nyata.
-        </p>
-        <div className="mx-auto grid max-w-4xl grid-cols-1 justify-center gap-6 sm:grid-cols-3">
-          {features.map(({ icon, title, description }) => {
-            const Icon = ICON_MAP[icon ?? "graduation-cap"] ?? GraduationCap
-            return (
-              <div
-                key={title}
-                className="rounded-xl border border-border bg-card p-9 text-center transition-shadow hover:shadow-[0_8px_24px_rgba(20,55,64,0.08)]"
-              >
-                <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-full bg-secondary">
-                  <Icon className="size-6 text-primary" />
-                </div>
-                <div className="mb-2.5 text-lg font-bold">{title}</div>
-                <div
-                  className="lesson-prose text-sm leading-relaxed text-muted-foreground"
-                  dangerouslySetInnerHTML={{ __html: description }}
-                />
-              </div>
-            )
-          })}
-        </div>
-      </section>
-
-      <section className="bg-gradient-to-b from-card to-background px-6 py-24 text-center">
-        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-          Siap Mulai Belajar?
-        </h2>
-        <p className="mx-auto mt-3.5 max-w-lg text-muted-foreground">
-          Bergabunglah dengan ribuan peserta yang sudah mengembangkan diri
-          melalui kursus kami.
-        </p>
-        <div className="mt-9 flex flex-wrap justify-center gap-3.5">
-          <Button
-            size="xl"
-            className="bg-brand-gradient text-white hover:brightness-105"
-            render={<Link href="/auth/login" />} nativeButton={false}
-          >
-            Buat Akun
-          </Button>
-          <Button size="xl" variant="outline" render={<Link href="/auth/login" />} nativeButton={false}>
-            Lihat Semua Kursus
-          </Button>
-        </div>
-      </section>
-
+        <LandingBlocks blocks={blocks} courses={courses} testimonials={testimonials} />
       </main>
 
       <footer className="flex flex-col items-center gap-4 border-t border-border bg-card px-6 py-14 text-center">

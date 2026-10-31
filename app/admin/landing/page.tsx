@@ -4,6 +4,8 @@ import { resolveSuperAdminProfile } from "@/lib/auth/require-admin"
 import { getLandingContent } from "@/lib/landing-server"
 import { getPublishedCourses } from "@/lib/courses-server"
 import { LandingForm } from "@/components/admin/landing/LandingForm"
+import { getLandingBlocks } from "@/lib/landing-server"
+import { BlockEditor } from "@/components/admin/landing/BlockEditor"
 
 export default async function AdminLandingPage() {
   const result = await resolveSuperAdminProfile()
@@ -14,8 +16,20 @@ export default async function AdminLandingPage() {
     redirect("/admin/dashboard")
   }
 
-  const [content, courses] = await Promise.all([getLandingContent(), getPublishedCourses()])
+  const [content, courses, blocks] = await Promise.all([
+    getLandingContent(),
+    getPublishedCourses(),
+    getLandingBlocks(),
+  ])
   const availableCourses = courses.map((c) => ({ id: c.id, title: c.title }))
 
-  return <LandingForm content={content} availableCourses={availableCourses} />
+  return (
+    <div className="space-y-10">
+      {/* Penyusun blok menentukan bagian mana yang tampil dan urutannya;
+          formulir di bawahnya menyunting isi rinci hero, keunggulan, dan
+          kursus pilihan. Keduanya menyimpan ke baris yang sama. */}
+      <BlockEditor initialBlocks={blocks} />
+      <LandingForm content={content} availableCourses={availableCourses} />
+    </div>
+  )
 }
