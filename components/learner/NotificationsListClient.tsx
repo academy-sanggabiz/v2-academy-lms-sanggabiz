@@ -6,12 +6,14 @@ import { ListPagination } from "@/components/admin/ListPagination"
 import type { Notification } from "@/lib/notifications-server"
 import type { Paginated } from "@/lib/pagination"
 import { relativeTime } from "@/lib/notification-format"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 export function NotificationsListClient({ page }: { page: Paginated<Notification> }) {
+  const { t } = useI18n()
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-bold">Semua notifikasi</h2>
+        <h2 className="text-lg font-bold">{t.notifications.all}</h2>
       </div>
 
       {page.rows.length === 0 ? (

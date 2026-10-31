@@ -14,13 +14,17 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { CourseGridCard } from "@/components/learner/CourseGridCard"
 import type { Course } from "@/lib/courses"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 type SortKey = "newest" | "title" | "price"
 
-const sortOptions: { key: SortKey; label: string }[] = [
-  { key: "newest", label: "Terbaru" },
-  { key: "title", label: "Judul A–Z" },
-  { key: "price", label: "Harga: Terendah" },
+type SortLabelKey = "newest" | "title" | "priceLowest"
+
+const sortOptions: { key: SortKey; labelKey: SortLabelKey }[] = [
+  // Label diambil dari kamus lewat kunci: daftar ini di luar komponen.
+  { key: "newest", labelKey: "newest" },
+  { key: "title", labelKey: "title" },
+  { key: "price", labelKey: "priceLowest" },
 ]
 
 export function CoursesBrowser({
@@ -38,6 +42,7 @@ export function CoursesBrowser({
   completedIds: string[]
   startedIds: string[]
 }) {
+  const { t } = useI18n()
   const [query, setQuery] = useState("")
   const [sort, setSort] = useState<SortKey>("newest")
 
@@ -67,14 +72,14 @@ export function CoursesBrowser({
     [enrolledCourses, completedIds, sort]
   )
 
-  const sortLabel = sortOptions.find((o) => o.key === sort)?.label ?? "Urutkan"
+  const sortLabel = t.courses[sortOptions.find((o) => o.key === sort)?.labelKey ?? "newest"]
 
   return (
     <div className="space-y-5">
       <div className="flex gap-3.5">
         <Input
-          placeholder="Cari kursus..."
-          aria-label="Cari kursus"
+          placeholder={t.courses.searchPlaceholder}
+          aria-label={t.courses.searchLabel}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="h-11 flex-1 rounded-[10px] bg-card px-4"
@@ -91,7 +96,7 @@ export function CoursesBrowser({
                 <span className="flex size-4 items-center justify-center">
                   {sort === o.key && <Check className="size-3.5 text-ring" />}
                 </span>
-                {o.label}
+                {t.courses[o.labelKey]}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -101,13 +106,13 @@ export function CoursesBrowser({
       <Tabs defaultValue="all">
         <TabsList className="mx-auto h-auto w-fit gap-1.5 rounded-[10px] bg-secondary p-1.5">
           <TabsTrigger value="all" className="h-9 rounded-lg px-4 data-active:bg-card">
-            Semua Kursus
+            {t.courses.all}
           </TabsTrigger>
           <TabsTrigger value="enrolled" className="h-9 rounded-lg px-4 data-active:bg-card">
-            Terdaftar
+            {t.courses.enrolled}
           </TabsTrigger>
           <TabsTrigger value="completed" className="h-9 rounded-lg px-4 data-active:bg-card">
-            Selesai
+            {t.courses.completed}
           </TabsTrigger>
         </TabsList>
 
@@ -124,7 +129,7 @@ export function CoursesBrowser({
               ))}
             </div>
           ) : (
-            <EmptyState message="Tidak ada kursus yang cocok dengan pencarian Anda." />
+            <EmptyState message={t.courses.noMatches} />
           )}
         </TabsContent>
 
@@ -136,7 +141,7 @@ export function CoursesBrowser({
               ))}
             </div>
           ) : (
-            <EmptyState message="Anda belum terdaftar di kursus mana pun." />
+            <EmptyState message={t.courses.noneEnrolled} />
           )}
         </TabsContent>
 
@@ -148,7 +153,7 @@ export function CoursesBrowser({
               ))}
             </div>
           ) : (
-            <EmptyState message="Anda belum menyelesaikan kursus apa pun." />
+            <EmptyState message={t.courses.noneCompleted} />
           )}
         </TabsContent>
       </Tabs>

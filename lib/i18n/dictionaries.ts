@@ -83,6 +83,64 @@ export type Dictionary = {
     repeatPassword: string
     mismatch: string
   }
+  dashboard: {
+    greeting: string
+    coursesInProgress: string
+    coursesCompleted: string
+    continueLearning: string
+    nextLesson: string
+    lessonsDone: string
+    continueAt: string
+    noneInProgress: string
+    recommended: string
+    noRecommendations: string
+    start: string
+    continue: string
+    learners: string
+    of: string
+    lessonsProgress: string
+  }
+  courses: {
+    searchPlaceholder: string
+    searchLabel: string
+    sort: string
+    newest: string
+    title: string
+    priceLowest: string
+    all: string
+    enrolled: string
+    completed: string
+    noneEnrolled: string
+    noneCompleted: string
+    noMatches: string
+    preview: string
+    lessons: string
+    hours: string
+  }
+  purchases: {
+    title: string
+    subtitle: string
+    totalSpent: string
+    purchases: string
+    paid: string
+    allPurchases: string
+    course: string
+    amount: string
+    status: string
+    date: string
+    none: string
+    noMatches: string
+    searchLabel: string
+    filterLabel: string
+    statusPaid: string
+    statusFree: string
+    statusPending: string
+    statusRefunded: string
+    allStatuses: string
+  }
+  notifications: {
+    all: string
+  }
   pageTitles: {
     lesson: string
     newPassword: string
@@ -176,6 +234,64 @@ const id: Dictionary = {
     repeatPassword: "Ulangi kata sandi baru",
     mismatch: "Kedua kata sandi belum sama.",
   },
+  dashboard: {
+    greeting: "Halo",
+    coursesInProgress: "Kursus berjalan",
+    coursesCompleted: "Kursus selesai",
+    continueLearning: "Lanjutkan belajar",
+    nextLesson: "Berikutnya: pelajaran",
+    lessonsDone: "selesai",
+    continueAt: "Lanjutkan: pelajaran",
+    noneInProgress: "Belum ada kursus yang sedang Anda ikuti.",
+    recommended: "Kursus rekomendasi",
+    noRecommendations: "Belum ada rekomendasi",
+    start: "Mulai",
+    continue: "Lanjutkan",
+    learners: "Peserta",
+    of: "dari",
+    lessonsProgress: "pelajaran selesai",
+  },
+  courses: {
+    searchPlaceholder: "Cari kursus...",
+    searchLabel: "Cari kursus",
+    sort: "Urutkan",
+    newest: "Terbaru",
+    title: "Judul",
+    priceLowest: "Harga: Terendah",
+    all: "Semua Kursus",
+    enrolled: "Terdaftar",
+    completed: "Selesai",
+    noneEnrolled: "Anda belum terdaftar di kursus mana pun.",
+    noneCompleted: "Anda belum menyelesaikan kursus apa pun.",
+    noMatches: "Tidak ada kursus yang cocok dengan pencarian Anda.",
+    preview: "Pratinjau",
+    lessons: "pelajaran",
+    hours: "jam",
+  },
+  purchases: {
+    title: "Riwayat Pembelian",
+    subtitle: "Pembelian dan pendaftaran kursus Anda",
+    totalSpent: "Total Belanja",
+    purchases: "Pembelian",
+    paid: "Berbayar",
+    allPurchases: "Semua Pembelian",
+    course: "Kursus",
+    amount: "Jumlah",
+    status: "Status",
+    date: "Tanggal",
+    none: "Belum ada pembelian.",
+    noMatches: "Tidak ada pembelian yang cocok dengan pencarian Anda.",
+    searchLabel: "Cari berdasarkan kursus",
+    filterLabel: "Filter berdasarkan status",
+    statusPaid: "Berbayar",
+    statusFree: "Gratis",
+    statusPending: "Tertunda",
+    statusRefunded: "Dikembalikan",
+    allStatuses: "Semua Status",
+  },
+  notifications: {
+    all: "Semua notifikasi",
+  },
   pageTitles: {
     lesson: "Pelajaran",
     newPassword: "Kata sandi baru",
@@ -268,6 +384,64 @@ const en: Dictionary = {
     newPassword: "New password",
     repeatPassword: "Repeat new password",
     mismatch: "The two passwords do not match yet.",
+  },
+  dashboard: {
+    greeting: "Hello",
+    coursesInProgress: "Courses in progress",
+    coursesCompleted: "Courses completed",
+    continueLearning: "Continue learning",
+    nextLesson: "Next: lesson",
+    lessonsDone: "done",
+    continueAt: "Continue: lesson",
+    noneInProgress: "You are not taking any course yet.",
+    recommended: "Recommended courses",
+    noRecommendations: "No recommendations yet",
+    start: "Start",
+    continue: "Continue",
+    learners: "Learners",
+    of: "of",
+    lessonsProgress: "lessons done",
+  },
+  courses: {
+    searchPlaceholder: "Search courses...",
+    searchLabel: "Search courses",
+    sort: "Sort",
+    newest: "Newest",
+    title: "Title",
+    priceLowest: "Price: lowest",
+    all: "All courses",
+    enrolled: "Enrolled",
+    completed: "Completed",
+    noneEnrolled: "You are not enrolled in any course yet.",
+    noneCompleted: "You have not completed any course yet.",
+    noMatches: "No course matches your search.",
+    preview: "Preview",
+    lessons: "lessons",
+    hours: "hours",
+  },
+  purchases: {
+    title: "Purchase history",
+    subtitle: "Your course purchases and enrolments",
+    totalSpent: "Total spent",
+    purchases: "Purchases",
+    paid: "Paid",
+    allPurchases: "All purchases",
+    course: "Course",
+    amount: "Amount",
+    status: "Status",
+    date: "Date",
+    none: "No purchases yet.",
+    noMatches: "No purchase matches your search.",
+    searchLabel: "Search by course",
+    filterLabel: "Filter by status",
+    statusPaid: "Paid",
+    statusFree: "Free",
+    statusPending: "Pending",
+    statusRefunded: "Refunded",
+    allStatuses: "All statuses",
+  },
+  notifications: {
+    all: "All notifications",
   },
   pageTitles: {
     lesson: "Lesson",

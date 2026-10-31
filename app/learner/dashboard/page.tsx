@@ -11,8 +11,11 @@ import {
   getEnrolledCourseIds,
   type ContinueLearningItem,
 } from "@/lib/enrollments-server"
+import { getTranslations } from "@/lib/i18n/server"
+import type { Dictionary } from "@/lib/i18n/dictionaries"
 
 export default async function LearnerDashboardPage() {
+  const { t } = await getTranslations()
   const supabase = await createClient()
   const { data } = await supabase.auth.getClaims()
   const claims = data?.claims
@@ -47,14 +50,16 @@ export default async function LearnerDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Halo, {displayName}</h1>
+      <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+        {t.dashboard.greeting}, {displayName}
+      </h1>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <Card>
           <CardContent>
             <div className="flex items-center gap-2.5 text-sm font-semibold text-ring">
               <BookOpen className="size-[18px]" aria-hidden />
-              Kursus berjalan
+              {t.dashboard.coursesInProgress}
             </div>
             <div className="mt-4 text-4xl leading-none font-bold">{inProgressCount ?? 0}</div>
           </CardContent>
@@ -63,7 +68,7 @@ export default async function LearnerDashboardPage() {
           <CardContent>
             <div className="flex items-center gap-2.5 text-sm font-semibold text-primary">
               <CheckCircle2 className="size-[18px]" aria-hidden />
-              Kursus selesai
+              {t.dashboard.coursesCompleted}
             </div>
             <div className="mt-4 text-4xl leading-none font-bold">{completedCount ?? 0}</div>
           </CardContent>
@@ -73,17 +78,17 @@ export default async function LearnerDashboardPage() {
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
         <Card className="min-h-[280px]">
           <CardContent>
-            <h2 className="mb-4 text-lg font-bold">Lanjutkan belajar</h2>
+            <h2 className="mb-4 text-lg font-bold">{t.dashboard.continueLearning}</h2>
             {primary ? (
               <div className="space-y-4">
-                <ContinueRow item={primary} prominent />
+                <ContinueRow item={primary} prominent t={t} />
                 {others.map((item) => (
-                  <ContinueRow key={item.courseId} item={item} />
+                  <ContinueRow key={item.courseId} item={item} t={t} />
                 ))}
               </div>
             ) : (
               <div className="space-y-3 pt-2">
-                <p className="text-sm text-muted-foreground">Belum ada kursus yang sedang Anda ikuti.</p>
+                <p className="text-sm text-muted-foreground">{t.dashboard.noneInProgress}</p>
                 <Button variant="outline" render={<Link href="/learner/courses" />} nativeButton={false}>
                   Lihat kursus
                 </Button>
@@ -94,7 +99,7 @@ export default async function LearnerDashboardPage() {
 
         <Card className="min-h-[280px]">
           <CardContent>
-            <h2 className="mb-4 text-lg font-bold">Kursus rekomendasi</h2>
+            <h2 className="mb-4 text-lg font-bold">{t.dashboard.recommended}</h2>
             {recommended.length > 0 ? (
               <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {recommended.map((course) => (
@@ -125,7 +130,7 @@ export default async function LearnerDashboardPage() {
                 ))}
               </ul>
             ) : (
-              <p className="pt-2 text-sm text-muted-foreground">Belum ada rekomendasi</p>
+              <p className="pt-2 text-sm text-muted-foreground">{t.dashboard.noRecommendations}</p>
             )}
           </CardContent>
         </Card>
@@ -139,7 +144,15 @@ export default async function LearnerDashboardPage() {
  * lesson (DL standard: honest progress counted from real lessons, plus a
  * labelled next step).
  */
-function ContinueRow({ item, prominent = false }: { item: ContinueLearningItem; prominent?: boolean }) {
+function ContinueRow({
+  item,
+  prominent = false,
+  t,
+}: {
+  item: ContinueLearningItem
+  prominent?: boolean
+  t: Dictionary
+}) {
   const pct = Math.round((item.doneCount / item.totalCount) * 100)
   const href = item.nextLesson
     ? `/learn/${item.courseId}?lesson=${item.nextLesson.id}`
@@ -150,7 +163,7 @@ function ContinueRow({ item, prominent = false }: { item: ContinueLearningItem; 
       <p className="line-clamp-2 font-semibold">{item.title}</p>
       {item.nextLesson && (
         <p className="mt-1 text-sm text-muted-foreground">
-          Berikutnya: pelajaran {item.nextLesson.position} dari {item.totalCount} · {item.nextLesson.title}
+          {t.dashboard.nextLesson} {item.nextLesson.position} {t.dashboard.of} {item.totalCount} · {item.nextLesson.title}
         </p>
       )}
       <div className="mt-3 flex items-center gap-3">
@@ -160,13 +173,13 @@ function ContinueRow({ item, prominent = false }: { item: ContinueLearningItem; 
           aria-valuemin={0}
           aria-valuemax={item.totalCount}
           aria-valuenow={item.doneCount}
-          aria-valuetext={`${item.doneCount} dari ${item.totalCount} pelajaran selesai`}
+          aria-valuetext={`${item.doneCount} ${t.dashboard.of} ${item.totalCount} ${t.dashboard.lessonsProgress}`}
           className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary"
         >
           <div className="h-full bg-brand-gradient" style={{ width: `${pct}%` }} />
         </div>
         <span className="text-xs font-semibold whitespace-nowrap text-primary">
-          {item.doneCount} dari {item.totalCount} selesai
+          {item.doneCount} {t.dashboard.of} {item.totalCount} {t.dashboard.lessonsDone}
         </span>
       </div>
       {prominent ? (
@@ -175,12 +188,12 @@ function ContinueRow({ item, prominent = false }: { item: ContinueLearningItem; 
           render={<Link href={href} />}
           nativeButton={false}
         >
-          {item.doneCount === 0 ? "Mulai" : "Lanjutkan"}: pelajaran {item.nextLesson?.position ?? item.totalCount}
+          {item.doneCount === 0 ? t.dashboard.start : t.dashboard.continue}: {item.nextLesson?.position ?? item.totalCount}
           <ArrowRight className="size-4" aria-hidden />
         </Button>
       ) : (
         <Link href={href} className="mt-3 inline-block text-sm font-semibold text-primary underline underline-offset-4">
-          Lanjutkan
+          {t.dashboard.continue}
           <span className="sr-only"> {item.title}</span>
         </Link>
       )}

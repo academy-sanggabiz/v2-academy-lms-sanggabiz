@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select"
 import { formatPrice } from "@/lib/courses"
 import type { LearnerPurchase, TransactionStatus } from "@/lib/purchases-server"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 type StatusFilter = "all" | TransactionStatus
 
@@ -43,6 +44,7 @@ function formatDate(iso: string): string {
 }
 
 export function PurchaseHistoryClient({ purchases }: { purchases: LearnerPurchase[] }) {
+  const { t } = useI18n()
   const [query, setQuery] = useState("")
   const [status, setStatus] = useState<StatusFilter>("all")
 
@@ -64,21 +66,21 @@ export function PurchaseHistoryClient({ purchases }: { purchases: LearnerPurchas
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Cari kursus..."
-              aria-label="Cari berdasarkan kursus"
+              placeholder={t.courses.searchPlaceholder}
+              aria-label={t.purchases.searchLabel}
               className="h-9 pl-8"
             />
           </div>
           <Select value={status} onValueChange={(value) => setStatus(value as StatusFilter)}>
-            <SelectTrigger aria-label="Filter berdasarkan status" className="h-9 w-[160px]">
+            <SelectTrigger aria-label={t.purchases.filterLabel} className="h-9 w-[160px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Semua Status</SelectItem>
-              <SelectItem value="completed">Berbayar</SelectItem>
-              <SelectItem value="free">Gratis</SelectItem>
-              <SelectItem value="pending">Tertunda</SelectItem>
-              <SelectItem value="refunded">Dikembalikan</SelectItem>
+              <SelectItem value="all">{t.purchases.allStatuses}</SelectItem>
+              <SelectItem value="completed">{t.purchases.statusPaid}</SelectItem>
+              <SelectItem value="free">{t.purchases.statusFree}</SelectItem>
+              <SelectItem value="pending">{t.purchases.statusPending}</SelectItem>
+              <SelectItem value="refunded">{t.purchases.statusRefunded}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -86,7 +88,7 @@ export function PurchaseHistoryClient({ purchases }: { purchases: LearnerPurchas
 
       {filtered.length === 0 ? (
         <div className="py-12 text-center text-sm text-muted-foreground">
-          {purchases.length === 0 ? "Belum ada pembelian." : "Tidak ada pembelian yang cocok dengan pencarian Anda."}
+          {purchases.length === 0 ? t.purchases.none : t.purchases.noMatches}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border">
