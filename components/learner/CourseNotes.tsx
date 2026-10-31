@@ -3,18 +3,23 @@ import { ArrowRight, NotebookPen } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { formatNoteDateTime, noteExcerpt, type CourseNote } from "@/lib/notes"
+import { getTranslations } from "@/lib/i18n/server"
 
 /**
  * "Catatan saya" on the course page: the enrolled learner's own lesson
  * notes, in curriculum order, each linking back to its lesson in the player.
  * Server Component -- the notes are fetched by the page (lib/notes-server.ts).
+ * Karena itu kamusnya diambil lewat getTranslations(), bukan hook klien
+ * useI18n(): memanggil hook di sini membuat halamannya crash saat render,
+ * sementara `tsc` dan `next build` tetap hijau karena rutenya dinamis.
  */
-export function CourseNotes({ courseId, notes }: { courseId: string; notes: CourseNote[] }) {
+export async function CourseNotes({ courseId, notes }: { courseId: string; notes: CourseNote[] }) {
+  const { t } = await getTranslations()
   return (
     <Card>
       <CardContent>
         <h2 id="course-notes-heading" className="mb-1 text-lg font-bold">
-          Catatan saya
+          {t.player.myNotes}
         </h2>
         <p className="mb-4 text-[13px] text-muted-foreground">Hanya Anda yang dapat melihat catatan ini.</p>
 

@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import { NOTE_MAX_LENGTH, formatNoteDateTime, formatNoteTime, type LessonNote } from "@/lib/notes"
 import { saveLessonNote } from "@/app/learn/[courseId]/notes-actions"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 const AUTOSAVE_DELAY_MS = 800
 /** Show the character counter once the note passes this share of the limit. */
@@ -57,6 +58,7 @@ type SaveState =
  * has no enrollment to attach a note to.
  */
 export function LessonNotes({ lessonId, initialNote }: { lessonId: string; initialNote: LessonNote | null }) {
+  const { t } = useI18n()
   const [value, setValue] = useState(initialNote?.content ?? "")
   const [state, setState] = useState<SaveState>({ kind: "idle" })
   const textareaId = useId()
@@ -143,7 +145,7 @@ export function LessonNotes({ lessonId, initialNote }: { lessonId: string; initi
     <section aria-labelledby={`${textareaId}-heading`} className="border-t border-border bg-card">
       <div className="max-w-[840px] p-5 sm:p-7">
         <h2 id={`${textareaId}-heading`} className="mb-1 text-lg font-bold">
-          Catatan saya
+          {t.player.myNotes}
         </h2>
         <p id={hintId} className="mb-3 flex items-start gap-1.5 text-[13px] text-muted-foreground">
           <Lock className="mt-0.5 size-3.5 shrink-0" aria-hidden />

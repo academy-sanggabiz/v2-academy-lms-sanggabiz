@@ -26,6 +26,7 @@ import { LessonNotes } from "@/components/learn/LessonNotes"
 import { useLearnBusy } from "@/components/learn/LearnBusyContext"
 import type { LessonNote } from "@/lib/notes"
 import { toggleLessonComplete } from "@/app/learn/[courseId]/actions"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 export function LessonPane({
   courseId,
@@ -193,6 +194,7 @@ function LessonNavArrows({
   revealOnHover: boolean
   basePath?: string
 }) {
+  const { t } = useI18n()
   const visibility = revealOnHover
     ? "opacity-0 transition-opacity duration-150 group-hover:opacity-100"
     : "opacity-100"
@@ -205,7 +207,7 @@ function LessonNavArrows({
       {prevLessonId ? (
         <Link
           href={`${basePath}/${courseId}?lesson=${prevLessonId}`}
-          aria-label="Pelajaran sebelumnya"
+          aria-label={t.player.previousLesson}
           className={cn(
             "absolute top-1/2 left-3 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-input bg-card text-muted-foreground shadow-lg hover:bg-muted hover:text-foreground",
             visibility
@@ -217,7 +219,7 @@ function LessonNavArrows({
         <button
           type="button"
           disabled
-          aria-label="Pelajaran sebelumnya (ini pelajaran pertama)"
+          aria-label={t.player.firstLesson}
           className={cn(
             "absolute top-1/2 left-3 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-input bg-card text-muted-foreground shadow-lg",
             revealOnHover ? "opacity-0 transition-opacity duration-150 group-hover:opacity-40" : "opacity-40"
@@ -230,7 +232,7 @@ function LessonNavArrows({
       {nextLessonId ? (
         <Link
           href={`${basePath}/${courseId}?lesson=${nextLessonId}`}
-          aria-label="Pelajaran berikutnya"
+          aria-label={t.player.nextLesson}
           className={cn(
             "absolute top-1/2 right-3 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-input bg-card text-muted-foreground shadow-lg hover:bg-muted hover:text-foreground",
             visibility
@@ -274,12 +276,13 @@ function CourseFinishedPane({
   requirements: CourseRequirements | null
   feedbackGiven: boolean
 }) {
+  const { t } = useI18n()
   return (
     <div className="relative flex flex-col items-center gap-5 p-16 text-center">
       {prevLessonId && (
         <Link
           href={`${basePath}/${courseId}?lesson=${prevLessonId}`}
-          aria-label="Pelajaran sebelumnya"
+          aria-label={t.player.previousLesson}
           className="absolute top-1/2 left-3 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-input bg-card text-muted-foreground shadow-lg hover:bg-muted hover:text-foreground"
         >
           <ChevronLeft className="size-5" aria-hidden />
@@ -302,7 +305,7 @@ function CourseFinishedPane({
             kalimat yang dulu selalu muncul mengirim peserta ke daftar kosong.
           */}
           {hasCertificate && (
-            <p className="-mt-3 text-sm text-muted-foreground">Sertifikat Anda siap diunduh.</p>
+            <p className="-mt-3 text-sm text-muted-foreground">{t.player.certificateReady}</p>
           )}
           <div className="flex flex-wrap justify-center gap-3">
             {hasCertificate && (
@@ -311,7 +314,7 @@ function CourseFinishedPane({
                 render={<Link href="/learner/profile?tab=certificates" />}
                 nativeButton={false}
               >
-                Lihat Sertifikat Anda
+                {t.player.viewCertificate}
               </Button>
             )}
             <Button
@@ -320,7 +323,7 @@ function CourseFinishedPane({
               render={<Link href="/learner/courses" />}
               nativeButton={false}
             >
-              Cari kursus lain
+              {t.player.findAnotherCourse}
             </Button>
           </div>
 
@@ -338,9 +341,9 @@ function CourseFinishedPane({
         <RequirementsPane courseId={courseId} requirements={requirements} basePath={basePath} />
       ) : (
         <>
-          <p className="text-lg font-bold">Anda telah menyelesaikan pelajaran terakhir di kursus ini.</p>
+          <p className="text-lg font-bold">{t.player.lastLessonDone}</p>
           <Button variant="outline" render={<Link href="/learner/courses" />} nativeButton={false}>
-            Cari kursus lain
+            {t.player.findAnotherCourse}
           </Button>
         </>
       )}
@@ -369,13 +372,14 @@ function RequirementsPane({
   requirements: CourseRequirements
   basePath: string
 }) {
+  const { t } = useI18n()
   const unfinished = requirements.quizzes.filter((q) => !q.passed)
   const anyExhausted = unfinished.some((q) => q.exhausted)
   const retryable = unfinished.filter((q) => !q.exhausted)
 
   return (
     <>
-      <p className="text-lg font-bold">Pelajarannya sudah selesai semua. Satu langkah lagi.</p>
+      <p className="text-lg font-bold">{t.player.almostDone}</p>
       <p className="-mt-3 max-w-md text-sm text-muted-foreground">
         Kursus ini dinyatakan selesai setelah setiap kuisnya lulus. Sertifikat dan ulasan
         terbuka setelah itu.
@@ -408,7 +412,7 @@ function RequirementsPane({
                 render={<Link href={`${basePath}/${courseId}?lesson=${q.lessonId}`} />}
                 nativeButton={false}
               >
-                Kerjakan lagi
+                {t.player.tryAgain}
               </Button>
             )}
           </li>
@@ -423,7 +427,7 @@ function RequirementsPane({
       )}
 
       <Button variant="outline" render={<Link href="/learner/courses" />} nativeButton={false}>
-        Cari kursus lain
+        {t.player.findAnotherCourse}
       </Button>
     </>
   )
@@ -580,6 +584,7 @@ function TextContent({
   onReachEnd: () => void
   basePath?: string
 }) {
+  const { t } = useI18n()
   const [fullscreen, setFullscreen] = useState(false)
 
   return (
@@ -594,7 +599,7 @@ function TextContent({
           <button
             type="button"
             onClick={() => setFullscreen(true)}
-            aria-label="Baca dalam layar penuh"
+            aria-label={t.player.readFullscreen}
             className="sticky top-3.5 float-right mr-5 flex size-9 items-center justify-center rounded-[10px] border border-input bg-card text-muted-foreground shadow-sm hover:bg-muted hover:text-foreground"
           >
             <Maximize2 className="size-4" aria-hidden />
@@ -604,7 +609,7 @@ function TextContent({
           <button
             type="button"
             onClick={() => setFullscreen(false)}
-            aria-label="Keluar dari layar penuh"
+            aria-label={t.player.exitFullscreen}
             className="fixed right-6 bottom-6 z-[60] flex size-11 items-center justify-center rounded-xl border border-input bg-muted text-muted-foreground shadow-lg hover:bg-accent hover:text-foreground"
           >
             <Minimize2 className="size-4.5" aria-hidden />
@@ -640,10 +645,11 @@ function TextContent({
 }
 
 function QuizPlaceholder() {
+  const { t } = useI18n()
   return (
     <div className="flex flex-col items-center gap-3 p-16 text-center">
       <MessageCircleQuestion className="size-10 text-muted-foreground/50" strokeWidth={1.5} />
-      <p className="text-sm text-muted-foreground">Kuis segera hadir.</p>
+      <p className="text-sm text-muted-foreground">{t.player.quizComingSoon}</p>
     </div>
   )
 }
@@ -672,6 +678,7 @@ function LessonFooter({
   basePath?: string
   mode?: "learner" | "admin-preview"
 }) {
+  const { t } = useI18n()
   const nextHref = nextLessonId ? `${basePath}/${courseId}?lesson=${nextLessonId}` : null
   const [completing, startCompleting] = useTransition()
   const { setBusy } = useLearnBusy()
@@ -710,7 +717,7 @@ function LessonFooter({
     // ini mengunci tombol tetangga tanpa melepas fokus (R14, R16).
     <BusyGuardProvider busy={completing} reason="Menyimpan…">
     <nav
-      aria-label="Navigasi pelajaran"
+      aria-label={t.player.lessonNavigation}
       className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-card px-5 py-4 sm:px-7"
     >
       {prevLessonId ? (

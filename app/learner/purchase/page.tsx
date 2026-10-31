@@ -4,21 +4,23 @@ import { Card, CardContent } from "@/components/ui/card"
 import { formatPrice } from "@/lib/courses"
 import { getMyPurchases, getMyPurchaseStats } from "@/lib/purchases-server"
 import { PurchaseHistoryClient } from "@/components/learner/PurchaseHistoryClient"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function LearnerPurchasePage() {
+  const { t } = await getTranslations()
   const [purchases, stats] = await Promise.all([getMyPurchases(), getMyPurchaseStats()])
 
   const tiles = [
-    { icon: Wallet, label: "Total Belanja", value: formatPrice(stats.totalSpent) },
-    { icon: ShoppingCart, label: "Pembelian", value: stats.totalPurchases },
-    { icon: Receipt, label: "Berbayar", value: stats.paidPurchases },
+    { icon: Wallet, label: t.purchases.totalSpent, value: formatPrice(stats.totalSpent) },
+    { icon: ShoppingCart, label: t.purchases.purchases, value: stats.totalPurchases },
+    { icon: Receipt, label: t.purchases.paid, value: stats.paidPurchases },
   ]
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Riwayat Pembelian</h1>
-        <p className="text-sm text-muted-foreground">Pembelian dan pendaftaran kursus Anda</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t.purchases.title}</h1>
+        <p className="text-sm text-muted-foreground">{t.purchases.subtitle}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

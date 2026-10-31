@@ -141,6 +141,65 @@ export type Dictionary = {
   notifications: {
     all: string
   }
+  profile: {
+    edit: string
+    editTitle: string
+    backToProfile: string
+    enrolledCourses: string
+    certificates: string
+    noCertificates: string
+    certificateBeingMade: string
+    download: string
+    uploadPhoto: string
+    changePhoto: string
+    removePhoto: string
+    uploading: string
+    photoReady: string
+    photoRemoved: string
+    photoHint: string
+    name: string
+    nameHint: string
+    certificateName: string
+    certificateNameHint: string
+    organization: string
+    organizationHint: string
+    phone: string
+    phoneHint: string
+    emailLocked: string
+    saved: string
+    saveChanges: string
+    joinedSince: string
+  }
+  player: {
+    previousLesson: string
+    nextLesson: string
+    previous: string
+    finishLesson: string
+    finishCourse: string
+    lessonNavigation: string
+    readFullscreen: string
+    exitFullscreen: string
+    quizComingSoon: string
+    lastLessonDone: string
+    certificateReady: string
+    viewCertificate: string
+    findAnotherCourse: string
+    almostDone: string
+    almostDoneHint: string
+    bestScore: string
+    notAttempted: string
+    passMark: string
+    attemptsUsed: string
+    attemptsUnlimited: string
+    tryAgain: string
+    finalGrade: string
+    congratulations: string
+    reviewInvite: string
+    myNotes: string
+    notesHint: string
+    notesPlaceholder: string
+    firstLesson: string
+  }
   pageTitles: {
     lesson: string
     newPassword: string
@@ -292,6 +351,71 @@ const id: Dictionary = {
   notifications: {
     all: "Semua notifikasi",
   },
+  profile: {
+    edit: "Ubah profil",
+    editTitle: "Ubah Profil",
+    backToProfile: "Kembali ke profil",
+    enrolledCourses: "Kursus Terdaftar",
+    certificates: "Sertifikat",
+    noCertificates:
+      "Belum ada sertifikat. Sertifikat terbit otomatis setelah Anda menyelesaikan kursus yang menyediakannya.",
+    certificateBeingMade: "Sedang dibuat…",
+    download: "Unduh",
+    uploadPhoto: "Unggah foto",
+    changePhoto: "Ganti foto",
+    removePhoto: "Hapus",
+    uploading: "Mengunggah…",
+    photoReady: "Foto siap. Tekan Simpan Perubahan untuk menyimpannya.",
+    photoRemoved: "Foto dihapus. Tekan Simpan Perubahan untuk menyimpannya.",
+    photoHint: "PNG, JPG, atau WebP. Maksimal 2MB.",
+    name: "Nama",
+    nameHint: "Nama yang menyapa Anda di seluruh halaman.",
+    certificateName: "Nama di sertifikat",
+    certificateNameHint:
+      "Nama ini yang akan dicetak di sertifikat. Samakan dengan identitas resmi Anda bila sertifikatnya akan dipakai untuk keperluan formal. Dikosongkan berarti memakai nama di atas. Sertifikat yang sudah terbit tidak ikut berubah.",
+    organization: "Nama usaha atau instansi",
+    organizationHint: "Membantu pengelola mengenali Anda datang dari usaha mana.",
+    phone: "Nomor telepon",
+    phoneHint:
+      "Dipakai pengelola bila ada perubahan jadwal atau kendala akses. Tidak pernah ditampilkan ke peserta lain.",
+    emailLocked: "Email tidak dapat diubah",
+    saved: "Profil tersimpan.",
+    saveChanges: "Simpan Perubahan",
+    joinedSince: "Bergabung sejak",
+  },
+  player: {
+    previousLesson: "Pelajaran sebelumnya",
+    nextLesson: "Pelajaran berikutnya",
+    previous: "Sebelumnya",
+    finishLesson: "Selesaikan pelajaran",
+    finishCourse: "Selesaikan kursus",
+    lessonNavigation: "Navigasi pelajaran",
+    readFullscreen: "Baca dalam layar penuh",
+    exitFullscreen: "Keluar dari layar penuh",
+    quizComingSoon: "Kuis segera hadir.",
+    lastLessonDone: "Anda telah menyelesaikan pelajaran terakhir di kursus ini.",
+    certificateReady: "Sertifikat Anda siap diunduh.",
+    viewCertificate: "Lihat Sertifikat Anda",
+    findAnotherCourse: "Cari kursus lain",
+    almostDone: "Pelajarannya sudah selesai semua. Satu langkah lagi.",
+    almostDoneHint:
+      "Kursus ini dinyatakan selesai setelah setiap kuisnya lulus. Sertifikat dan ulasan terbuka setelah itu.",
+    bestScore: "Nilai terbaik Anda",
+    notAttempted: "Belum dikerjakan.",
+    passMark: "Nilai minimal untuk lulus",
+    attemptsUsed: "Percobaan terpakai",
+    attemptsUnlimited: "percobaan, tanpa batas percobaan.",
+    tryAgain: "Kerjakan lagi",
+    finalGrade: "Nilai akhir kursus Anda",
+    congratulations: "Selamat, Anda telah menyelesaikan",
+    reviewInvite:
+      "Punya waktu sebentar? Ulasan Anda membantu peserta berikutnya memilih kursus. Ini opsional.",
+    myNotes: "Catatan saya",
+    notesHint:
+      "Hanya Anda yang dapat melihat catatan ini. Catatan tersimpan otomatis saat Anda berhenti mengetik.",
+    notesPlaceholder: "Catatan untuk pelajaran ini",
+    firstLesson: "Pelajaran sebelumnya (ini pelajaran pertama)",
+  },
   pageTitles: {
     lesson: "Pelajaran",
     newPassword: "Kata sandi baru",
@@ -442,6 +566,71 @@ const en: Dictionary = {
   },
   notifications: {
     all: "All notifications",
+  },
+  profile: {
+    edit: "Edit profile",
+    editTitle: "Edit profile",
+    backToProfile: "Back to profile",
+    enrolledCourses: "Enrolled courses",
+    certificates: "Certificates",
+    noCertificates:
+      "No certificates yet. A certificate is issued automatically once you finish a course that offers one.",
+    certificateBeingMade: "Being prepared…",
+    download: "Download",
+    uploadPhoto: "Upload photo",
+    changePhoto: "Change photo",
+    removePhoto: "Remove",
+    uploading: "Uploading…",
+    photoReady: "Photo ready. Press Save changes to keep it.",
+    photoRemoved: "Photo removed. Press Save changes to keep it.",
+    photoHint: "PNG, JPG, or WebP. 2MB maximum.",
+    name: "Name",
+    nameHint: "The name used to greet you across the site.",
+    certificateName: "Name on certificate",
+    certificateNameHint:
+      "This is the name printed on your certificate. Match it to your official identity document if the certificate will be used formally. Left empty, your name above is used. Certificates already issued do not change.",
+    organization: "Business or organisation",
+    organizationHint: "Helps the organisers know which business you come from.",
+    phone: "Phone number",
+    phoneHint:
+      "Used by the organisers if the schedule changes or you have trouble getting in. Never shown to other learners.",
+    emailLocked: "Email cannot be changed",
+    saved: "Profile saved.",
+    saveChanges: "Save changes",
+    joinedSince: "Member since",
+  },
+  player: {
+    previousLesson: "Previous lesson",
+    nextLesson: "Next lesson",
+    previous: "Previous",
+    finishLesson: "Finish lesson",
+    finishCourse: "Finish course",
+    lessonNavigation: "Lesson navigation",
+    readFullscreen: "Read full screen",
+    exitFullscreen: "Exit full screen",
+    quizComingSoon: "Quiz coming soon.",
+    lastLessonDone: "You have finished the last lesson in this course.",
+    certificateReady: "Your certificate is ready to download.",
+    viewCertificate: "View your certificate",
+    findAnotherCourse: "Find another course",
+    almostDone: "All lessons done. One step to go.",
+    almostDoneHint:
+      "This course counts as finished once every quiz is passed. The certificate and the review open after that.",
+    bestScore: "Your best score",
+    notAttempted: "Not attempted yet.",
+    passMark: "Pass mark",
+    attemptsUsed: "Attempts used",
+    attemptsUnlimited: "attempts, no limit.",
+    tryAgain: "Try again",
+    finalGrade: "Your final course grade",
+    congratulations: "Congratulations, you have completed",
+    reviewInvite:
+      "Have a moment? Your review helps the next learner choose. It is optional.",
+    myNotes: "My notes",
+    notesHint:
+      "Only you can see these notes. They save automatically when you stop typing.",
+    notesPlaceholder: "Notes for this lesson",
+    firstLesson: "Previous lesson (this is the first lesson)",
   },
   pageTitles: {
     lesson: "Lesson",

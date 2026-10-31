@@ -15,6 +15,7 @@ import { uploadAvatar } from "@/lib/storage"
 import { createClient } from "@/lib/supabase/client"
 import type { EnrolledCourseSummary } from "@/lib/enrollments-server"
 import type { LearnerCertificateSummary } from "@/lib/certificates-server"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 type ProfileViewProps = {
   name: string
@@ -41,6 +42,7 @@ export function ProfileView({
   phone,
   organization,
 }: ProfileViewProps) {
+  const { t } = useI18n()
   const [isEditing, setIsEditing] = useState(false)
   const initial = name.charAt(0).toUpperCase()
 
@@ -79,8 +81,8 @@ export function ProfileView({
           )}
           <button
             onClick={() => setIsEditing(true)}
-            title="Ubah profil"
-            aria-label="Ubah profil"
+            title={t.profile.edit}
+            aria-label={t.profile.edit}
             className="absolute right-0 bottom-0 flex size-8 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-[0_2px_8px_rgba(20,55,64,0.15)] hover:bg-muted"
           >
             <Pencil className="size-3.5" />
@@ -95,7 +97,7 @@ export function ProfileView({
             </span>
             <span className="flex items-center gap-2">
               <Calendar className="size-3.5 text-ring" />
-              Bergabung sejak {joinedYear}
+              {t.profile.joinedSince} {joinedYear}
             </span>
           </div>
         </div>
@@ -115,21 +117,22 @@ function ProfileTabs({
   certificates: LearnerCertificateSummary[]
   initialTab: "enrolled" | "certificates"
 }) {
+  const { t } = useI18n()
   const [tab, setTab] = useState<"enrolled" | "certificates">(initialTab)
 
   return (
     <div>
       <div className="mb-6 flex justify-center gap-1.5 rounded-lg bg-muted p-1">
-        {(["enrolled", "certificates"] as const).map((t) => (
+        {(["enrolled", "certificates"] as const).map((key) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
+            key={key}
+            onClick={() => setTab(key)}
             className={cn(
               "flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors",
-              tab === t ? "bg-card text-ring shadow-sm" : "text-muted-foreground hover:text-foreground"
+              tab === key ? "bg-card text-ring shadow-sm" : "text-muted-foreground hover:text-foreground"
             )}
           >
-            {t === "enrolled" ? "Kursus Terdaftar" : "Sertifikat"}
+            {key === "enrolled" ? t.profile.enrolledCourses : t.profile.certificates}
           </button>
         ))}
       </div>
@@ -138,7 +141,7 @@ function ProfileTabs({
         <div className="rounded-2xl border border-border bg-card p-7">
           <div className="mb-4 flex items-center gap-2.5 text-lg font-bold">
             <BookOpen className="size-[18px]" />
-            Kursus Terdaftar ({enrolledCourses.length})
+            {t.profile.enrolledCourses} ({enrolledCourses.length})
           </div>
 
           {enrolledCourses.length > 0 ? (
@@ -170,7 +173,7 @@ function ProfileTabs({
             </div>
           ) : (
             <div className="flex flex-col items-center gap-3 p-7 text-center">
-              <p className="text-sm text-muted-foreground">Anda belum terdaftar di kursus mana pun.</p>
+              <p className="text-sm text-muted-foreground">{t.courses.noneEnrolled}</p>
               <Button className="bg-brand-gradient text-white hover:brightness-105" render={<Link href="/learner/courses" />} nativeButton={false}>
                 Lihat Kursus
               </Button>
@@ -181,7 +184,7 @@ function ProfileTabs({
         <div className="rounded-2xl border border-border bg-card p-7">
           <div className="mb-4 flex items-center gap-2.5 text-lg font-bold">
             <Award className="size-[18px]" />
-            Sertifikat ({certificates.length})
+            {t.profile.certificates} ({certificates.length})
           </div>
 
           {certificates.length > 0 ? (
@@ -225,10 +228,10 @@ function ProfileTabs({
                       nativeButton={false}
                     >
                       <Download className="size-3.5" />
-                      Unduh
+                      {t.profile.download}
                     </Button>
                   ) : (
-                    <span className="flex-none text-xs text-muted-foreground">Sedang dibuat…</span>
+                    <span className="flex-none text-xs text-muted-foreground">{t.profile.certificateBeingMade}</span>
                   )}
                 </div>
               ))}
@@ -240,8 +243,7 @@ function ProfileTabs({
                   kursus" saja keliru bagi peserta yang sudah menyelesaikan
                   satu kursus tanpa sertifikat. */}
               <p className="text-sm text-muted-foreground">
-                Belum ada sertifikat. Sertifikat terbit otomatis setelah Anda menyelesaikan
-                kursus yang menyediakannya.
+{t.profile.noCertificates}
               </p>
             </div>
           )}
@@ -270,6 +272,7 @@ function EditProfileForm({
   organization: string
   onDone: () => void
 }) {
+  const { t } = useI18n()
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [photo, setPhoto] = useState(avatarUrl ?? "")
@@ -288,7 +291,7 @@ function EditProfileForm({
       return
     }
     setPhoto(result.url)
-    setPhotoStatus("Foto siap. Tekan Simpan Perubahan untuk menyimpannya.")
+    setPhotoStatus(t.profile.photoReady)
   }
 
   return (
@@ -296,13 +299,13 @@ function EditProfileForm({
       <div className="mb-6 flex items-center gap-3.5">
         <button
           onClick={onDone}
-          title="Kembali ke profil"
-          aria-label="Kembali ke profil"
+          title={t.profile.backToProfile}
+          aria-label={t.profile.backToProfile}
           className="flex size-9 flex-none items-center justify-center rounded-lg border border-border bg-card hover:bg-muted"
         >
           <ArrowLeft className="size-[17px]" />
         </button>
-        <div className="text-2xl font-bold">Ubah Profil</div>
+        <div className="text-2xl font-bold">{t.profile.editTitle}</div>
       </div>
 
       <form
@@ -316,7 +319,7 @@ function EditProfileForm({
             }
             // Kembali ke tampilan profil tidak cukup terbaca sebagai
             // keberhasilan, jadi satu toast menutup aksi ini (R6).
-            toast.success("Nama tersimpan.")
+            toast.success(t.profile.saved)
             onDone()
           })
         }}
@@ -342,7 +345,7 @@ function EditProfileForm({
                 menjaga inputnya tetap nyata dan tetap bisa difokus. */}
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-input bg-card px-3 py-2 text-sm font-semibold hover:bg-muted focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
               <Camera className="size-4" aria-hidden />
-              {uploading ? "Mengunggah…" : photo ? "Ganti foto" : "Unggah foto"}
+              {uploading ? t.profile.uploading : photo ? t.profile.changePhoto : t.profile.uploadPhoto}
               <input
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
@@ -363,13 +366,13 @@ function EditProfileForm({
                 className="ml-2"
                 onClick={() => {
                   setPhoto("")
-                  setPhotoStatus("Foto dihapus. Tekan Simpan Perubahan untuk menyimpannya.")
+                  setPhotoStatus(t.profile.photoRemoved)
                 }}
               >
-                Hapus
+                {t.profile.removePhoto}
               </Button>
             )}
-            <p className="mt-1 text-xs text-muted-foreground">PNG, JPG, atau WebP. Maksimal 2MB.</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t.profile.photoHint}</p>
             <p role="status" aria-live="polite" className="mt-1 min-h-4 text-xs text-muted-foreground">
               {photoStatus}
             </p>
@@ -377,16 +380,17 @@ function EditProfileForm({
         </div>
 
         <Label htmlFor="fullName" className="mb-2 block text-sm font-semibold">
-          Nama
+          {t.profile.name}
         </Label>
         <Input id="fullName" name="fullName" defaultValue={name} autoComplete="name" className="w-full" />
 
         <p className="mt-1.5 mb-4 text-xs text-muted-foreground">
-          Nama yang menyapa Anda di seluruh halaman.
+          {t.profile.nameHint}
         </p>
 
         <Label htmlFor="certificateName" className="mb-2 block text-sm font-semibold">
-          Nama di sertifikat <span className="font-normal text-muted-foreground">(opsional)</span>
+          {t.profile.certificateName}{" "}
+          <span className="font-normal text-muted-foreground">({t.common.optional})</span>
         </Label>
         <Input
           id="certificateName"
@@ -401,13 +405,12 @@ function EditProfileForm({
             antarmuka sebaiknya memanggil orang dengan nama yang ia pakai
             sehari-hari (docs/STANDAR-PROFIL-PESERTA.md §3). */}
         <p className="mt-1.5 mb-4 text-xs text-muted-foreground">
-          Nama ini yang akan dicetak di sertifikat. Samakan dengan identitas resmi Anda bila
-          sertifikatnya akan dipakai untuk keperluan formal. Dikosongkan berarti memakai nama
-          di atas. Sertifikat yang sudah terbit tidak ikut berubah.
+{t.profile.certificateNameHint}
         </p>
 
         <Label htmlFor="organization" className="mb-2 block text-sm font-semibold">
-          Nama usaha atau instansi <span className="font-normal text-muted-foreground">(opsional)</span>
+          {t.profile.organization}{" "}
+          <span className="font-normal text-muted-foreground">({t.common.optional})</span>
         </Label>
         <Input
           id="organization"
@@ -417,11 +420,12 @@ function EditProfileForm({
           className="w-full"
         />
         <p className="mt-1.5 mb-4 text-xs text-muted-foreground">
-          Membantu pengelola mengenali Anda datang dari usaha mana.
+          {t.profile.organizationHint}
         </p>
 
         <Label htmlFor="phone" className="mb-2 block text-sm font-semibold">
-          Nomor telepon <span className="font-normal text-muted-foreground">(opsional)</span>
+          {t.profile.phone}{" "}
+          <span className="font-normal text-muted-foreground">({t.common.optional})</span>
         </Label>
         <Input
           id="phone"
@@ -433,15 +437,14 @@ function EditProfileForm({
           className="w-full"
         />
         <p className="mt-1.5 mb-4 text-xs text-muted-foreground">
-          Dipakai pengelola bila ada perubahan jadwal atau kendala akses. Tidak pernah
-          ditampilkan ke peserta lain.
+{t.profile.phoneHint}
         </p>
 
         <Label htmlFor="email" className="mb-2 block text-sm font-semibold">
-          Email
+          {t.auth.email}
         </Label>
         <Input id="email" value={email} disabled autoComplete="email" className="w-full bg-muted" />
-        <p className="mt-1.5 mb-4 text-xs text-muted-foreground">Email tidak dapat diubah</p>
+        <p className="mt-1.5 mb-4 text-xs text-muted-foreground">{t.profile.emailLocked}</p>
 
         <StatusMessage className="mb-4">{error}</StatusMessage>
 
@@ -449,13 +452,13 @@ function EditProfileForm({
           <Button
             type="submit"
             pending={isPending}
-            pendingLabel="Menyimpan…"
+            pendingLabel={t.common.saving}
             className="bg-brand-gradient text-white hover:brightness-105"
           >
-            Simpan Perubahan
+            {t.profile.saveChanges}
           </Button>
           <Button type="button" variant="outline" onClick={onDone}>
-            Batal
+            {t.common.cancel}
           </Button>
         </div>
       </form>
