@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { authErrorMessage } from "@/lib/auth/auth-error-message"
 import { resolveUserRole, roleHomePath } from "@/lib/auth/require-admin"
+import { MIN_PASSWORD_LENGTH } from "@/lib/auth/password-policy"
 
 export type SetNewPasswordResult =
   | { ok: true; destination: string }
@@ -17,8 +18,8 @@ export type SetNewPasswordResult =
  * rutenya hanya formulir yang tidak melakukan apa-apa dan membingungkan.
  */
 export async function setNewPassword(password: string): Promise<SetNewPasswordResult> {
-  if (!password || password.length < 6) {
-    return { ok: false, error: "Kata sandi minimal 6 karakter." }
+  if (!password || password.length < MIN_PASSWORD_LENGTH) {
+    return { ok: false, error: `Kata sandi minimal ${MIN_PASSWORD_LENGTH} karakter.` }
   }
 
   const supabase = await createClient()

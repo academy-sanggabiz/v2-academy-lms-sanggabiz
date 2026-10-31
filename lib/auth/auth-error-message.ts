@@ -8,7 +8,7 @@ const AUTH_ERROR_MESSAGES: [RegExp, string][] = [
   [/invalid login credentials/i, "Email atau kata sandi salah."],
   [/email not confirmed/i, "Email belum dikonfirmasi. Periksa kotak masuk Anda."],
   [/user already registered|already been registered/i, "Email ini sudah terdaftar. Silakan masuk."],
-  [/password should be at least/i, "Kata sandi minimal 6 karakter."],
+  [/password should be at least/i, "Kata sandi minimal 8 karakter."],
   [/captcha/i, "Verifikasi captcha gagal. Coba lagi."],
   [/rate limit|too many requests|security purposes/i, "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi."],
   [/invalid email|unable to validate email/i, "Masukkan email yang valid."],

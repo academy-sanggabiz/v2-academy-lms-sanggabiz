@@ -6,6 +6,7 @@ import { redirect } from "next/navigation"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { authErrorMessage } from "@/lib/auth/auth-error-message"
 import { createClient } from "@/lib/supabase/server"
+import { MIN_PASSWORD_LENGTH } from "@/lib/auth/password-policy"
 
 async function getUserId() {
   const supabase = await createClient()
@@ -34,8 +35,8 @@ export async function updateNotificationPref(enabled: boolean) {
 
 export async function changePassword(formData: FormData) {
   const password = String(formData.get("password") ?? "")
-  if (!password || password.length < 6) {
-    return { error: "Kata sandi minimal 6 karakter" }
+  if (!password || password.length < MIN_PASSWORD_LENGTH) {
+    return { error: `Kata sandi minimal ${MIN_PASSWORD_LENGTH} karakter` }
   }
 
   const supabase = await createClient()
