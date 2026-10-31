@@ -62,11 +62,34 @@ const WIDTHS = [
   { label: "ponsel", width: 390, height: 844 },
 ]
 
+/**
+ * `networkidle` saja terlalu cepat. Sebagian widget menetapkan atribut
+ * aksesibilitasnya di dalam effect React yang berjalan setelah jaringan diam --
+ * tablist base-ui, misalnya, baru menaikkan satu tab ke `tabindex="0"`
+ * beberapa saat kemudian. Mengaudit sebelum itu menghasilkan kegagalan palsu
+ * (`scrollable-region-focusable` pada editor kursus) yang muncul-hilang antar
+ * jalan, dan gerbang yang kadang berbohong lebih buruk daripada tidak ada
+ * gerbang. Jadi tunggu sampai setiap tablist punya tab yang bisa difokus.
+ */
+async function settle(page) {
+  await page.waitForLoadState("networkidle").catch(() => {})
+  await page
+    .waitForFunction(
+      () =>
+        [...document.querySelectorAll('[role="tablist"]')].every((list) =>
+          list.querySelector('[role="tab"][tabindex="0"]')
+        ),
+      undefined,
+      { timeout: 5000 }
+    )
+    .catch(() => {})
+}
+
 async function visit(page, path) {
   for (const { label, width, height } of WIDTHS) {
     await page.setViewportSize({ width, height })
     await page.goto(BASE + path)
-    await page.waitForLoadState("networkidle").catch(() => {})
+    await settle(page)
     await audit(page, `${path} [${label}]`)
   }
 }
@@ -140,6 +163,7 @@ try {
       for (const tab of ["Pelajaran", "Pengaturan", "Peserta", "Pratinjau"]) {
         await page.click(`[role=tab]:has-text("${tab}")`)
         await page.waitForTimeout(500)
+        await settle(page)
         await audit(page, `${editHref} [${tab}]`)
       }
     }

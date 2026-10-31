@@ -442,7 +442,10 @@ const LessonCard = memo(function LessonCard({
           {...attributes}
           {...listeners}
           aria-label={`Pindahkan ${title.trim() || `pelajaran ${index + 1}`}: tekan Spasi untuk mengambil, tombol panah untuk memindahkan, Spasi untuk melepas`}
-          className="-m-1 flex size-6 cursor-grab touch-none items-center justify-center rounded active:cursor-grabbing"
+          /* shrink-0 wajib: tanpa itu baris flex ini memerasnya jadi 16 px di
+             layar 390 px, di bawah batas sasaran 24x24 px WCAG 2.5.8 --
+             padahal pegangan geser justru paling butuh sasaran yang lapang. */
+          className="-m-1 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded active:cursor-grabbing"
         >
           <GripVertical className="size-4 shrink-0 text-muted-foreground" aria-hidden />
         </button>

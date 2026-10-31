@@ -51,8 +51,11 @@ export function TrackingDetailView({ detail }: { detail: TrackingDetail }) {
             <div className="text-lg font-bold">{detail.modulePct}%</div>
           </div>
           <div>
-            <div className="text-muted-foreground">Penyelesaian Tugas</div>
+            {/* Lihat catatan di TrackingListClient: ini keikutsertaan kuis,
+                bukan kelulusannya. */}
+            <div className="text-muted-foreground">Tugas dikerjakan</div>
             <div className="text-lg font-bold">{detail.assignmentPct}%</div>
+            <div className="text-xs text-muted-foreground">kuis terkirim, lulus atau tidak</div>
           </div>
         </div>
       </div>

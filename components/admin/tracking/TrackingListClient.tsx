@@ -29,7 +29,14 @@ export function TrackingListClient({ page }: { page: Paginated<TrackingEnrollmen
                 <TableHead>Peserta</TableHead>
                 <TableHead>Kursus</TableHead>
                 <TableHead>Modul</TableHead>
-                <TableHead>Tugas</TableHead>
+                {/*
+                  Bukan "Tugas" begitu saja: angkanya menghitung kuis yang sudah
+                  dikirim, lulus atau tidak (admin_tracking_enrollments.assignment_pct
+                  memakai `submitted_at is not null`). Peserta yang gagal pun
+                  tercatat 100%, jadi label pendek akan terbaca sebagai capaian
+                  padahal maksudnya keikutsertaan.
+                */}
+                <TableHead>Tugas dikerjakan</TableHead>
                 <TableHead><span className="sr-only">Aksi</span></TableHead>
               </TableRow>
             </TableHeader>
