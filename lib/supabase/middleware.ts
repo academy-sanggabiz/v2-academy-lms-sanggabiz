@@ -63,6 +63,20 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+  // Halaman kata sandi baru hanya berguna dengan sesi pemulihan yang hidup.
+  // Pemeriksaannya di sini, bukan di dalam page: `redirect()` dari sebuah
+  // Server Component async berjalan setelah shell mulai di-stream, sehingga
+  // Next jatuh ke `<meta http-equiv="refresh">` -- pengguna melihat halaman
+  // kosong sekitar satu detik lebih dulu, status tetap 200, dan klien yang
+  // mematikan meta-refresh mentok di halaman kosong. Dari proxy, pengalihannya
+  // 307 sungguhan sebelum satu byte HTML pun terkirim.
+  if (request.nextUrl.pathname.startsWith('/auth/sandi-baru') && !user) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/auth/lupa-sandi'
+    url.search = ''
+    return NextResponse.redirect(url)
+  }
+
   if (request.nextUrl.pathname.startsWith('/admin')) {
     if (!user) {
       const url = request.nextUrl.clone()

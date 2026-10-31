@@ -7,8 +7,13 @@ export const metadata = { title: "Kata sandi baru · Sanggabiz Academy" }
 
 /**
  * Hanya bisa dibuka dengan sesi hidup -- yang didapat dari menukar tautan
- * pemulihan di `/auth/callback`. Membukanya langsung tanpa sesi dialihkan ke
- * halaman minta tautan, bukan ditampilkan sebagai formulir yang pasti gagal.
+ * pemulihan di `/auth/callback`.
+ *
+ * Penjaga sebenarnya ada di `proxy.ts`, yang memulangkan 307 sebelum satu byte
+ * HTML pun terkirim. Yang di bawah ini lapis kedua: kalau pencocokan rute di
+ * proxy suatu saat berubah, halaman ini tetap tidak menampilkan formulir yang
+ * pasti gagal -- meski pengalihannya akan terasa lebih lambat (lihat komentar
+ * di proxy soal meta-refresh).
  */
 export default async function SandiBaruPage() {
   const supabase = await createClient()
