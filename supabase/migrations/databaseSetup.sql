@@ -1657,22 +1657,32 @@ on conflict (id) do nothing;
 -- No SELECT policy for anon: files are served through the bucket's public
 -- URL, which needs none, while a SELECT policy for `public` also lets anyone
 -- LIST every object in the bucket. Admins need SELECT to manage files.
+-- SELECT sengaja TIDAK dibatasi folder: admin tetap perlu bisa membaca
+-- sertifikat peserta untuk keperluan dukungan. Yang dicabut hanya menulis.
 create policy "admins can read certificate assets" on storage.objects
   for select to authenticated
   using (bucket_id = 'certificate-assets' and public.is_admin());
 
+-- Prefix `certificates/` dikecualikan dari hak tulis admin: PDF sertifikat
+-- ditulis server dengan service role, dan tanpa itu admin yang bukan pemilik
+-- kursus bisa menimpa sertifikat peserta (lanjutan C-05). Berkas di akar
+-- bucket (templat, tanda tangan) tidak terpengaruh: foldername-nya NULL.
 create policy "admins can upload certificate assets" on storage.objects
   for insert to authenticated
-  with check (bucket_id = 'certificate-assets' and public.is_admin());
+  with check (bucket_id = 'certificate-assets' and public.is_admin()
+    and (storage.foldername(name))[1] is distinct from 'certificates');
 
 create policy "admins can update certificate assets" on storage.objects
   for update to authenticated
-  using (bucket_id = 'certificate-assets' and public.is_admin())
-  with check (bucket_id = 'certificate-assets' and public.is_admin());
+  using (bucket_id = 'certificate-assets' and public.is_admin()
+    and (storage.foldername(name))[1] is distinct from 'certificates')
+  with check (bucket_id = 'certificate-assets' and public.is_admin()
+    and (storage.foldername(name))[1] is distinct from 'certificates');
 
 create policy "admins can delete certificate assets" on storage.objects
   for delete to authenticated
-  using (bucket_id = 'certificate-assets' and public.is_admin());
+  using (bucket_id = 'certificate-assets' and public.is_admin()
+    and (storage.foldername(name))[1] is distinct from 'certificates');
 
 -- Generated certificate PDFs live in the same bucket, under
 -- certificates/{learner_id}/{enrollment_id}.pdf (checkAndIssueCertificate,

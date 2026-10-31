@@ -81,7 +81,13 @@ function AdminShellInner({ name, role, notifications, unreadCount, children }: A
           />
         )}
 
-        <div className="flex min-w-0 flex-1 flex-col">
+        {/*
+         * Saat drawer terbuka, sisa halaman dibuat inert supaya Tab tidak bisa
+         * keluar dari drawer ke konten di belakangnya -- jebakan fokus tanpa
+         * menulis pengelola fokus sendiri (WCAG 2.4.3). Pemindahan dan
+         * pengembalian fokusnya ditangani useMobileNav.
+         */}
+        <div className="flex min-w-0 flex-1 flex-col" inert={mobileNav.open}>
           <header className="sticky top-0 z-10 flex h-14 items-center border-b border-border bg-card px-4">
             <button
               type="button"

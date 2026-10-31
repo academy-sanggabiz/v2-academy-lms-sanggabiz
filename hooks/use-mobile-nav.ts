@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { usePathname } from "next/navigation"
 
 /**
@@ -12,6 +12,10 @@ export function useMobileNav() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [seenPath, setSeenPath] = useState(pathname)
+  // Tombol yang membuka drawer, supaya fokus bisa dikembalikan ke sana saat
+  // ditutup. Tanpa ini fokus keyboard terlempar ke awal halaman dan pengguna
+  // harus menelusuri ulang dari atas (WCAG 2.4.3).
+  const triggerRef = useRef<HTMLElement | null>(null)
 
   // Adjusting state during render (not in an effect): the React Compiler lint
   // rejects setState inside useEffect.
@@ -27,6 +31,22 @@ export function useMobileNav() {
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
+  }, [open])
+
+  // Saat drawer terbuka, fokus dipindahkan ke dalamnya; saat tertutup,
+  // dikembalikan ke tombol pembukanya.
+  useEffect(() => {
+    if (open) {
+      triggerRef.current = document.activeElement as HTMLElement | null
+      const drawer = document.getElementById("app-sidebar")
+      const target = drawer?.querySelector<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+      target?.focus()
+      return
+    }
+    triggerRef.current?.focus()
+    triggerRef.current = null
   }, [open])
 
   return { open, setOpen }

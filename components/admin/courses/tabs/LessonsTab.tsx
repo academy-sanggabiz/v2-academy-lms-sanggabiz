@@ -87,6 +87,35 @@ const TYPE_ICON: Record<LessonContentType, React.ComponentType<{ className?: str
   ppt: Presentation,
 }
 
+/**
+ * Pengumuman bawaan dnd-kit berbahasa Inggris, sedangkan seluruh antarmuka ini
+ * Bahasa Indonesia -- pengguna screen reader jadi mendengar dua bahasa di satu
+ * layar. Teksnya menyebut judul pelajaran, bukan id, karena id tidak berarti
+ * apa pun bagi yang mendengarkan.
+ */
+const dndAccessibility = {
+  announcements: {
+    onDragStart({ active }: { active: { id: string | number; data: { current?: { title?: string } } } }) {
+      return `Mengangkat pelajaran ${active.data.current?.title ?? ""}. Pakai panah atas dan bawah untuk memindahkan, spasi untuk menjatuhkan, Escape untuk membatalkan.`
+    },
+    onDragOver({ active, over }: { active: { data: { current?: { title?: string } } }; over: { data: { current?: { title?: string } } } | null }) {
+      if (!over) return undefined
+      return `Pelajaran ${active.data.current?.title ?? ""} berada di atas ${over.data.current?.title ?? "posisi baru"}.`
+    },
+    onDragEnd({ active, over }: { active: { data: { current?: { title?: string } } }; over: { data: { current?: { title?: string } } } | null }) {
+      if (!over) return `Pelajaran ${active.data.current?.title ?? ""} dikembalikan ke posisi semula.`
+      return `Pelajaran ${active.data.current?.title ?? ""} dijatuhkan di ${over.data.current?.title ?? "posisi baru"}.`
+    },
+    onDragCancel({ active }: { active: { data: { current?: { title?: string } } } }) {
+      return `Pemindahan dibatalkan. Pelajaran ${active.data.current?.title ?? ""} kembali ke posisi semula.`
+    },
+  },
+  screenReaderInstructions: {
+    draggable:
+      "Tekan spasi atau Enter untuk mulai memindahkan pelajaran ini. Lalu pakai panah atas dan bawah untuk memilih posisi, spasi untuk menjatuhkan, dan Escape untuk membatalkan.",
+  },
+}
+
 export function LessonsTab({ quizIssues = [] }: { quizIssues?: QuizIssue[] }) {
   const { draft, dispatch } = useCourseDraft()
   const sections = draft.sections
@@ -170,6 +199,7 @@ export function LessonsTab({ quizIssues = [] }: { quizIssues?: QuizIssue[] }) {
       ) : (
         <DndContext
           sensors={sensors}
+          accessibility={dndAccessibility}
           collisionDetection={closestCenter}
           onDragStart={(event) => setActiveId(event.active.id as string)}
           onDragEnd={handleDragEnd}
@@ -380,6 +410,9 @@ const LessonCard = memo(function LessonCard({
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lesson.id,
+    // Dibawa supaya pengumuman seret-lepas bisa menyebut judul pelajarannya,
+    // bukan id yang tidak berarti apa-apa bagi pengguna screen reader.
+    data: { title: lesson.title },
   })
 
   const issues = useLessonQuizIssues(lesson.id)
