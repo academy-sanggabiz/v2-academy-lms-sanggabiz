@@ -8,8 +8,14 @@ import { Badge } from "@/components/ui/badge"
 import { LearnShell } from "@/components/learn/LearnShell"
 import { LearnSidebar } from "@/components/learn/LearnSidebar"
 import { LessonPane } from "@/components/learn/LessonPane"
+import { getTranslations } from "@/lib/i18n/server"
 
-export const metadata = { title: "Pratinjau kursus" }
+// Judul tab ikut bahasa: generateMetadata bisa membaca cookie, sedangkan
+// `export const metadata` dievaluasi sekali tanpa konteks permintaan.
+export async function generateMetadata() {
+  const { t } = await getTranslations()
+  return { title: t.pageTitles.coursePreview }
+}
 
 export default async function AdminPreviewPage({
   params,

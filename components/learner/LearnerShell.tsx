@@ -10,6 +10,8 @@ import { NotificationBell } from "@/components/learner/NotificationBell"
 import { Sidebar } from "@/components/learner/Sidebar"
 import { UserMenu } from "@/components/learner/UserMenu"
 import type { Notification } from "@/lib/notifications-server"
+import { useI18n } from "@/components/i18n/LocaleProvider"
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher"
 
 export function LearnerShell({
   name,
@@ -24,6 +26,7 @@ export function LearnerShell({
   unreadCount: number
   children: React.ReactNode
 }) {
+  const { t } = useI18n()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const mobileNav = useMobileNav()
 
@@ -54,7 +57,7 @@ export function LearnerShell({
           <button
             type="button"
             onClick={() => mobileNav.setOpen(true)}
-            aria-label="Buka menu"
+            aria-label={t.shell.openMenu}
             aria-controls="app-sidebar"
             aria-expanded={mobileNav.open}
             className="mr-2 flex size-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground lg:hidden"
@@ -65,13 +68,16 @@ export function LearnerShell({
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
-              aria-label="Buka sidebar"
+              aria-label={t.shell.openSidebar}
               className="mr-2 hidden size-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground lg:flex"
             >
               <img src="/logo.png" alt="" className="size-7 object-contain" />
             </button>
           )}
           <div className="flex-1" />
+          {/* Pemilih bahasa di header, bukan terkubur di Pengaturan: orang yang
+              salah bahasa justru kesulitan menemukan halaman Pengaturan. */}
+          <LanguageSwitcher className="mr-1 hidden sm:inline-flex" />
           <NotificationBell items={notifications} unreadCount={unreadCount} />
           <UserMenu name={name} email={email} />
         </header>

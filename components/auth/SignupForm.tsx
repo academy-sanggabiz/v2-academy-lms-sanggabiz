@@ -17,10 +17,12 @@ import { signupSchema, type SignupFormValues } from "@/components/auth/schema"
 import { signup, type SignupState } from "@/app/auth/learner/actions"
 import { authErrorMessage } from "@/lib/auth/auth-error-message"
 import { createClient } from "@/lib/supabase/client"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 const HCAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? ""
 
 export function SignupForm() {
+  const { t } = useI18n()
   const [state, formAction, isPending] = useActionState<SignupState, FormData>(signup, null)
   const [captchaToken, setCaptchaToken] = React.useState<string | null>(null)
   const captchaRef = React.useRef<HCaptcha>(null)
@@ -62,7 +64,7 @@ export function SignupForm() {
     return (
       <div className="space-y-3 text-center">
         <Mail className="mx-auto size-10 text-ring" />
-        <h1 className="text-xl font-bold">Periksa email Anda</h1>
+        <h1 className="text-xl font-bold">{t.signup.checkEmail}</h1>
         <p className="text-sm text-muted-foreground">
           Kami telah mengirim tautan konfirmasi ke <span className="font-medium text-foreground">{state.email}</span>.
           Klik tautan tersebut untuk mengaktifkan akun Anda.
@@ -89,8 +91,8 @@ export function SignupForm() {
   return (
     <>
       <div className="space-y-1 text-center">
-        <h1 className="text-xl font-bold">Buat akun Anda</h1>
-        <p className="text-sm text-muted-foreground">Mulai belajar bersama Sanggabiz.</p>
+        <h1 className="text-xl font-bold">{t.signup.title}</h1>
+        <p className="text-sm text-muted-foreground">{t.signup.subtitle}</p>
       </div>
 
       <StatusMessage className={formError ? "rounded-lg bg-destructive/10 px-3 py-2" : undefined}>
@@ -111,8 +113,8 @@ export function SignupForm() {
             type="text"
             id="signup-fullName"
             autoComplete="name"
-            placeholder="Nama lengkap"
-            aria-label="Nama lengkap"
+            placeholder={t.signup.fullName}
+            aria-label={t.signup.fullName}
             aria-invalid={errors.fullName ? true : undefined}
             aria-describedby={errors.fullName ? "signup-fullName-error" : undefined}
             {...register("fullName")}
@@ -128,8 +130,8 @@ export function SignupForm() {
             type="email"
             id="signup-email"
             autoComplete="username"
-            placeholder="Email"
-            aria-label="Email"
+            placeholder={t.auth.email}
+            aria-label={t.auth.email}
             aria-invalid={errors.email ? true : undefined}
             aria-describedby={errors.email ? "signup-email-error" : undefined}
             {...register("email")}
@@ -144,8 +146,8 @@ export function SignupForm() {
           <PasswordInput
             id="signup-password"
             autoComplete="new-password"
-            placeholder="Kata sandi"
-            aria-label="Kata sandi"
+            placeholder={t.auth.password}
+            aria-label={t.auth.password}
             aria-invalid={errors.password ? true : undefined}
             aria-describedby={errors.password ? "signup-password-error" : undefined}
             {...register("password")}
@@ -160,8 +162,8 @@ export function SignupForm() {
           <PasswordInput
             id="signup-confirmPassword"
             autoComplete="new-password"
-            placeholder="Konfirmasi kata sandi"
-            aria-label="Konfirmasi kata sandi"
+            placeholder={t.signup.confirmPassword}
+            aria-label={t.signup.confirmPassword}
             aria-invalid={errors.confirmPassword ? true : undefined}
             aria-describedby={errors.confirmPassword ? "signup-confirmPassword-error" : undefined}
             {...register("confirmPassword")}
@@ -187,7 +189,7 @@ export function SignupForm() {
           className="w-full"
           disabled={!!HCAPTCHA_SITE_KEY && !captchaToken}
           pending={isPending}
-          pendingLabel="Mendaftarkan…"
+          pendingLabel={t.signup.submitting}
         >
           Daftar
         </Button>
@@ -195,7 +197,7 @@ export function SignupForm() {
 
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-border" />
-        <span className="text-xs text-muted-foreground">Atau lanjutkan dengan</span>
+        <span className="text-xs text-muted-foreground">{t.auth.orContinueWith}</span>
         <div className="h-px flex-1 bg-border" />
       </div>
 
@@ -205,10 +207,10 @@ export function SignupForm() {
         className="w-full"
         onClick={handleGoogleSignIn}
         pending={isGoogleLoading}
-        pendingLabel="Mengalihkan…"
+        pendingLabel={t.signup.redirecting}
       >
         <GoogleIcon className="size-4" />
-        Lanjutkan dengan Google
+        {t.auth.continueWithGoogle}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">

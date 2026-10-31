@@ -14,6 +14,7 @@ import { AdminUserMenu } from "@/components/admin/AdminUserMenu"
 import { NavigationBlockerProvider } from "@/components/admin/NavigationBlockerContext"
 import { NotificationBell } from "@/components/learner/NotificationBell"
 import type { Notification } from "@/lib/notifications-server"
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher"
 
 type AdminShellProps = {
   name: string
@@ -111,6 +112,7 @@ function AdminShellInner({ name, role, notifications, unreadCount, children }: A
             )}
             <div className="flex-1" />
             <NotificationBell items={notifications} unreadCount={unreadCount} seeAllHref={null} />
+            <LanguageSwitcher className="mr-1 hidden sm:inline-flex" />
             <AdminUserMenu name={name} role={role} />
           </header>
 

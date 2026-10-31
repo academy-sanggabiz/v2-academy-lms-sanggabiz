@@ -1,7 +1,13 @@
 import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm"
+import { getTranslations } from "@/lib/i18n/server"
 
 // Layout sudah menambahkan " · Sanggabiz Academy" lewat template metadata.
-export const metadata = { title: "Lupa kata sandi" }
+// Judul tab ikut bahasa: generateMetadata bisa membaca cookie, sedangkan
+// `export const metadata` dievaluasi sekali tanpa konteks permintaan.
+export async function generateMetadata() {
+  const { t } = await getTranslations()
+  return { title: t.pageTitles.forgotPassword }
+}
 
 export default function LupaSandiPage() {
   return (

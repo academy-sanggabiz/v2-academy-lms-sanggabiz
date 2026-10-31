@@ -5,8 +5,14 @@ import { AdminShell } from "@/components/admin/AdminShell"
 import { resolveAdminProfile } from "@/lib/auth/require-admin"
 import { createClient } from "@/lib/supabase/server"
 import { getNotifications } from "@/lib/notifications-server"
+import { getTranslations } from "@/lib/i18n/server"
 
-export const metadata: Metadata = { title: "Pengelola" }
+// Judul tab ikut bahasa: generateMetadata bisa membaca cookie, sedangkan
+// `export const metadata` dievaluasi sekali tanpa konteks permintaan.
+export async function generateMetadata() {
+  const { t } = await getTranslations()
+  return { title: t.pageTitles.admin }
+}
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const result = await resolveAdminProfile()

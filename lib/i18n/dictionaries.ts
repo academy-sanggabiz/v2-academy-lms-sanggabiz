@@ -43,6 +43,63 @@ export type Dictionary = {
     noAccount: string
     register: string
   }
+  settings: {
+    title: string
+    notifications: string
+    emailNotifications: string
+    emailNotificationsHint: string
+    emailOn: string
+    emailOff: string
+    security: string
+    changePassword: string
+    newPasswordPlaceholder: string
+    passwordSaved: string
+    deleteAccount: string
+    deleteAccountHint: string
+    deleteAccountWarning: string
+    deletingAccount: string
+  }
+  signup: {
+    title: string
+    subtitle: string
+    fullName: string
+    confirmPassword: string
+    submit: string
+    submitting: string
+    checkEmail: string
+    haveAccount: string
+    signIn: string
+    redirecting: string
+  }
+  forgot: {
+    title: string
+    submit: string
+    submitting: string
+    checkEmail: string
+  }
+  newPassword: {
+    title: string
+    newPassword: string
+    repeatPassword: string
+    mismatch: string
+  }
+  pageTitles: {
+    lesson: string
+    newPassword: string
+    forgotPassword: string
+    admin: string
+    coursePreview: string
+    myLearning: string
+  }
+  shell: {
+    openMenu: string
+    closeMenu: string
+    openSidebar: string
+    closeSidebar: string
+    mainNavigation: string
+    signOutFailed: string
+    signingOut: string
+  }
 }
 
 const id: Dictionary = {
@@ -78,6 +135,64 @@ const id: Dictionary = {
     noAccount: "Belum punya akun?",
     register: "Daftar",
   },
+  settings: {
+    title: "Pengaturan",
+    notifications: "Notifikasi",
+    emailNotifications: "Notifikasi Email",
+    emailNotificationsHint:
+      "Pilihan Anda tersimpan, tapi pengiriman email belum aktif. Pemberitahuan sementara ini hanya muncul di halaman Notifikasi.",
+    emailOn: "Notifikasi email dinyalakan",
+    emailOff: "Notifikasi email dimatikan",
+    security: "Keamanan",
+    changePassword: "Ubah Kata Sandi",
+    newPasswordPlaceholder: "Masukkan kata sandi baru",
+    passwordSaved: "Kata sandi tersimpan",
+    deleteAccount: "Hapus Akun",
+    deleteAccountHint: "Hapus akun Anda secara permanen",
+    deleteAccountWarning: "Akun yang sudah dihapus tidak dapat dipulihkan",
+    deletingAccount: "Menghapus akun…",
+  },
+  signup: {
+    title: "Buat akun Anda",
+    subtitle: "Mulai belajar bersama Sanggabiz.",
+    fullName: "Nama lengkap",
+    confirmPassword: "Konfirmasi kata sandi",
+    submit: "Daftar",
+    submitting: "Mendaftarkan…",
+    checkEmail: "Periksa email Anda",
+    haveAccount: "Sudah punya akun?",
+    signIn: "Masuk",
+    redirecting: "Mengalihkan…",
+  },
+  forgot: {
+    title: "Lupa kata sandi",
+    submit: "Kirim tautan",
+    submitting: "Mengirim…",
+    checkEmail: "Periksa email Anda",
+  },
+  newPassword: {
+    title: "Buat kata sandi baru",
+    newPassword: "Kata sandi baru",
+    repeatPassword: "Ulangi kata sandi baru",
+    mismatch: "Kedua kata sandi belum sama.",
+  },
+  pageTitles: {
+    lesson: "Pelajaran",
+    newPassword: "Kata sandi baru",
+    forgotPassword: "Lupa kata sandi",
+    admin: "Pengelola",
+    coursePreview: "Pratinjau kursus",
+    myLearning: "Belajar saya",
+  },
+  shell: {
+    openMenu: "Buka menu",
+    closeMenu: "Tutup menu",
+    openSidebar: "Buka sidebar",
+    closeSidebar: "Tutup sidebar",
+    mainNavigation: "Navigasi utama",
+    signOutFailed: "Gagal keluar. Periksa koneksi Anda, lalu coba lagi.",
+    signingOut: "Keluar…",
+  },
 }
 
 const en: Dictionary = {
@@ -112,6 +227,64 @@ const en: Dictionary = {
     continueWithGoogle: "Continue with Google",
     noAccount: "Don't have an account?",
     register: "Sign up",
+  },
+  settings: {
+    title: "Settings",
+    notifications: "Notifications",
+    emailNotifications: "Email notifications",
+    emailNotificationsHint:
+      "Your choice is saved, but email delivery is not active yet. For now, notices appear only on the Notifications page.",
+    emailOn: "Email notifications turned on",
+    emailOff: "Email notifications turned off",
+    security: "Security",
+    changePassword: "Change password",
+    newPasswordPlaceholder: "Enter a new password",
+    passwordSaved: "Password saved",
+    deleteAccount: "Delete account",
+    deleteAccountHint: "Permanently delete your account",
+    deleteAccountWarning: "A deleted account cannot be restored",
+    deletingAccount: "Deleting account…",
+  },
+  signup: {
+    title: "Create your account",
+    subtitle: "Start learning with Sanggabiz.",
+    fullName: "Full name",
+    confirmPassword: "Confirm password",
+    submit: "Sign up",
+    submitting: "Creating account…",
+    checkEmail: "Check your email",
+    haveAccount: "Already have an account?",
+    signIn: "Sign in",
+    redirecting: "Redirecting…",
+  },
+  forgot: {
+    title: "Forgot your password",
+    submit: "Send link",
+    submitting: "Sending…",
+    checkEmail: "Check your email",
+  },
+  newPassword: {
+    title: "Create a new password",
+    newPassword: "New password",
+    repeatPassword: "Repeat new password",
+    mismatch: "The two passwords do not match yet.",
+  },
+  pageTitles: {
+    lesson: "Lesson",
+    newPassword: "New password",
+    forgotPassword: "Forgot password",
+    admin: "Manage",
+    coursePreview: "Course preview",
+    myLearning: "My learning",
+  },
+  shell: {
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
+    openSidebar: "Open sidebar",
+    closeSidebar: "Close sidebar",
+    mainNavigation: "Main navigation",
+    signOutFailed: "Could not sign out. Check your connection, then try again.",
+    signingOut: "Signing out…",
   },
 }
 

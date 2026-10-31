@@ -11,25 +11,27 @@ import { StatusMessage } from "@/components/ui/status-message"
 import { Switch } from "@/components/ui/switch"
 import { PasswordInput } from "@/components/auth/PasswordInput"
 import { changePassword, deleteAccount, updateNotificationPref } from "@/app/learner/settings/actions"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 export function SettingsView({
   notificationEmailEnabled,
 }: {
   notificationEmailEnabled: boolean
 }) {
+  const { t } = useI18n()
   const [isDeleting, startDeleting] = useTransition()
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
   return (
     <div>
-      <div className="mb-6 text-3xl font-bold">Pengaturan</div>
+      <div className="mb-6 text-3xl font-bold">{t.settings.title}</div>
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
         {/* Penghapusan akun tidak dapat dibatalkan, jadi pengaturan lain ikut
             dikunci selama prosesnya (R15 kelas (d)): mengubah kata sandi akun
             yang sedang dihapus tidak pernah menjadi yang diinginkan pengguna.
             Tombol pemicunya sengaja tetap di luar wilayah ini, karena `inert`
             akan melempar fokus keyboard keluar (R18). */}
-        <BusyRegion busy={isDeleting} label="Menghapus akun…">
+        <BusyRegion busy={isDeleting} label={t.settings.deletingAccount}>
           <div className="flex flex-col gap-6">
             <NotificationsCard initialEnabled={notificationEmailEnabled} />
             <SecurityCard />
@@ -54,6 +56,7 @@ export function SettingsView({
 }
 
 function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
+  const { t } = useI18n()
   const [enabled, setEnabled] = useState(initialEnabled)
   const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -62,11 +65,11 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
     <div className="rounded-2xl border border-border bg-card p-7">
       <div className="mb-5 flex items-center gap-2.5 text-lg font-bold">
         <Bell className="size-[18px]" />
-        Notifikasi
+        {t.settings.notifications}
       </div>
       <div className="flex items-center justify-between gap-5">
         <div>
-          <div className="text-sm font-semibold">Notifikasi Email</div>
+          <div className="text-sm font-semibold">{t.settings.emailNotifications}</div>
           {/*
             Pilihan ini tersimpan tapi belum ada yang membacanya: tidak ada
             pengirim email di sistem ini selain email autentikasi bawaan
@@ -81,7 +84,7 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
           </div>
         </div>
         <Switch
-          aria-label="Notifikasi email"
+          aria-label={t.settings.emailNotifications}
           aria-busy={isPending || undefined}
           checked={enabled}
           disabled={isPending}
@@ -97,7 +100,7 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
               }
               setStatus({
                 type: "success",
-                message: checked ? "Notifikasi email dinyalakan" : "Notifikasi email dimatikan",
+                message: checked ? t.settings.emailOn : t.settings.emailOff,
               })
             })
           }}
@@ -136,6 +139,7 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
 }
 
 function SecurityCard() {
+  const { t } = useI18n()
   const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -143,9 +147,9 @@ function SecurityCard() {
     <div className="rounded-2xl border border-border bg-card p-7">
       <div className="mb-5 flex items-center gap-2.5 text-lg font-bold">
         <Shield className="size-[18px]" />
-        Keamanan
+        {t.settings.security}
       </div>
-      <div className="mb-2.5 text-sm font-semibold">Ubah Kata Sandi</div>
+      <div className="mb-2.5 text-sm font-semibold">{t.settings.changePassword}</div>
       <form
         action={(formData) => {
           setStatus(null)
@@ -154,7 +158,7 @@ function SecurityCard() {
             if (result?.error) {
               setStatus({ type: "error", message: result.error })
             } else {
-              setStatus({ type: "success", message: "Kata sandi tersimpan" })
+              setStatus({ type: "success", message: t.settings.passwordSaved })
               ;(document.getElementById("password-form") as HTMLFormElement)?.reset()
             }
           })
@@ -164,8 +168,8 @@ function SecurityCard() {
       >
         <PasswordInput
           name="password"
-          placeholder="Masukkan kata sandi baru"
-          aria-label="Kata sandi baru"
+          placeholder={t.settings.newPasswordPlaceholder}
+          aria-label={t.newPassword.newPassword}
           className="flex-1"
           required
         />
@@ -197,13 +201,14 @@ function DeleteAccountCard({
   error: string | null
   onConfirm: () => void
 }) {
+  const { t } = useI18n()
   return (
     <div className="rounded-2xl border border-border bg-card p-7">
-      <div className="mb-5 text-lg font-bold">Hapus Akun</div>
+      <div className="mb-5 text-lg font-bold">{t.settings.deleteAccount}</div>
       <div className="rounded-xl border border-[#f3d5d5] bg-[#fdf1f1] p-5">
-        <div className="text-[14.5px] font-semibold text-destructive">Hapus akun Anda secara permanen</div>
+        <div className="text-[14.5px] font-semibold text-destructive">{t.settings.deleteAccountHint}</div>
         <div className="mt-1 mb-3.5 text-[13px] text-destructive">
-          Akun yang sudah dihapus tidak dapat dipulihkan
+          {t.settings.deleteAccountWarning}
         </div>
         <StatusMessage className="mb-3">{error}</StatusMessage>
         <Button

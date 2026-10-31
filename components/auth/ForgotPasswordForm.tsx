@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { StatusMessage } from "@/components/ui/status-message"
 import { createClient } from "@/lib/supabase/client"
 import { authErrorMessage } from "@/lib/auth/auth-error-message"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 /**
  * Tautan pemulihan mendarat di `/auth/callback`, rute yang sudah ada dan sudah
@@ -19,6 +20,7 @@ import { authErrorMessage } from "@/lib/auth/auth-error-message"
 const RESET_TARGET = "/auth/callback?next=/auth/sandi-baru"
 
 export function ForgotPasswordForm() {
+  const { t } = useI18n()
   const [email, setEmail] = useState("")
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -47,7 +49,7 @@ export function ForgotPasswordForm() {
     return (
       <div className="space-y-3 text-center">
         <MailCheck className="mx-auto size-10 text-ring" />
-        <h1 className="text-xl font-bold">Periksa email Anda</h1>
+        <h1 className="text-xl font-bold">{t.forgot.checkEmail}</h1>
         <p className="text-sm text-muted-foreground">
           Jika <span className="font-medium text-foreground">{email.trim()}</span> terdaftar, kami
           mengirimkan tautan untuk membuat kata sandi baru. Tautannya berlaku sementara.
@@ -65,7 +67,7 @@ export function ForgotPasswordForm() {
   return (
     <>
       <div className="space-y-1 text-center">
-        <h1 className="text-xl font-bold">Lupa kata sandi</h1>
+        <h1 className="text-xl font-bold">{t.forgot.title}</h1>
         <p className="text-sm text-muted-foreground">
           Masukkan email akun Anda. Kami kirimkan tautan untuk membuat kata sandi baru.
         </p>
@@ -83,12 +85,12 @@ export function ForgotPasswordForm() {
           name="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          aria-label="Email"
+          placeholder={t.auth.email}
+          aria-label={t.auth.email}
           autoComplete="username"
           required
         />
-        <Button type="submit" className="w-full" pending={isPending} pendingLabel="Mengirim…">
+        <Button type="submit" className="w-full" pending={isPending} pendingLabel={t.forgot.submitting}>
           Kirim tautan
         </Button>
       </form>

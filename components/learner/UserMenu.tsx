@@ -17,8 +17,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { logout } from "@/app/auth/login/actions"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 export function UserMenu({ name, email }: { name: string; email: string }) {
+  const { t } = useI18n()
   const initial = name.charAt(0).toUpperCase()
   const [isLoggingOut, startLoggingOut] = useTransition()
 
@@ -60,13 +62,13 @@ export function UserMenu({ name, email }: { name: string; email: string }) {
               try {
                 await logout()
               } catch {
-                toast.error("Gagal keluar. Periksa koneksi Anda, lalu coba lagi.")
+                toast.error(t.shell.signOutFailed)
               }
             })
           }}
         >
           {isLoggingOut ? <Spinner /> : <LogOut />}
-          {isLoggingOut ? "Keluar…" : "Keluar"}
+          {isLoggingOut ? t.shell.signingOut : t.nav.signOut}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

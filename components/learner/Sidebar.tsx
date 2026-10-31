@@ -6,12 +6,15 @@ import { LayoutDashboard, BookOpen, ShoppingCart, PanelLeftClose, X } from "luci
 
 import { cn } from "@/lib/utils"
 import { sidebarClasses } from "@/hooks/use-mobile-nav"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
+// Label diambil dari kamus lewat kunci, bukan ditulis di sini: daftar ini
+// berada di luar komponen sehingga tidak bisa memanggil hook.
 const navItems = [
-  { href: "/learner/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/learner/courses", label: "Kursus", icon: BookOpen },
-  { href: "/learner/purchase", label: "Pembelian", icon: ShoppingCart },
-]
+  { href: "/learner/dashboard", key: "dashboard", icon: LayoutDashboard },
+  { href: "/learner/courses", key: "courses", icon: BookOpen },
+  { href: "/learner/purchase", key: "purchases", icon: ShoppingCart },
+] as const
 
 export function Sidebar({
   open,
@@ -24,8 +27,10 @@ export function Sidebar({
   onToggle: () => void
   onCloseMobile: () => void
 }) {
+  const { t } = useI18n()
+
   return (
-    <aside id="app-sidebar" aria-label="Navigasi utama" className={sidebarClasses(open, mobileOpen)}>
+    <aside id="app-sidebar" aria-label={t.shell.mainNavigation} className={sidebarClasses(open, mobileOpen)}>
       <div className="flex items-center gap-2 px-4 py-4 whitespace-nowrap">
         <img src="/logo.png" alt="" className="size-8 object-contain" />
         <span className="text-[17px] font-bold tracking-tight text-ring">sanggabiz</span>
@@ -33,7 +38,7 @@ export function Sidebar({
         <button
           type="button"
           onClick={onCloseMobile}
-          aria-label="Tutup menu"
+          aria-label={t.shell.closeMenu}
           className="flex size-8 flex-none items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground lg:hidden"
         >
           <X className="size-[18px]" aria-hidden />
@@ -41,7 +46,7 @@ export function Sidebar({
         <button
           type="button"
           onClick={onToggle}
-          aria-label="Tutup sidebar"
+          aria-label={t.shell.closeSidebar}
           className="hidden size-8 flex-none items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground lg:flex"
         >
           <PanelLeftClose className="size-[18px]" aria-hidden />
@@ -49,8 +54,8 @@ export function Sidebar({
       </div>
 
       <nav className="flex flex-col gap-1 px-3 py-2 whitespace-nowrap">
-        {navItems.map(({ href, label, icon: Icon }) => (
-          <NavLink key={href} href={href} label={label} icon={Icon} />
+        {navItems.map(({ href, key, icon: Icon }) => (
+          <NavLink key={href} href={href} label={t.nav[key]} icon={Icon} />
         ))}
       </nav>
 

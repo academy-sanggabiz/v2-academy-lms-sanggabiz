@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button"
 import { StatusMessage } from "@/components/ui/status-message"
 import { PasswordInput } from "@/components/auth/PasswordInput"
 import { setNewPassword } from "@/app/auth/sandi-baru/actions"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 const MIN_LENGTH = 6
 
 export function NewPasswordForm() {
+  const { t } = useI18n()
   const router = useRouter()
   const [password, setPassword] = useState("")
   const [confirm, setConfirm] = useState("")
@@ -27,7 +29,7 @@ export function NewPasswordForm() {
       return
     }
     if (password !== confirm) {
-      setError("Kedua kata sandi belum sama.")
+      setError(t.newPassword.mismatch)
       return
     }
 
@@ -47,7 +49,7 @@ export function NewPasswordForm() {
   return (
     <>
       <div className="space-y-1 text-center">
-        <h1 className="text-xl font-bold">Buat kata sandi baru</h1>
+        <h1 className="text-xl font-bold">{t.newPassword.title}</h1>
         <p className="text-sm text-muted-foreground">
           Pilih kata sandi baru untuk akun Anda.
         </p>
@@ -63,20 +65,20 @@ export function NewPasswordForm() {
         <PasswordInput
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Kata sandi baru"
-          aria-label="Kata sandi baru"
+          placeholder={t.newPassword.newPassword}
+          aria-label={t.newPassword.newPassword}
           autoComplete="new-password"
           required
         />
         <PasswordInput
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
-          placeholder="Ulangi kata sandi baru"
-          aria-label="Ulangi kata sandi baru"
+          placeholder={t.newPassword.repeatPassword}
+          aria-label={t.newPassword.repeatPassword}
           autoComplete="new-password"
           required
         />
-        <Button type="submit" className="w-full" pending={isPending} pendingLabel="Menyimpan…">
+        <Button type="submit" className="w-full" pending={isPending} pendingLabel={t.common.saving}>
           Simpan kata sandi
         </Button>
       </form>

@@ -2,9 +2,15 @@ import { redirect } from "next/navigation"
 
 import { createClient } from "@/lib/supabase/server"
 import { NewPasswordForm } from "@/components/auth/NewPasswordForm"
+import { getTranslations } from "@/lib/i18n/server"
 
 // Layout sudah menambahkan " · Sanggabiz Academy" lewat template metadata.
-export const metadata = { title: "Kata sandi baru" }
+// Judul tab ikut bahasa: generateMetadata bisa membaca cookie, sedangkan
+// `export const metadata` dievaluasi sekali tanpa konteks permintaan.
+export async function generateMetadata() {
+  const { t } = await getTranslations()
+  return { title: t.pageTitles.newPassword }
+}
 
 /**
  * Hanya bisa dibuka dengan sesi hidup -- yang didapat dari menukar tautan
