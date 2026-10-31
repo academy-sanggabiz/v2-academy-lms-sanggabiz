@@ -36,7 +36,7 @@ Termasuk: isi kursus. Judul dan materi pelajaran ada di basis data, jadi
 dwibahasa penuh berarti kolom terjemahan per pelajaran — itu pekerjaan
 tersendiri yang bisa menyusul setelah antarmukanya selesai.
 
-### 2. Menu aksesibilitas (ukuran huruf, warna, kontras)
+### 2. Menu aksesibilitas — ✅ selesai, lihat `docs/STANDAR-AKSESIBILITAS-PREFERENSI.md`
 
 Riset dulu standar yang berlaku, lalu terapkan. Yang sudah pasti relevan:
 WCAG 2.2 sudah dipenuhi di tingkat halaman (gerbang 56/56), tetapi
@@ -49,7 +49,7 @@ memperbaikinya.
 Letak dan gayanya harus menyatu dengan antarmuka, bukan tombol mengambang
 yang terasa ditempel.
 
-### 3. Pelacakan belajar yang lebih rinci
+### 3. Pelacakan belajar yang lebih rinci — ✅ tahap pertama selesai, lihat `docs/STANDAR-PELACAKAN.md`
 
 Layar Pelacakan sekarang hanya menampilkan persentase modul dan tugas.
 Yang diminta: di bagian mana peserta kesulitan, kebiasaan belajarnya, jam
@@ -72,14 +72,33 @@ urut, skor, dan waktunya, dan tidak ada yang dihapus. Jadi "berapa kali seorang
 peserta mencoba sampai lulus" dan "peserta mana yang paling konsisten" bisa
 dihitung kapan saja tanpa perubahan basis data.
 
-### 4. Halaman depan yang bisa dikustomisasi superadmin
+### 4. Halaman depan yang bisa dikustomisasi superadmin — *berikutnya*
 
-Meniru pola CMS di `github.com/attoyibi/cms-online-store-glasses`. Editor
-halaman depan sudah ada (`/admin/landing`, khusus superadmin) tetapi bagiannya
-tetap: bagian utama, keunggulan, dan daftar kursus. Yang diminta adalah
-bagian yang bisa ditambah, dihapus, dan diurutkan sendiri.
+Meniru pola CMS di `github.com/attoyibi/cms-online-store-glasses`. Acuan itu
+sudah ditelaah: ia menyusun halaman depan dari **blok modular** — hero,
+keunggulan, kategori, deretan produk, testimoni, FAQ, spanduk — yang bisa
+diseret untuk diurutkan, disembunyikan, diduplikasi, dibatalkan (undo/redo),
+dan punya alur draf lalu terbit, dengan pratinjau langsung di sebelah
+formulirnya.
 
-### 5. Bank soal dan pengacakan
+Keadaan sekarang: `landing_content` adalah satu baris berbentuk tetap
+(`heading`, `highlight_word`, `subheading`, `features` jsonb,
+`featured_course_ids`). Editornya ada di `/admin/landing`, khusus superadmin,
+tetapi susunan bagiannya tidak bisa diubah.
+
+Pekerjaannya, berurutan:
+
+1. Ubah modelnya menjadi daftar blok berurutan di satu kolom jsonb, dengan
+   migrasi yang memindahkan isi baris yang ada sekarang ke bentuk blok supaya
+   halaman depan tidak pernah kosong di tengah peralihan.
+2. Jenis blok yang masuk akal untuk LMS: hero, keunggulan, kursus pilihan,
+   **testimoni** (sudah ada datanya di `course_feedback`), FAQ, ajakan
+   bertindak.
+3. Editor: tambah, hapus, sembunyikan, dan urutkan. Pengurutan memakai dnd-kit
+   yang sudah dipakai di editor pelajaran, termasuk pengumuman papan ketiknya.
+4. Menyusul kalau diperlukan: pratinjau langsung, undo/redo, draf/terbit.
+
+### 5. Bank soal dan pengacakan — ✅ pengacakan selesai, bank soal masih terbuka
 
 Diminta bersama pencabutan batas percobaan: kalau peserta boleh mengulang
 sampai lulus, soalnya sebaiknya tidak selalu sama persis. Kolom
