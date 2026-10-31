@@ -11,7 +11,8 @@ import { PurchaseListToolbar } from "./PurchaseListToolbar"
 
 const STATUS_LABEL: Record<TransactionStatus, string> = {
   completed: "Berbayar",
-  free: "Publik",
+  // Lihat catatan di PurchaseHistoryClient: status transaksi, bukan akses.
+  free: "Gratis",
   pending: "Tertunda",
   refunded: "Dikembalikan",
 }

@@ -44,6 +44,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import type { LessonContentType } from "@/lib/courses"
+import { isLessonComplete } from "@/lib/lesson-completeness"
 import {
   newId,
   stripEmptyHtml,
@@ -382,15 +383,16 @@ const LessonCard = memo(function LessonCard({
 
   const contentType = lesson.content_type
 
-  const isComplete =
-    title.trim().length > 0 &&
-    (contentType === "video" || contentType === "ppt"
-      ? videoUrl.trim().length > 0
-      : contentType === "text"
-        ? content.replace(/<[^>]*>/g, "").trim().length > 0
-        : contentType === "quiz"
-          ? (lesson.quiz?.questions.length ?? 0) > 0
-          : true)
+  // Aturannya hidup di lib/lesson-completeness.ts supaya lencana ini dan
+  // gerbang "Terbitkan" di CourseFormShell tidak bisa berbeda pendapat. Nilai
+  // yang sedang diketik dipakai, bukan yang sudah tersimpan di draft, supaya
+  // lencananya ikut berubah saat penulis mengetik.
+  const isComplete = isLessonComplete({
+    ...lesson,
+    title,
+    video_url: videoUrl,
+    content,
+  })
 
   function save(patch: Partial<DraftLesson>) {
     dispatch({ type: "patchLesson", id: lesson.id, patch })

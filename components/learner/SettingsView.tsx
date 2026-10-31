@@ -67,8 +67,17 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
       <div className="flex items-center justify-between gap-5">
         <div>
           <div className="text-sm font-semibold">Notifikasi Email</div>
+          {/*
+            Pilihan ini tersimpan tapi belum ada yang membacanya: tidak ada
+            pengirim email di sistem ini selain email autentikasi bawaan
+            Supabase (lihat catatan di
+            supabase/migrations/20260805000000_notifications.sql). Menjanjikan
+            "terima kabar terbaru lewat email" berarti berjanji sesuatu yang
+            tidak pernah datang, jadi keterangannya menyebut apa adanya.
+          */}
           <div className="mt-0.5 text-[13px] text-muted-foreground">
-            Terima kabar terbaru tentang kursus dan akun Anda melalui email
+            Pilihan Anda tersimpan, tapi pengiriman email belum aktif. Pemberitahuan
+            sementara ini hanya muncul di halaman Notifikasi.
           </div>
         </div>
         <Switch

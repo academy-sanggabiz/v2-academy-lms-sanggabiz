@@ -20,7 +20,9 @@ type StatusFilter = "all" | TransactionStatus
 
 const STATUS_LABEL: Record<TransactionStatus, string> = {
   completed: "Berbayar",
-  free: "Publik",
+  // Konteksnya transaksi, bukan akses kursus: "Publik" menjawab siapa yang
+  // boleh ikut, sedangkan kolom ini menjawab bagaimana dibayar.
+  free: "Gratis",
   pending: "Tertunda",
   refunded: "Dikembalikan",
 }
@@ -74,7 +76,7 @@ export function PurchaseHistoryClient({ purchases }: { purchases: LearnerPurchas
             <SelectContent>
               <SelectItem value="all">Semua Status</SelectItem>
               <SelectItem value="completed">Berbayar</SelectItem>
-              <SelectItem value="free">Publik</SelectItem>
+              <SelectItem value="free">Gratis</SelectItem>
               <SelectItem value="pending">Tertunda</SelectItem>
               <SelectItem value="refunded">Dikembalikan</SelectItem>
             </SelectContent>

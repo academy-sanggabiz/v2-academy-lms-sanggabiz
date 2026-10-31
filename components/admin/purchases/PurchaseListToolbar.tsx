@@ -13,7 +13,7 @@ export function PurchaseListToolbar() {
         options={[
           { value: "all", label: "Semua Status" },
           { value: "completed", label: "Berbayar" },
-          { value: "free", label: "Publik" },
+          { value: "free", label: "Gratis" },
           { value: "pending", label: "Tertunda" },
           { value: "refunded", label: "Dikembalikan" },
         ]}

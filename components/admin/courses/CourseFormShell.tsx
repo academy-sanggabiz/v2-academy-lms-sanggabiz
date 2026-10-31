@@ -34,6 +34,7 @@ import {
   type CourseDraft,
   type QuizIssue,
 } from "@/lib/course-draft"
+import { describeIncompleteLesson, findIncompleteLessons } from "@/lib/lesson-completeness"
 
 import { CourseDraftProvider, useCourseDraft } from "./CourseDraftContext"
 import { RestoreDraftDialog } from "./RestoreDraftDialog"
@@ -180,6 +181,33 @@ function CourseFormShellInner({
       return
     }
     setQuizIssues([])
+
+    /*
+     * Gerbang terbit. Draf boleh setengah jadi -- memang begitu cara menulis
+     * kursus -- tapi "Terbitkan" adalah janji kepada peserta bahwa isinya bisa
+     * dipelajari. Sebelum ini editor menandai pelajaran "Belum lengkap" lalu
+     * tetap menerbitkannya, sehingga kursus terbit bisa berisi "Pelajaran
+     * Tanpa Judul" yang kosong dan peserta membuka halaman hampa.
+     */
+    if (status === "published") {
+      const lessonCount = parsed.data.sections.reduce((n, section) => n + section.lessons.length, 0)
+      if (lessonCount === 0) {
+        setTab("lessons")
+        toast.error("Kursus belum punya pelajaran. Tambahkan setidaknya satu sebelum menerbitkan.")
+        return
+      }
+
+      const incomplete = findIncompleteLessons(parsed.data)
+      if (incomplete.length > 0) {
+        setTab("lessons")
+        toast.error(
+          incomplete.length === 1
+            ? describeIncompleteLesson(incomplete[0])
+            : `${describeIncompleteLesson(incomplete[0])} (+${incomplete.length - 1} pelajaran lain)`
+        )
+        return
+      }
+    }
 
     const destructive = countDestructiveChanges(parsed.data, baseline)
     if (destructive.lessons > 0 || destructive.questions > 0) {
