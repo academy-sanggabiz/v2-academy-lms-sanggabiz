@@ -43,6 +43,14 @@ export default async function AdminDashboardPage({
     listTrackingEnrollments(trackParams),
   ])
 
+  // KPI utama: berapa bagian pendaftaran yang benar-benar diselesaikan.
+  // null, bukan 0, ketika belum ada pendaftaran -- "0%" akan terbaca sebagai
+  // kegagalan padahal yang terjadi adalah belum ada datanya.
+  const completionRate =
+    learnerStats.totalEnrollments > 0
+      ? Math.round((learnerStats.totalCompleted / learnerStats.totalEnrollments) * 100)
+      : null
+
   return (
     <div>
       <div className="mb-6">
@@ -60,7 +68,23 @@ export default async function AdminDashboardPage({
           value={courseStats.totalCourses}
           hint={`${courseStats.publishedCourses} terbit`}
         />
-        <StatCard icon={GraduationCap} label="Total Pendaftaran" value={learnerStats.totalEnrollments} />
+        {/*
+          * "Total Pendaftaran" dulu berdiri sendiri di sini. Angka itu hanya
+          * naik dan tidak pernah memberi tahu apakah kursusnya berhasil --
+          * vanity metric menurut STANDAR-DIGITAL-LEARNING §12. Yang ditampilkan
+          * sekarang adalah rasionya, dengan angka mentahnya tetap terbaca di
+          * bawah supaya tidak ada informasi yang hilang.
+          */}
+        <StatCard
+          icon={GraduationCap}
+          label="Tingkat Penyelesaian"
+          value={completionRate === null ? "—" : `${completionRate}%`}
+          hint={
+            completionRate === null
+              ? "Belum ada pendaftaran"
+              : `${learnerStats.totalCompleted} selesai dari ${learnerStats.totalEnrollments} pendaftaran`
+          }
+        />
         <StatCard icon={Trophy} label="Kursus Selesai" value={learnerStats.totalCompleted} />
       </div>
 

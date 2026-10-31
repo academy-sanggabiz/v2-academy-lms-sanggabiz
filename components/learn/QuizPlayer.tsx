@@ -20,12 +20,20 @@ export function QuizPlayer({
   quiz,
   attemptInfo,
   nextHref,
+  reviewLessons,
   onReachEnd,
 }: {
   quiz: Quiz
   attemptInfo?: QuizAttemptInfo
   /** Pelajaran berikutnya, atau null bila kuis ini yang terakhir. */
   nextHref: string | null
+  /**
+   * Pelajaran materi di modul yang sama, untuk ditautkan saat jawaban salah.
+   * STANDAR-DIGITAL-LEARNING §14: setiap soal harus bisa ditelusuri kembali ke
+   * materi yang mengajarkannya -- skor tanpa jalan kembali tidak mengajari
+   * apa pun.
+   */
+  reviewLessons: { href: string; title: string }[]
   onReachEnd: () => void
 }) {
   const [stage, setStage] = useState<Stage>("intro")
@@ -331,6 +339,20 @@ export function QuizPlayer({
                     <p className="mt-2 rounded-lg bg-secondary/60 px-3 py-2 text-[13px] leading-relaxed text-foreground">
                       <span className="font-semibold">Penjelasan: </span>
                       {result.explanations[question.id]}
+                    </p>
+                  )}
+                  {isCorrect === false && reviewLessons.length > 0 && (
+                    <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
+                      <span className="text-muted-foreground">Pelajari lagi:</span>
+                      {reviewLessons.map((lesson) => (
+                        <Link
+                          key={lesson.href}
+                          href={lesson.href}
+                          className="text-ring underline underline-offset-4"
+                        >
+                          {lesson.title}
+                        </Link>
+                      ))}
                     </p>
                   )}
                 </div>

@@ -74,6 +74,14 @@ export default async function LearnPage({
   const note = isContentLesson ? await getLessonNote(currentLesson.id) : null
 
   const currentSection = course.sections.find((s) => s.lessons.some((l) => l.id === currentLesson.id))
+
+  // Materi di modul yang sama dengan kuis yang sedang dibuka. Dipakai untuk
+  // menautkan jawaban salah kembali ke pelajaran yang mengajarkannya
+  // (STANDAR-DIGITAL-LEARNING §14). Pelajaran bertipe kuis dibuang: menautkan
+  // kuis ke kuis lain tidak menolong siapa pun.
+  const reviewLessons = (currentSection?.lessons ?? [])
+    .filter((l) => l.content_type !== "quiz" && l.content_type !== "mixed")
+    .map((l) => ({ id: l.id, title: l.title }))
   const remainingSeconds = allLessons
     .filter((l) => !completedLessonIds.has(l.id))
     .reduce((sum, l) => sum + (l.duration_seconds ?? 0), 0)
@@ -130,6 +138,7 @@ export default async function LearnPage({
           feedbackGiven={feedback !== null}
           isLessonDone={completedLessonIds.has(currentLesson.id)}
           note={note}
+          reviewLessons={reviewLessons}
         />
       }
       sidebar={

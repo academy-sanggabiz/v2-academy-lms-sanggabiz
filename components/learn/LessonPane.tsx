@@ -39,6 +39,7 @@ export function LessonPane({
   feedbackGiven = false,
   isLessonDone = false,
   note = null,
+  reviewLessons = [],
 }: {
   courseId: string
   course: Course
@@ -53,6 +54,12 @@ export function LessonPane({
   isLessonDone?: boolean
   /** The learner's saved note for this lesson (learner mode only). */
   note?: LessonNote | null
+  /**
+   * Pelajaran materi di modul yang sama dengan kuis ini. Ditautkan di bawah
+   * jawaban yang salah supaya peserta punya jalan kembali ke materinya
+   * (STANDAR-DIGITAL-LEARNING §14), bukan hanya diberi skor.
+   */
+  reviewLessons?: { id: string; title: string }[]
 }) {
   const isQuiz = lesson.content_type === "quiz" || lesson.content_type === "mixed"
   // Assessments are long, multi-question study cases -- scroll them from the top
@@ -116,6 +123,10 @@ export function LessonPane({
                       quiz={lesson.quiz}
                       attemptInfo={quizAttempt}
                       nextHref={nextLessonId ? `${basePath}/${courseId}?lesson=${nextLessonId}` : null}
+                      reviewLessons={reviewLessons.map((l) => ({
+                        href: `${basePath}/${courseId}?lesson=${l.id}`,
+                        title: l.title,
+                      }))}
                       onReachEnd={() => setShowFinished(true)}
                     />
                   )

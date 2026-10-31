@@ -573,6 +573,20 @@ const LessonCard = memo(function LessonCard({
                 <p className="text-xs text-muted-foreground">
                   Tempel tautan YouTube lengkap untuk video pelajaran ini
                 </p>
+                <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+                  <div className="mb-1.5 font-semibold text-foreground">
+                    Memilih video untuk pelajaran ini
+                  </div>
+                  <ul className="list-disc space-y-0.5 pl-4">
+                    <li>Satu tujuan belajar per pelajaran; 5–7 menit lebih mudah diselesaikan daripada satu video panjang.</li>
+                    <li>
+                      Utamakan video yang sudah bertakarir. Kalau belum, isi Transkrip di bawah — tanpa salah
+                      satunya, peserta tuli tidak bisa mengikuti pelajaran ini.
+                    </li>
+                    <li>Sebutkan di awal apa yang akan mampu dilakukan peserta setelah menonton.</li>
+                    <li>Akhiri modul dengan pelajaran kuis agar peserta mengingat kembali isinya.</li>
+                  </ul>
+                </div>
               </div>
             )}
             {(contentType === "video" || contentType === "ppt") && (
