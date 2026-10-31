@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useState, useTransition } from "react"
-import { ArrowLeft, Award, BookOpen, Calendar, CheckCircle2, Clock, Download, Mail, Pencil } from "lucide-react"
+import { ArrowLeft, Award, BookOpen, Calendar, CheckCircle2, Clock, Download, Mail, Pencil, Camera} from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -10,7 +10,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { StatusMessage } from "@/components/ui/status-message"
 import { cn } from "@/lib/utils"
-import { updateProfileName } from "@/app/learner/profile/actions"
+import { updateProfile } from "@/app/learner/profile/actions"
+import { uploadAvatar } from "@/lib/storage"
+import { createClient } from "@/lib/supabase/client"
 import type { EnrolledCourseSummary } from "@/lib/enrollments-server"
 import type { LearnerCertificateSummary } from "@/lib/certificates-server"
 
@@ -21,6 +23,10 @@ type ProfileViewProps = {
   enrolledCourses: EnrolledCourseSummary[]
   certificates: LearnerCertificateSummary[]
   initialTab?: "enrolled" | "certificates"
+  avatarUrl: string | null
+  certificateName: string
+  phone: string
+  organization: string
 }
 
 export function ProfileView({
@@ -30,6 +36,10 @@ export function ProfileView({
   enrolledCourses,
   certificates,
   initialTab = "enrolled",
+  avatarUrl,
+  certificateName,
+  phone,
+  organization,
 }: ProfileViewProps) {
   const [isEditing, setIsEditing] = useState(false)
   const initial = name.charAt(0).toUpperCase()
@@ -40,6 +50,10 @@ export function ProfileView({
         name={name}
         email={email}
         initial={initial}
+        avatarUrl={avatarUrl}
+        certificateName={certificateName}
+        phone={phone}
+        organization={organization}
         onDone={() => setIsEditing(false)}
       />
     )
@@ -49,9 +63,20 @@ export function ProfileView({
     <div>
       <div className="mb-6 flex items-center gap-6 rounded-2xl border border-border bg-gradient-to-br from-[#e3f4f7] to-[#e8f1fc] p-8">
         <div className="relative flex-none">
-          <div className="flex size-[100px] items-center justify-center rounded-full border-4 border-white bg-brand-gradient text-4xl font-semibold text-white uppercase shadow-[0_4px_14px_rgba(20,55,64,0.12)]">
-            {initial}
-          </div>
+          {/* Foto profil bersifat dekoratif: namanya sudah tertulis di
+              sebelahnya, jadi alt kosong mencegah pembaca layar membacanya
+              dua kali. */}
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt=""
+              className="size-[100px] rounded-full border-4 border-white object-cover shadow-[0_4px_14px_rgba(20,55,64,0.12)]"
+            />
+          ) : (
+            <div className="flex size-[100px] items-center justify-center rounded-full border-4 border-white bg-brand-gradient text-4xl font-semibold text-white uppercase shadow-[0_4px_14px_rgba(20,55,64,0.12)]">
+              {initial}
+            </div>
+          )}
           <button
             onClick={() => setIsEditing(true)}
             title="Ubah profil"
@@ -230,15 +255,41 @@ function EditProfileForm({
   name,
   email,
   initial,
+  avatarUrl,
+  certificateName,
+  phone,
+  organization,
   onDone,
 }: {
   name: string
   email: string
   initial: string
+  avatarUrl: string | null
+  certificateName: string
+  phone: string
+  organization: string
   onDone: () => void
 }) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [photo, setPhoto] = useState(avatarUrl ?? "")
+  const [photoStatus, setPhotoStatus] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+
+  async function handlePhoto(file: File) {
+    setPhotoStatus(null)
+    setUploading(true)
+    const supabase = createClient()
+    const { data } = await supabase.auth.getClaims()
+    const result = await uploadAvatar(file, (data?.claims?.sub as string) ?? "")
+    setUploading(false)
+    if ("error" in result) {
+      setPhotoStatus(result.error)
+      return
+    }
+    setPhoto(result.url)
+    setPhotoStatus("Foto siap. Tekan Simpan Perubahan untuk menyimpannya.")
+  }
 
   return (
     <div>
@@ -258,7 +309,7 @@ function EditProfileForm({
         action={(formData) => {
           setError(null)
           startTransition(async () => {
-            const result = await updateProfileName(formData)
+            const result = await updateProfile(formData)
             if (result?.error) {
               setError(result.error)
               return
@@ -271,21 +322,125 @@ function EditProfileForm({
         }}
         className="max-w-[560px] rounded-2xl border border-border bg-card p-7"
       >
+        <input type="hidden" name="avatarUrl" value={photo} />
         <div className="mb-5 flex items-center gap-5">
-          <div className="flex size-[72px] flex-none items-center justify-center rounded-full border-2 border-[#e3f4f7] bg-brand-gradient text-2xl font-semibold text-white uppercase">
-            {initial}
+          {photo ? (
+            <img
+              src={photo}
+              alt=""
+              className="size-[72px] flex-none rounded-full border-2 border-[#e3f4f7] object-cover"
+            />
+          ) : (
+            <div className="flex size-[72px] flex-none items-center justify-center rounded-full border-2 border-[#e3f4f7] bg-brand-gradient text-2xl font-semibold text-white uppercase">
+              {initial}
+            </div>
+          )}
+          <div className="min-w-0">
+            {/* Label membungkus input berkas: <input type="file"> polos sulit
+                diberi gaya, tetapi menyembunyikannya di balik tombol yang bukan
+                kontrol asli akan menghilangkan fokus papan ketik. Pola ini
+                menjaga inputnya tetap nyata dan tetap bisa difokus. */}
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-input bg-card px-3 py-2 text-sm font-semibold hover:bg-muted focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+              <Camera className="size-4" aria-hidden />
+              {uploading ? "Mengunggah…" : photo ? "Ganti foto" : "Unggah foto"}
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="sr-only"
+                disabled={uploading}
+                onChange={(event) => {
+                  const file = event.target.files?.[0]
+                  if (file) void handlePhoto(file)
+                  event.target.value = ""
+                }}
+              />
+            </label>
+            {photo && (
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="ml-2"
+                onClick={() => {
+                  setPhoto("")
+                  setPhotoStatus("Foto dihapus. Tekan Simpan Perubahan untuk menyimpannya.")
+                }}
+              >
+                Hapus
+              </Button>
+            )}
+            <p className="mt-1 text-xs text-muted-foreground">PNG, JPG, atau WebP. Maksimal 2MB.</p>
+            <p role="status" aria-live="polite" className="mt-1 min-h-4 text-xs text-muted-foreground">
+              {photoStatus}
+            </p>
           </div>
         </div>
 
         <Label htmlFor="fullName" className="mb-2 block text-sm font-semibold">
           Nama
         </Label>
-        <Input id="fullName" name="fullName" defaultValue={name} className="mb-4 w-full" />
+        <Input id="fullName" name="fullName" defaultValue={name} autoComplete="name" className="w-full" />
+
+        <p className="mt-1.5 mb-4 text-xs text-muted-foreground">
+          Nama yang menyapa Anda di seluruh halaman.
+        </p>
+
+        <Label htmlFor="certificateName" className="mb-2 block text-sm font-semibold">
+          Nama di sertifikat <span className="font-normal text-muted-foreground">(opsional)</span>
+        </Label>
+        <Input
+          id="certificateName"
+          name="certificateName"
+          defaultValue={certificateName}
+          autoComplete="name"
+          placeholder={name}
+          className="w-full"
+        />
+        {/* Dipisahkan dari nama panggilan dengan sengaja: sertifikat yang dipakai
+            melamar kerja perlu nama yang cocok dengan identitas resmi, sementara
+            antarmuka sebaiknya memanggil orang dengan nama yang ia pakai
+            sehari-hari (docs/STANDAR-PROFIL-PESERTA.md §3). */}
+        <p className="mt-1.5 mb-4 text-xs text-muted-foreground">
+          Nama ini yang akan dicetak di sertifikat. Samakan dengan identitas resmi Anda bila
+          sertifikatnya akan dipakai untuk keperluan formal. Dikosongkan berarti memakai nama
+          di atas. Sertifikat yang sudah terbit tidak ikut berubah.
+        </p>
+
+        <Label htmlFor="organization" className="mb-2 block text-sm font-semibold">
+          Nama usaha atau instansi <span className="font-normal text-muted-foreground">(opsional)</span>
+        </Label>
+        <Input
+          id="organization"
+          name="organization"
+          defaultValue={organization}
+          autoComplete="organization"
+          className="w-full"
+        />
+        <p className="mt-1.5 mb-4 text-xs text-muted-foreground">
+          Membantu pengelola mengenali Anda datang dari usaha mana.
+        </p>
+
+        <Label htmlFor="phone" className="mb-2 block text-sm font-semibold">
+          Nomor telepon <span className="font-normal text-muted-foreground">(opsional)</span>
+        </Label>
+        <Input
+          id="phone"
+          name="phone"
+          type="tel"
+          inputMode="tel"
+          defaultValue={phone}
+          autoComplete="tel"
+          className="w-full"
+        />
+        <p className="mt-1.5 mb-4 text-xs text-muted-foreground">
+          Dipakai pengelola bila ada perubahan jadwal atau kendala akses. Tidak pernah
+          ditampilkan ke peserta lain.
+        </p>
 
         <Label htmlFor="email" className="mb-2 block text-sm font-semibold">
           Email
         </Label>
-        <Input id="email" value={email} disabled className="w-full bg-muted" />
+        <Input id="email" value={email} disabled autoComplete="email" className="w-full bg-muted" />
         <p className="mt-1.5 mb-4 text-xs text-muted-foreground">Email tidak dapat diubah</p>
 
         <StatusMessage className="mb-4">{error}</StatusMessage>

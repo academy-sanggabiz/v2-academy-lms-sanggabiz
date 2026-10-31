@@ -14,7 +14,11 @@ export default async function ProfilePage({
   const userId = claimsData?.claims?.sub ?? ""
 
   const [{ data: profile }, enrolledCourses, certificates] = await Promise.all([
-    supabase.from("profiles").select("full_name, email, created_at").eq("id", userId).single(),
+    supabase
+      .from("profiles")
+      .select("full_name, email, created_at, avatar_url, certificate_name, phone, organization")
+      .eq("id", userId)
+      .single(),
     getEnrolledCoursesWithDetails(),
     getLearnerCertificates(),
   ])
@@ -29,6 +33,10 @@ export default async function ProfilePage({
     <ProfileView
       name={name}
       email={email}
+      avatarUrl={profile?.avatar_url ?? null}
+      certificateName={profile?.certificate_name ?? ""}
+      phone={profile?.phone ?? ""}
+      organization={profile?.organization ?? ""}
       joinedYear={joinedYear}
       enrolledCourses={enrolledCourses}
       certificates={certificates}

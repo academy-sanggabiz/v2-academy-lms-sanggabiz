@@ -259,10 +259,14 @@ async function generateAndUploadPdf(
   try {
     const [{ data: course }, { data: profile }] = await Promise.all([
       supabase.from("courses").select("title").eq("id", courseId).single(),
-      supabase.from("profiles").select("full_name, email").eq("id", learnerId).single(),
+      // certificate_name lebih dulu: nama panggilan yang nyaman di antarmuka
+      // sering bukan nama yang berguna di dokumen resmi
+      // (docs/STANDAR-PROFIL-PESERTA.md §3).
+      supabase.from("profiles").select("full_name, email, certificate_name").eq("id", learnerId).single(),
     ])
 
-    const learnerName = profile?.full_name || profile?.email || "Peserta"
+    const learnerName =
+      profile?.certificate_name?.trim() || profile?.full_name || profile?.email || "Peserta"
     const courseTitle = course?.title ?? "Kursus"
     const description = (settings.description ?? "")
       .replaceAll("[Nama Peserta]", learnerName)
