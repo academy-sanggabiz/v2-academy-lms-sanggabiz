@@ -11,6 +11,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useDisplayPreferences } from "@/components/preferences/DisplayProvider"
 import type { DisplayPreferences } from "@/lib/preferences/display"
 import { cn } from "@/lib/utils"
 
@@ -27,14 +28,9 @@ import { cn } from "@/lib/utils"
  * Tiap pilihan punya keadaan "Ikut perangkat" dan itulah bawaannya, sehingga
  * pengaturan sistem pengguna tidak pernah ditimpa tanpa ia minta.
  */
-export function DisplaySettings({
-  preferences,
-  className,
-}: {
-  preferences: DisplayPreferences
-  className?: string
-}) {
+export function DisplaySettings({ className }: { className?: string }) {
   const { t } = useI18n()
+  const preferences = useDisplayPreferences()
   const [pending, startTransition] = useTransition()
 
   function update(next: Partial<DisplayPreferences>) {

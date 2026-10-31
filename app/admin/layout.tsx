@@ -6,7 +6,6 @@ import { resolveAdminProfile } from "@/lib/auth/require-admin"
 import { createClient } from "@/lib/supabase/server"
 import { getNotifications } from "@/lib/notifications-server"
 import { getTranslations } from "@/lib/i18n/server"
-import { getDisplayPreferences } from "@/lib/preferences/server"
 
 // Judul tab ikut bahasa: generateMetadata bisa membaca cookie, sedangkan
 // `export const metadata` dievaluasi sekali tanpa konteks permintaan.
@@ -33,12 +32,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const name = profile?.full_name || profile?.email || "Pengelola"
 
-  const displayPreferences = await getDisplayPreferences()
 
 
   return (
     <AdminShell
-      displayPreferences={displayPreferences}
       name={name}
       role={result.profile.role}
       notifications={notifications.items}

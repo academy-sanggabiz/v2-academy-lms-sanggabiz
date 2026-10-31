@@ -16,14 +16,12 @@ import { NotificationBell } from "@/components/learner/NotificationBell"
 import type { Notification } from "@/lib/notifications-server"
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher"
 import { DisplaySettings } from "@/components/preferences/DisplaySettings"
-import type { DisplayPreferences } from "@/lib/preferences/display"
 
 type AdminShellProps = {
   name: string
   role: "mentor" | "superadmin"
   notifications: Notification[]
   unreadCount: number
-  displayPreferences: DisplayPreferences
   children: React.ReactNode
 }
 
@@ -40,7 +38,6 @@ function AdminShellInner({
   role,
   notifications,
   unreadCount,
-  displayPreferences,
   children,
 }: AdminShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -122,7 +119,7 @@ function AdminShellInner({
             )}
             <div className="flex-1" />
             <NotificationBell items={notifications} unreadCount={unreadCount} seeAllHref={null} />
-            <DisplaySettings preferences={displayPreferences} className="mr-1" />
+            <DisplaySettings className="mr-1" />
           <LanguageSwitcher className="mr-1 hidden sm:inline-flex" />
             <AdminUserMenu name={name} role={role} />
           </header>

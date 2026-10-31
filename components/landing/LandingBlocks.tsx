@@ -6,6 +6,7 @@ import { FeaturedCoursesCarousel } from "@/components/FeaturedCoursesCarousel"
 import type { Course } from "@/lib/courses"
 import type { LandingBlock } from "@/lib/landing-blocks"
 import type { LandingTestimonial } from "@/lib/landing-server"
+import { getTranslations } from "@/lib/i18n/server"
 
 const ICON_MAP: Record<string, LucideIcon> = {
   "graduation-cap": GraduationCap,
@@ -42,7 +43,7 @@ export function LandingBlocks({
   )
 }
 
-function LandingBlockView({
+async function LandingBlockView({
   block,
   courses,
   testimonials,
@@ -51,6 +52,8 @@ function LandingBlockView({
   courses: Course[]
   testimonials: LandingTestimonial[]
 }) {
+  const { t } = await getTranslations()
+
   switch (block.type) {
     case "hero":
       return (
@@ -72,7 +75,7 @@ function LandingBlockView({
               {block.hero.primaryCtaText}
             </Button>
             <Button size="xl" variant="outline" render={<Link href="/auth/login" />} nativeButton={false}>
-              Jelajahi Kursus
+              {t.landing.exploreCourses}
             </Button>
           </div>
         </section>

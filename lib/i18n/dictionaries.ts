@@ -163,6 +163,13 @@ export type Dictionary = {
     myCompleted: string
     published: string
   }
+  landing: {
+    signIn: string
+    getStarted: string
+    exploreCourses: string
+    footerTagline: string
+    privacy: string
+  }
   display: {
     title: string
     openPanel: string
@@ -412,6 +419,14 @@ const id: Dictionary = {
     myLearners: "Peserta di Kursus Saya",
     myCompleted: "Selesai di Kursus Saya",
     published: "terbit",
+  },
+  landing: {
+    signIn: "Masuk",
+    getStarted: "Mulai",
+    exploreCourses: "Jelajahi Kursus",
+    footerTagline:
+      "Kembangkan diri Anda melalui pengetahuan bersama Sanggabiz. Akses kursus berkualitas yang dirancang untuk membantu Anda mencapai tujuan.",
+    privacy: "Privasi",
   },
   display: {
     title: "Tampilan",
@@ -671,6 +686,14 @@ const en: Dictionary = {
     myLearners: "Learners in my courses",
     myCompleted: "Completed in my courses",
     published: "published",
+  },
+  landing: {
+    signIn: "Sign in",
+    getStarted: "Get started",
+    exploreCourses: "Browse courses",
+    footerTagline:
+      "Grow through knowledge with Sanggabiz. Quality courses designed to help you reach your goals.",
+    privacy: "Privacy",
   },
   display: {
     title: "Display",

@@ -15,6 +15,7 @@ import { authErrorMessage } from "@/lib/auth/auth-error-message"
 import { createClient } from "@/lib/supabase/client"
 import { useI18n } from "@/components/i18n/LocaleProvider"
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher"
+import { DisplaySettings } from "@/components/preferences/DisplaySettings"
 
 const HCAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? ""
 /**
@@ -207,8 +208,12 @@ export function LoginForm() {
         {t.auth.continueWithGoogle}
       </Button>
 
-      <div className="flex justify-center">
+      {/* Preferensi tampilan juga di sini: layar masuk sering jadi halaman
+          pertama yang dibuka orang, dan memperbesar teks di situ tidak boleh
+          menunggu sampai ia berhasil masuk. */}
+      <div className="flex flex-wrap items-center justify-center gap-2">
         <LanguageSwitcher />
+        <DisplaySettings />
       </div>
 
       <p className="text-center text-sm text-muted-foreground">

@@ -3,6 +3,7 @@ import { Poppins, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { LocaleProvider } from "@/components/i18n/LocaleProvider";
+import { DisplayProvider } from "@/components/preferences/DisplayProvider";
 import { getTranslations } from "@/lib/i18n/server";
 import { getDisplayPreferences } from "@/lib/preferences/server";
 import { displayAttributes } from "@/lib/preferences/display";
@@ -47,7 +48,9 @@ export default async function RootLayout({
         >
           {t.common.skipToContent}
         </a>
-        <LocaleProvider locale={locale}>{children}</LocaleProvider>
+        <LocaleProvider locale={locale}>
+          <DisplayProvider preferences={display}>{children}</DisplayProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

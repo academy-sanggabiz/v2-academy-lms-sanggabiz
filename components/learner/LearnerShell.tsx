@@ -13,21 +13,18 @@ import type { Notification } from "@/lib/notifications-server"
 import { useI18n } from "@/components/i18n/LocaleProvider"
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher"
 import { DisplaySettings } from "@/components/preferences/DisplaySettings"
-import type { DisplayPreferences } from "@/lib/preferences/display"
 
 export function LearnerShell({
   name,
   email,
   notifications,
   unreadCount,
-  displayPreferences,
   children,
 }: {
   name: string
   email: string
   notifications: Notification[]
   unreadCount: number
-  displayPreferences: DisplayPreferences
   children: React.ReactNode
 }) {
   const { t } = useI18n()
@@ -81,7 +78,7 @@ export function LearnerShell({
           <div className="flex-1" />
           {/* Pemilih bahasa di header, bukan terkubur di Pengaturan: orang yang
               salah bahasa justru kesulitan menemukan halaman Pengaturan. */}
-          <DisplaySettings preferences={displayPreferences} className="mr-1" />
+          <DisplaySettings className="mr-1" />
           <LanguageSwitcher className="mr-1 hidden sm:inline-flex" />
           <NotificationBell items={notifications} unreadCount={unreadCount} />
           <UserMenu name={name} email={email} />

@@ -4,15 +4,19 @@ import { Button } from "@/components/ui/button"
 import { getPublishedCourses } from "@/lib/courses-server"
 import { getLandingBlocks, getLandingTestimonials } from "@/lib/landing-server"
 import { LandingBlocks } from "@/components/landing/LandingBlocks"
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher"
+import { DisplaySettings } from "@/components/preferences/DisplaySettings"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function Home() {
   // Susunan halaman depan kini data, bukan tata letak: superadmin bisa
   // menambah, menghapus, menyembunyikan, dan mengurutkan bloknya sendiri
   // (lib/landing-blocks.ts).
-  const [blocks, courses, testimonials] = await Promise.all([
+  const [blocks, courses, testimonials, { t }] = await Promise.all([
     getLandingBlocks(),
     getPublishedCourses(),
     getLandingTestimonials(),
+    getTranslations(),
   ])
 
   return (
@@ -22,21 +26,29 @@ export default async function Home() {
           <img src="/logo.png" alt="Sanggabiz" className="size-8 object-contain" />
           <span className="text-xl font-bold tracking-tight text-ring">sanggabiz</span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/*
+            Pemilih bahasa dan preferensi tampilan juga ada di sini, bukan
+            hanya di balik login. Pengunjung yang belum punya akun justru yang
+            paling mungkin butuh mengganti bahasa atau memperbesar teks, dan
+            sebelumnya tidak punya cara apa pun melakukannya.
+          */}
+          <DisplaySettings />
+          <LanguageSwitcher className="hidden sm:inline-flex" />
           <Button
             variant="ghost"
             size="lg"
             className="h-10 px-5 text-sm font-semibold"
             render={<Link href="/auth/login" />} nativeButton={false}
           >
-            Masuk
+            {t.landing.signIn}
           </Button>
           <Button
             size="lg"
             className="h-10 px-5 text-sm font-semibold bg-brand-gradient text-white hover:brightness-105"
             render={<Link href="/auth/login" />} nativeButton={false}
           >
-            Mulai
+            {t.landing.getStarted}
           </Button>
         </div>
       </header>
@@ -57,8 +69,7 @@ export default async function Home() {
           <span className="text-lg font-bold text-ring">sanggabiz</span>
         </div>
         <p className="max-w-lg text-sm text-muted-foreground">
-          Kembangkan diri Anda melalui pengetahuan bersama Sanggabiz. Akses kursus
-          berkualitas yang dirancang untuk membantu Anda mencapai tujuan.
+          {t.landing.footerTagline}
         </p>
         {/*
          * Dulu keduanya `href="#"` -- kontrol yang terlihat bisa dipakai tetapi
@@ -68,7 +79,7 @@ export default async function Home() {
          */}
         <div className="flex gap-4.5 text-[13.5px]">
           <Link href="/legal/privasi" className="underline underline-offset-4">
-            Privasi
+            {t.landing.privacy}
           </Link>
         </div>
         <div className="text-xs text-muted-foreground">© 2026 Sanggabiz</div>
