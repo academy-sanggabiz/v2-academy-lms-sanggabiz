@@ -1,6 +1,24 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+/**
+ * Pengalihan yang MEMBAWA cookie hasil penyegaran sesi.
+ *
+ * `supabase.auth.getClaims()` di atas bisa memperbarui token dan menuliskan
+ * cookie baru ke `supabaseResponse`. Mengembalikan `NextResponse.redirect()`
+ * polos membuang cookie itu, sehingga browser dan server kehilangan sinkron
+ * dan pengguna bisa terlempar keluar tanpa sebab yang terlihat -- persis yang
+ * diperingatkan catatan Supabase di bawah berkas ini. Gejalanya di log:
+ * `AuthApiError: Invalid Refresh Token: Refresh Token Not Found`.
+ */
+function redirectKeeping(url: URL, carrying: NextResponse) {
+  const response = NextResponse.redirect(url)
+  for (const cookie of carrying.cookies.getAll()) {
+    response.cookies.set(cookie)
+  }
+  return response
+}
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -44,7 +62,7 @@ export async function updateSession(request: NextRequest) {
     if (!user) {
       const url = request.nextUrl.clone()
       url.pathname = '/auth/login'
-      return NextResponse.redirect(url)
+      return redirectKeeping(url, supabaseResponse)
     }
 
     // Fast-path role check from the JWT claim (populated only once the
@@ -59,7 +77,7 @@ export async function updateSession(request: NextRequest) {
       const url = request.nextUrl.clone()
       url.pathname = '/admin/dashboard'
       url.search = ''
-      return NextResponse.redirect(url)
+      return redirectKeeping(url, supabaseResponse)
     }
   }
 
@@ -74,14 +92,14 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/lupa-sandi'
     url.search = ''
-    return NextResponse.redirect(url)
+    return redirectKeeping(url, supabaseResponse)
   }
 
   if (request.nextUrl.pathname.startsWith('/admin')) {
     if (!user) {
       const url = request.nextUrl.clone()
       url.pathname = '/auth/login'
-      return NextResponse.redirect(url)
+      return redirectKeeping(url, supabaseResponse)
     }
 
     // Fast-path role check from the JWT claim (populated only once the
@@ -93,7 +111,7 @@ export async function updateSession(request: NextRequest) {
       const url = request.nextUrl.clone()
       url.pathname = '/auth/login'
       url.searchParams.set('error', 'Anda tidak berwenang mengakses area admin')
-      return NextResponse.redirect(url)
+      return redirectKeeping(url, supabaseResponse)
     }
   }
 

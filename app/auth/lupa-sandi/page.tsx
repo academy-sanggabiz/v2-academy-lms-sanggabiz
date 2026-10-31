@@ -1,6 +1,7 @@
 import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm"
 
-export const metadata = { title: "Lupa kata sandi · Sanggabiz Academy" }
+// Layout sudah menambahkan " · Sanggabiz Academy" lewat template metadata.
+export const metadata = { title: "Lupa kata sandi" }
 
 export default function LupaSandiPage() {
   return (

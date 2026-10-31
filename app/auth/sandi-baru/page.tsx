@@ -3,7 +3,8 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { NewPasswordForm } from "@/components/auth/NewPasswordForm"
 
-export const metadata = { title: "Kata sandi baru · Sanggabiz Academy" }
+// Layout sudah menambahkan " · Sanggabiz Academy" lewat template metadata.
+export const metadata = { title: "Kata sandi baru" }
 
 /**
  * Hanya bisa dibuka dengan sesi hidup -- yang didapat dari menukar tautan

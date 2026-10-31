@@ -697,7 +697,11 @@ export async function saveCourseDraft(
             })
           }
 
-          const explanation = sanitizeRichText(question.explanation)
+          // Teks biasa, bukan HTML: bidangnya <Textarea> dan peserta
+          // melihatnya lewat {teks} di JSX, yang sudah di-escape React.
+          // Menyanitasinya justru merusak -- "nilai < 70" terpotong di "<"
+          // dan "&" berubah jadi "&amp;" yang terbaca mentah oleh peserta.
+          const explanation = question.explanation ?? ""
           if ((existingQuestion?.explanation ?? "") !== explanation) {
             explanationRows.push({
               question_id: question.id,

@@ -45,8 +45,10 @@ const OPTIONS: sanitizeHtml.IOptions = {
     p: ["style"],
     h1: ["style"], h2: ["style"], h3: ["style"],
     h4: ["style"], h5: ["style"], h6: ["style"],
-    td: ["style", "colspan", "rowspan"],
-    th: ["style", "colspan", "rowspan"],
+    // `colwidth` dipakai Tiptap untuk menyimpan lebar kolom tabel yang
+    // disetel admin; tanpa izin ini lebarnya hilang setiap kali disimpan.
+    td: ["style", "colspan", "rowspan", "colwidth"],
+    th: ["style", "colspan", "rowspan", "colwidth"],
     col: ["style", "span"],
   },
   // `style` hanya menerima properti dan nilai di bawah ini. Tanpa pembatasan
