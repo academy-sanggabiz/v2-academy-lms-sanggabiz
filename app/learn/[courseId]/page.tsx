@@ -60,9 +60,14 @@ export default async function LearnPage({
   // never re-triggers that check. Re-running it here on every page view is
   // cheap (idempotent -- returns the existing row once issued) and makes the
   // check retry automatically instead of staying stuck.
+  // Nilai kembaliannya dipakai, bukan dibuang: layar penyelesaian dulu selalu
+  // menjanjikan "Sertifikat Anda siap diunduh" padahal sebagian besar kursus
+  // tidak mengaktifkan sertifikat sama sekali, sehingga peserta dikirim ke
+  // halaman kosong.
+  let certificate = null
   if (isCourseComplete && userRole) {
     const supabase = await createClient()
-    await checkAndIssueCertificate(supabase, {
+    certificate = await checkAndIssueCertificate(supabase, {
       enrollmentId,
       courseId,
       learnerId: userRole.userId,
@@ -135,6 +140,7 @@ export default async function LearnPage({
           nextLessonId={nextLessonId}
           quizAttempt={currentLesson.quiz ? quizAttempts.get(currentLesson.quiz.id) : undefined}
           isCourseComplete={isCourseComplete}
+          hasCertificate={certificate !== null}
           feedbackGiven={feedback !== null}
           isLessonDone={completedLessonIds.has(currentLesson.id)}
           note={note}

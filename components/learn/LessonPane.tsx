@@ -36,6 +36,7 @@ export function LessonPane({
   basePath = "/learn",
   mode = "learner",
   isCourseComplete = false,
+  hasCertificate = false,
   feedbackGiven = false,
   isLessonDone = false,
   note = null,
@@ -50,6 +51,7 @@ export function LessonPane({
   basePath?: string
   mode?: "learner" | "admin-preview"
   isCourseComplete?: boolean
+  hasCertificate?: boolean
   feedbackGiven?: boolean
   isLessonDone?: boolean
   /** The learner's saved note for this lesson (learner mode only). */
@@ -77,6 +79,7 @@ export function LessonPane({
             prevLessonId={prevLessonId}
             basePath={basePath}
             isCourseComplete={isCourseComplete}
+            hasCertificate={hasCertificate}
             feedbackGiven={feedbackGiven}
           />
         ) : (
@@ -254,6 +257,7 @@ function CourseFinishedPane({
   prevLessonId,
   basePath = "/learn",
   isCourseComplete,
+  hasCertificate,
   feedbackGiven,
 }: {
   courseId: string
@@ -261,6 +265,7 @@ function CourseFinishedPane({
   prevLessonId: string | null
   basePath?: string
   isCourseComplete: boolean
+  hasCertificate: boolean
   feedbackGiven: boolean
 }) {
   return (
@@ -285,16 +290,30 @@ function CourseFinishedPane({
          */
         <>
           <p className="text-lg font-bold">Selamat, Anda telah menyelesaikan {courseTitle}.</p>
-          <p className="-mt-3 text-sm text-muted-foreground">Sertifikat Anda siap diunduh.</p>
+          {/*
+            Hanya dijanjikan kalau sertifikatnya memang ada. Sebagian besar
+            kursus tidak mengaktifkan `course_certificate_settings`, dan
+            kalimat yang dulu selalu muncul mengirim peserta ke daftar kosong.
+          */}
+          {hasCertificate && (
+            <p className="-mt-3 text-sm text-muted-foreground">Sertifikat Anda siap diunduh.</p>
+          )}
           <div className="flex flex-wrap justify-center gap-3">
+            {hasCertificate && (
+              <Button
+                className="bg-brand-gradient text-white hover:brightness-105"
+                render={<Link href="/learner/profile?tab=certificates" />}
+                nativeButton={false}
+              >
+                Lihat Sertifikat Anda
+              </Button>
+            )}
             <Button
-              className="bg-brand-gradient text-white hover:brightness-105"
-              render={<Link href="/learner/profile?tab=certificates" />}
+              variant={hasCertificate ? "outline" : undefined}
+              className={hasCertificate ? undefined : "bg-brand-gradient text-white hover:brightness-105"}
+              render={<Link href="/learner/courses" />}
               nativeButton={false}
             >
-              Lihat Sertifikat Anda
-            </Button>
-            <Button variant="outline" render={<Link href="/learner/courses" />} nativeButton={false}>
               Cari kursus lain
             </Button>
           </div>

@@ -45,6 +45,15 @@ benar-benar hasil penilaian aplikasi, bukan angka yang diketik tangan. Sertifika
 Siti pun terbit lewat `checkAndIssueCertificate()` saat akunnya membuka kursus,
 lengkap dengan berkas PDF-nya, bukan baris `certificates` yang disisipkan manual.
 
+## Yang masih placeholder
+
+Kedua pelajaran video memakai cuplikan "Big Buck Bunny" dari Blender Foundation
+(`YE7VzlLtp-4`) semata-mata untuk membuktikan pemutar video dan transkripnya
+bekerja. Isinya jelas bukan materi kursus. Ganti `lessons.video_url` dengan
+tautan YouTube Anda sendiri sebelum LMS ini ditunjukkan ke peserta sungguhan --
+pemutar hanya menerima YouTube (`lib/courses.ts`, `getYouTubeEmbedUrl`), bukan
+berkas MP4 langsung.
+
 ## Menghapus data demo
 
 Hapus kursusnya (`delete from courses where slug like 'kursus-demo-%'`; bagian,

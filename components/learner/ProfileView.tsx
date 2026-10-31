@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useState, useTransition } from "react"
-import { ArrowLeft, Award, BookOpen, Calendar, CheckCircle2, Clock, Download, Lock, Mail, Pencil } from "lucide-react"
+import { ArrowLeft, Award, BookOpen, Calendar, CheckCircle2, Clock, Download, Mail, Pencil } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -182,17 +182,17 @@ function ProfileTabs({
                       })}
                     </div>
                   </div>
-                  {!cert.feedbackGiven ? (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      render={<Link href={`/learn/${cert.courseId}`} />}
-                      nativeButton={false}
-                    >
-                      <Lock className="size-3.5" />
-                      Beri ulasan untuk membuka
-                    </Button>
-                  ) : cert.pdfUrl ? (
+                  {/*
+                    Tidak ada lagi gerbang ulasan di sini. Sertifikat yang sudah
+                    terbit adalah milik peserta; menahan unduhannya sampai ia
+                    menulis ulasan menaruh hadiah di balik permintaan yang tidak
+                    ada hubungannya dengan belajar -- dark pattern obstruksi yang
+                    dilarang STANDAR-DIGITAL-LEARNING §6 dan §17. Gerbang itu
+                    sudah dicabut dari layar penyelesaian pelajaran, tapi
+                    tertinggal di sini sehingga peserta tetap terkunci.
+                    Ulasan tetap ditawarkan, sebagai pilihan, di layar itu.
+                  */}
+                  {cert.pdfUrl ? (
                     <Button
                       size="sm"
                       variant="outline"
@@ -211,7 +211,13 @@ function ProfileTabs({
           ) : (
             <div className="flex flex-col items-center gap-3 p-7 text-center">
               <Award className="size-10 text-muted-foreground/40" strokeWidth={1.5} />
-              <p className="text-sm text-muted-foreground">Selesaikan kursus untuk mendapatkan sertifikat pertama Anda.</p>
+              {/* Tidak semua kursus menerbitkan sertifikat, jadi "selesaikan
+                  kursus" saja keliru bagi peserta yang sudah menyelesaikan
+                  satu kursus tanpa sertifikat. */}
+              <p className="text-sm text-muted-foreground">
+                Belum ada sertifikat. Sertifikat terbit otomatis setelah Anda menyelesaikan
+                kursus yang menyediakannya.
+              </p>
             </div>
           )}
         </div>
