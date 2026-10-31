@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import type { LessonContentType } from "@/lib/courses"
@@ -368,6 +369,7 @@ const LessonCard = memo(function LessonCard({
 
   const [title, setTitle] = useState(lesson.title)
   const [videoUrl, setVideoUrl] = useState(lesson.video_url ?? "")
+  const [transcript, setTranscript] = useState(lesson.transcript ?? "")
   const [content, setContent] = useState(lesson.content ?? "")
   const [durationMin, setDurationMin] = useState(
     lesson.duration_seconds ? String(Math.round(lesson.duration_seconds / 60)) : ""
@@ -570,6 +572,26 @@ const LessonCard = memo(function LessonCard({
                 />
                 <p className="text-xs text-muted-foreground">
                   Tempel tautan YouTube lengkap untuk video pelajaran ini
+                </p>
+              </div>
+            )}
+            {(contentType === "video" || contentType === "ppt") && (
+              <div className="mt-4 space-y-1.5">
+                <Label htmlFor={`lesson-transcript-${lesson.id}`}>Transkrip</Label>
+                <Textarea
+                  id={`lesson-transcript-${lesson.id}`}
+                  value={transcript}
+                  onChange={(e) => setTranscript(e.target.value)}
+                  onBlur={() => save({ transcript: transcript.trim() || null })}
+                  placeholder="Tempel teks lengkap yang diucapkan di video ini."
+                  className="min-h-[140px]"
+                  aria-describedby={`lesson-transcript-help-${lesson.id}`}
+                />
+                <p id={`lesson-transcript-help-${lesson.id}`} className="text-xs text-muted-foreground">
+                  Wajib bila videonya tidak bertakarir. Tanpa ini, peserta yang tuli atau
+                  yang menonton tanpa suara tidak bisa mengikuti pelajaran sama sekali
+                  (WCAG 1.2.2). Transkrip juga membantu peserta mencari kembali satu
+                  bagian tanpa memutar ulang seluruh video.
                 </p>
               </div>
             )}

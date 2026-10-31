@@ -62,6 +62,8 @@ export type DraftLesson = {
   content_type: LessonContentType
   video_url: string | null
   content: string | null
+  /** Transkrip teks untuk pelajaran video/slide (WCAG 1.2.2). */
+  transcript: string | null
   duration_seconds: number | null
   resources: DraftResource[]
   quiz: DraftQuiz | null
@@ -290,6 +292,7 @@ export function draftFromDetail(course: AdminCourseDetail): CourseDraft {
           content_type: lesson.content_type,
           video_url: lesson.video_url,
           content: lesson.content,
+          transcript: lesson.transcript ?? null,
           duration_seconds: lesson.duration_seconds,
           resources: lesson.resources.map((r) => ({
             id: r.id,
@@ -383,6 +386,9 @@ const lessonSchema = z.object({
   content_type: lessonContentType,
   video_url: z.string().max(2000).nullable(),
   content: z.string().max(500_000).nullable(),
+  // Default agar draf lama di localStorage (ditulis sebelum kolom ini ada)
+  // tetap bisa diparse, pola yang sama dipakai `explanation`.
+  transcript: z.string().max(200_000).nullable().default(null),
   duration_seconds: z.number().min(0).nullable(),
   resources: z.array(resourceSchema).max(100),
   quiz: quizSchema.nullable(),

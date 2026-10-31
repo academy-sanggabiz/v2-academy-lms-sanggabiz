@@ -310,6 +310,26 @@ function CourseFinishedPane({
   )
 }
 
+/**
+ * Transkrip pelajaran video/slide (WCAG 1.2.2). Ditampilkan terbuka, bukan
+ * disembunyikan di balik tab: peserta yang membutuhkannya tidak seharusnya
+ * mencari dulu. Teks biasa, jadi dirender sebagai teks -- bukan HTML.
+ */
+function LessonTranscript({ transcript }: { transcript: string | null }) {
+  if (!transcript?.trim()) return null
+
+  return (
+    <section aria-labelledby="transcript-heading" className="border-t border-border bg-card px-5 py-6 sm:px-7">
+      <h2 id="transcript-heading" className="mb-3 text-base font-bold">
+        Transkrip
+      </h2>
+      <div className="max-w-[70ch] text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
+        {transcript}
+      </div>
+    </section>
+  )
+}
+
 function VideoContent({
   lesson,
   courseId,
@@ -346,7 +366,8 @@ function VideoContent({
   }
 
   return (
-    <div className="group relative flex justify-center">
+    <>
+      <div className="group relative flex justify-center">
       <div className="aspect-video w-full max-w-[calc(62vh*16/9)] bg-black">
         <iframe
           src={embedUrl}
@@ -364,7 +385,9 @@ function VideoContent({
         revealOnHover
         basePath={basePath}
       />
-    </div>
+      </div>
+      <LessonTranscript transcript={lesson.transcript} />
+    </>
   )
 }
 
@@ -404,19 +427,22 @@ function SlidesContent({
   }
 
   return (
-    <div className="group relative flex justify-center">
-      <div className="aspect-video w-full max-w-[calc(62vh*16/9)] bg-black">
-        <iframe src={embedUrl} title={lesson.title} className="size-full" allowFullScreen />
+    <>
+      <div className="group relative flex justify-center">
+        <div className="aspect-video w-full max-w-[calc(62vh*16/9)] bg-black">
+          <iframe src={embedUrl} title={lesson.title} className="size-full" allowFullScreen />
+        </div>
+        <LessonNavArrows
+          courseId={courseId}
+          prevLessonId={prevLessonId}
+          nextLessonId={nextLessonId}
+          onReachEnd={onReachEnd}
+          revealOnHover
+          basePath={basePath}
+        />
       </div>
-      <LessonNavArrows
-        courseId={courseId}
-        prevLessonId={prevLessonId}
-        nextLessonId={nextLessonId}
-        onReachEnd={onReachEnd}
-        revealOnHover
-        basePath={basePath}
-      />
-    </div>
+      <LessonTranscript transcript={lesson.transcript} />
+    </>
   )
 }
 

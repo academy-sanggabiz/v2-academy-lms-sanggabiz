@@ -135,6 +135,8 @@ export type Lesson = {
   content_type: LessonContentType
   video_url: string | null
   content: string | null
+  /** Transkrip teks untuk pelajaran video/slide (WCAG 1.2.2). */
+  transcript: string | null
   duration_seconds: number | null
   quiz: Quiz | null
   resources: Resource[]

@@ -98,6 +98,7 @@ function reducer(state: State, action: CourseDraftAction): State {
         title: "Pelajaran Tanpa Judul",
         content_type: "video",
         video_url: null,
+        transcript: null,
         content: null,
         duration_seconds: null,
         resources: [],

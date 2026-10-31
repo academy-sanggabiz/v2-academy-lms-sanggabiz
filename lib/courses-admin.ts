@@ -534,6 +534,7 @@ export async function saveCourseDraft(
     content_type: LessonContentType
     video_url: string | null
     content: string | null
+    transcript: string | null
     duration_seconds: number | null
     position: number
   }[] = []
@@ -600,6 +601,7 @@ export async function saveCourseDraft(
         existingLesson.lesson.content_type !== lesson.content_type ||
         existingLesson.lesson.video_url !== lesson.video_url ||
         existingLesson.lesson.content !== lesson.content ||
+        (existingLesson.lesson.transcript ?? null) !== (lesson.transcript?.trim() || null) ||
         existingLesson.lesson.duration_seconds !== lesson.duration_seconds ||
         existingLesson.lesson.position !== lessonIndex
       ) {
@@ -613,6 +615,10 @@ export async function saveCourseDraft(
           // masuk HTML buatan admin ke database, dan sanitasi di titik simpan
           // berarti tidak ada lagi baris berbahaya yang bisa tersimpan (C-09).
           content: sanitizeRichText(lesson.content),
+          // Teks biasa, bukan HTML: transkrip memang kalimat, dan menyimpannya
+          // sebagai teks menghapus seluruh permukaan serangan yang baru ditutup
+          // untuk isi pelajaran.
+          transcript: lesson.transcript?.trim() || null,
           duration_seconds: lesson.duration_seconds,
           position: lessonIndex,
         })

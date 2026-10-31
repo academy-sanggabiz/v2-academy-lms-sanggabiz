@@ -155,8 +155,9 @@ export async function getCourseDetail(id: string): Promise<CourseDetail | null> 
   const toLesson = (row: PublicLessonRow): Lesson => {
     const full = fullById.get(row.id)
     if (!full) {
-      // Not entitled to the content: curriculum fields only.
-      return { ...row, video_url: null, content: null, quiz: null, resources: [] }
+      // Not entitled to the content: curriculum fields only. Transkrip ikut
+      // ditahan -- ia bagian dari isi pelajaran, bukan metadata kurikulum.
+      return { ...row, video_url: null, content: null, transcript: null, quiz: null, resources: [] }
     }
     const quiz = Array.isArray(full.quiz) ? full.quiz[0] : full.quiz
     return {
