@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useMemo} from "react"
 import Link from "next/link"
 import { ArrowRight, CheckCircle2, CircleHelp, XCircle } from "lucide-react"
 
@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { StatusMessage } from "@/components/ui/status-message"
 import { type Quiz } from "@/lib/courses"
+import { orderQuestionsForAttempt } from "@/lib/quiz-shuffle"
 import type { QuizAttemptInfo } from "@/lib/learn-server"
 import { startQuiz, submitQuiz, type SubmitQuizResult } from "@/app/learn/[courseId]/quiz-actions"
 import { FileUploadAnswer } from "@/components/learn/EssayAssessmentPlayer"
@@ -41,6 +42,16 @@ export function QuizPlayer({
   const [attemptId, setAttemptId] = useState<string | null>(null)
   const [attemptNumber, setAttemptNumber] = useState(1)
   const [questionIndex, setQuestionIndex] = useState(0)
+
+  /*
+   * Urutan tampil untuk percobaan ini. Dihitung dari id percobaan, jadi tetap
+   * sama selama percobaan berlangsung -- menyegarkan halaman atau mundur ke
+   * soal sebelumnya tidak mengacak ulang. Lihat lib/quiz-shuffle.ts.
+   */
+  const questions = useMemo(
+    () => orderQuestionsForAttempt(quiz.questions, { enabled: quiz.shuffle, attemptId }),
+    [quiz.questions, quiz.shuffle, attemptId]
+  )
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [result, setResult] = useState<SubmitQuizResult | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -110,7 +121,7 @@ export function QuizPlayer({
             </div>
             <div className="text-xl font-bold">{quiz.title}</div>
             <p className="text-sm text-muted-foreground">
-              {quiz.questions.length} soal · uji pemahaman Anda tentang modul ini
+              {questions.length} soal · uji pemahaman Anda tentang modul ini
             </p>
             {attemptInfo?.pendingReview && (
               <p className="text-sm text-muted-foreground">Percobaan terakhir Anda sedang menunggu penilaian instruktur.</p>
@@ -138,8 +149,8 @@ export function QuizPlayer({
   }
 
   if (stage === "active") {
-    const question = quiz.questions[questionIndex]
-    const isLast = questionIndex === quiz.questions.length - 1
+    const question = questions[questionIndex]
+    const isLast = questionIndex === questions.length - 1
     const isChoice = question.type === "multiple_choice" || question.type === "true_false"
     const selectedIds = isChoice ? (answers[question.id] ?? "").split(",").filter(Boolean) : []
     const hasAnswer = isChoice ? selectedIds.length > 0 : !!answers[question.id]?.trim()
@@ -160,7 +171,7 @@ export function QuizPlayer({
         <div className="rounded-2xl border border-border bg-card p-7">
           <div className="flex items-start justify-between gap-3.5">
             <div className="text-2xl font-bold">
-              Soal {questionIndex + 1} dari {quiz.questions.length}
+              Soal {questionIndex + 1} dari {questions.length}
             </div>
             <div className="shrink-0 rounded-full bg-secondary px-4 py-2 text-[13.5px] font-semibold whitespace-nowrap">
               Percobaan {attemptNumber}
@@ -298,7 +309,7 @@ export function QuizPlayer({
         </div>
 
         <div className="flex flex-col gap-3">
-          {quiz.questions.map((question) => {
+          {questions.map((question) => {
             const isCorrect = result.perQuestion[question.id]
             const answer = answers[question.id] ?? ""
             const answerText =

@@ -260,7 +260,7 @@ function reducer(state: State, action: CourseDraftAction): State {
             id: newId(),
             pass_score: 70,
             max_attempts: null,
-            shuffle: false,
+            shuffle: true,
             is_assessment: action.isAssessment ?? false,
             questions: [],
           }
