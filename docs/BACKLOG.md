@@ -60,7 +60,24 @@ halaman depan sudah ada (`/admin/landing`, khusus superadmin) tetapi bagiannya
 tetap: bagian utama, keunggulan, dan daftar kursus. Yang diminta adalah
 bagian yang bisa ditambah, dihapus, dan diurutkan sendiri.
 
-### 5. Pembayaran mentor
+### 5. Bank soal dan pengacakan
+
+Diminta bersama pencabutan batas percobaan: kalau peserta boleh mengulang
+sampai lulus, soalnya sebaiknya tidak selalu sama persis. Kolom
+`quizzes.shuffle` sudah ada di basis data tetapi **tidak pernah dibaca kode
+mana pun** -- jadi pengacakan sama sekali belum berfungsi.
+
+Dua tingkat, bisa dikerjakan bertahap:
+
+1. Mengacak urutan soal dan urutan pilihan jawaban per percobaan, diacak dengan
+   benih tetap dari id percobaan supaya menyegarkan halaman tidak mengacak
+   ulang di tengah jalan. Kecil, dan sudah cukup mencegah peserta menghafal
+   "jawabannya pilihan kedua".
+2. Bank soal sungguhan: satu kumpulan soal per kuis, dan tiap percobaan
+   mengambil sebagian secara acak. Ini menyentuh editor kuis, penilaian, dan
+   tampilan hasil.
+
+### 6. Pembayaran mentor
 
 Ditunda atas permintaan Anda sampai alur sistemnya rapi. Catatan terkait:
 pembayaran peserta juga belum ada gerbangnya sama sekali — lihat

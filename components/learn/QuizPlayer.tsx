@@ -7,7 +7,7 @@ import { ArrowRight, CheckCircle2, CircleHelp, XCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { StatusMessage } from "@/components/ui/status-message"
-import { REGULAR_QUIZ_MAX_ATTEMPTS, type Quiz } from "@/lib/courses"
+import { type Quiz } from "@/lib/courses"
 import type { QuizAttemptInfo } from "@/lib/learn-server"
 import { startQuiz, submitQuiz, type SubmitQuizResult } from "@/app/learn/[courseId]/quiz-actions"
 import { FileUploadAnswer } from "@/components/learn/EssayAssessmentPlayer"
@@ -47,8 +47,15 @@ export function QuizPlayer({
   const { setBusy } = useLearnBusy()
 
   const attemptsUsed = attemptInfo?.attemptsUsed ?? 0
-  const attemptsRemaining = REGULAR_QUIZ_MAX_ATTEMPTS - attemptsUsed
-  const canAttempt = attemptsRemaining > 0
+  /*
+   * Kuis biasa tidak lagi dibatasi jumlah percobaan: kuis bernilai lulus
+   * mengukur apakah peserta akhirnya paham, bukan apakah ia paham dalam tiga
+   * kali. Batas lama membuat peserta yang gagal tiga kali mentok permanen --
+   * tidak bisa lulus, tidak bisa menulis ulasan, tidak akan pernah menerima
+   * sertifikat. Studi kasus tetap bisa dibatasi lewat quizzes.max_attempts
+   * karena dinilai manusia (lihat EssayAssessmentPlayer).
+   */
+  const canAttempt = true
   const alreadyPassed = attemptInfo?.lastPassed === true
 
   function handleStart() {
@@ -156,7 +163,7 @@ export function QuizPlayer({
               Soal {questionIndex + 1} dari {quiz.questions.length}
             </div>
             <div className="shrink-0 rounded-full bg-secondary px-4 py-2 text-[13.5px] font-semibold whitespace-nowrap">
-              Percobaan {attemptNumber} dari {REGULAR_QUIZ_MAX_ATTEMPTS}
+              Percobaan {attemptNumber}
             </div>
           </div>
           <QuestionPrompt prompt={question.prompt} className="mt-4 text-[17px]" />
@@ -251,7 +258,7 @@ export function QuizPlayer({
   }
 
   if (stage === "results" && result) {
-    const canRetry = attemptsRemaining > 0
+    const canRetry = true
 
     return (
       <div className="mx-auto flex max-w-2xl flex-col gap-5 p-10">

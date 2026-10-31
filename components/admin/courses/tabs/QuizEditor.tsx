@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils"
 import { RichTextEditor } from "../RichTextEditor"
 import type { AuthorableQuestionType } from "@/lib/courses-admin"
 import type { DraftOption, DraftQuestion, DraftQuiz } from "@/lib/course-draft"
-import { QUESTION_TYPE_POINTS, REGULAR_QUIZ_MAX_ATTEMPTS } from "@/lib/courses"
+import { QUESTION_TYPE_POINTS } from "@/lib/courses"
 import { ASSESSMENT_GRADE_WEIGHT } from "@/lib/course-grade"
 import { useCourseDraft } from "../CourseDraftContext"
 import { useQuestionQuizIssue } from "../QuizIssuesContext"
@@ -178,7 +178,7 @@ function QuizSettings({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz })
           />
         ) : (
           <p className="flex h-9 items-center text-sm text-muted-foreground">
-            {REGULAR_QUIZ_MAX_ATTEMPTS} (tetap)
+            Tanpa batas
           </p>
         )}
       </div>

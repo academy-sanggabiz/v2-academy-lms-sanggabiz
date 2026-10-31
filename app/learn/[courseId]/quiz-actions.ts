@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache"
 
 import { createClient } from "@/lib/supabase/server"
 import { checkAndIssueCertificate } from "@/lib/certificates"
-import { REGULAR_QUIZ_MAX_ATTEMPTS } from "@/lib/courses"
 
 export type SubmitQuizResult = {
   pending: boolean
@@ -68,11 +67,10 @@ export async function startQuiz(
 
   if (existingError) return { error: userFacingError(existingError.message) }
 
+  // Tanpa batas percobaan untuk kuis biasa: lihat migrasi
+  // 20261101050000_unlimited_quiz_attempts.sql. Studi kasus tetap dibatasi
+  // quizzes.max_attempts, ditegakkan di trigger dan di resumeAttempt di bawah.
   const attemptsUsed = existing?.[0]?.attempt_number ?? 0
-  if (attemptsUsed >= REGULAR_QUIZ_MAX_ATTEMPTS) {
-    return { error: "Kesempatan mencoba sudah habis." }
-  }
-
   const attemptNumber = attemptsUsed + 1
 
   const { data: attempt, error: insertError } = await supabase
