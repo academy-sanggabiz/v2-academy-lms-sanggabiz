@@ -11,6 +11,13 @@
 [![Supabase](https://img.shields.io/badge/Supabase-Enabled-green?logo=supabase)](https://supabase.com)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38bdf8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
+### [▶ Live demo — lms-sanggabiz-v2-sand.vercel.app](https://lms-sanggabiz-v2-sand.vercel.app)
+
+Seeded with demo courses and learners so every feature is visible; see
+[docs/DATA-DEMO.md](./docs/DATA-DEMO.md) for the accounts and
+[docs/KESIAPAN-PAKAI.md](./docs/KESIAPAN-PAKAI.md) for what is and is not
+production-ready.
+
 [What's new in v2](#-whats-new-in-v2) • [Features](#-features) • [Tech Stack](#️-tech-stack) • [Quick Start](#-quick-start) • [Project Structure](#️-project-structure) • [Roadmap](#️-roadmap)
 
 </div>
