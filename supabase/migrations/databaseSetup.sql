@@ -1322,9 +1322,9 @@ grant select, insert, update on public.certificates to authenticated;
 
 -- enrollments had no update policy until now -- status/completed_at were
 -- never written anywhere (see comment on the enrollments table above).
--- checkAndIssueCertificate needs to flip status to 'completed' from both the
--- learner's own session and an admin's (manual essay grading), so both paths
--- get a policy here.
+-- checkAndIssueCertificate flips status to 'completed' from the server using the
+-- service role (C-05), so no learner-side UPDATE policy exists.
+-- Previously this was done from the
 
 
 create policy "admins update enrollments" on public.enrollments
@@ -1680,7 +1680,8 @@ create policy "admins can delete certificate assets" on storage.objects
 -- bucket-wide is_admin() policies above; this adds the learner-owned path so
 
 
--- SELECT on the learner's own folder is needed by the upload's upsert.
+-- SELECT tetap ada supaya peserta bisa mengunduh sertifikatnya sendiri.
+-- Mengunggah dan menimpa sudah dicabut (C-05); PDF dibuat server.
 create policy "learners can read own certificate pdfs" on storage.objects
   for select to authenticated
   using (

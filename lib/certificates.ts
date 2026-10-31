@@ -156,10 +156,16 @@ export async function checkAndIssueCertificate(
   // dihitung ulang di atas dari data yang dibaca dengan hak pemanggil.
   const admin = createAdminClient()
 
+  // Service role menembus RLS, jadi penyaringnya harus eksplisit di sini:
+  // tanpa learner_id dan course_id, satu id salah dari pemanggil baru akan
+  // menulis ke enrollment orang lain. Keempat pemanggil hari ini menurunkan
+  // id-nya di server, tetapi jaminan itu tidak boleh bergantung pada mereka.
   const { error: enrollmentUpdateError } = await admin
     .from("enrollments")
     .update({ status: "completed", completed_at: new Date().toISOString() })
     .eq("id", enrollmentId)
+    .eq("learner_id", learnerId)
+    .eq("course_id", courseId)
 
   if (enrollmentUpdateError) {
     console.error("checkAndIssueCertificate: enrollment update failed", enrollmentUpdateError.message)
