@@ -12,6 +12,7 @@ import { StatCard } from "@/components/admin/StatCard"
 import { RecentEnrollmentsCard } from "@/components/admin/dashboard/RecentEnrollmentsCard"
 import { RecentCoursesCard } from "@/components/admin/dashboard/RecentCoursesCard"
 import { OnlineTrackingCard } from "@/components/admin/dashboard/OnlineTrackingCard"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function AdminDashboardPage({
   searchParams,
@@ -38,6 +39,7 @@ export default async function AdminDashboardPage({
     defaultPageSize: 5,
   })
 
+  const { t } = await getTranslations()
   const adminResult = await resolveAdminProfile()
   const isSuperadmin = adminResult.status === "ok" && adminResult.profile.role === "superadmin"
 
@@ -61,8 +63,8 @@ export default async function AdminDashboardPage({
    * artinya "belum ada peserta di kursus Anda" (docs/STANDAR-PERAN.md §5).
    */
   const scope = isSuperadmin
-    ? { learners: "Total Peserta", courses: "Total Kursus", completed: "Kursus Selesai" }
-    : { learners: "Peserta di Kursus Saya", courses: "Kursus Saya", completed: "Selesai di Kursus Saya" }
+    ? { learners: t.admin.totalLearners, courses: t.admin.totalCourses, completed: t.admin.coursesCompleted }
+    : { learners: t.admin.myLearners, courses: t.admin.myCourses, completed: t.admin.myCompleted }
 
   // KPI utama: berapa bagian pendaftaran yang benar-benar diselesaikan.
   // null, bukan 0, ketika belum ada pendaftaran -- "0%" akan terbaca sebagai
@@ -75,11 +77,11 @@ export default async function AdminDashboardPage({
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-[30px] font-bold">Dashboard</h1>
+        <h1 className="text-[30px] font-bold">{t.admin.dashboard}</h1>
         <p className="text-sm text-muted-foreground">
           {isSuperadmin
-            ? "Ringkasan seluruh platform: peserta, kursus, dan aktivitas terbaru"
-            : "Ringkasan kursus yang Anda kelola, peserta di dalamnya, dan aktivitas terbaru"}
+            ? t.admin.dashboardSubtitlePlatform
+            : t.admin.dashboardSubtitleMentor}
         </p>
       </div>
 
@@ -89,7 +91,7 @@ export default async function AdminDashboardPage({
           icon={BookOpen}
           label={scope.courses}
           value={courseStats.totalCourses}
-          hint={`${courseStats.publishedCourses} terbit`}
+          hint={`${courseStats.publishedCourses} ${t.admin.published}`}
         />
         {/*
           * "Total Pendaftaran" dulu berdiri sendiri di sini. Angka itu hanya

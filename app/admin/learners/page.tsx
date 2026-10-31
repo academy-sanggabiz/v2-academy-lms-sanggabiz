@@ -5,12 +5,14 @@ import { getAdminLearnerList, getAdminLearnerStats, type AdminLearnerFilters } f
 import { parseListParams, type RawSearchParams } from "@/lib/pagination"
 import { LearnerManagementClient } from "@/components/admin/learners/LearnerManagementClient"
 import { StatCard } from "@/components/admin/StatCard"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function AdminLearnersPage({
   searchParams,
 }: {
   searchParams: Promise<RawSearchParams>
 }) {
+  const { t } = await getTranslations()
   const raw = await searchParams
   const params = parseListParams<AdminLearnerFilters>(raw, {
     sortable: ["name", "enrolled"],
@@ -28,7 +30,7 @@ export default async function AdminLearnersPage({
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-[30px] font-bold">Manajemen Peserta</h1>
+        <h1 className="text-[30px] font-bold">{t.admin.learners}</h1>
         <p className="text-sm text-muted-foreground">
           Lihat dan kelola semua peserta yang terdaftar di kursus
         </p>

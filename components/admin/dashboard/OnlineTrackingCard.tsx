@@ -5,14 +5,16 @@ import type { Paginated } from "@/lib/pagination"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ListPagination } from "@/components/admin/ListPagination"
+import { getTranslations } from "@/lib/i18n/server"
 
 const PREFIX = "track"
 
-export function OnlineTrackingCard({ rows }: { rows: Paginated<TrackingEnrollment> }) {
+export async function OnlineTrackingCard({ rows }: { rows: Paginated<TrackingEnrollment> }) {
+  const { t } = await getTranslations()
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold">Pelacakan</h2>
+        <h2 className="text-sm font-semibold">{t.admin.tracking}</h2>
         <Button
           size="sm"
           variant="outline"

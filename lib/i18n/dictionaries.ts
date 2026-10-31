@@ -141,6 +141,28 @@ export type Dictionary = {
   notifications: {
     all: string
   }
+  admin: {
+    dashboard: string
+    courses: string
+    grading: string
+    tracking: string
+    learners: string
+    purchases: string
+    mentors: string
+    landing: string
+    settings: string
+    profile: string
+    dashboardSubtitlePlatform: string
+    dashboardSubtitleMentor: string
+    totalLearners: string
+    totalCourses: string
+    completionRate: string
+    coursesCompleted: string
+    myCourses: string
+    myLearners: string
+    myCompleted: string
+    published: string
+  }
   display: {
     title: string
     openPanel: string
@@ -367,6 +389,29 @@ const id: Dictionary = {
   },
   notifications: {
     all: "Semua notifikasi",
+  },
+  admin: {
+    dashboard: "Dashboard",
+    courses: "Manajemen Kursus",
+    grading: "Penilaian",
+    tracking: "Pelacakan",
+    learners: "Peserta",
+    purchases: "Pembelian",
+    mentors: "Mentor",
+    landing: "Halaman Depan",
+    settings: "Pengaturan",
+    profile: "Profil",
+    dashboardSubtitlePlatform: "Ringkasan seluruh platform: peserta, kursus, dan aktivitas terbaru",
+    dashboardSubtitleMentor:
+      "Ringkasan kursus yang Anda kelola, peserta di dalamnya, dan aktivitas terbaru",
+    totalLearners: "Total Peserta",
+    totalCourses: "Total Kursus",
+    completionRate: "Tingkat Penyelesaian",
+    coursesCompleted: "Kursus Selesai",
+    myCourses: "Kursus Saya",
+    myLearners: "Peserta di Kursus Saya",
+    myCompleted: "Selesai di Kursus Saya",
+    published: "terbit",
   },
   display: {
     title: "Tampilan",
@@ -602,6 +647,30 @@ const en: Dictionary = {
   },
   notifications: {
     all: "All notifications",
+  },
+  admin: {
+    dashboard: "Dashboard",
+    courses: "Courses",
+    grading: "Grading",
+    tracking: "Tracking",
+    learners: "Learners",
+    purchases: "Purchases",
+    mentors: "Mentors",
+    landing: "Home page",
+    settings: "Settings",
+    profile: "Profile",
+    dashboardSubtitlePlatform:
+      "Across the whole platform: learners, courses, and recent activity",
+    dashboardSubtitleMentor:
+      "Across the courses you manage, their learners, and recent activity",
+    totalLearners: "Total learners",
+    totalCourses: "Total courses",
+    completionRate: "Completion rate",
+    coursesCompleted: "Courses completed",
+    myCourses: "My courses",
+    myLearners: "Learners in my courses",
+    myCompleted: "Completed in my courses",
+    published: "published",
   },
   display: {
     title: "Display",

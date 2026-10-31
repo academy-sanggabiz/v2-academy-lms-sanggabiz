@@ -7,7 +7,7 @@ alasannya. Diperbarui 31 Oktober 2026.
 
 ## Belum dikerjakan
 
-### 1. Dwibahasa Indonesia–Inggris — *sedang berjalan*
+### 1. Dwibahasa Indonesia–Inggris — *kerangka dan seluruh layar utama selesai*
 
 **Sudah selesai:** kerangkanya (`lib/i18n/`), pemilih bahasa di header peserta
 dan pengelola, atribut `lang` yang ikut berganti, judul tab, dan **seluruh
@@ -15,11 +15,19 @@ layar yang dilihat peserta**: masuk, daftar, lupa dan ganti kata sandi,
 navigasi, dasbor, katalog kursus, riwayat pembelian, notifikasi, pengaturan,
 profil beserta form penyuntingannya, pemutar pelajaran, dan kotak catatan.
 
-**Belum:** seluruh area pengelola (`/admin/**`) — dasbor, kursus, editor
-kursus, peserta, penilaian, pelacakan, mentor, halaman depan, pengaturan.
-Juga: teks notifikasi, yang ditulis trigger basis data dan karena itu tidak
-tersentuh kamus antarmuka; menerjemahkannya berarti menyimpan kedua bahasa di
-baris notifikasi atau menyimpan kunci alih-alih kalimat jadi.
+**Juga selesai:** navigasi dan dasbor pengelola, serta judul tiap layar
+pengelola.
+
+**Belum:** isi rinci di dalam layar pengelola — tabel, dialog, dan pesan di
+editor kursus, penilaian, dan pelacakan. Sifatnya mekanis: tiap kalimat
+dipindahkan ke `lib/i18n/dictionaries.ts` dan diganti pemanggilan kamus, dengan
+dua kehati-hatian yang sudah terbukti perlu — daftar di luar komponen menyimpan
+kunci, bukan label jadi, dan Server Component memakai `getTranslations()`
+bukan hook `useI18n()`.
+
+Juga belum: teks notifikasi, yang ditulis trigger basis data dan karena itu
+tidak tersentuh kamus antarmuka. Menerjemahkannya berarti menyimpan kunci di
+baris notifikasi, bukan kalimat jadi.
 
 **Kenapa ini lebih dulu.** Hampir setiap kalimat di aplikasi ini masih ditulis
 langsung di dalam komponen. Setiap fitur baru yang ditambahkan sebelum
@@ -72,7 +80,7 @@ urut, skor, dan waktunya, dan tidak ada yang dihapus. Jadi "berapa kali seorang
 peserta mencoba sampai lulus" dan "peserta mana yang paling konsisten" bisa
 dihitung kapan saja tanpa perubahan basis data.
 
-### 4. Halaman depan yang bisa dikustomisasi superadmin — *berikutnya*
+### 4. Halaman depan yang bisa dikustomisasi superadmin — ✅ selesai
 
 Meniru pola CMS di `github.com/attoyibi/cms-online-store-glasses`. Acuan itu
 sudah ditelaah: ia menyusun halaman depan dari **blok modular** — hero,
@@ -86,17 +94,14 @@ Keadaan sekarang: `landing_content` adalah satu baris berbentuk tetap
 `featured_course_ids`). Editornya ada di `/admin/landing`, khusus superadmin,
 tetapi susunan bagiannya tidak bisa diubah.
 
-Pekerjaannya, berurutan:
+Selesai: model blok (`lib/landing-blocks.ts`), migrasi yang memindahkan baris
+lama ke bentuk blok tanpa mengubah tampilan, enam jenis blok termasuk testimoni
+dari `course_feedback`, dan penyusun di `/admin/landing` untuk menambah,
+menghapus, menyembunyikan, dan mengurutkan.
 
-1. Ubah modelnya menjadi daftar blok berurutan di satu kolom jsonb, dengan
-   migrasi yang memindahkan isi baris yang ada sekarang ke bentuk blok supaya
-   halaman depan tidak pernah kosong di tengah peralihan.
-2. Jenis blok yang masuk akal untuk LMS: hero, keunggulan, kursus pilihan,
-   **testimoni** (sudah ada datanya di `course_feedback`), FAQ, ajakan
-   bertindak.
-3. Editor: tambah, hapus, sembunyikan, dan urutkan. Pengurutan memakai dnd-kit
-   yang sudah dipakai di editor pelajaran, termasuk pengumuman papan ketiknya.
-4. Menyusul kalau diperlukan: pratinjau langsung, undo/redo, draf/terbit.
+Belum, dan hanya kalau memang diperlukan: pratinjau langsung di sebelah
+formulir, undo/redo, serta alur draf lalu terbit. Ketiganya ada di acuan tetapi
+tidak diperlukan untuk menyusun halaman.
 
 ### 5. Bank soal dan pengacakan — ✅ pengacakan selesai, bank soal masih terbuka
 

@@ -5,12 +5,14 @@ import { requireAdmin } from "@/lib/auth/require-admin"
 import { parseListParams, type RawSearchParams } from "@/lib/pagination"
 import { StatCard } from "@/components/admin/StatCard"
 import { TrackingListClient } from "@/components/admin/tracking/TrackingListClient"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function AdminTrackingPage({
   searchParams,
 }: {
   searchParams: Promise<RawSearchParams>
 }) {
+  const { t } = await getTranslations()
   await requireAdmin()
 
   const raw = await searchParams
@@ -25,7 +27,7 @@ export default async function AdminTrackingPage({
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-[30px] font-bold">Pelacakan</h1>
+        <h1 className="text-[30px] font-bold">{t.admin.tracking}</h1>
         <p className="text-sm text-muted-foreground">
           Pantau penyelesaian modul dan tugas setiap peserta per kursus
         </p>

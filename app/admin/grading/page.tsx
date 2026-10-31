@@ -5,12 +5,14 @@ import { requireAdmin } from "@/lib/auth/require-admin"
 import { parseListParams, type RawSearchParams } from "@/lib/pagination"
 import { StatCard } from "@/components/admin/StatCard"
 import { GradingCoursesClient } from "@/components/admin/grading/GradingCoursesClient"
+import { getTranslations } from "@/lib/i18n/server"
 
 export default async function AdminGradingPage({
   searchParams,
 }: {
   searchParams: Promise<RawSearchParams>
 }) {
+  const { t } = await getTranslations()
   await requireAdmin()
 
   const raw = await searchParams
@@ -25,7 +27,7 @@ export default async function AdminGradingPage({
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-[30px] font-bold">Penilaian</h1>
+        <h1 className="text-[30px] font-bold">{t.admin.grading}</h1>
         <p className="text-sm text-muted-foreground">
           Semua kursus yang memiliki kiriman kuis. Nilai otomatis hanya dapat dibaca, esai perlu dinilai.
         </p>
