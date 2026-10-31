@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react"
 import { getLearnData } from "@/lib/learn-server"
 import { resolveUserRole, roleHomePath } from "@/lib/auth/require-admin"
 import { checkAndIssueCertificate } from "@/lib/certificates"
+import { getCourseRequirements } from "@/lib/course-requirements"
 import { getCourseFeedbackForLearner } from "@/lib/feedback-server"
 import { getLessonNote } from "@/lib/notes-server"
 import { createClient } from "@/lib/supabase/server"
@@ -52,7 +53,16 @@ export default async function LearnPage({
 
   const doneCount = allLessons.filter((l) => completedLessonIds.has(l.id)).length
   const progressPct = Math.round((doneCount / allLessons.length) * 100)
-  const isCourseComplete = progressPct === 100
+  /*
+   * "Semua pelajaran ditandai selesai" bukan "kursus selesai". Kotak centang di
+   * sidebar tidak terkunci, termasuk untuk pelajaran kuis, jadi peserta bisa
+   * mencapai 100% tanpa pernah lulus kuisnya. Dulu layar ini memakai angka itu
+   * sebagai arti selesai: peserta diberi ucapan selamat, lalu ulasannya ditolak
+   * server -- RLS course_feedback menuntut enrollments.status = 'completed',
+   * dan status itu tidak pernah berubah. Sekarang syarat yang sebenarnya ikut
+   * dihitung dan ditampilkan.
+   */
+  const allLessonsDone = progressPct === 100
 
   // Self-heal: certificate issuance normally fires from the lesson-completing
   // actions themselves (toggleLessonComplete/submitQuiz/finalizeAttempt), but
@@ -65,7 +75,7 @@ export default async function LearnPage({
   // tidak mengaktifkan sertifikat sama sekali, sehingga peserta dikirim ke
   // halaman kosong.
   let certificate = null
-  if (isCourseComplete && userRole) {
+  if (allLessonsDone && userRole) {
     const supabase = await createClient()
     certificate = await checkAndIssueCertificate(supabase, {
       enrollmentId,
@@ -73,6 +83,18 @@ export default async function LearnPage({
       learnerId: userRole.userId,
     })
   }
+
+  const requirements =
+    userRole && allLessonsDone
+      ? await getCourseRequirements(await createClient(), {
+          courseId,
+          enrollmentId,
+          learnerId: userRole.userId,
+        })
+      : null
+  // Tanpa data syarat (kursus tanpa kuis, atau query gagal), kembali ke aturan
+  // lama: seluruh pelajaran selesai sudah cukup.
+  const isCourseComplete = requirements ? requirements.met : allLessonsDone
 
   const feedback = isCourseComplete ? await getCourseFeedbackForLearner(courseId) : null
   const isContentLesson = currentLesson.content_type !== "quiz" && currentLesson.content_type !== "mixed"
@@ -141,6 +163,7 @@ export default async function LearnPage({
           quizAttempt={currentLesson.quiz ? quizAttempts.get(currentLesson.quiz.id) : undefined}
           isCourseComplete={isCourseComplete}
           hasCertificate={certificate !== null}
+          requirements={requirements}
           feedbackGiven={feedback !== null}
           isLessonDone={completedLessonIds.has(currentLesson.id)}
           note={note}

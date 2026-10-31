@@ -20,6 +20,7 @@ import type { AdminQuiz } from "@/lib/courses-admin"
 import { QuizPlayer } from "@/components/learn/QuizPlayer"
 import { QuizPreview } from "@/components/learn/QuizPreview"
 import { EssayAssessmentPlayer } from "@/components/learn/EssayAssessmentPlayer"
+import type { CourseRequirements } from "@/lib/course-requirements"
 import { CourseFeedbackForm } from "@/components/learn/CourseFeedbackForm"
 import { LessonNotes } from "@/components/learn/LessonNotes"
 import { useLearnBusy } from "@/components/learn/LearnBusyContext"
@@ -37,6 +38,7 @@ export function LessonPane({
   mode = "learner",
   isCourseComplete = false,
   hasCertificate = false,
+  requirements = null,
   feedbackGiven = false,
   isLessonDone = false,
   note = null,
@@ -52,6 +54,7 @@ export function LessonPane({
   mode?: "learner" | "admin-preview"
   isCourseComplete?: boolean
   hasCertificate?: boolean
+  requirements?: CourseRequirements | null
   feedbackGiven?: boolean
   isLessonDone?: boolean
   /** The learner's saved note for this lesson (learner mode only). */
@@ -80,6 +83,7 @@ export function LessonPane({
             basePath={basePath}
             isCourseComplete={isCourseComplete}
             hasCertificate={hasCertificate}
+            requirements={requirements}
             feedbackGiven={feedbackGiven}
           />
         ) : (
@@ -258,6 +262,7 @@ function CourseFinishedPane({
   basePath = "/learn",
   isCourseComplete,
   hasCertificate,
+  requirements,
   feedbackGiven,
 }: {
   courseId: string
@@ -266,6 +271,7 @@ function CourseFinishedPane({
   basePath?: string
   isCourseComplete: boolean
   hasCertificate: boolean
+  requirements: CourseRequirements | null
   feedbackGiven: boolean
 }) {
   return (
@@ -328,6 +334,8 @@ function CourseFinishedPane({
             </div>
           )}
         </>
+      ) : requirements && requirements.lessonsDone === requirements.lessonsTotal ? (
+        <RequirementsPane courseId={courseId} requirements={requirements} basePath={basePath} />
       ) : (
         <>
           <p className="text-lg font-bold">Anda telah menyelesaikan pelajaran terakhir di kursus ini.</p>
@@ -337,6 +345,87 @@ function CourseFinishedPane({
         </>
       )}
     </div>
+  )
+}
+
+/**
+ * Semua pelajaran sudah ditandai selesai, tetapi kursusnya belum. Panel ini
+ * menyebutkan apa yang kurang dan seberapa jauh, karena sebelumnya peserta di
+ * posisi ini tidak diberi tahu apa-apa: progresnya 100%, layarnya mengucapkan
+ * selamat, lalu ulasannya ditolak server tanpa alasan dan sertifikatnya tidak
+ * pernah keluar.
+ *
+ * Nadanya sengaja bukan nada gagal. Yang ditampilkan adalah jarak menuju lulus
+ * dan tindakan berikutnya, sesuai STANDAR-DIGITAL-LEARNING §5: umpan balik
+ * harus menjawab "di mana saya sekarang" dan "apa langkah berikutnya", bukan
+ * sekadar memberi vonis.
+ */
+function RequirementsPane({
+  courseId,
+  requirements,
+  basePath,
+}: {
+  courseId: string
+  requirements: CourseRequirements
+  basePath: string
+}) {
+  const unfinished = requirements.quizzes.filter((q) => !q.passed)
+  const anyExhausted = unfinished.some((q) => q.exhausted)
+  const retryable = unfinished.filter((q) => !q.exhausted)
+
+  return (
+    <>
+      <p className="text-lg font-bold">Pelajarannya sudah selesai semua. Satu langkah lagi.</p>
+      <p className="-mt-3 max-w-md text-sm text-muted-foreground">
+        Kursus ini dinyatakan selesai setelah setiap kuisnya lulus. Sertifikat dan ulasan
+        terbuka setelah itu.
+      </p>
+
+      <ul className="w-full max-w-md space-y-3 text-left">
+        {unfinished.map((q) => (
+          <li key={q.lessonId} className="rounded-xl border border-border bg-card p-4">
+            <div className="text-sm font-semibold">{q.title}</div>
+            <div className="mt-1 text-sm text-muted-foreground">
+              {q.bestScore === null
+                ? `Belum dikerjakan. Nilai minimal untuk lulus ${q.passScore}.`
+                : `Nilai terbaik Anda ${q.bestScore}, batas lulus ${q.passScore}.`}
+            </div>
+            <div className="mt-1 text-xs text-muted-foreground">
+              {q.maxAttempts === null
+                ? `${q.attemptsUsed} percobaan, tanpa batas percobaan.`
+                : `Percobaan terpakai ${q.attemptsUsed} dari ${q.maxAttempts}.`}
+            </div>
+            {q.exhausted ? (
+              <p className="mt-2 text-sm font-medium text-destructive">
+                Percobaan sudah habis. Hubungi pengelola kursus untuk membuka kesempatan
+                mengulang.
+              </p>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                className="mt-3"
+                render={<Link href={`${basePath}/${courseId}?lesson=${q.lessonId}`} />}
+                nativeButton={false}
+              >
+                Kerjakan lagi
+              </Button>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      {requirements.grade && !requirements.grade.met && retryable.length === 0 && !anyExhausted && (
+        <p className="max-w-md text-sm text-muted-foreground">
+          Nilai akhir kursus Anda {requirements.grade.now}, sedangkan batasnya{" "}
+          {requirements.grade.needed}.
+        </p>
+      )}
+
+      <Button variant="outline" render={<Link href="/learner/courses" />} nativeButton={false}>
+        Cari kursus lain
+      </Button>
+    </>
   )
 }
 
