@@ -97,7 +97,9 @@ export function SignupForm() {
         {formError}
       </StatusMessage>
 
-      <form onSubmit={onSubmit} className="space-y-3">
+      {/* post, bukan get: lihat catatan di components/auth/LoginForm.tsx --
+          tanpa ini pengiriman pra-hidrasi menaruh isian di query string. */}
+      <form method="post" onSubmit={onSubmit} className="space-y-3">
         {/*
          * Pesan per-kolom disambungkan ke inputnya dengan aria-describedby dan
          * aria-invalid, bukan dibuat live region sendiri: pembaca layar

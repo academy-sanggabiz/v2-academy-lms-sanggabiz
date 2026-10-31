@@ -134,7 +134,15 @@ export function LoginForm() {
         {errorMessage}
       </StatusMessage>
 
-      <form onSubmit={onSubmit} className="space-y-3">
+      {/*
+        `method="post"` bukan karena form ini pernah dikirim ke server: onSubmit
+        di bawah selalu memanggil preventDefault(). Gunanya untuk saat JavaScript
+        belum sempat hidrasi -- tombol kirim tetap bisa ditekan, dan form tanpa
+        method akan melakukan GET ke URL yang sama, sehingga kata sandi mendarat
+        di query string, riwayat peramban, dan log akses perantara mana pun.
+        Dengan post, pengiriman pra-hidrasi gagal tanpa membocorkan apa pun.
+      */}
+      <form method="post" onSubmit={onSubmit} className="space-y-3">
         <Input type="email" name="email" placeholder="Email" aria-label="Email" autoComplete="username" required />
         <PasswordInput name="password" placeholder="Kata sandi" aria-label="Kata sandi" autoComplete="current-password" required />
         <div className="text-right">

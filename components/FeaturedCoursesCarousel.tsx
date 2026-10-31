@@ -134,19 +134,29 @@ export function FeaturedCoursesCarousel({ courses }: { courses: Course[] }) {
         <button
           type="button"
           onClick={() => goTo(activeIndex - 1)}
-          title="Kursus sebelumnya"
+          aria-label="Kursus sebelumnya"
           className="flex size-11 shrink-0 items-center justify-center rounded-full border border-input bg-card text-muted-foreground hover:bg-secondary hover:text-foreground"
         >
           <ChevronLeft className="size-4" />
         </button>
 
+        {/*
+          Wadah ini bisa digulir, jadi harus bisa dicapai dan digulir dengan
+          papan ketik -- tanpa tabIndex, pengguna papan ketik tidak punya cara
+          apa pun menggeser isinya (WCAG 2.1.1, axe scrollable-region-focusable).
+          role/aria-label memberinya nama saat fokus mendarat di sini.
+        */}
         <div
           ref={trackRef}
-          className="flex w-full max-w-5xl snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth [scrollbar-width:none]"
+          tabIndex={0}
+          role="group"
+          aria-label="Daftar kursus pilihan, dapat digulir mendatar"
+          className="flex w-full max-w-5xl snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth rounded-xl outline-none [scrollbar-width:none] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           {canLoop && (
             <div
               aria-hidden
+              inert
               className="w-full shrink-0 snap-start sm:w-[calc((100%-20px)/2)] lg:w-[calc((100%-40px)/3)]"
             >
               <CourseCard course={courses[courses.length - 1]} />
@@ -165,6 +175,7 @@ export function FeaturedCoursesCarousel({ courses }: { courses: Course[] }) {
           {canLoop && (
             <div
               aria-hidden
+              inert
               className="w-full shrink-0 snap-start sm:w-[calc((100%-20px)/2)] lg:w-[calc((100%-40px)/3)]"
             >
               <CourseCard course={courses[0]} />
@@ -175,7 +186,7 @@ export function FeaturedCoursesCarousel({ courses }: { courses: Course[] }) {
         <button
           type="button"
           onClick={() => goTo(activeIndex + 1)}
-          title="Kursus berikutnya"
+          aria-label="Kursus berikutnya"
           className="flex size-11 shrink-0 items-center justify-center rounded-full border border-input bg-card text-muted-foreground hover:bg-secondary hover:text-foreground"
         >
           <ChevronRight className="size-4" />
@@ -187,13 +198,21 @@ export function FeaturedCoursesCarousel({ courses }: { courses: Course[] }) {
           <button
             key={course.id}
             type="button"
-            title="Lihat kursus"
+            aria-label={`Tampilkan kursus ${i + 1} dari ${courses.length}: ${course.title}`}
+            aria-current={i === activeIndex ? "true" : undefined}
             onClick={() => goTo(i)}
-            className={cn(
-              "h-2 rounded-full transition-all",
-              i === activeIndex ? "w-6 bg-ring" : "w-2 bg-input"
-            )}
-          />
+            /* Titiknya memang kecil, tapi sasaran kliknya tidak boleh ikut
+               kecil: 24x24 px adalah batas minimum WCAG 2.5.8. */
+            className="flex size-6 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <span
+              aria-hidden
+              className={cn(
+                "h-2 rounded-full transition-all",
+                i === activeIndex ? "w-6 bg-ring" : "w-2 bg-input"
+              )}
+            />
+          </button>
         ))}
       </div>
     </div>

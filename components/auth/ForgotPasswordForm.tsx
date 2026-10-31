@@ -75,7 +75,9 @@ export function ForgotPasswordForm() {
         {error}
       </StatusMessage>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
+      {/* post, bukan get: lihat catatan di components/auth/LoginForm.tsx --
+          tanpa ini pengiriman pra-hidrasi menaruh isian di query string. */}
+      <form method="post" onSubmit={handleSubmit} className="space-y-3">
         <Input
           type="email"
           name="email"
