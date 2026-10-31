@@ -1285,27 +1285,13 @@ create policy "own certificates readable" on public.certificates
     where e.id = certificates.enrollment_id and e.learner_id = (select auth.uid())
   ));
 
-create policy "own certificates insertable" on public.certificates
-  for insert
-  to authenticated
-  with check (exists (
-    select 1 from public.enrollments e
-    where e.id = certificates.enrollment_id and e.learner_id = (select auth.uid())
-  ));
+-- DIHAPUS (C-05): peserta tidak lagi boleh menulis sertifikat, status
+-- enrollment, atau berkas PDF-nya. Penerbitan berjalan di server dengan
+-- service role setelah kelayakannya dihitung ulang (lib/certificates.ts).
+-- Lihat supabase/migrations/20261031000000_certificate_issuance_lockdown.sql.
 
--- Update (not just insert) is needed so the PDF-upload step can write
--- pdf_url back onto the row after the initial insert.
-create policy "own certificates updatable" on public.certificates
-  for update
-  to authenticated
-  using (exists (
-    select 1 from public.enrollments e
-    where e.id = certificates.enrollment_id and e.learner_id = (select auth.uid())
-  ))
-  with check (exists (
-    select 1 from public.enrollments e
-    where e.id = certificates.enrollment_id and e.learner_id = (select auth.uid())
-  ));
+
+
 
 create policy "admins read all certificates" on public.certificates
   for select to authenticated
@@ -1339,11 +1325,7 @@ grant select, insert, update on public.certificates to authenticated;
 -- checkAndIssueCertificate needs to flip status to 'completed' from both the
 -- learner's own session and an admin's (manual essay grading), so both paths
 -- get a policy here.
-create policy "own enrollments updatable" on public.enrollments
-  for update
-  to authenticated
-  using ((select auth.uid()) = learner_id)
-  with check ((select auth.uid()) = learner_id);
+
 
 create policy "admins update enrollments" on public.enrollments
   for update to authenticated
@@ -1696,15 +1678,7 @@ create policy "admins can delete certificate assets" on storage.objects
 -- certificates/{learner_id}/{enrollment_id}.pdf (checkAndIssueCertificate,
 -- lib/certificates.ts). Admin uploads are already covered by the
 -- bucket-wide is_admin() policies above; this adds the learner-owned path so
--- the auto-issue flow can upload under the learner's own session too, since
--- there's no service-role client in this project.
-create policy "learners can upload own certificate pdfs" on storage.objects
-  for insert to authenticated
-  with check (
-    bucket_id = 'certificate-assets'
-    and (storage.foldername(name))[1] = 'certificates'
-    and (storage.foldername(name))[2] = (select auth.uid())::text
-  );
+
 
 -- SELECT on the learner's own folder is needed by the upload's upsert.
 create policy "learners can read own certificate pdfs" on storage.objects
@@ -1715,18 +1689,7 @@ create policy "learners can read own certificate pdfs" on storage.objects
     and (storage.foldername(name))[2] = (select auth.uid())::text
   );
 
-create policy "learners can update own certificate pdfs" on storage.objects
-  for update to authenticated
-  using (
-    bucket_id = 'certificate-assets'
-    and (storage.foldername(name))[1] = 'certificates'
-    and (storage.foldername(name))[2] = (select auth.uid())::text
-  )
-  with check (
-    bucket_id = 'certificate-assets'
-    and (storage.foldername(name))[1] = 'certificates'
-    and (storage.foldername(name))[2] = (select auth.uid())::text
-  );
+
 
 -- Lesson content images: Tiptap uploads from the rich text lesson/quiz editor
 -- (toolbar button, paste, and drag-and-drop). Same public-read / admin-write

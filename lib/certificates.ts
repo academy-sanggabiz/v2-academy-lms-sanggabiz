@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { renderToBuffer } from "@react-pdf/renderer"
 
 import { CertificateDocument } from "@/components/certificates/CertificateDocument"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { computeCourseGrade, quizGradeWeight } from "@/lib/course-grade"
 import { pickRepresentativeAttempt } from "@/lib/quiz-attempt-selection"
 
@@ -31,6 +32,14 @@ type CheckAndIssueParams = {
  * happens for any course without certificates configured. Idempotent: once
  * a certificate row exists for the enrollment it's returned as-is, never
  * regenerated.
+ *
+ * Pembagian wewenang (C-05): `supabase` yang dioper dipakai untuk **membaca**
+ * kelayakan dan tetap dibatasi RLS pemanggilnya. Seluruh **penulisan** --
+ * status enrollment, baris sertifikat, dan unggahan PDF -- memakai klien
+ * service role di bawah, karena policy tulis peserta sudah dicabut
+ * (supabase/migrations/20261031000000_certificate_issuance_lockdown.sql).
+ * Dulu penulisan ini berjalan di sesi peserta, sehingga sertifikat palsu bisa
+ * dibuat langsung lewat REST tanpa menyentuh kode ini sama sekali.
  */
 export async function checkAndIssueCertificate(
   supabase: SupabaseClient,
@@ -143,7 +152,11 @@ export async function checkAndIssueCertificate(
     if (grade < course.passing_grade) return null
   }
 
-  const { error: enrollmentUpdateError } = await supabase
+  // Mulai dari sini semua penulisan memakai service role; kelayakannya sudah
+  // dihitung ulang di atas dari data yang dibaca dengan hak pemanggil.
+  const admin = createAdminClient()
+
+  const { error: enrollmentUpdateError } = await admin
     .from("enrollments")
     .update({ status: "completed", completed_at: new Date().toISOString() })
     .eq("id", enrollmentId)
@@ -167,10 +180,10 @@ export async function checkAndIssueCertificate(
 
   if (existing) return existing as Certificate
 
-  let certificate = await insertCertificateWithUniqueSerial(supabase, enrollmentId)
+  let certificate = await insertCertificateWithUniqueSerial(admin, enrollmentId)
   if (!certificate) return null
 
-  const pdfUrl = await generateAndUploadPdf(supabase, {
+  const pdfUrl = await generateAndUploadPdf(admin, {
     certificate,
     settings,
     courseId,
@@ -178,7 +191,7 @@ export async function checkAndIssueCertificate(
   })
 
   if (pdfUrl) {
-    const { data: updated } = await supabase
+    const { data: updated } = await admin
       .from("certificates")
       .update({ pdf_url: pdfUrl })
       .eq("id", certificate.id)
