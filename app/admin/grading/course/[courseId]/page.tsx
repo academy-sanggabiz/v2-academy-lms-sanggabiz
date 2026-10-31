@@ -7,6 +7,8 @@ import { GradingCourseMatrix } from "@/components/admin/grading/GradingCourseMat
 import { GradingBreadcrumb } from "@/components/admin/grading/GradingBreadcrumb"
 import { ExportCourseCsvButton } from "@/components/admin/grading/ExportCourseCsvButton"
 import { ImportGradesDialog } from "@/components/admin/grading/ImportGradesDialog"
+import { getQuestionDifficulty, getQuizEffort } from "@/lib/insight-server"
+import { CourseInsight } from "@/components/admin/insight/CourseInsight"
 
 export default async function AdminGradingCoursePage({
   params,
@@ -25,7 +27,11 @@ export default async function AdminGradingCoursePage({
     defaultPageSize: 10,
   })
 
-  const matrix = await getCourseGradingMatrix(courseId, listParams)
+  const [matrix, questions, effort] = await Promise.all([
+    getCourseGradingMatrix(courseId, listParams),
+    getQuestionDifficulty(courseId),
+    getQuizEffort(courseId),
+  ])
   if (!matrix) notFound()
 
   return (
@@ -45,6 +51,8 @@ export default async function AdminGradingCoursePage({
       </div>
 
       <GradingCourseMatrix matrix={matrix} />
+
+      <CourseInsight questions={questions} effort={effort} />
     </div>
   )
 }
