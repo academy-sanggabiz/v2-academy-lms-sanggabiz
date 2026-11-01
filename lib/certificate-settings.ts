@@ -1,4 +1,5 @@
 import type { CertificateType, CourseCertificateSettings } from "@/lib/courses-admin"
+import type { CertificateLayout } from "@/components/certificates/CertificateDocument"
 
 /**
  * Pengaturan sertifikat tingkat perusahaan, dan aturan bagaimana pengaturan
@@ -24,6 +25,7 @@ export type CertificateDefaults = {
   signer_title: string | null
   additional_text: string | null
   template_url: string | null
+  layout: CertificateLayout
 }
 
 /**
@@ -40,6 +42,7 @@ export const BUILT_IN_CERTIFICATE_DEFAULTS: CertificateDefaults = {
   signer_title: null,
   additional_text: null,
   template_url: null,
+  layout: "klasik",
 }
 
 /** Ruas yang bisa diwarisi. `enabled` sengaja tidak termasuk: apakah sebuah
@@ -53,6 +56,7 @@ export const INHERITABLE_FIELDS = [
   "signer_title",
   "additional_text",
   "template_url",
+  "layout",
 ] as const
 
 export type InheritableField = (typeof INHERITABLE_FIELDS)[number]

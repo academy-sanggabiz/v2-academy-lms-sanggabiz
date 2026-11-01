@@ -9,6 +9,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import type { CertificateType, CourseCertificateSettings } from "@/lib/courses-admin"
 import { CERTIFICATE_TYPE_OPTIONS } from "@/lib/certificate-types"
+import { CERTIFICATE_LAYOUT_OPTIONS } from "@/lib/certificate-layouts"
+import { CertificatePreview } from "@/components/admin/certificates/CertificatePreview"
+import type { CertificateLayout } from "@/components/certificates/CertificateDocument"
 import { resolveCertificateSettings, type CertificateDefaults } from "@/lib/certificate-settings"
 import { uploadCertificateTemplate, uploadSignatureImage } from "@/lib/storage"
 import { ImageDropzone } from "../ImageDropzone"
@@ -26,6 +29,7 @@ const DEFAULT_SETTINGS: CourseCertificateSettings = {
   signer_name: null,
   signer_title: null,
   additional_text: null,
+  layout: null,
 }
 
 export function CertificateSettings({
@@ -138,6 +142,38 @@ export function CertificateSettings({
             hint="Orientasi lanskap, PNG/JPEG, maks. 5MB"
           />
 
+          {ready && (
+            <div className="space-y-2.5">
+              <div className="text-xs font-semibold">Tata Letak</div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  {
+                    value: null,
+                    label: "Ikut Pengaturan Utama",
+                    description:
+                      CERTIFICATE_LAYOUT_OPTIONS.find((o) => o.value === defaults.layout)?.label ??
+                      "Klasik",
+                  },
+                  ...CERTIFICATE_LAYOUT_OPTIONS,
+                ].map((l) => (
+                  <button
+                    key={l.value ?? "warisan"}
+                    type="button"
+                    onClick={() => save({ layout: l.value as CertificateLayout | null })}
+                    aria-pressed={settings.layout === l.value}
+                    className={cn(
+                      "rounded-lg border px-3 py-2 text-left",
+                      settings.layout === l.value ? "border-primary bg-primary/10" : "border-border"
+                    )}
+                  >
+                    <div className="text-sm font-medium">{l.label}</div>
+                    <div className="text-xs text-muted-foreground">{l.description}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-2.5">
             <div className="text-xs font-semibold">Jenis Sertifikat</div>
             {typeOptions.map((t) => (
@@ -247,6 +283,8 @@ export function CertificateSettings({
               rows={3}
             />
           </div>
+
+          <CertificatePreview course={settings} defaults={defaults} />
         </div>
       )}
     </section>

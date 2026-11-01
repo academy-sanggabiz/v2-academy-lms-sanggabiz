@@ -418,6 +418,7 @@ const certificateSettingsSchema = z.object({
   signer_name: z.string().max(500).nullable(),
   signer_title: z.string().max(500).nullable(),
   additional_text: z.string().max(5000).nullable(),
+  layout: z.enum(["klasik", "modern", "formal"]).nullable(),
 })
 
 export const courseDraftSchema = z.object({

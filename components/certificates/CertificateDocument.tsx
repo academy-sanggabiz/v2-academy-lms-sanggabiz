@@ -25,6 +25,33 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: PRIMARY,
   },
+  modernBand: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: 26,
+    backgroundColor: PRIMARY,
+  },
+  formalBorder: {
+    position: "absolute",
+    top: 30,
+    left: 30,
+    right: 30,
+    bottom: 30,
+    borderWidth: 1,
+    borderColor: "#143740",
+  },
+  contentModern: {
+    paddingLeft: 96,
+    paddingRight: 70,
+  },
+  footerFormal: {
+    justifyContent: "center",
+  },
+  signatureBlockFormal: {
+    alignItems: "center",
+  },
   defaultBackgroundInner: {
     position: "absolute",
     top: 32,
@@ -130,6 +157,23 @@ const styles = StyleSheet.create({
   },
 })
 
+/**
+ * Tiga tata letak, bukan tiga puluh.
+ *
+ * Masing-masing menjawab keperluan yang berbeda, bukan sekadar selera:
+ * - `klasik`  bingkai ganda, semua rata tengah -- bentuk sertifikat yang
+ *             paling dikenali orang Indonesia.
+ * - `modern`  pita warna di tepi kiri, teks rata kiri -- cocok untuk
+ *             perusahaan yang dokumennya memang bergaya begitu.
+ * - `formal`  garis tipis tunggal, penanda tangan di tengah bawah -- bentuk
+ *             yang biasa dipakai dokumen resmi dan kerja sama antarlembaga.
+ *
+ * Menambah tata letak berarti menambah satu entri di sini DAN satu nilai di
+ * check constraint migrasi 20261101120000. Keduanya, bukan salah satu.
+ */
+export const CERTIFICATE_LAYOUTS = ["klasik", "modern", "formal"] as const
+export type CertificateLayout = (typeof CERTIFICATE_LAYOUTS)[number]
+
 const CERTIFICATE_COPY: Record<string, { title: string; verb: string }> = {
   completion: { title: "Sertifikat Kelulusan", verb: "telah berhasil menyelesaikan" },
   participation: { title: "Sertifikat Partisipasi", verb: "telah berpartisipasi dalam" },
@@ -147,6 +191,7 @@ export type CertificateDocumentProps = {
   signerTitle: string | null
   signatureUrl: string | null
   templateUrl: string | null
+  layout?: CertificateLayout | null
   serial: string
   issuedAt: string
   additionalText: string | null
@@ -162,6 +207,7 @@ export function CertificateDocument({
   signerTitle,
   signatureUrl,
   templateUrl,
+  layout,
   serial,
   issuedAt,
   additionalText,
@@ -174,12 +220,21 @@ export function CertificateDocument({
     day: "numeric",
   })
 
+  const used: CertificateLayout = layout ?? "klasik"
+  // Teks rata kiri pada tata letak modern; dua lainnya rata tengah.
+  const align = used === "modern" ? ({ alignItems: "flex-start" } as const) : null
+  const textAlign = used === "modern" ? ({ textAlign: "left" } as const) : null
+
   return (
     <Document>
       <Page size="A4" orientation="landscape" style={styles.page}>
         {templateUrl ? (
           // eslint-disable-next-line jsx-a11y/alt-text -- react-pdf's Image, not an HTML <img>
           <Image src={templateUrl} style={styles.templateBackground} />
+        ) : used === "modern" ? (
+          <View style={styles.modernBand} />
+        ) : used === "formal" ? (
+          <View style={styles.formalBorder} />
         ) : (
           <>
             <View style={styles.defaultBackground} />
@@ -187,17 +242,19 @@ export function CertificateDocument({
           </>
         )}
 
-        <View style={styles.content}>
-          <Text style={styles.eyebrow}>Sanggabiz Academy</Text>
-          <Text style={styles.title}>{headline}</Text>
+        <View style={[styles.content, used === "modern" ? styles.contentModern : {}, align ?? {}]}>
+          <Text style={[styles.eyebrow, textAlign ?? {}]}>Sanggabiz Academy</Text>
+          <Text style={[styles.title, textAlign ?? {}]}>{headline}</Text>
           <Text style={styles.presented}>Dengan ini menyatakan bahwa</Text>
-          <Text style={styles.name}>{learnerName}</Text>
-          <Text style={styles.description}>{description || `${copy.verb} ${courseTitle}.`}</Text>
+          <Text style={[styles.name, textAlign ?? {}]}>{learnerName}</Text>
+          <Text style={[styles.description, textAlign ?? {}]}>
+            {description || `${copy.verb} ${courseTitle}.`}
+          </Text>
           {additionalText ? <Text style={styles.additionalText}>{additionalText}</Text> : null}
         </View>
 
-        <View style={styles.footer}>
-          <View style={styles.signatureBlock}>
+        <View style={[styles.footer, used === "formal" ? styles.footerFormal : {}]}>
+          <View style={[styles.signatureBlock, used === "formal" ? styles.signatureBlockFormal : {}]}>
             {signatureUrl ? (
               // eslint-disable-next-line jsx-a11y/alt-text -- react-pdf's Image, not an HTML <img>
               <Image src={signatureUrl} style={styles.signatureImage} />

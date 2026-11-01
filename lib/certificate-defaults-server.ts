@@ -5,7 +5,7 @@ import { dbErrorMessage } from "@/lib/db-error-message"
 import { BUILT_IN_CERTIFICATE_DEFAULTS, type CertificateDefaults } from "@/lib/certificate-settings"
 
 const COLUMNS =
-  "certificate_type, custom_title, description, signature_url, signer_name, signer_title, additional_text, template_url"
+  "certificate_type, custom_title, description, signature_url, signer_name, signer_title, additional_text, template_url, layout"
 
 /**
  * Membaca satu-satunya baris pengaturan sertifikat perusahaan.

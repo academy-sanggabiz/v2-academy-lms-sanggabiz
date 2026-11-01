@@ -7,7 +7,7 @@ alasannya. Diperbarui 1 November 2026.
 
 ## Belum dikerjakan
 
-### A. Sertifikat yang bisa dikustomisasi per kursus — ✅ kode selesai, **menunggu satu langkah SQL**
+### A. Sertifikat kustom, tata letak, dan pratinjau — ✅ kode selesai, **menunggu satu langkah SQL**
 
 Lihat `docs/STANDAR-SERTIFIKAT.md`. Pengaturan utama perusahaan ada di
 `/admin/certificates` (khusus superadmin); kursus mewarisinya **per ruas**,
@@ -20,7 +20,16 @@ Supabase. Selama belum dijalankan, aplikasinya tetap berjalan dengan bentuk
 lama — `getCertificateDefaults()` jatuh ke bawaan bawaan-kode dan layar
 `/admin/certificates` menjelaskan apa yang kurang, bukan gagal.
 
-Belum terbukti dengan mata: layar `/admin/certificates` sendiri, karena
+Ditambahkan kemudian: tiga **tata letak** yang bisa dipilih di dalam LMS
+(klasik, modern, formal) dan **pratinjau** yang merender PDF sungguhan dengan
+dokumen yang sama persis dengan hasil terbitnya — ada di layar pengaturan
+utama maupun di tab Sertifikat tiap kursus.
+
+Belum terbukti dengan mata: tampilan PDF di dalam bingkai halaman, karena
+tidak ada penampil PDF di browser yang tersedia di mesin ini. Yang terbukti:
+rutenya mengembalikan PDF sah (`%PDF-`) untuk ketiga tata letak, dan
+ketiganya menghasilkan berkas berbeda. Juga belum terbukti: layar
+`/admin/certificates` sendiri, karena
 kata sandi superadmin sudah diganti dan `AUDIT_ADMIN_PASSWORD` di
 `.env.local` sudah tidak berlaku. Gerbang a11y kini mengatakannya terus
 terang ("dialihkan ke /admin/dashboard, akunnya tidak berwenang") alih-alih

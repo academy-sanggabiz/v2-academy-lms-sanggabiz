@@ -37,6 +37,8 @@ export type { AuthorableQuestionType }
 
 export type CoursePrerequisite = { id: string; title: string }
 
+import type { CertificateLayout } from "@/components/certificates/CertificateDocument"
+
 export type CertificateType = "completion" | "participation" | "achievement" | "custom"
 
 export type CourseCertificateSettings = {
@@ -44,6 +46,8 @@ export type CourseCertificateSettings = {
   template_url: string | null
   /** NULL berarti ikut pengaturan utama -- lihat lib/certificate-settings.ts. */
   certificate_type: CertificateType | null
+  /** NULL berarti ikut pengaturan utama. */
+  layout: CertificateLayout | null
   custom_title: string | null
   description: string | null
   signature_url: string | null
@@ -832,9 +836,24 @@ export async function saveCourseDraft(
 
   if (certificateChanged) {
     if (certificate) {
-      const { error } = await supabase
+      const row = { course_id: courseId, ...certificate }
+      let { error } = await supabase
         .from("course_certificate_settings")
-        .upsert({ course_id: courseId, ...certificate }, { onConflict: "course_id" })
+        .upsert(row, { onConflict: "course_id" })
+
+      // PGRST204 = kolom tidak dikenali. Terjadi selama jeda antara kode
+      // ter-deploy dan migrasinya dijalankan tangan di SQL Editor. Kolom
+      // `layout` hanya dibuang kalau nilainya memang NULL (ikut pengaturan
+      // utama); kalau penyusun benar-benar memilih tata letak, pilihannya
+      // tidak boleh hilang diam-diam -- galatnya diteruskan apa adanya.
+      if (error?.code === "PGRST204" && certificate.layout == null) {
+        const { layout: _belumAda, ...tanpaLayout } = row
+        void _belumAda
+        ;({ error } = await supabase
+          .from("course_certificate_settings")
+          .upsert(tanpaLayout, { onConflict: "course_id" }))
+      }
+
       if (error) return wrapSaveError("pengaturan sertifikat", error.message)
     } else {
       const { error } = await supabase.from("course_certificate_settings").delete().eq("course_id", courseId)

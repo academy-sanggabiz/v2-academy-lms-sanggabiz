@@ -89,3 +89,42 @@ Karena itu `getCertificateDefaults()` mengembalikan bawaan bawaan-kode ketika
 tabelnya tidak ada, bukan melempar galat: sertifikat tetap terbit dengan
 bentuk lama, dan layar `/admin/certificates` menjelaskan apa yang perlu
 dijalankan alih-alih gagal.
+
+## 6. Tata letak, dan kenapa hanya tiga
+
+`klasik` (bingkai ganda, rata tengah), `modern` (pita warna di tepi kiri,
+teks rata kiri), `formal` (garis tipis, penanda tangan di tengah bawah).
+Masing-masing menjawab keperluan berbeda, bukan selera: bentuk yang paling
+dikenali di Indonesia, bentuk korporat, dan bentuk dokumen resmi
+antarlembaga.
+
+Daftarnya sengaja pendek. Tata letak yang banyak membuat penyusun memilih
+berdasarkan tampilan kecil di layar pengaturan, lalu sertifikat satu lembaga
+jadi berbeda-beda antar kursus tanpa alasan.
+
+Menambah tata letak berarti menambah **dua** hal: satu entri di
+`CERTIFICATE_LAYOUTS` dan satu nilai di check constraint migrasi
+`20261101120000`. Menambah salah satunya saja menghasilkan pilihan yang
+ditolak basis data saat disimpan.
+
+## 7. Pratinjau memakai dokumen yang sama dengan hasil terbitnya
+
+`/admin/certificates/preview` merender **PDF sungguhan** lewat
+`CertificateDocument` yang sama persis dengan yang dipakai saat sertifikat
+diterbitkan. Tiruan HTML akan jauh lebih ringan, tetapi ia menua sendiri:
+begitu dokumen aslinya berubah, pratinjaunya berbohong — dan pratinjau yang
+berbohong lebih buruk daripada tidak ada pratinjau, karena orang memutuskan
+berdasarkan apa yang dilihatnya.
+
+Dua hal yang perlu diingat saat menyentuh bagian ini:
+
+1. **Permintaan dijeda, bukan dikirim per ketikan.** Tiap render memanggil
+   server; merender di setiap ketikan berarti puluhan permintaan untuk satu
+   kalimat deskripsi. Balasan yang sudah usang juga dibuang, supaya
+   permintaan lambat yang dikirim lebih dulu tidak menimpa hasil terbaru.
+2. **Bingkainya tidak di-`sandbox`.** Penampil PDF bawaan browser tidak
+   berjalan di dalam bingkai ber-`sandbox` kosong, dan hasilnya bingkai putih
+   tanpa pesan apa pun. Dokumennya memang buatan sendiri — react-pdf tidak
+   menyisipkan skrip, dan gambarnya diambil di server. Tautan "Buka di tab
+   baru" tetap selalu ada untuk browser yang tidak menampilkan PDF di dalam
+   halaman.

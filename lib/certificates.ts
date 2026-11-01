@@ -293,6 +293,7 @@ async function generateAndUploadPdf(
         signerTitle: settings.signer_title,
         signatureUrl: settings.signature_url,
         templateUrl: settings.template_url,
+        layout: settings.layout,
         serial: certificate.serial,
         issuedAt: certificate.issued_at,
         additionalText: settings.additional_text,

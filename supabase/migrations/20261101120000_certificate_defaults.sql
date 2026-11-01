@@ -21,8 +21,21 @@ create table if not exists public.certificate_defaults (
   signer_title text,
   additional_text text,
   template_url text,
+  layout text not null default 'klasik'
+    check (layout in ('klasik', 'modern', 'formal')),
   updated_at timestamptz not null default now()
 );
+
+-- Ditulis terpisah supaya berkas ini tetap aman dijalankan ulang pada basis
+-- data yang sudah memakai versi sebelumnya.
+alter table public.certificate_defaults
+  add column if not exists layout text not null default 'klasik';
+
+alter table public.certificate_defaults
+  drop constraint if exists certificate_defaults_layout_check;
+alter table public.certificate_defaults
+  add constraint certificate_defaults_layout_check
+  check (layout in ('klasik', 'modern', 'formal'));
 
 alter table public.certificate_defaults enable row level security;
 
@@ -61,3 +74,13 @@ insert into public.certificate_defaults (id) values (true) on conflict (id) do n
 alter table public.course_certificate_settings
   alter column certificate_type drop not null,
   alter column certificate_type drop default;
+
+-- NULL = ikut pengaturan utama, sama seperti ruas sertifikat lainnya.
+alter table public.course_certificate_settings
+  add column if not exists layout text;
+
+alter table public.course_certificate_settings
+  drop constraint if exists course_certificate_settings_layout_check;
+alter table public.course_certificate_settings
+  add constraint course_certificate_settings_layout_check
+  check (layout is null or layout in ('klasik', 'modern', 'formal'));
