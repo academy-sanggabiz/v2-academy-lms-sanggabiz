@@ -44,12 +44,14 @@ import { LearnersTab } from "./tabs/LearnersTab"
 import { LessonsTab } from "./tabs/LessonsTab"
 import { PreviewTab } from "./tabs/PreviewTab"
 import { SettingsTab } from "./tabs/SettingsTab"
+import { describeDraftIssue, describeDraftIssues } from "@/lib/course-draft-issues"
 import { CourseMarkdownDialog } from "@/components/admin/courses/markdown/CourseMarkdownDialog"
 import type { CertificateDefaults } from "@/lib/certificate-settings"
 
 type ShellProps = {
   course: AdminCourseDetail
   certificateDefaultsPromise: Promise<CertificateDefaults>
+  certificateReadyPromise: Promise<boolean>
   /**
    * Dioper sebagai promise, bukan nilai: ketiganya hanya dipakai tab Pengaturan
    * dan Peserta, jadi editor sudah bisa tampil sebelum ketiganya selesai.
@@ -74,6 +76,7 @@ export function CourseFormShell(props: ShellProps) {
 function CourseFormShellInner({
   course,
   certificateDefaultsPromise,
+  certificateReadyPromise,
   instructorsPromise,
   prerequisitesPromise,
   rosterPromise,
@@ -163,14 +166,28 @@ function CourseFormShellInner({
   function onSubmit(status: "draft" | "published") {
     const parsed = courseDraftSchema.safeParse(draft)
     if (!parsed.success) {
+      // Dulu setiap kegagalan dianggap berasal dari tab Info Dasar: penyusun
+      // yang salah mengisi pengaturan sertifikat dilempar ke Info Dasar lalu
+      // membaca "Perbaiki isian yang ditandai" tanpa ada satu pun isian yang
+      // ditandai di sana. Sekarang pesannya menyebut ruasnya, dan tab yang
+      // dibuka adalah tab tempat ruas itu berada.
+      const issues = describeDraftIssues(parsed.error)
       const fieldErrors: Record<string, string> = {}
-      for (const issue of parsed.error.issues) {
-        const key = String(issue.path[0] ?? "")
-        if (key && !fieldErrors[key]) fieldErrors[key] = issue.message
+      for (const issue of issues) {
+        if (issue.basicFieldKey && !fieldErrors[issue.basicFieldKey]) {
+          fieldErrors[issue.basicFieldKey] = issue.message
+        }
       }
       setBasicInfoErrors(fieldErrors)
-      setTab("basic")
-      toast.error("Perbaiki isian yang ditandai")
+      const first = issues[0]
+      if (first) setTab(first.tab)
+      toast.error(
+        first
+          ? issues.length === 1
+            ? describeDraftIssue(first)
+            : `${describeDraftIssue(first)} (+${issues.length - 1} lainnya)`
+          : "Data kursus tidak valid"
+      )
       return
     }
     setBasicInfoErrors({})
@@ -372,6 +389,7 @@ function CourseFormShellInner({
                 instructorsPromise={instructorsPromise}
                 prerequisitesPromise={prerequisitesPromise}
                 certificateDefaultsPromise={certificateDefaultsPromise}
+                certificateReadyPromise={certificateReadyPromise}
               />
             </Suspense>
           </TabsContent>
@@ -411,11 +429,13 @@ function SettingsTabStreamed({
   instructorsPromise,
   prerequisitesPromise,
   certificateDefaultsPromise,
+  certificateReadyPromise,
 }: {
   status: AdminCourseDetail["status"]
   instructorsPromise: Promise<Instructor[]>
   prerequisitesPromise: Promise<CoursePrerequisite[]>
   certificateDefaultsPromise: Promise<CertificateDefaults>
+  certificateReadyPromise: Promise<boolean>
 }) {
   return (
     <SettingsTab
@@ -423,6 +443,7 @@ function SettingsTabStreamed({
       instructors={use(instructorsPromise)}
       availableCoursesForPrerequisites={use(prerequisitesPromise)}
       certificateDefaults={use(certificateDefaultsPromise)}
+      certificateDefaultsReady={use(certificateReadyPromise)}
     />
   )
 }

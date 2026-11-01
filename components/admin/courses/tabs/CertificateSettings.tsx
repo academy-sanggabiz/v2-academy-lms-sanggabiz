@@ -28,13 +28,44 @@ const DEFAULT_SETTINGS: CourseCertificateSettings = {
   additional_text: null,
 }
 
-export function CertificateSettings({ defaults }: { defaults: CertificateDefaults }) {
+export function CertificateSettings({
+  defaults,
+  ready,
+}: {
+  defaults: CertificateDefaults
+  /** False bila migrasi `certificate_defaults` belum dijalankan. Saat false,
+   *  pilihan "Ikut Pengaturan Utama" tidak ditawarkan sama sekali: kolom
+   *  `certificate_type` masih `not null`, jadi menyimpannya akan ditolak basis
+   *  data dan penyusun hanya melihat pesan galat umum. Lebih baik pilihannya
+   *  belum ada daripada ada tapi gagal. */
+  ready: boolean
+}) {
   const { draft, dispatch } = useCourseDraft()
-  const settings = draft.certificate ?? DEFAULT_SETTINGS
+  // Kursus yang belum punya baris pengaturan. `certificate_type` hanya boleh
+  // NULL kalau basis datanya memang sudah menerimanya; kalau belum, kursus
+  // baru harus berangkat dari nilai eksplisit, bukan dari nilai yang pasti
+  // ditolak saat disimpan.
+  const settings =
+    draft.certificate ?? { ...DEFAULT_SETTINGS, certificate_type: ready ? null : "completion" }
   // Dipakai untuk memberi tahu penyusun apa yang AKAN tampil pada ruas yang
   // dibiarkan kosong. Tanpa ini ruas kosong terbaca sebagai "sertifikatnya
   // memang akan kosong", padahal justru sebaliknya.
   const effective = resolveCertificateSettings(settings, defaults)
+
+  // Daftar jenis sertifikat. Opsi warisan hanya muncul kalau basis datanya
+  // memang sudah bisa menyimpannya.
+  const typeOptions: { value: CertificateType | null; label: string; description: string }[] = ready
+    ? [
+        {
+          value: null,
+          label: "Ikut Pengaturan Utama",
+          description:
+            CERTIFICATE_TYPE_OPTIONS.find((o) => o.value === defaults.certificate_type)?.label ??
+            "Kelulusan",
+        },
+        ...CERTIFICATE_TYPE_OPTIONS,
+      ]
+    : CERTIFICATE_TYPE_OPTIONS
 
   /** Keterangan di bawah ruas yang sedang mewarisi. Tidak ditampilkan saat
    *  penyusun sudah mengisi sendiri, supaya tidak jadi bising. */
@@ -109,16 +140,7 @@ export function CertificateSettings({ defaults }: { defaults: CertificateDefault
 
           <div className="space-y-2.5">
             <div className="text-xs font-semibold">Jenis Sertifikat</div>
-            {[
-              {
-                value: null,
-                label: "Ikut Pengaturan Utama",
-                description:
-                  CERTIFICATE_TYPE_OPTIONS.find((o) => o.value === defaults.certificate_type)?.label ??
-                  "Kelulusan",
-              },
-              ...CERTIFICATE_TYPE_OPTIONS,
-            ].map((t) => (
+            {typeOptions.map((t) => (
               <div
                 key={t.value ?? "warisan"}
                 className="flex cursor-pointer gap-2.5"

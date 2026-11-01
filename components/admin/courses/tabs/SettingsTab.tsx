@@ -35,6 +35,7 @@ export function SettingsTab({
   instructors,
   availableCoursesForPrerequisites,
   certificateDefaults,
+  certificateDefaultsReady,
 }: {
   /** Last-saved status -- `private` and `draft` are independent, and a private
    *  DRAFT is invisible even to invited learners (can_read_course requires
@@ -43,6 +44,7 @@ export function SettingsTab({
   instructors: Instructor[]
   availableCoursesForPrerequisites: CoursePrerequisite[]
   certificateDefaults: CertificateDefaults
+  certificateDefaultsReady: boolean
 }) {
   const { draft, dispatch } = useCourseDraft()
 
@@ -155,7 +157,7 @@ export function SettingsTab({
 
       <PrerequisitesSettings availableCourses={availableCoursesForPrerequisites} />
 
-      <CertificateSettings defaults={certificateDefaults} />
+      <CertificateSettings defaults={certificateDefaults} ready={certificateDefaultsReady} />
 
       <section className="space-y-3">
         <h3 className="text-[17px] font-bold">Pengaturan Instruktur</h3>

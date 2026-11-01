@@ -9,7 +9,7 @@ import {
 import { getCourseRoster } from "@/lib/learners-admin"
 import { parseListParams, type RawSearchParams } from "@/lib/pagination"
 import { CourseFormShell } from "@/components/admin/courses/CourseFormShell"
-import { getCertificateDefaults } from "@/lib/certificate-defaults-server"
+import { certificateDefaultsReady, getCertificateDefaults } from "@/lib/certificate-defaults-server"
 
 export default async function EditCoursePage({
   params,
@@ -33,7 +33,12 @@ export default async function EditCoursePage({
   const instructorsPromise = listInstructors()
   const prerequisitesPromise = listCoursesForPrerequisitePicker(id)
   const rosterPromise = getCourseRoster(id, rosterParams)
+  // Kesiapan ikut dibaca supaya editor tidak menawarkan "Ikut Pengaturan
+  // Utama" sebelum migrasinya dijalankan. Menawarkannya lebih dulu berarti
+  // menulis NULL ke kolom yang masih not null -- gagal di basis data, dan
+  // penyusun hanya melihat pesan galat umum tanpa tahu ruas mana.
   const certificateDefaultsPromise = getCertificateDefaults()
+  const certificateReadyPromise = certificateDefaultsReady()
 
   const [course, learnerCount] = await Promise.all([
     getCourseDetailForAdmin(id),
@@ -48,6 +53,7 @@ export default async function EditCoursePage({
       prerequisitesPromise={prerequisitesPromise}
       rosterPromise={rosterPromise}
       certificateDefaultsPromise={certificateDefaultsPromise}
+      certificateReadyPromise={certificateReadyPromise}
       learnerCount={learnerCount}
       isNew={raw.new === "1"}
       openImport={raw.impor === "1"}

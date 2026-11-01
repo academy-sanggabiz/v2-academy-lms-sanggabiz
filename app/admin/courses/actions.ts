@@ -12,6 +12,7 @@ import {
 } from "@/lib/courses-admin"
 import { requireAdmin } from "@/lib/auth/require-admin"
 import { courseDraftSchema, type CourseDraft } from "@/lib/course-draft"
+import { describeDraftIssue, describeDraftIssues } from "@/lib/course-draft-issues"
 import { parseCourseMarkdown, type ParsedCourse } from "@/lib/course-markdown"
 import { createClient } from "@/lib/supabase/server"
 
@@ -60,7 +61,18 @@ export async function saveCourseDraftAction(
 
   const parsed = courseDraftSchema.safeParse(draft)
   if (!parsed.success) {
-    return { ok: false, error: "Data kursus tidak valid. Muat ulang halaman lalu coba lagi." }
+    // Seharusnya tidak pernah tercapai: layar sudah memvalidasi dengan skema
+    // yang sama. Kalau sampai tercapai, berarti keduanya tidak sepakat -- dan
+    // pesan umum akan menyembunyikan persis informasi yang dibutuhkan untuk
+    // menemukan ketidaksepakatan itu.
+    const issues = describeDraftIssues(parsed.error)
+    const first = issues[0]
+    return {
+      ok: false,
+      error: first
+        ? `Data kursus tidak valid pada ${describeDraftIssue(first)}`
+        : "Data kursus tidak valid. Muat ulang halaman lalu coba lagi.",
+    }
   }
 
   const result = await saveCourseDraft(courseId, parsed.data, status)
