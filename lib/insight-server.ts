@@ -11,6 +11,32 @@ import { createClient } from "@/lib/supabase/server"
  * kosong.
  */
 
+export type DropoffStep = {
+  stepNo: number
+  lessonId: string
+  lessonTitle: string
+  sectionTitle: string
+  contentType: string
+  /** Berapa peserta menyelesaikan pelajaran ini. */
+  completed: number
+  /** Berapa peserta yang titik terjauhnya TEPAT di sini dan kursusnya belum
+   *  selesai -- inilah angka "berhenti di sini". */
+  stalled: number
+  completedPct: number | null
+}
+
+export type CourseDropoff = {
+  steps: DropoffStep[]
+  totalLearners: number
+  /** Belum menyelesaikan satu pelajaran pun. Dipisah dari "berhenti di
+   *  pelajaran 1" karena keduanya masalah berbeda. */
+  notStarted: number
+  /** False bila fungsi SQL-nya belum ada di basis data. Migrasi proyek ini
+   *  dijalankan tangan lewat SQL Editor, jadi selalu ada jeda antara kode
+   *  ter-deploy dan SQL-nya dijalankan. */
+  ready: boolean
+}
+
 export type QuestionDifficulty = {
   questionId: string
   prompt: string
@@ -69,4 +95,37 @@ export async function getQuizEffort(courseId: string): Promise<QuizEffort[]> {
     avgFirstScore: r.avg_first_score === null ? null : Number(r.avg_first_score),
     avgBestScore: r.avg_best_score === null ? null : Number(r.avg_best_score),
   }))
+}
+
+/**
+ * Corong penyelesaian pelajaran: di bagian mana peserta berhenti melanjutkan.
+ *
+ * Dibaca dari `lesson_progress` yang memang sudah sah dikumpulkan; tidak ada
+ * data perilaku baru. Lihat docs/STANDAR-PELACAKAN.md.
+ */
+export async function getCourseDropoff(courseId: string): Promise<CourseDropoff> {
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc("admin_course_dropoff", { p_course_id: courseId })
+
+  if (error) {
+    console.error("getCourseDropoff failed:", error.message)
+    return { steps: [], totalLearners: 0, notStarted: 0, ready: false }
+  }
+
+  const rows = (data ?? []) as Record<string, unknown>[]
+  return {
+    steps: rows.map((r) => ({
+      stepNo: r.step_no as number,
+      lessonId: r.lesson_id as string,
+      lessonTitle: r.lesson_title as string,
+      sectionTitle: r.section_title as string,
+      contentType: r.content_type as string,
+      completed: r.completed as number,
+      stalled: r.stalled as number,
+      completedPct: r.completed_pct === null ? null : Number(r.completed_pct),
+    })),
+    totalLearners: rows.length > 0 ? (rows[0].total_learners as number) : 0,
+    notStarted: rows.length > 0 ? (rows[0].not_started as number) : 0,
+    ready: true,
+  }
 }

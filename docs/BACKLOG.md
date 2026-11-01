@@ -28,27 +28,37 @@ mencetak "ok" untuk halaman yang tidak pernah terbuka — kelemahan yang
 ternyata juga membuat `/admin/landing` dan `/admin/mentor` selama ini
 terhitung lolos tanpa pernah diaudit.
 
-### B. Pelacakan perilaku: siapa membuka apa, berapa lama — **butuh persetujuan lebih dulu**
+### B. Pelacakan perilaku: siapa membuka apa, berapa lama — sebagian selesai, sisanya **butuh persetujuan**
 
-Diminta untuk analisis titik berhenti peserta: di bagian mana orang paling
-sering tidak melanjutkan, dan bagian mana yang sudah bagus.
+Yang diminta: tahu peserta sedang membuka apa, berapa lama di tiap kursus, dan
+di bagian mana orang paling banyak tidak melanjutkan.
 
-**Ini tidak bisa langsung dibangun.** `docs/STANDAR-PELACAKAN.md` §3 sudah
-memetakannya: lama membuka halaman, pola sesi, dan jejak per orang bukan
-keperluan menyampaikan kursus, jadi dasarnya bukan UU PDP Pasal 20 huruf b
-melainkan huruf a — persetujuan eksplisit, yang **harus diminta sebelum data
-dikumpulkan**, bisa ditolak tanpa kehilangan akses, dan bisa ditarik.
+**Bagian "di bagian mana orang berhenti" sudah selesai** dan tidak butuh
+persetujuan tambahan. Jawabannya ternyata ada pada pelajaran terjauh yang
+diselesaikan seseorang — sudah tercatat sejak awal untuk menjalankan kursus
+(UU PDP Pasal 20 huruf b). Fungsi `admin_course_dropoff` menghitung, per
+pelajaran, berapa peserta menyelesaikannya dan berapa yang **berhenti tepat di
+situ**; tampil di layar Penilaian per kursus.
 
-Urutan kerjanya karena itu: mekanisme pemberitahuan dan persetujuan lebih
-dulu, baru pengumpulannya.
+Angka kedua itu yang menjawab pertanyaannya. "Berapa yang menyelesaikan" saja
+hanya memperlihatkan corong yang menurun — setiap pelajaran setelah titik
+berhenti juga ikut rendah, jadi ia tidak menunjuk di mana orang berhenti.
 
-Catatan desain yang menghemat banyak kerja: pertanyaan "di bagian mana orang
-berhenti" bisa dijawab **tanpa** jejak per orang — cukup menghitung berapa
-peserta yang menyelesaikan tiap pelajaran dibanding yang memulainya, dari
-`lesson_progress` yang sudah ada dan sudah sah dikumpulkan. Yang benar-benar
-butuh persetujuan hanyalah "berapa lama" dan "sedang membuka apa saat ini".
-Sebaiknya bagian agregat itu dikerjakan lebih dulu; mungkin sudah cukup.
+**Langkah tersisa:** jalankan
+`supabase/migrations/20261101130000_course_dropoff.sql` di SQL Editor. Sebelum
+itu, layarnya menjelaskan apa yang kurang alih-alih rusak. Sesudahnya,
+`node scripts/dropoff-check.mjs` membuktikan fungsi SQL-nya dengan
+membandingkannya terhadap perhitungan kedua yang ditulis terpisah di
+JavaScript — fungsi SQL-nya belum pernah benar-benar dijalankan karena tidak
+ada Postgres di mesin ini.
 
+**Yang masih butuh persetujuan:** berapa lama sebuah halaman dibuka, jam
+berapa seseorang belajar, dan apa yang sedang ia buka saat ini. Ketiganya
+pengamatan perilaku, bukan penyampaian materi, jadi dasarnya huruf a —
+persetujuan eksplisit yang harus diminta **sebelum** data dikumpulkan, bisa
+ditolak tanpa kehilangan akses, dan bisa ditarik. Syarat minimumnya ada di
+`docs/STANDAR-PELACAKAN.md` §4. Urutan kerjanya: mekanisme pemberitahuan dan
+persetujuan lebih dulu, baru pengumpulannya.
 
 ### C. Riwayat migrasi Supabase tidak sinkron — risiko saat menyiapkan lingkungan baru
 
