@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
+  Award,
   LayoutDashboard,
   BookOpen,
   Users,
@@ -74,13 +75,15 @@ export function AdminSidebar({
         {navItems.map(({ href, key, icon: Icon }) => (
           <NavLink key={href} href={href} label={t.admin[key]} icon={Icon} />
         ))}
-        {/* Dua layar khusus superadmin: evaluasi mentor menyilangkan data
-            seluruh mentor, dan halaman depan adalah wajah perusahaan.
-            docs/STANDAR-PERAN.md §2. */}
+        {/* Layar khusus superadmin: evaluasi mentor menyilangkan data seluruh
+            mentor, sedangkan halaman depan dan pengaturan sertifikat adalah
+            wajah perusahaan -- mentor mengatur sertifikat kursusnya sendiri,
+            bukan milik semua orang. docs/STANDAR-PERAN.md §2. */}
         {role === "superadmin" && (
           <>
             <NavLink href="/admin/mentor" label={t.admin.mentors} icon={UserCog} />
             <NavLink href="/admin/landing" label={t.admin.landing} icon={Layout} />
+            <NavLink href="/admin/certificates" label={t.admin.certificates} icon={Award} />
           </>
         )}
       </nav>

@@ -150,6 +150,7 @@ export type Dictionary = {
     purchases: string
     mentors: string
     landing: string
+    certificates: string
     settings: string
     profile: string
     dashboardSubtitlePlatform: string
@@ -406,6 +407,7 @@ const id: Dictionary = {
     purchases: "Pembelian",
     mentors: "Mentor",
     landing: "Halaman Depan",
+    certificates: "Sertifikat",
     settings: "Pengaturan",
     profile: "Profil",
     dashboardSubtitlePlatform: "Ringkasan seluruh platform: peserta, kursus, dan aktivitas terbaru",
@@ -672,6 +674,7 @@ const en: Dictionary = {
     purchases: "Purchases",
     mentors: "Mentors",
     landing: "Home page",
+    certificates: "Certificates",
     settings: "Settings",
     profile: "Profile",
     dashboardSubtitlePlatform:

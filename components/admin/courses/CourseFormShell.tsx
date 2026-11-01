@@ -45,9 +45,11 @@ import { LessonsTab } from "./tabs/LessonsTab"
 import { PreviewTab } from "./tabs/PreviewTab"
 import { SettingsTab } from "./tabs/SettingsTab"
 import { CourseMarkdownDialog } from "@/components/admin/courses/markdown/CourseMarkdownDialog"
+import type { CertificateDefaults } from "@/lib/certificate-settings"
 
 type ShellProps = {
   course: AdminCourseDetail
+  certificateDefaultsPromise: Promise<CertificateDefaults>
   /**
    * Dioper sebagai promise, bukan nilai: ketiganya hanya dipakai tab Pengaturan
    * dan Peserta, jadi editor sudah bisa tampil sebelum ketiganya selesai.
@@ -71,6 +73,7 @@ export function CourseFormShell(props: ShellProps) {
 
 function CourseFormShellInner({
   course,
+  certificateDefaultsPromise,
   instructorsPromise,
   prerequisitesPromise,
   rosterPromise,
@@ -368,6 +371,7 @@ function CourseFormShellInner({
                 status={course.status}
                 instructorsPromise={instructorsPromise}
                 prerequisitesPromise={prerequisitesPromise}
+                certificateDefaultsPromise={certificateDefaultsPromise}
               />
             </Suspense>
           </TabsContent>
@@ -406,16 +410,19 @@ function SettingsTabStreamed({
   status,
   instructorsPromise,
   prerequisitesPromise,
+  certificateDefaultsPromise,
 }: {
   status: AdminCourseDetail["status"]
   instructorsPromise: Promise<Instructor[]>
   prerequisitesPromise: Promise<CoursePrerequisite[]>
+  certificateDefaultsPromise: Promise<CertificateDefaults>
 }) {
   return (
     <SettingsTab
       status={status}
       instructors={use(instructorsPromise)}
       availableCoursesForPrerequisites={use(prerequisitesPromise)}
+      certificateDefaults={use(certificateDefaultsPromise)}
     />
   )
 }

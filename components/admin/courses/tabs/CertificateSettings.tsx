@@ -8,21 +8,18 @@ import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import type { CertificateType, CourseCertificateSettings } from "@/lib/courses-admin"
+import { CERTIFICATE_TYPE_OPTIONS } from "@/lib/certificate-types"
+import { resolveCertificateSettings, type CertificateDefaults } from "@/lib/certificate-settings"
 import { uploadCertificateTemplate, uploadSignatureImage } from "@/lib/storage"
 import { ImageDropzone } from "../ImageDropzone"
 import { useCourseDraft } from "../CourseDraftContext"
 
-const CERTIFICATE_TYPES: { value: CertificateType; label: string; description: string }[] = [
-  { value: "completion", label: "Kelulusan", description: '"Sertifikat Kelulusan" - "telah berhasil menyelesaikan"' },
-  { value: "participation", label: "Partisipasi", description: '"Sertifikat Partisipasi" - "telah berpartisipasi dalam"' },
-  { value: "achievement", label: "Prestasi", description: '"Sertifikat Prestasi" - "telah berhasil meraih"' },
-  { value: "custom", label: "Judul Khusus (Opsional)", description: "Masukkan judul sertifikat sendiri" },
-]
-
 const DEFAULT_SETTINGS: CourseCertificateSettings = {
   enabled: false,
   template_url: null,
-  certificate_type: "completion",
+  // NULL, bukan "completion": kursus baru mewarisi pengaturan utama sampai
+  // penyusunnya memang memilih sesuatu yang lain.
+  certificate_type: null,
   custom_title: null,
   description: null,
   signature_url: null,
@@ -31,9 +28,28 @@ const DEFAULT_SETTINGS: CourseCertificateSettings = {
   additional_text: null,
 }
 
-export function CertificateSettings() {
+export function CertificateSettings({ defaults }: { defaults: CertificateDefaults }) {
   const { draft, dispatch } = useCourseDraft()
   const settings = draft.certificate ?? DEFAULT_SETTINGS
+  // Dipakai untuk memberi tahu penyusun apa yang AKAN tampil pada ruas yang
+  // dibiarkan kosong. Tanpa ini ruas kosong terbaca sebagai "sertifikatnya
+  // memang akan kosong", padahal justru sebaliknya.
+  const effective = resolveCertificateSettings(settings, defaults)
+
+  /** Keterangan di bawah ruas yang sedang mewarisi. Tidak ditampilkan saat
+   *  penyusun sudah mengisi sendiri, supaya tidak jadi bising. */
+  function inheritedHint(field: Parameters<typeof isInherited>[0]) {
+    if (!effective.inherited[field]) return null
+    const value = effective[field]
+    return (
+      <p className="text-xs text-muted-foreground">
+        Ikut pengaturan utama{value ? `: ${String(value)}` : " (belum diisi superadmin)"}
+      </p>
+    )
+  }
+  function isInherited(field: keyof typeof effective.inherited) {
+    return effective.inherited[field]
+  }
 
   const [customTitle, setCustomTitle] = useState(settings.custom_title ?? "")
   const [description, setDescription] = useState(settings.description ?? "")
@@ -93,11 +109,20 @@ export function CertificateSettings() {
 
           <div className="space-y-2.5">
             <div className="text-xs font-semibold">Jenis Sertifikat</div>
-            {CERTIFICATE_TYPES.map((t) => (
+            {[
+              {
+                value: null,
+                label: "Ikut Pengaturan Utama",
+                description:
+                  CERTIFICATE_TYPE_OPTIONS.find((o) => o.value === defaults.certificate_type)?.label ??
+                  "Kelulusan",
+              },
+              ...CERTIFICATE_TYPE_OPTIONS,
+            ].map((t) => (
               <div
-                key={t.value}
+                key={t.value ?? "warisan"}
                 className="flex cursor-pointer gap-2.5"
-                onClick={() => save({ certificate_type: t.value })}
+                onClick={() => save({ certificate_type: t.value as CertificateType | null })}
               >
                 <div
                   className={cn(
@@ -143,6 +168,7 @@ export function CertificateSettings() {
             <p className="text-xs text-muted-foreground">
               Penanda yang didukung: [Nama Peserta], [Nama Kursus]
             </p>
+            {inheritedHint("description")}
           </div>
 
           <ImageDropzone
@@ -152,6 +178,13 @@ export function CertificateSettings() {
             label="Unggah Gambar Tanda Tangan"
             hint="PNG atau JPEG, maks. 1MB"
           />
+          {isInherited("signature_url") && (
+            <p className="-mt-2 text-xs text-muted-foreground">
+              {defaults.signature_url
+                ? "Dikosongkan berarti memakai tanda tangan dari pengaturan utama."
+                : "Pengaturan utama juga belum punya gambar tanda tangan."}
+            </p>
+          )}
 
           <div className="space-y-1.5">
             <Label htmlFor="cert-signer-name">Nama Penanda Tangan</Label>
@@ -162,6 +195,7 @@ export function CertificateSettings() {
               onChange={(e) => setSignerName(e.target.value)}
               onBlur={() => save({ signer_name: signerName.trim() || null })}
             />
+            {inheritedHint("signer_name")}
           </div>
 
           <div className="space-y-1.5">
@@ -173,6 +207,7 @@ export function CertificateSettings() {
               onChange={(e) => setSignerTitle(e.target.value)}
               onBlur={() => save({ signer_title: signerTitle.trim() || null })}
             />
+            {inheritedHint("signer_title")}
           </div>
 
           <div className="space-y-1.5">

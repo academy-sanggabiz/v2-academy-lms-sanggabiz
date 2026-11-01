@@ -42,7 +42,8 @@ export type CertificateType = "completion" | "participation" | "achievement" | "
 export type CourseCertificateSettings = {
   enabled: boolean
   template_url: string | null
-  certificate_type: CertificateType
+  /** NULL berarti ikut pengaturan utama -- lihat lib/certificate-settings.ts. */
+  certificate_type: CertificateType | null
   custom_title: string | null
   description: string | null
   signature_url: string | null

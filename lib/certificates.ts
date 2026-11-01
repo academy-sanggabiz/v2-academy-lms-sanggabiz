@@ -5,6 +5,8 @@ import { CertificateDocument } from "@/components/certificates/CertificateDocume
 import { createAdminClient } from "@/lib/supabase/admin"
 import { computeCourseGrade, quizGradeWeight } from "@/lib/course-grade"
 import { pickRepresentativeAttempt } from "@/lib/quiz-attempt-selection"
+import { getCertificateDefaults } from "@/lib/certificate-defaults-server"
+import { resolveCertificateSettings, type ResolvedCertificateSettings } from "@/lib/certificate-settings"
 
 export type Certificate = {
   id: string
@@ -189,9 +191,15 @@ export async function checkAndIssueCertificate(
   let certificate = await insertCertificateWithUniqueSerial(admin, enrollmentId)
   if (!certificate) return null
 
+  // Pengaturan utama dibaca dengan klien pemanggil (peserta): policy baca
+  // certificate_defaults memang terbuka untuk anon/authenticated justru
+  // supaya jalur ini berjalan. Ruas kursus yang NULL mewarisi nilainya.
+  const defaults = await getCertificateDefaults(supabase)
+  const resolved = resolveCertificateSettings(settings, defaults)
+
   const pdfUrl = await generateAndUploadPdf(admin, {
     certificate,
-    settings,
+    settings: resolved,
     courseId,
     learnerId,
   })
@@ -250,8 +258,7 @@ async function generateAndUploadPdf(
     learnerId,
   }: {
     certificate: Certificate
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    settings: any
+    settings: ResolvedCertificateSettings
     courseId: string
     learnerId: string
   }

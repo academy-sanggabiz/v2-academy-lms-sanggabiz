@@ -9,6 +9,7 @@ import {
 import { getCourseRoster } from "@/lib/learners-admin"
 import { parseListParams, type RawSearchParams } from "@/lib/pagination"
 import { CourseFormShell } from "@/components/admin/courses/CourseFormShell"
+import { getCertificateDefaults } from "@/lib/certificate-defaults-server"
 
 export default async function EditCoursePage({
   params,
@@ -32,6 +33,7 @@ export default async function EditCoursePage({
   const instructorsPromise = listInstructors()
   const prerequisitesPromise = listCoursesForPrerequisitePicker(id)
   const rosterPromise = getCourseRoster(id, rosterParams)
+  const certificateDefaultsPromise = getCertificateDefaults()
 
   const [course, learnerCount] = await Promise.all([
     getCourseDetailForAdmin(id),
@@ -45,6 +47,7 @@ export default async function EditCoursePage({
       instructorsPromise={instructorsPromise}
       prerequisitesPromise={prerequisitesPromise}
       rosterPromise={rosterPromise}
+      certificateDefaultsPromise={certificateDefaultsPromise}
       learnerCount={learnerCount}
       isNew={raw.new === "1"}
       openImport={raw.impor === "1"}

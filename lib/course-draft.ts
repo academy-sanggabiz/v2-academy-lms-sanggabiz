@@ -408,7 +408,10 @@ const certificateTypeSchema = z.enum(["completion", "participation", "achievemen
 const certificateSettingsSchema = z.object({
   enabled: z.boolean(),
   template_url: z.string().max(2000).nullable(),
-  certificate_type: certificateTypeSchema,
+  // Boleh NULL: itulah cara kursus menyatakan "ikut pengaturan utama".
+  // Tanpa .nullable() di sini, memilih warisan membuat seluruh draf gagal
+  // divalidasi dan tombol Simpan diam saja.
+  certificate_type: certificateTypeSchema.nullable(),
   custom_title: z.string().max(500).nullable(),
   description: z.string().max(5000).nullable(),
   signature_url: z.string().max(2000).nullable(),

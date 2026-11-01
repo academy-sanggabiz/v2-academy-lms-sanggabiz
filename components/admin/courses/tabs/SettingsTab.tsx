@@ -19,6 +19,7 @@ import { InstructorPicker } from "../InstructorPicker"
 import { PrerequisitesSettings } from "./PrerequisitesSettings"
 import { SequenceSettings } from "./SequenceSettings"
 import { CertificateSettings } from "./CertificateSettings"
+import type { CertificateDefaults } from "@/lib/certificate-settings"
 import { useCourseDraft } from "../CourseDraftContext"
 
 const LEVELS = ["beginner", "intermediate", "advanced"]
@@ -33,6 +34,7 @@ export function SettingsTab({
   status,
   instructors,
   availableCoursesForPrerequisites,
+  certificateDefaults,
 }: {
   /** Last-saved status -- `private` and `draft` are independent, and a private
    *  DRAFT is invisible even to invited learners (can_read_course requires
@@ -40,6 +42,7 @@ export function SettingsTab({
   status: "draft" | "published"
   instructors: Instructor[]
   availableCoursesForPrerequisites: CoursePrerequisite[]
+  certificateDefaults: CertificateDefaults
 }) {
   const { draft, dispatch } = useCourseDraft()
 
@@ -152,7 +155,7 @@ export function SettingsTab({
 
       <PrerequisitesSettings availableCourses={availableCoursesForPrerequisites} />
 
-      <CertificateSettings />
+      <CertificateSettings defaults={certificateDefaults} />
 
       <section className="space-y-3">
         <h3 className="text-[17px] font-bold">Pengaturan Instruktur</h3>
