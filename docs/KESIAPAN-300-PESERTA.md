@@ -44,10 +44,16 @@ Menaikkan batas email tanpa menaikkan batas per-IP tidak menyelesaikan apa pun.
 
 **Pertama — buat akunnya jauh hari, jangan pada hari acara.**
 
-```
+```bash
+cd "/Users/muhammadmuchson/claude code/v2-academy-lms-sanggabiz"
 node scripts/buat-akun-massal.mjs daftar.csv            # uji coba
 APPLY=1 node scripts/buat-akun-massal.mjs daftar.csv    # benar-benar membuat
 ```
+
+Berkas daftarnya CSV sederhana `nama,email`, satu peserta per baris; contoh
+siap pakai ada di `contoh-daftar-peserta.csv`. Berkas masukan dan `.env.local`
+dicari relatif terhadap akar proyek, jadi perintahnya tetap jalan walau
+dipanggil dari folder lain.
 
 Akun dibuat lewat jalur admin: langsung terkonfirmasi, **tanpa mengirim satu
 email pun**, dan tanpa menyentuh batas pendaftaran per-IP. Kata sandinya

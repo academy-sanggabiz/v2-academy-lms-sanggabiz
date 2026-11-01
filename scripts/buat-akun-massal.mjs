@@ -26,7 +26,17 @@
  * tercetak di terminal ikut tersimpan di riwayat shell dan log.
  */
 import fs from "node:fs"
+import path from "node:path"
 import crypto from "node:crypto"
+import { fileURLToPath } from "node:url"
+
+/**
+ * Akar proyek dihitung dari letak berkas ini, bukan dari direktori tempat
+ * perintah dijalankan. Alat ini dipanggil sambil lalu -- sering dari folder
+ * induk -- dan `.env.local` yang tidak ketemu hanya karena salah direktori
+ * adalah kegagalan yang membingungkan tanpa perlu.
+ */
+const AKAR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 
 const APPLY = process.env.APPLY === "1"
 const inputPath = process.argv[2]
@@ -34,11 +44,27 @@ const inputPath = process.argv[2]
 if (!inputPath) {
   console.log("Pemakaian: node scripts/buat-akun-massal.mjs <berkas.csv>")
   console.log("Isi berkas: satu baris per peserta, format `nama,email`.")
+  console.log(`Contoh siap pakai: ${path.join(AKAR, "contoh-daftar-peserta.csv")}`)
   process.exit(1)
 }
 
+// Dicari relatif terhadap direktori kerja dulu, baru terhadap akar proyek.
+const berkasMasukan = [inputPath, path.join(AKAR, inputPath)].find((p) => fs.existsSync(p))
+if (!berkasMasukan) {
+  console.error(`Berkas "${inputPath}" tidak ditemukan.`)
+  console.error(`Dicari di: ${path.resolve(inputPath)}`)
+  console.error(`       dan: ${path.join(AKAR, inputPath)}`)
+  console.error(`\nContoh berkas daftar ada di ${path.join(AKAR, "contoh-daftar-peserta.csv")}`)
+  process.exit(1)
+}
+
+const berkasEnv = path.join(AKAR, ".env.local")
+if (!fs.existsSync(berkasEnv)) {
+  console.error(`.env.local tidak ditemukan di ${AKAR}`)
+  process.exit(1)
+}
 const env = Object.fromEntries(
-  fs.readFileSync(".env.local", "utf8").split("\n").filter((l) => /^[A-Z_]+=/.test(l))
+  fs.readFileSync(berkasEnv, "utf8").split("\n").filter((l) => /^[A-Z_]+=/.test(l))
     .map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1).trim()])
 )
 const URL_BASE = env.NEXT_PUBLIC_SUPABASE_URL
@@ -73,7 +99,7 @@ function buatKataSandi() {
   return inti.join("")
 }
 
-const baris = fs.readFileSync(inputPath, "utf8").split("\n").map((l) => l.trim()).filter(Boolean)
+const baris = fs.readFileSync(berkasMasukan, "utf8").split("\n").map((l) => l.trim()).filter(Boolean)
 if (baris.length && /email/i.test(baris[0]) && !baris[0].includes("@")) baris.shift()
 
 const peserta = baris.map((l) => {
@@ -147,7 +173,7 @@ for (const p of unik) {
   }
 }
 
-const keluaran = inputPath.replace(/\.csv$/i, "") + "-kredensial.csv"
+const keluaran = berkasMasukan.replace(/\.csv$/i, "") + "-kredensial.csv"
 if (APPLY) {
   const csv = ["nama,email,kata_sandi,status",
     ...hasil.map((h) => `"${h.nama.replaceAll('"', "'")}",${h.email},${h.kataSandi},"${h.status}"`)].join("\n")

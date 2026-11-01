@@ -71,3 +71,7 @@ erd.md
 
 # Supabase CLI local state (link info, cache)
 supabase/.temp/
+
+# Keluaran scripts/buat-akun-massal.mjs: berisi kata sandi peserta.
+# Tidak boleh pernah masuk repositori.
+*-kredensial.csv
