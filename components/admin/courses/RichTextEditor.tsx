@@ -5,7 +5,7 @@ import { EditorContent, useEditor, type Editor } from "@tiptap/react"
 import type { EditorView } from "@tiptap/pm/view"
 import { StarterKit } from "@tiptap/starter-kit"
 import { TextAlign } from "@tiptap/extension-text-align"
-import { TextStyle, Color } from "@tiptap/extension-text-style"
+import { TextStyle, Color, FontSize } from "@tiptap/extension-text-style"
 import { Highlight } from "@tiptap/extension-highlight"
 import { Image } from "@tiptap/extension-image"
 import { TableKit } from "@tiptap/extension-table/kit"
@@ -55,6 +55,25 @@ const TEXT_COLORS = [
 ]
 
 const HIGHLIGHT_COLORS = ["#fef3c7", "#dcfce7", "#dbeafe", "#fce7f3", "#fee2e2"]
+
+/**
+ * Ukuran teks memakai satuan `em`, bukan piksel.
+ *
+ * `em` relatif terhadap ukuran dasar halaman, jadi teks yang penyusun kursus
+ * besarkan tetap ikut membesar ketika peserta menaikkan ukuran teks lewat
+ * panel Tampilan (lib/preferences/display.ts). Ukuran piksel akan mengunci
+ * teks itu pada satu ukuran dan membatalkan pilihan peserta -- persis hal yang
+ * kita hindari saat memutuskan tidak membuat widget aksesibilitas.
+ *
+ * Pilihannya sedikit dan sengaja: daftar ukuran yang panjang menghasilkan
+ * halaman dengan delapan ukuran berbeda dan tidak ada yang lebih mudah dibaca.
+ */
+const SIZE_OPTIONS = [
+  { label: "Kecil", value: "0.875em" },
+  { label: "Normal", value: "" },
+  { label: "Besar", value: "1.25em" },
+  { label: "Lebih besar", value: "1.5em" },
+]
 
 const HEADING_OPTIONS = [
   { label: "Paragraf", level: 0 as const },
@@ -178,6 +197,7 @@ export function RichTextEditor({
     extensions: [
       StarterKit,
       TextStyle,
+      FontSize,
       Color,
       Highlight.configure({ multicolor: true }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
@@ -289,6 +309,30 @@ function Toolbar({
                 option.level === 0
                   ? editor.chain().focus().setParagraph().run()
                   : editor.chain().focus().toggleHeading({ level: option.level }).run()
+              }
+            >
+              {option.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={<Button type="button" variant="ghost" size="sm" className="gap-1" title="Ukuran teks" />}
+        >
+          {SIZE_OPTIONS.find((o) => o.value && editor.isActive("textStyle", { fontSize: o.value }))?.label ??
+            "Normal"}
+          <ChevronDown className="size-3.5" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {SIZE_OPTIONS.map((option) => (
+            <DropdownMenuItem
+              key={option.label}
+              onClick={() =>
+                option.value
+                  ? editor.chain().focus().setFontSize(option.value).run()
+                  : editor.chain().focus().unsetFontSize().run()
               }
             >
               {option.label}

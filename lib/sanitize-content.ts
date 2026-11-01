@@ -58,6 +58,10 @@ const OPTIONS: sanitizeHtml.IOptions = {
       color: COLOR,
       "background-color": COLOR,
       "text-align": [/^(left|right|center|justify)$/],
+      // Hanya satuan relatif, dan hanya rentang yang masuk akal. Piksel
+      // sengaja tidak diizinkan: ia mengunci teks pada satu ukuran dan
+      // membatalkan pilihan ukuran teks milik peserta.
+      "font-size": [/^(0\.[5-9]\d*|1(\.\d+)?|2(\.0+)?)(em|rem)$/],
       width: [/^\d+(\.\d+)?(px|%|em|rem)$/],
       "min-width": [/^\d+(\.\d+)?(px|%|em|rem)$/],
     },
