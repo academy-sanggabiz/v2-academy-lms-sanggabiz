@@ -82,3 +82,45 @@ export function sanitizeRichText(html: string | null | undefined): string {
   if (!html) return ""
   return sanitizeHtml(html, OPTIONS)
 }
+
+
+/**
+ * Mengubah HTML menjadi teks biasa, untuk ruas yang memang dirender apa
+ * adanya -- `courses.description`, `who_for`, `requirements`.
+ *
+ * Ada karena bug nyata yang terlihat peserta: pengurai impor .md menulis
+ * `<p>` ke `courses.description`, dan katalog peserta menampilkan tag itu
+ * mentah-mentah. Memperbaiki penguraiannya saja tidak cukup -- ruas ini juga
+ * bisa terisi HTML lewat tempel-salin, lewat impor versi lama, atau lewat
+ * pemanggilan API langsung. Pembersihan di titik simpan menutup semuanya
+ * sekaligus, berapa pun jalur masuknya.
+ *
+ * Sengaja TIDAK dipakai pada `questions.prompt` dan `lessons.content`:
+ * keduanya memang HTML, disunting dengan editor teks kaya dan dirender
+ * sebagai HTML.
+ */
+export function toPlainText(value: string | null | undefined): string {
+  if (!value) return ""
+  if (!/<\/?[a-z][^>]*>/i.test(value)) return value
+
+  return value
+    // Batas paragraf dan baris dipertahankan sebagai baris baru, bukan
+    // dihapus: ruas ini dirender `whitespace-pre-line`, jadi tanpa ini
+    // seluruh deskripsi menyatu jadi satu paragraf panjang.
+    .replace(/<\/(p|div|h[1-6])>/gi, "\n\n")
+    .replace(/<\/(li|tr)>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<li\b[^>]*>/gi, "- ")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/\n{3,}/g, "\n\n")
+    .split("\n")
+    .map((line) => line.trim())
+    .join("\n")
+    .trim()
+}

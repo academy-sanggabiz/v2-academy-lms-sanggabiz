@@ -278,7 +278,12 @@ export function draftFromDetail(course: AdminCourseDetail): CourseDraft {
     requirePrerequisites: course.require_prerequisites,
     sequential: course.sequential ?? false,
     prerequisiteIds: course.prerequisites.map((p) => p.id),
-    certificate: course.certificate_settings,
+    // Dinormalkan di sini juga, bukan hanya di skema: layar memakai draf ini
+    // apa adanya, dan `undefined` pada ruas pilihan membuat tombol pilihannya
+    // tidak ada yang tersorot.
+    certificate: course.certificate_settings
+      ? { ...course.certificate_settings, layout: course.certificate_settings.layout ?? null }
+      : null,
     instructorId: course.instructor?.id ?? null,
     sections: course.sections.map((section) => ({
       id: section.id,
@@ -418,7 +423,14 @@ const certificateSettingsSchema = z.object({
   signer_name: z.string().max(500).nullable(),
   signer_title: z.string().max(500).nullable(),
   additional_text: z.string().max(5000).nullable(),
-  layout: z.enum(["klasik", "modern", "formal"]).nullable(),
+  /**
+   * `.nullish()`, bukan `.nullable()`. Kolomnya baru ada setelah migrasi
+   * certificate_defaults dijalankan, jadi baris pengaturan yang sudah ada
+   * mengembalikan `undefined` -- dan skema yang mewajibkan nilainya membuat
+   * SETIAP kursus yang punya baris sertifikat gagal disimpan, dengan pesan
+   * yang menunjuk sertifikat padahal penyusunnya sedang menyunting hal lain.
+   */
+  layout: z.enum(["klasik", "modern", "formal"]).nullish().transform((v) => v ?? null),
 })
 
 export const courseDraftSchema = z.object({

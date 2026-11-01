@@ -3,7 +3,7 @@ import { getAdminProfile } from "@/lib/auth/require-admin"
 import { paginated, rangeFor, type ListParams, type Paginated } from "@/lib/pagination"
 import { describeQuizIssue, linesToArray, validateQuizzes, type CourseDraft } from "@/lib/course-draft"
 import { QUESTION_TYPE_POINTS } from "@/lib/courses"
-import { sanitizeRichText } from "@/lib/sanitize-content"
+import { sanitizeRichText, toPlainText } from "@/lib/sanitize-content"
 import type {
   AuthorableQuestionType,
   Course,
@@ -776,15 +776,17 @@ export async function saveCourseDraft(
     .from("courses")
     .update({
       title: draft.title,
-      description: draft.description || null,
+      // Dibersihkan di sini, bukan hanya di pengurai impor: ruas ini juga
+      // bisa terisi HTML lewat tempel-salin atau panggilan API langsung.
+      description: toPlainText(draft.description) || null,
       thumbnail_url: draft.thumbnail_url || null,
       price: draft.enrollmentMode === "paid" ? draft.price : 0,
       level: draft.level || null,
       status,
       is_private: draft.isPrivate,
       passing_grade: draft.passingGrade,
-      who_for: linesToArray(draft.audienceText),
-      requirements: linesToArray(draft.requirementsText),
+      who_for: linesToArray(toPlainText(draft.audienceText)),
+      requirements: linesToArray(toPlainText(draft.requirementsText)),
       require_prerequisites: draft.requirePrerequisites,
       sequential: draft.sequential,
     })
