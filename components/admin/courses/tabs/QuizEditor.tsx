@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { ChevronDown, GripVertical, Plus, Trash2, X } from "lucide-react"
+import { ChevronDown, GripVertical, Library, Plus, Trash2, X } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -26,6 +27,9 @@ import type { AuthorableQuestionType } from "@/lib/courses-admin"
 import type { DraftOption, DraftQuestion, DraftQuiz } from "@/lib/course-draft"
 import { QUESTION_TYPE_POINTS } from "@/lib/courses"
 import { ASSESSMENT_GRADE_WEIGHT } from "@/lib/course-grade"
+import { QUESTION_TYPES } from "@/lib/question-types"
+import { QuestionBankDialog } from "@/components/admin/courses/bank/QuestionBankDialog"
+import { addBankItemsAction } from "@/app/admin/courses/bank-actions"
 import { useCourseDraft } from "../CourseDraftContext"
 import { useQuestionQuizIssue } from "../QuizIssuesContext"
 import { dndAnnouncements } from "@/lib/dnd-announcements"
@@ -33,12 +37,6 @@ import { dndAnnouncements } from "@/lib/dnd-announcements"
 // Only auto-gradable types are offered for a normal quiz. Essay/file_upload
 // only exist inside a study case (see "Add Study Case" below) -- a normal
 // quiz must always resolve to an immediate score, never `pending_review`.
-const QUESTION_TYPES: { value: AuthorableQuestionType; label: string }[] = [
-  { value: "multiple_choice", label: "Pilihan Ganda" },
-  { value: "true_false", label: "Benar / Salah" },
-  { value: "short_answer", label: "Isian Singkat" },
-]
-
 /** Both map to Essay in the UI; the stored `type` is what selects the answer widget. */
 const ANSWER_FORMATS: { value: "essay" | "file_upload"; label: string; hint: string }[] = [
   {
@@ -58,6 +56,8 @@ function isEssayQuestion(type: AuthorableQuestionType): type is "essay" | "file_
 }
 
 export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz | null }) {
+  const [bankOpen, setBankOpen] = useState(false)
+  const [savingToBank, startSavingToBank] = useTransition()
   const { dispatch } = useCourseDraft()
 
   // Sensor sendiri untuk kuis: Space/Enter mengangkat soal, panah
@@ -87,6 +87,45 @@ export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQu
 
   const questions = quiz?.questions ?? []
   const isAssessment = quiz?.is_assessment ?? false
+
+  /**
+   * Menyimpan seluruh soal kuis ini ke bank sebagai salinan lepas.
+   *
+   * Soal yang teksnya masih kosong dilewati, bukan ditolak semuanya: penyusun
+   * biasanya menekan ini setelah menulis sebagian soal, dan menolak seluruh
+   * kumpulan karena satu soal yang belum diisi membuat tombolnya terasa rusak.
+   */
+  function saveAllToBank() {
+    const siap = questions.filter((q) => q.prompt.trim())
+    if (siap.length === 0) {
+      toast.error("Belum ada soal yang teksnya terisi")
+      return
+    }
+    startSavingToBank(async () => {
+      const result = await addBankItemsAction(
+        siap.map((q) => ({
+          type: q.type,
+          prompt: q.prompt,
+          allow_multiple: q.allow_multiple,
+          case_sensitive: q.case_sensitive,
+          explanation: q.explanation,
+          tags: [],
+          sourceCourseId: null,
+          options: q.options.map((o) => ({ text: o.text, is_correct: o.is_correct })),
+        }))
+      )
+      if (!result.ok) {
+        toast.error(result.error)
+        return
+      }
+      const dilewati = questions.length - siap.length
+      toast.success(
+        dilewati > 0
+          ? `${result.data.added} soal disimpan ke bank, ${dilewati} dilewati karena masih kosong`
+          : `${result.data.added} soal disimpan ke bank`
+      )
+    })
+  }
 
   return (
     <div>
@@ -128,11 +167,27 @@ export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQu
       )}
 
       {!isAssessment && (
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex flex-wrap gap-2">
           <Button type="button" variant="outline" size="sm" onClick={openPicker}>
             <Plus className="size-3.5" />
             Tambah Soal
           </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => setBankOpen(true)}>
+            <Library className="size-3.5" />
+            Ambil dari Bank
+          </Button>
+          {questions.length > 0 && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              pending={savingToBank}
+              pendingLabel="Menyimpan…"
+              onClick={saveAllToBank}
+            >
+              Simpan {questions.length} soal ke Bank
+            </Button>
+          )}
           {questions.length === 0 && (
             <Button type="button" variant="outline" size="sm" onClick={handleAddStudyCase}>
               <Plus className="size-3.5" />
@@ -141,6 +196,12 @@ export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQu
           )}
         </div>
       )}
+
+      <QuestionBankDialog
+        open={bankOpen}
+        onOpenChange={setBankOpen}
+        onPick={(picked) => dispatch({ type: "insertQuestions", lessonId, questions: picked })}
+      />
 
       <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
         <DialogContent className="max-w-[420px]">

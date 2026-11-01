@@ -241,6 +241,31 @@ try {
         await page.waitForTimeout(600)
         await audit(page, `${editHref} [dialog impor]`)
       }
+
+      // Dialog bank soal: isinya daftar bisa dicentang di dalam dialog, pola
+      // yang paling sering kehilangan nama pada kotak centangnya.
+      await page.goto(BASE + editHref)
+      await settle(page)
+      await page.click('[role=tab]:has-text("Pelajaran")')
+      await page.waitForTimeout(500)
+      const toggles = page.locator('button[title="Buka/tutup"]')
+      const toggleCount = await toggles.count()
+      let bankOpened = false
+      for (let i = 1; i < toggleCount && !bankOpened; i++) {
+        await toggles.nth(i).click()
+        await page.waitForTimeout(500)
+        const bankButton = page.getByRole("button", { name: "Ambil dari Bank" })
+        if (await bankButton.count()) {
+          await bankButton.first().click()
+          await page.waitForTimeout(900)
+          await audit(page, `${editHref} [dialog bank soal]`)
+          bankOpened = true
+        } else {
+          await toggles.nth(i).click()
+          await page.waitForTimeout(300)
+        }
+      }
+      if (!bankOpened) console.log("lewat dialog bank soal: tidak ada pelajaran kuis di kursus ini")
     }
     }
   } else {

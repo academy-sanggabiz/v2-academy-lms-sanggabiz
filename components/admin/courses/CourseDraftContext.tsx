@@ -34,6 +34,10 @@ export type CourseDraftAction =
   | { type: "deleteResource"; id: string }
   | { type: "patchQuiz"; lessonId: string; patch: Partial<Omit<DraftQuiz, "id" | "questions">> }
   | { type: "addQuestion"; lessonId: string; questionType: AuthorableQuestionType; isAssessment?: boolean }
+  /** Menyisipkan soal jadi -- dipakai saat mengambil dari bank soal. Id-nya
+   *  dibuat ulang di reducer supaya salinan tidak pernah berbagi id dengan
+   *  soal di bank maupun dengan salinan lain. */
+  | { type: "insertQuestions"; lessonId: string; questions: DraftQuestion[]; isAssessment?: boolean }
   | { type: "patchQuestion"; id: string; patch: Partial<DraftQuestion> }
   | { type: "deleteQuestion"; id: string }
   | { type: "moveQuestion"; questionId: string; overQuestionId: string }
@@ -283,6 +287,34 @@ function reducer(state: State, action: CourseDraftAction): State {
             questions: [],
           }
           return { ...l, quiz: { ...quiz, questions: [...quiz.questions, question] } }
+        }),
+      }
+    }
+
+    case "insertQuestions": {
+      // Id dibuat ulang di sini, bukan di pemanggil. Kalau pemanggil yang
+      // menentukannya, mengambil soal yang sama dua kali akan menghasilkan
+      // dua soal ber-id sama -- dan setiap penyuntingan setelahnya mengenai
+      // keduanya sekaligus.
+      const fresh = action.questions.map((q) => ({
+        ...q,
+        id: newId(),
+        options: q.options.map((o) => ({ ...o, id: newId() })),
+      }))
+      if (fresh.length === 0) return state
+      return {
+        ...state,
+        draft: mapLessons(draft, (l) => {
+          if (l.id !== action.lessonId) return l
+          const quiz: DraftQuiz = l.quiz ?? {
+            id: newId(),
+            pass_score: 70,
+            max_attempts: null,
+            shuffle: true,
+            is_assessment: action.isAssessment ?? false,
+            questions: [],
+          }
+          return { ...l, quiz: { ...quiz, questions: [...quiz.questions, ...fresh] } }
         }),
       }
     }

@@ -191,7 +191,7 @@ Belum, dan hanya kalau memang diperlukan: pratinjau langsung di sebelah
 formulir, undo/redo, serta alur draf lalu terbit. Ketiganya ada di acuan tetapi
 tidak diperlukan untuk menyusun halaman.
 
-### 5. Bank soal dan pengacakan — ✅ pengacakan selesai, bank soal masih terbuka
+### 5. Bank soal dan pengacakan — ✅ bank soal selesai (**menunggu SQL**), penarikan acak masih terbuka
 
 Diminta bersama pencabutan batas percobaan: kalau peserta boleh mengulang
 sampai lulus, soalnya sebaiknya tidak selalu sama persis. Kolom
@@ -207,6 +207,27 @@ Dua tingkat, bisa dikerjakan bertahap:
 2. Bank soal sungguhan: satu kumpulan soal per kuis, dan tiap percobaan
    mengambil sebagian secara acak. Ini menyentuh editor kuis, penilaian, dan
    tampilan hasil.
+
+### 9. Bank soal — ✅ kode selesai, **menunggu satu langkah SQL**
+
+Lihat `docs/STANDAR-BANK-SOAL.md`. Soal yang sudah ditulis bisa disimpan ke
+bank lalu **disalin** ke kuis lain — bukan dirujuk, karena soal yang dirujuk
+berarti menyunting satu soal mengubah kuis yang sudah dikerjakan orang, dan
+riwayat nilainya jadi tidak bisa dipertanggungjawabkan.
+
+**Langkah tersisa:** jalankan
+`supabase/migrations/20261101140000_question_bank.sql` di SQL Editor.
+Sebelum itu, dialognya menjelaskan apa yang kurang alih-alih rusak.
+
+Belum terbukti: perjalanan datanya (simpan ke bank → muncul di daftar →
+tersalin ke kuis), karena tabelnya belum ada. Yang terbukti: tombol dan
+dialognya muncul di tempat yang benar, dialognya lolos audit WCAG 2.2 AA,
+dan keadaan "belum aktif" ditangani dengan penjelasan, bukan galat.
+
+Yang masih terbuka adalah bagian kedua permintaan lama: menarik sebagian soal
+secara acak dari bank (misalnya 10 dari 50). Itu membuat tiap peserta
+menghadapi kumpulan berbeda, sehingga nilai antarpeserta tidak lagi langsung
+sebanding dan wawasan kesulitan soal harus dibaca ulang per soal.
 
 ### 6. Pembayaran mentor
 
