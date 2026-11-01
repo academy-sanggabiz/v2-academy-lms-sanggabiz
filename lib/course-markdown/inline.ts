@@ -142,3 +142,43 @@ export function htmlToMarkdown(html: string): string {
     .replace(/\n{3,}/g, "\n\n")
     .trim()
 }
+
+/**
+ * Markdown -> teks polos, untuk bidang yang memang bukan HTML.
+ *
+ * `courses.description`, persyaratan, sasaran peserta, dan transkrip disunting
+ * dengan textarea biasa dan dirender apa adanya dengan `whitespace-pre-line`.
+ * Memasukkan HTML ke sana membuat tag-nya tampil mentah di layar -- `<p>` yang
+ * terbaca pengguna, bukan paragraf. Itu persis yang terjadi pada versi pertama
+ * impor ini.
+ *
+ * Penanda Markdown dibuang, strukturnya dipertahankan sebagai baris: butir
+ * daftar tetap diawali "- ", dan paragraf tetap dipisah baris kosong.
+ */
+export function markdownToPlainText(markdown: string): string {
+  const lines = markdown.replace(/\r\n/g, "\n").split("\n")
+  const out: string[] = []
+
+  for (const raw of lines) {
+    let line = raw.trim()
+    if (line === "") {
+      out.push("")
+      continue
+    }
+    line = line.replace(/^#{1,6}\s+/, "")
+    line = line.replace(/^>\s?/, "")
+    line = line.replace(/^([-*+])\s+/, "- ")
+    line = line.replace(/`([^`]+)`/g, "$1")
+    line = line.replace(/\*\*([^*]+)\*\*/g, "$1")
+    line = line.replace(/(^|[^*])\*([^*]+)\*/g, "$1$2")
+    line = line.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, "$1 ($2)")
+    out.push(line)
+  }
+
+  return out.join("\n").replace(/\n{3,}/g, "\n\n").trim()
+}
+
+/** Apakah teks ini memuat tag HTML? Dipakai sebagai jaring pengaman. */
+export function looksLikeHtml(text: string): boolean {
+  return /<\/?[a-z][^>]*>/i.test(text)
+}

@@ -236,6 +236,16 @@ Jangan mencampur soal esai ke dalam \`tipe: kuis\`, dan jangan menaruh lebih
 dari satu soal di dalam \`tipe: studi-kasus\`. Keduanya akan dilewati saat
 impor.
 
+## Jangan menulis HTML
+
+Tulis Markdown biasa, bukan tag HTML. Beberapa bagian — deskripsi kursus,
+persyaratan, untuk siapa, dan transkrip — disimpan sebagai **teks polos**,
+sehingga tag seperti \`<p>\` atau \`<br>\` akan tampil mentah di layar peserta
+alih-alih menjadi paragraf.
+
+Di dalam isi pelajaran, Markdown-nya diubah menjadi paragraf secara otomatis.
+Anda cukup menulis seperti biasa.
+
 ## Batasan yang perlu diketahui
 
 - Gambar dan berkas tidak bisa ikut lewat berkas ini. Hanya tautan video

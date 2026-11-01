@@ -1,6 +1,11 @@
 import { newId, type CourseDraft, type DraftLesson, type DraftQuestion, type DraftSection } from "@/lib/course-draft"
 import type { AuthorableQuestionType, LessonContentType } from "@/lib/courses"
-import { htmlToMarkdown, markdownToHtml } from "@/lib/course-markdown/inline"
+import {
+  htmlToMarkdown,
+  looksLikeHtml,
+  markdownToHtml,
+  markdownToPlainText,
+} from "@/lib/course-markdown/inline"
 
 /**
  * Format berkas kursus: `sanggabiz-course/v1`.
@@ -72,10 +77,6 @@ const MD_TO_TYPE: Record<string, LessonContentType> = {
 /** Jenis yang menandai kuis sebagai studi kasus, bukan kuis biasa. */
 const ASSESSMENT_KEYS = new Set(["studi-kasus", "studi kasus", "assessment"])
 
-function slugLine(label: string, value: string | number | null | undefined): string {
-  return value === null || value === undefined || value === "" ? "" : `${label}: ${value}\n`
-}
-
 // ---------------------------------------------------------------- ekspor
 
 export function courseToMarkdown(draft: CourseDraft): string {
@@ -88,7 +89,10 @@ export function courseToMarkdown(draft: CourseDraft): string {
   out.push(`nilai_kelulusan: ${draft.passingGrade}`)
   out.push("---", "")
 
-  out.push("## Deskripsi", "", htmlToMarkdown(draft.description) || "", "")
+  // Deskripsi disimpan sebagai teks polos (textarea di BasicInfoTab, dirender
+  // dengan whitespace-pre-line), jadi ia ditulis apa adanya -- bukan lewat
+  // htmlToMarkdown, yang hanya berlaku untuk bidang berisi HTML Tiptap.
+  out.push("## Deskripsi", "", draft.description.trim(), "")
 
   if (draft.requirementsText.trim()) {
     out.push("## Persyaratan", "")
@@ -440,6 +444,31 @@ export function parseCourseMarkdown(raw: string): ParsedCourse {
   if (!title.trim()) warnings.push("Judul kursus tidak ditemukan di frontmatter.")
   if (sections.length === 0) warnings.push("Tidak ada satu pun modul yang terbaca.")
 
+  /*
+   * Jaring pengaman untuk satu kelas kesalahan yang sudah pernah terjadi:
+   * bidang yang disunting sebagai teks polos terisi HTML, sehingga tag-nya
+   * tampil mentah di layar. Diperiksa di sini supaya kalau formatnya berubah
+   * lagi suatu hari, kesalahannya ketahuan sebagai peringatan -- bukan sebagai
+   * "<p>" yang dibaca peserta.
+   */
+  const plainFields: [string, string][] = [
+    ["Deskripsi", markdownToPlainText(buffers.description.join("\n").trim())],
+    ["Persyaratan", bulletsToLines(buffers.requirements)],
+    ["Untuk siapa", bulletsToLines(buffers.audience)],
+  ]
+  for (const [label, value] of plainFields) {
+    if (looksLikeHtml(value)) {
+      warnings.push(`Bagian "${label}" memuat tag HTML; tulis sebagai teks biasa, bukan HTML.`)
+    }
+  }
+  for (const section of sections) {
+    for (const lesson of section.lessons) {
+      if (lesson.transcript && looksLikeHtml(lesson.transcript)) {
+        warnings.push(`Transkrip pelajaran "${lesson.title}" memuat tag HTML; transkrip ditulis sebagai teks biasa.`)
+      }
+    }
+  }
+
   const questions = sections.reduce(
     (n, s) => n + s.lessons.reduce((m, l) => m + (l.quiz?.questions.length ?? 0), 0),
     0
@@ -449,7 +478,7 @@ export function parseCourseMarkdown(raw: string): ParsedCourse {
   return {
     draft: {
       title: title.trim(),
-      description: markdownToHtml(buffers.description.join("\n").trim()),
+      description: markdownToPlainText(buffers.description.join("\n").trim()),
       requirementsText: bulletsToLines(buffers.requirements),
       audienceText: bulletsToLines(buffers.audience),
       level: (front.tingkat ?? front.level ?? "Pemula").trim() || "Pemula",
