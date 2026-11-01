@@ -28,6 +28,12 @@ type LearnData = {
    * ia buka.
    */
   passedQuizIds: Set<string>
+  /**
+   * Pendaftarannya sudah dinyatakan selesai. Dipakai kursus berurutan untuk
+   * membuka seluruh pelajaran bagi peserta yang sudah lulus -- lihat
+   * computeUnlockedLessons.
+   */
+  courseCompleted: boolean
 }
 
 export async function getLearnData(courseId: string): Promise<LearnData> {
@@ -43,12 +49,13 @@ export async function getLearnData(courseId: string): Promise<LearnData> {
       completedLessonIds: new Set(),
       quizAttempts: new Map(),
       passedQuizIds: new Set(),
+      courseCompleted: false,
     }
   }
 
   const { data: enrollment, error: enrollmentError } = await supabase
     .from("enrollments")
-    .select("id")
+    .select("id, status")
     .eq("learner_id", userId)
     .eq("course_id", courseId)
     .maybeSingle()
@@ -61,6 +68,7 @@ export async function getLearnData(courseId: string): Promise<LearnData> {
       completedLessonIds: new Set(),
       quizAttempts: new Map(),
       passedQuizIds: new Set(),
+      courseCompleted: false,
     }
   }
 
@@ -71,6 +79,7 @@ export async function getLearnData(courseId: string): Promise<LearnData> {
       completedLessonIds: new Set(),
       quizAttempts: new Map(),
       passedQuizIds: new Set(),
+      courseCompleted: false,
     }
   }
 
@@ -129,5 +138,12 @@ export async function getLearnData(courseId: string): Promise<LearnData> {
     }
   }
 
-  return { course, enrollmentId: enrollment.id, completedLessonIds, quizAttempts, passedQuizIds }
+  return {
+    course,
+    enrollmentId: enrollment.id,
+    completedLessonIds,
+    quizAttempts,
+    passedQuizIds,
+    courseCompleted: enrollment.status === "completed",
+  }
 }

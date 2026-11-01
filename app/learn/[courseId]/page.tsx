@@ -40,7 +40,7 @@ export default async function LearnPage({
     redirect(roleHomePath(userRole.role))
   }
 
-  const { course, enrollmentId, completedLessonIds, quizAttempts, passedQuizIds } =
+  const { course, enrollmentId, completedLessonIds, quizAttempts, passedQuizIds, courseCompleted } =
     await getLearnData(courseId)
   if (!course) notFound()
   if (!enrollmentId) redirect(`/learner/courses/${courseId}?enroll=required`)
@@ -65,6 +65,9 @@ export default async function LearnPage({
     completedLessonIds,
     passedQuizIds,
     sequential: course.sequential,
+    // Peserta yang sudah lulus tidak boleh terkunci oleh pelajaran yang
+    // disisipkan setelah ia selesai.
+    courseCompleted,
   })
 
   const firstIncomplete = allLessons.find((l) => !completedLessonIds.has(l.id))

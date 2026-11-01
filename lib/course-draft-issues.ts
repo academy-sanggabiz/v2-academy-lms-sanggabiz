@@ -71,6 +71,7 @@ const CERTIFICATE_LABEL_OF: Record<string, string> = {
   signer_name: "Nama penanda tangan",
   signer_title: "Jabatan penanda tangan",
   additional_text: "Teks tambahan sertifikat",
+  layout: "Tata letak sertifikat",
 }
 
 /** Nama ruas untuk satu jalur zod, sedetail yang bisa didapat. */

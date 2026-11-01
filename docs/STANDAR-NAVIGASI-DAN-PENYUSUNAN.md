@@ -50,6 +50,15 @@ Penyusun yang memang butuh urutan akan sadar menyalakannya.
 4. **Menyalakannya pada kursus berjalan akan mengunci peserta yang sedang di
    tengah.** Ini wajib diperingatkan di layar pengaturan, bukan ditemukan
    sendiri oleh penyusun setelah peserta mengeluh.
+5. **Peserta yang sudah dinyatakan lulus terbuka seluruhnya**, apa pun keadaan
+   pelajarannya. Ini bukan kelonggaran melainkan koreksi: ketika penyusun
+   menyisipkan pelajaran baru di tengah kursus yang sudah dikerjakan orang,
+   pelajaran baru itu belum tuntas -- dan tanpa pengecualian ini, seluruh
+   pelajaran SETELAHNYA ikut terkunci, termasuk yang sudah ia selesaikan dan
+   yang sertifikatnya sudah ia terima. Orang yang sudah lulus tetap lulus;
+   materi tambahan tersedia untuk dikerjakan, bukan dipaksakan dengan
+   mencabut akses yang sudah diperoleh. Peserta yang belum lulus tetap harus
+   menuntaskan materi baru itu seperti pelajaran lain.
 
 ---
 

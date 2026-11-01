@@ -92,3 +92,37 @@ export function resolveCertificateSettings(
 
   return { ...resolved, inherited }
 }
+
+
+/**
+ * Melengkapi baris `course_certificate_settings` dari basis data menjadi
+ * objek yang setiap ruasnya pasti ada.
+ *
+ * Ada karena satu bug yang sudah dua kali terjadi dengan bentuk yang sama:
+ * sebuah ruas baru ditambahkan ke skema draf, kolomnya belum ada di basis
+ * data karena migrasinya dijalankan tangan, baris lama mengembalikan
+ * `undefined`, dan validasi menolak SELURUH draf -- sehingga setiap kursus
+ * yang punya baris sertifikat tidak bisa disimpan sama sekali, dengan pesan
+ * yang menunjuk sertifikat padahal penyusunnya sedang menyunting hal lain.
+ *
+ * Menambah ruas sertifikat baru berarti menambahkannya di sini juga. Dengan
+ * begitu kolom yang belum ada menghasilkan NULL ("ikut pengaturan utama"),
+ * bukan draf yang gagal divalidasi.
+ */
+export function normalizeCourseCertificateSettings(
+  row: Partial<CourseCertificateSettings> | null | undefined
+): CourseCertificateSettings | null {
+  if (!row) return null
+  return {
+    enabled: row.enabled ?? false,
+    template_url: row.template_url ?? null,
+    certificate_type: row.certificate_type ?? null,
+    custom_title: row.custom_title ?? null,
+    description: row.description ?? null,
+    signature_url: row.signature_url ?? null,
+    signer_name: row.signer_name ?? null,
+    signer_title: row.signer_title ?? null,
+    additional_text: row.additional_text ?? null,
+    layout: row.layout ?? null,
+  }
+}

@@ -1,5 +1,6 @@
 import { z } from "zod"
 
+import { normalizeCourseCertificateSettings } from "@/lib/certificate-settings"
 import type { LessonContentType } from "@/lib/courses"
 import type {
   AdminCourseDetail,
@@ -278,12 +279,10 @@ export function draftFromDetail(course: AdminCourseDetail): CourseDraft {
     requirePrerequisites: course.require_prerequisites,
     sequential: course.sequential ?? false,
     prerequisiteIds: course.prerequisites.map((p) => p.id),
-    // Dinormalkan di sini juga, bukan hanya di skema: layar memakai draf ini
-    // apa adanya, dan `undefined` pada ruas pilihan membuat tombol pilihannya
-    // tidak ada yang tersorot.
-    certificate: course.certificate_settings
-      ? { ...course.certificate_settings, layout: course.certificate_settings.layout ?? null }
-      : null,
+    // Dilengkapi lewat satu fungsi, bukan ruas per ruas: ruas sertifikat baru
+    // yang kolomnya belum ada di basis data akan datang sebagai `undefined`,
+    // dan itu sudah dua kali membuat seluruh draf gagal divalidasi.
+    certificate: normalizeCourseCertificateSettings(course.certificate_settings),
     instructorId: course.instructor?.id ?? null,
     sections: course.sections.map((section) => ({
       id: section.id,

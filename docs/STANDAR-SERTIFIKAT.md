@@ -67,7 +67,27 @@ sertifikat yang mewarisi pengaturan utama akan terbit tanpa penanda tangan —
 gagal diam-diam, pada dokumen yang justru paling terlihat. Isinya memang
 tampil di muka sertifikat yang dibagikan, jadi tidak ada yang rahasia.
 
-## 4. Dua tempat yang mudah terlupa
+## 4. Satu kelas bug yang sudah dua kali terjadi
+
+Bentuknya selalu sama: sebuah ruas sertifikat baru ditambahkan ke skema draf,
+kolomnya belum ada di basis data karena migrasi dijalankan tangan, baris lama
+mengembalikan `undefined`, dan validasi menolak **seluruh** draf. Akibatnya
+setiap kursus yang punya baris sertifikat tidak bisa disimpan sama sekali --
+dengan pesan yang menunjuk sertifikat padahal penyusunnya sedang menyunting
+deskripsi.
+
+Penutupnya `normalizeCourseCertificateSettings()`: satu fungsi yang melengkapi
+baris dari basis data sehingga setiap ruas pasti ada. **Menambah ruas
+sertifikat baru berarti menambahkannya di sana juga.** Dengan begitu kolom
+yang belum ada menghasilkan NULL ("ikut pengaturan utama"), bukan draf yang
+gagal divalidasi.
+
+Setiap ruas sertifikat juga wajib punya entri di `CERTIFICATE_LABEL_OF`
+(`lib/course-draft-issues.ts`). Tanpa itu pesannya jatuh ke sebutan umum
+"Pengaturan sertifikat", dan penyusun membaca keluhan tentang ruas yang tidak
+pernah ia sentuh.
+
+## 5. Dua tempat yang mudah terlupa
 
 1. **Skema validasi draf** (`lib/course-draft.ts`). `certificate_type` wajib
    `.nullable()`. Tanpa itu, memilih "Ikut Pengaturan Utama" membuat seluruh
@@ -79,7 +99,7 @@ tampil di muka sertifikat yang dibagikan, jadi tidak ada yang rahasia.
    hanya nilai akhirnya, dan layar penyusun menampilkan nilai yang akan
    dipakai.
 
-## 5. Jeda antara kode dan basis data
+## 6. Jeda antara kode dan basis data
 
 Migrasi proyek ini dijalankan tangan lewat SQL Editor Supabase
 (`docs/DEPLOY-VERCEL.md`), jadi selalu ada jeda antara kode ter-deploy dan
@@ -90,7 +110,7 @@ tabelnya tidak ada, bukan melempar galat: sertifikat tetap terbit dengan
 bentuk lama, dan layar `/admin/certificates` menjelaskan apa yang perlu
 dijalankan alih-alih gagal.
 
-## 6. Tata letak, dan kenapa hanya tiga
+## 7. Tata letak, dan kenapa hanya tiga
 
 `klasik` (bingkai ganda, rata tengah), `modern` (pita warna di tepi kiri,
 teks rata kiri), `formal` (garis tipis, penanda tangan di tengah bawah).
@@ -107,7 +127,7 @@ Menambah tata letak berarti menambah **dua** hal: satu entri di
 `20261101120000`. Menambah salah satunya saja menghasilkan pilihan yang
 ditolak basis data saat disimpan.
 
-## 7. Pratinjau memakai dokumen yang sama dengan hasil terbitnya
+## 8. Pratinjau memakai dokumen yang sama dengan hasil terbitnya
 
 `/admin/certificates/preview` merender **PDF sungguhan** lewat
 `CertificateDocument` yang sama persis dengan yang dipakai saat sertifikat
