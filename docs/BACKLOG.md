@@ -7,17 +7,26 @@ alasannya. Diperbarui 1 November 2026.
 
 ## Belum dikerjakan
 
-### A. Sertifikat yang bisa dikustomisasi per kursus
+### A. Sertifikat yang bisa dikustomisasi per kursus — ✅ kode selesai, **menunggu satu langkah SQL**
 
-Penyusun kursus memilih jenis sertifikat dan penanda tangannya sendiri, dengan
-pengaturan utama sebagai bawaan supaya kursus biasa tidak perlu mengatur apa
-pun. Berguna saat bekerja sama dengan perusahaan lain, yang biasanya ingin
-nama dan tanda tangannya sendiri.
+Lihat `docs/STANDAR-SERTIFIKAT.md`. Pengaturan utama perusahaan ada di
+`/admin/certificates` (khusus superadmin); kursus mewarisinya **per ruas**,
+sehingga satu kursus bisa memakai nama penanda tangan sendiri sambil tetap
+mewarisi jabatan, templat, dan deskripsi.
 
-Tabel `course_certificate_settings` sudah punya kolomnya
-(`certificate_type`, `custom_title`, `signer_name`, `signer_title`,
-`signature_url`, `template_url`); yang belum ada adalah lapisan "ikut
-pengaturan utama" dan tempat menyimpan pengaturan utama itu.
+**Langkah yang tersisa:** jalankan
+`supabase/migrations/20261101120000_certificate_defaults.sql` di SQL Editor
+Supabase. Selama belum dijalankan, aplikasinya tetap berjalan dengan bentuk
+lama — `getCertificateDefaults()` jatuh ke bawaan bawaan-kode dan layar
+`/admin/certificates` menjelaskan apa yang kurang, bukan gagal.
+
+Belum terbukti dengan mata: layar `/admin/certificates` sendiri, karena
+kata sandi superadmin sudah diganti dan `AUDIT_ADMIN_PASSWORD` di
+`.env.local` sudah tidak berlaku. Gerbang a11y kini mengatakannya terus
+terang ("dialihkan ke /admin/dashboard, akunnya tidak berwenang") alih-alih
+mencetak "ok" untuk halaman yang tidak pernah terbuka — kelemahan yang
+ternyata juga membuat `/admin/landing` dan `/admin/mentor` selama ini
+terhitung lolos tanpa pernah diaudit.
 
 ### B. Pelacakan perilaku: siapa membuka apa, berapa lama — **butuh persetujuan lebih dulu**
 

@@ -102,6 +102,15 @@ async function visit(page, path) {
     await page.setViewportSize({ width, height })
     await page.goto(BASE + path)
     await settle(page)
+    // Halaman khusus superadmin mengalihkan akun pengelola biasa ke dasbor.
+    // Tanpa pemeriksaan ini auditnya mencetak "ok <halaman>" padahal yang
+    // diperiksa dasbor -- laporan bersih untuk halaman yang tidak pernah
+    // dibuka. Lebih baik mengaku tidak terjangkau daripada mengaku lolos.
+    const landed = new URL(page.url()).pathname
+    if (landed !== path) {
+      console.log(`lewat ${path} [${label}]: dialihkan ke ${landed}, akunnya tidak berwenang`)
+      continue
+    }
     await audit(page, `${path} [${label}]`)
   }
 }
@@ -204,6 +213,7 @@ try {
       "/admin/tracking",
       "/admin/mentor",
       "/admin/landing",
+      "/admin/certificates",
       "/admin/settings",
       "/admin/profile",
     ])
