@@ -1,11 +1,63 @@
 # Daftar Permintaan
 
 Peta seluruh permintaan yang belum selesai, beserta urutan pengerjaan dan
-alasannya. Diperbarui 31 Oktober 2026.
+alasannya. Diperbarui 1 November 2026.
 
 ---
 
 ## Belum dikerjakan
+
+### A. Sertifikat yang bisa dikustomisasi per kursus
+
+Penyusun kursus memilih jenis sertifikat dan penanda tangannya sendiri, dengan
+pengaturan utama sebagai bawaan supaya kursus biasa tidak perlu mengatur apa
+pun. Berguna saat bekerja sama dengan perusahaan lain, yang biasanya ingin
+nama dan tanda tangannya sendiri.
+
+Tabel `course_certificate_settings` sudah punya kolomnya
+(`certificate_type`, `custom_title`, `signer_name`, `signer_title`,
+`signature_url`, `template_url`); yang belum ada adalah lapisan "ikut
+pengaturan utama" dan tempat menyimpan pengaturan utama itu.
+
+### B. Pelacakan perilaku: siapa membuka apa, berapa lama — **butuh persetujuan lebih dulu**
+
+Diminta untuk analisis titik berhenti peserta: di bagian mana orang paling
+sering tidak melanjutkan, dan bagian mana yang sudah bagus.
+
+**Ini tidak bisa langsung dibangun.** `docs/STANDAR-PELACAKAN.md` §3 sudah
+memetakannya: lama membuka halaman, pola sesi, dan jejak per orang bukan
+keperluan menyampaikan kursus, jadi dasarnya bukan UU PDP Pasal 20 huruf b
+melainkan huruf a — persetujuan eksplisit, yang **harus diminta sebelum data
+dikumpulkan**, bisa ditolak tanpa kehilangan akses, dan bisa ditarik.
+
+Urutan kerjanya karena itu: mekanisme pemberitahuan dan persetujuan lebih
+dulu, baru pengumpulannya.
+
+Catatan desain yang menghemat banyak kerja: pertanyaan "di bagian mana orang
+berhenti" bisa dijawab **tanpa** jejak per orang — cukup menghitung berapa
+peserta yang menyelesaikan tiap pelajaran dibanding yang memulainya, dari
+`lesson_progress` yang sudah ada dan sudah sah dikumpulkan. Yang benar-benar
+butuh persetujuan hanyalah "berapa lama" dan "sedang membuka apa saat ini".
+Sebaiknya bagian agregat itu dikerjakan lebih dulu; mungkin sudah cukup.
+
+
+### C. Riwayat migrasi Supabase tidak sinkron — risiko saat menyiapkan lingkungan baru
+
+`supabase migration list --linked` hanya mencatat satu migrasi di sisi remote
+(`20260101000000`), padahal 34 berkas migrasi lain sudah benar-benar
+diterapkan — skemanya lengkap dan aplikasinya berjalan. Penyebabnya: migrasi
+dijalankan sebagai SQL langsung, bukan lewat `supabase db push`, sehingga
+tabel `supabase_migrations.schema_migrations` tidak ikut terisi.
+
+Tidak ada yang rusak sekarang. Risikonya muncul nanti: `db push` berikutnya
+akan mengira seluruh 34 migrasi itu belum pernah jalan dan mencoba
+menerapkannya lagi. Sebagian akan gagal (kolom sudah ada), sebagian justru
+berbahaya kalau tidak idempoten.
+
+Perbaikannya `supabase migration repair --status applied <versi>` untuk tiap
+versi yang sudah terlanjur diterapkan. **Belum dikerjakan karena ini menyentuh
+pembukuan basis data produksi dan sebaiknya dijalankan dengan sepengetahuan
+pemilik proyek,** bukan diselipkan di tengah pekerjaan lain.
 
 ### 0. Impor kursus dari berkas .md — ✅ selesai
 
@@ -135,6 +187,31 @@ pembayaran peserta juga belum ada gerbangnya sama sekali — lihat
 `docs/KESIAPAN-PAKAI.md` bagian 2.
 
 ---
+
+### 7. Navigasi berurutan, ukuran teks, dan urutan yang bisa digeser — ✅ selesai, lihat `docs/STANDAR-NAVIGASI-DAN-PENYUSUNAN.md`
+
+Tiga permintaan sekaligus, semuanya terbukti berjalan:
+
+- **Navigasi** — `courses.sequential` per kursus, bawaannya bebas seperti
+  Udemy. Pelajaran kuis dibuka dengan **lulus**, bukan sekadar dicentang,
+  supaya kuis tidak bisa dilewati. Ditegakkan di server, bukan hanya dengan
+  menyembunyikan tautan. Terbukti: satu pelajaran tampil "Terkunci", dan
+  melompat lewat alamat langsung dialihkan kembali.
+- **Ukuran teks** — toolbar editor dapat Kecil/Normal/Besar/Lebih besar dalam
+  satuan `em`, supaya ikut membesar saat peserta menaikkan ukuran teksnya
+  sendiri. Pembersih hanya meloloskan `em`/`rem` 0,5–2; piksel dibuang.
+  Terbukti: diterapkan → disimpan → dimuat ulang → masih ada, dan tampil di
+  pratinjau peserta.
+- **Urutan** — modul dan soal kini bisa digeser, bukan hanya pelajaran.
+  Terbukti lewat papan ketik saja (Spasi → panah → Spasi).
+
+### 8. Teks mentah `<p>` dari impor `.md` — ✅ selesai
+
+`course.description` adalah teks biasa yang dirender apa adanya, tetapi
+pengurai menulis HTML ke sana. Diperbaiki di dua lapis sekaligus, bukan satu:
+`markdownToPlainText()` untuk ruas teks biasa, penjaga `looksLikeHtml()` yang
+memunculkan peringatan bila HTML tetap lolos, dan satu bagian baru di panduan
+unduhan yang melarang AI menulis HTML.
 
 ## Selesai dan sudah ter-push
 
