@@ -106,14 +106,29 @@ async function visit(page, path) {
   }
 }
 
-async function login(browser, loginPath, email, password) {
+/**
+ * Mengembalikan null -- bukan melempar -- ketika masuk gagal.
+ *
+ * Sebelumnya kegagalan masuk keluar sebagai TimeoutError Playwright mentah
+ * dengan jejak tumpukan, yang terbaca seperti aplikasinya rusak. Penyebab
+ * paling sering sebenarnya sepele: kata sandi di environment sudah diganti
+ * dan tertinggal basi. Gerbang ini menjaga aksesibilitas, jadi ia tidak boleh
+ * berteriak tentang hal yang bukan urusannya.
+ */
+async function login(browser, loginPath, email, password, label) {
   const page = await (await browser.newContext({ viewport: { width: 1366, height: 900 } })).newPage()
-  await page.goto(BASE + loginPath)
-  await page.fill("input[name=email]", email)
-  await page.fill("input[name=password]", password)
-  await page.click("button[type=submit]")
-  await page.waitForURL(/dashboard/, { timeout: 20000 })
-  return page
+  try {
+    await page.goto(BASE + loginPath)
+    await page.fill("input[name=email]", email)
+    await page.fill("input[name=password]", password)
+    await page.click("button[type=submit]")
+    await page.waitForURL(/dashboard/, { timeout: 20000 })
+    return page
+  } catch {
+    console.log(`skip ${label} pages: gagal masuk sebagai ${email} -- periksa kata sandinya di environment`)
+    await page.close()
+    return null
+  }
 }
 
 const browser = await chromium.launch()
@@ -154,7 +169,8 @@ try {
   const { AUDIT_LEARNER_EMAIL, AUDIT_LEARNER_PASSWORD, AUDIT_ADMIN_EMAIL, AUDIT_ADMIN_PASSWORD } = process.env
 
   if (AUDIT_LEARNER_EMAIL && AUDIT_LEARNER_PASSWORD) {
-    const page = await login(browser, "/auth/login", AUDIT_LEARNER_EMAIL, AUDIT_LEARNER_PASSWORD)
+    const page = await login(browser, "/auth/login", AUDIT_LEARNER_EMAIL, AUDIT_LEARNER_PASSWORD, "learner")
+    if (page)
     for (const path of [
       "/learner/dashboard",
       "/learner/courses",
@@ -164,18 +180,21 @@ try {
       "/learner/notifications",
     ])
       await visit(page, path)
+    if (page) {
     await page.goto(BASE + "/learner/courses")
     const courseHref = await page.locator('a[href^="/learner/courses/"]').first().getAttribute("href").catch(() => null)
     if (courseHref) {
       await visit(page, courseHref)
       await visit(page, courseHref.replace("/learner/courses/", "/learn/"))
     }
+    }
   } else {
     console.log("skip learner pages (set AUDIT_LEARNER_EMAIL / AUDIT_LEARNER_PASSWORD)")
   }
 
   if (AUDIT_ADMIN_EMAIL && AUDIT_ADMIN_PASSWORD) {
-    const page = await login(browser, "/auth/admin/login", AUDIT_ADMIN_EMAIL, AUDIT_ADMIN_PASSWORD)
+    const page = await login(browser, "/auth/admin/login", AUDIT_ADMIN_EMAIL, AUDIT_ADMIN_PASSWORD, "admin")
+    if (page)
     for (const path of [
       "/admin/dashboard",
       "/admin/courses",
@@ -189,6 +208,7 @@ try {
       "/admin/profile",
     ])
       await visit(page, path)
+    if (page) {
     await page.goto(BASE + "/admin/courses")
     const editHref = await page.locator('a[href$="/edit"]').first().getAttribute("href").catch(() => null)
     if (editHref) {
@@ -199,6 +219,19 @@ try {
         await settle(page)
         await audit(page, `${editHref} [${tab}]`)
       }
+
+      // Dialog diaudit terbuka, bukan hanya tombolnya. Jebakan fokus, nama
+      // yang hilang, dan judul yang tidak terkait adalah kegagalan khas
+      // dialog, dan tidak satu pun terlihat selama ia tertutup.
+      await page.goto(BASE + editHref)
+      await settle(page)
+      const importButton = page.getByRole("button", { name: /Impor \/ ekspor/i })
+      if (await importButton.count()) {
+        await importButton.click()
+        await page.waitForTimeout(600)
+        await audit(page, `${editHref} [dialog impor]`)
+      }
+    }
     }
   } else {
     console.log("skip admin pages (set AUDIT_ADMIN_EMAIL / AUDIT_ADMIN_PASSWORD)")

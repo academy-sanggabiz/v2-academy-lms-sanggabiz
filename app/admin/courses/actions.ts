@@ -12,6 +12,8 @@ import {
 } from "@/lib/courses-admin"
 import { requireAdmin } from "@/lib/auth/require-admin"
 import { courseDraftSchema, type CourseDraft } from "@/lib/course-draft"
+import { parseCourseMarkdown, type ParsedCourse } from "@/lib/course-markdown"
+import { createClient } from "@/lib/supabase/server"
 
 export type ActionResult<T = undefined> = { ok: true; data: T } | { ok: false; error: string }
 
@@ -128,4 +130,70 @@ export async function deleteInstructorAction(id: string): Promise<ActionResult<u
 
   revalidatePath("/admin/courses/[id]/edit", "page")
   return { ok: true, data: undefined }
+}
+
+/**
+ * Membaca berkas `.md` menjadi draf kursus, tanpa menyimpan apa pun.
+ *
+ * Hasilnya dikembalikan ke editor supaya penyusun kursus melihatnya lebih dulu
+ * dan menekan Simpan sendiri. Menulis langsung ke basis data akan membuat satu
+ * berkas yang meleset menghapus pekerjaan yang sudah ada tanpa jejak.
+ *
+ * Penjagaan "belum ada peserta" ada di sini, bukan hanya pada tombol yang
+ * disembunyikan di layar: server action dapat dipanggil langsung lewat
+ * jaringan. Sifat penjagaan ini keselamatan, bukan kewenangan -- seorang
+ * pengelola memang sudah boleh mengubah isi kursusnya lewat editor. Yang
+ * dicegah adalah mengganti seluruh isi kursus yang sedang diikuti orang,
+ * sehingga kemajuan belajar mereka menunjuk pelajaran yang sudah tidak ada.
+ */
+export async function importCourseMarkdownAction(
+  courseId: string,
+  markdown: string
+): Promise<ActionResult<ParsedCourse>> {
+  try {
+    await requireAdmin()
+  } catch {
+    return { ok: false, error: "Anda tidak berwenang" }
+  }
+
+  if (typeof markdown !== "string" || markdown.trim().length === 0) {
+    return { ok: false, error: "Berkasnya kosong." }
+  }
+  // Batas ukuran supaya satu berkas raksasa tidak menghabiskan memori server.
+  if (markdown.length > 500_000) {
+    return { ok: false, error: "Berkas terlalu besar. Susun per modul dalam beberapa berkas." }
+  }
+
+  const supabase = await createClient()
+
+  // RLS sudah membatasi baris yang terbaca ke kursus milik pemanggil, jadi
+  // baris yang tidak ditemukan berarti bukan miliknya.
+  const { data: course, error: courseError } = await supabase
+    .from("courses")
+    .select("id")
+    .eq("id", courseId)
+    .maybeSingle()
+
+  if (courseError || !course) {
+    return { ok: false, error: "Kursus tidak ditemukan atau bukan milik Anda." }
+  }
+
+  const { count, error: countError } = await supabase
+    .from("enrollments")
+    .select("id", { count: "exact", head: true })
+    .eq("course_id", courseId)
+
+  if (countError) {
+    console.error("importCourseMarkdownAction enrollment count failed:", countError.message)
+    return { ok: false, error: "Gagal memeriksa peserta kursus. Coba lagi." }
+  }
+
+  if ((count ?? 0) > 0) {
+    return {
+      ok: false,
+      error: `Kursus ini sudah punya ${count} pendaftaran, jadi isinya tidak bisa diganti lewat impor. Buat kursus baru, lalu impor ke sana.`,
+    }
+  }
+
+  return { ok: true, data: parseCourseMarkdown(markdown) }
 }

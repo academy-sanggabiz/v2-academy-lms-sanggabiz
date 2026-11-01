@@ -44,6 +44,7 @@ import { LearnersTab } from "./tabs/LearnersTab"
 import { LessonsTab } from "./tabs/LessonsTab"
 import { PreviewTab } from "./tabs/PreviewTab"
 import { SettingsTab } from "./tabs/SettingsTab"
+import { CourseMarkdownDialog } from "@/components/admin/courses/markdown/CourseMarkdownDialog"
 
 type ShellProps = {
   course: AdminCourseDetail
@@ -54,7 +55,10 @@ type ShellProps = {
   instructorsPromise: Promise<Instructor[]>
   prerequisitesPromise: Promise<CoursePrerequisite[]>
   rosterPromise: Promise<Paginated<CourseRosterEntry>>
+  learnerCount: number
   isNew?: boolean
+  /** Datang dari "Impor dari berkas .md" di daftar kursus. */
+  openImport?: boolean
 }
 
 export function CourseFormShell(props: ShellProps) {
@@ -70,7 +74,9 @@ function CourseFormShellInner({
   instructorsPromise,
   prerequisitesPromise,
   rosterPromise,
+  learnerCount,
   isNew = false,
+  openImport = false,
 }: ShellProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -302,6 +308,16 @@ function CourseFormShellInner({
            * penanda ini admin tidak bisa membedakan "sudah tersimpan" dari
            * "masih di layar saya saja" (STANDAR-UMPAN-BALIK-UI.md R12).
            */}
+          {/* Jembatan ke AI yang sudah dipakai penyusun kursus; LMS ini tidak
+              memanggil AI sendiri. Lihat CourseMarkdownDialog. */}
+          <CourseMarkdownDialog
+            courseId={course.id}
+            draft={draft}
+            canImport={learnerCount === 0}
+            openOnMount={openImport}
+            learnerCount={learnerCount}
+            onImported={(patch) => dispatch({ type: "setField", patch })}
+          />
           <SaveStatus
             state={saveState}
             savedAt={lastSavedAt}

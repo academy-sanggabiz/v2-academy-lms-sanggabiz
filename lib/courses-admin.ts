@@ -888,3 +888,27 @@ export async function saveCourseDraft(
 
   return { ok: true }
 }
+
+/**
+ * Jumlah pendaftaran pada satu kursus.
+ *
+ * Dipakai editor hanya untuk memutuskan pesan apa yang ditampilkan di dialog
+ * impor. Penjagaannya sendiri ada di `importCourseMarkdownAction`, yang
+ * menghitung ulang di server -- angka di layar tidak pernah jadi penjaga.
+ */
+export async function countCourseEnrollments(courseId: string): Promise<number> {
+  const supabase = await createClient()
+  const { count, error } = await supabase
+    .from("enrollments")
+    .select("id", { count: "exact", head: true })
+    .eq("course_id", courseId)
+
+  if (error) {
+    console.error("countCourseEnrollments failed:", error.message)
+    // Gagal menghitung diperlakukan sebagai "ada peserta": tampilan yang
+    // terlalu hati-hati lebih baik daripada menawarkan impor yang kemudian
+    // ditolak server.
+    return 1
+  }
+  return count ?? 0
+}

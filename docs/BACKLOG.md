@@ -7,6 +7,14 @@ alasannya. Diperbarui 31 Oktober 2026.
 
 ## Belum dikerjakan
 
+### 0. Impor kursus dari berkas .md — ✅ selesai
+
+Lihat `docs/STANDAR-IMPOR-KURSUS.md`. LMS tidak memanggil AI; ia menyediakan
+panduan yang diunduh dan parser yang menerima hasilnya. Terbuka untuk
+dikembangkan kalau diperlukan: impor per modul ke kursus yang sudah ada, dan
+tampilan perbandingan supaya kursus yang sudah punya peserta pun bisa
+diperbarui sebagian.
+
 ### 1. Dwibahasa Indonesia–Inggris — *kerangka dan seluruh layar utama selesai*
 
 **Sudah selesai:** kerangkanya (`lib/i18n/`), pemilih bahasa di header peserta

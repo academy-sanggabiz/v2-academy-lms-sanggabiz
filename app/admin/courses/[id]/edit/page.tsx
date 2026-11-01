@@ -1,6 +1,11 @@
 import { notFound } from "next/navigation"
 
-import { getCourseDetailForAdmin, listCoursesForPrerequisitePicker, listInstructors } from "@/lib/courses-admin"
+import {
+  countCourseEnrollments,
+  getCourseDetailForAdmin,
+  listCoursesForPrerequisitePicker,
+  listInstructors,
+} from "@/lib/courses-admin"
 import { getCourseRoster } from "@/lib/learners-admin"
 import { parseListParams, type RawSearchParams } from "@/lib/pagination"
 import { CourseFormShell } from "@/components/admin/courses/CourseFormShell"
@@ -10,7 +15,7 @@ export default async function EditCoursePage({
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<RawSearchParams & { new?: string }>
+  searchParams: Promise<RawSearchParams & { new?: string; impor?: string }>
 }) {
   const [{ id }, raw] = await Promise.all([params, searchParams])
   const rosterParams = parseListParams<Record<string, never>>(raw, {
@@ -28,7 +33,10 @@ export default async function EditCoursePage({
   const prerequisitesPromise = listCoursesForPrerequisitePicker(id)
   const rosterPromise = getCourseRoster(id, rosterParams)
 
-  const course = await getCourseDetailForAdmin(id)
+  const [course, learnerCount] = await Promise.all([
+    getCourseDetailForAdmin(id),
+    countCourseEnrollments(id),
+  ])
   if (!course) notFound()
 
   return (
@@ -37,7 +45,9 @@ export default async function EditCoursePage({
       instructorsPromise={instructorsPromise}
       prerequisitesPromise={prerequisitesPromise}
       rosterPromise={rosterPromise}
+      learnerCount={learnerCount}
       isNew={raw.new === "1"}
+      openImport={raw.impor === "1"}
     />
   )
 }
