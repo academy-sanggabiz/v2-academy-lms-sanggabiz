@@ -1,7 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown, Plus, Trash2, X } from "lucide-react"
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
+import { ChevronDown, GripVertical, Plus, Trash2, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -25,6 +28,7 @@ import { QUESTION_TYPE_POINTS } from "@/lib/courses"
 import { ASSESSMENT_GRADE_WEIGHT } from "@/lib/course-grade"
 import { useCourseDraft } from "../CourseDraftContext"
 import { useQuestionQuizIssue } from "../QuizIssuesContext"
+import { dndAnnouncements } from "@/lib/dnd-announcements"
 
 // Only auto-gradable types are offered for a normal quiz. Essay/file_upload
 // only exist inside a study case (see "Add Study Case" below) -- a normal
@@ -55,6 +59,14 @@ function isEssayQuestion(type: AuthorableQuestionType): type is "essay" | "file_
 
 export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz | null }) {
   const { dispatch } = useCourseDraft()
+
+  // Sensor sendiri untuk kuis: Space/Enter mengangkat soal, panah
+  // memindahkan, Space menjatuhkan -- alternatif non-tetikus yang diminta
+  // WCAG 2.5.7, sama seperti di daftar pelajaran.
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
   const [pickerOpen, setPickerOpen] = useState(false)
   const [selectedType, setSelectedType] = useState<AuthorableQuestionType>("multiple_choice")
 
@@ -85,11 +97,34 @@ export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQu
           Belum ada soal. Tambahkan soal, atau jadikan pelajaran ini studi kasus.
         </p>
       ) : (
-        <div className="flex flex-col gap-2.5">
-          {questions.map((question, index) => (
-            <QuestionCard key={question.id} question={question} index={index} />
-          ))}
-        </div>
+        /*
+          DndContext sendiri, bukan ikut milik LessonsTab: soal hanya boleh
+          berpindah di dalam satu kuis, dan menggabungkannya ke konteks yang
+          sama membuat soal bisa dijatuhkan ke modul atau pelajaran lain.
+        */
+        <DndContext
+          sensors={sensors}
+          accessibility={dndAnnouncements("Soal")}
+          collisionDetection={closestCenter}
+          onDragEnd={(event) => {
+            const { active, over } = event
+            if (over && active.id !== over.id) {
+              dispatch({
+                type: "moveQuestion",
+                questionId: active.id as string,
+                overQuestionId: over.id as string,
+              })
+            }
+          }}
+        >
+          <SortableContext items={questions.map((q) => q.id)} strategy={verticalListSortingStrategy}>
+            <div className="flex flex-col gap-2.5">
+              {questions.map((question, index) => (
+                <QuestionCard key={question.id} question={question} index={index} />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       {!isAssessment && (
@@ -240,9 +275,28 @@ function QuestionCard({ question, index }: { question: DraftQuestion; index: num
     if (issue) setExpanded(true)
   }
 
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: question.id })
+
   return (
-    <div className={cn("overflow-hidden rounded-lg border border-border", issue && "border-destructive")}>
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition: transition }}
+      className={cn(
+        "overflow-hidden rounded-lg border border-border",
+        issue && "border-destructive",
+        isDragging && "opacity-50"
+      )}
+    >
       <div className="flex items-center gap-2.5 bg-muted/30 px-3 py-2">
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          aria-label={`Pindahkan soal ${index + 1}: tekan Spasi untuk mengambil, tombol panah untuk memindahkan, Spasi untuk melepas`}
+          className="-m-1 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded active:cursor-grabbing"
+        >
+          <GripVertical className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+        </button>
         <span className="text-sm font-semibold whitespace-nowrap">Soal {index + 1}</span>
         <span className="rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-semibold text-secondary-foreground">
           {typeLabel}

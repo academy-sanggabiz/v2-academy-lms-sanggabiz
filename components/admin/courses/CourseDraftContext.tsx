@@ -23,6 +23,7 @@ export type CourseDraftAction =
   | { type: "addSection"; id: string }
   | { type: "renameSection"; id: string; title: string }
   | { type: "deleteSection"; id: string }
+  | { type: "moveSection"; sectionId: string; overSectionId: string }
   | { type: "addLesson"; id: string; sectionId: string }
   | { type: "patchLesson"; id: string; patch: Partial<DraftLesson> }
   | { type: "duplicateLesson"; id: string }
@@ -35,6 +36,7 @@ export type CourseDraftAction =
   | { type: "addQuestion"; lessonId: string; questionType: AuthorableQuestionType; isAssessment?: boolean }
   | { type: "patchQuestion"; id: string; patch: Partial<DraftQuestion> }
   | { type: "deleteQuestion"; id: string }
+  | { type: "moveQuestion"; questionId: string; overQuestionId: string }
   | { type: "addOption"; questionId: string; option?: Partial<Omit<DraftOption, "id">> }
   | { type: "patchOption"; id: string; patch: Partial<DraftOption> }
   | { type: "setCorrectOption"; questionId: string; optionId: string }
@@ -200,6 +202,22 @@ function reducer(state: State, action: CourseDraftAction): State {
       return { ...state, draft: { ...draft, sections } }
     }
 
+    /**
+     * Memindahkan modul. Dipisahkan dari moveLesson karena keduanya dipicu
+     * DndContext yang sama: tanpa aksi tersendiri, melepas sebuah modul di
+     * atas modul lain akan terbaca sebagai memindahkan pelajaran.
+     */
+    case "moveSection": {
+      const from = draft.sections.findIndex((s) => s.id === action.sectionId)
+      const to = draft.sections.findIndex((s) => s.id === action.overSectionId)
+      if (from === -1 || to === -1 || from === to) return state
+
+      const sections = [...draft.sections]
+      const [moved] = sections.splice(from, 1)
+      sections.splice(to, 0, moved)
+      return { ...state, draft: { ...draft, sections } }
+    }
+
     case "addResource": {
       const resource: DraftResource = { id: newId(), ...action.resource }
       return {
@@ -286,6 +304,23 @@ function reducer(state: State, action: CourseDraftAction): State {
           return { ...lesson, quiz: questions.length === 0 ? null : { ...lesson.quiz, questions } }
         }),
       }
+
+    /** Mengurutkan ulang soal di dalam satu kuis. */
+    case "moveQuestion": {
+      return {
+        ...state,
+        draft: mapQuizzes(draft, (quiz) => {
+          const from = quiz.questions.findIndex((q) => q.id === action.questionId)
+          const to = quiz.questions.findIndex((q) => q.id === action.overQuestionId)
+          // Keduanya harus ada di kuis yang sama; soal tidak pindah antar kuis.
+          if (from === -1 || to === -1 || from === to) return quiz
+          const questions = [...quiz.questions]
+          const [moved] = questions.splice(from, 1)
+          questions.splice(to, 0, moved)
+          return { ...quiz, questions }
+        }),
+      }
+    }
 
     case "addOption":
       return {

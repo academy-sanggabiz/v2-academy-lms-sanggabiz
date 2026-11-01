@@ -73,6 +73,7 @@ import { QuizIssuesProvider, useLessonQuizIssues } from "../QuizIssuesContext"
 import { QuizEditor } from "./QuizEditor"
 import { RichTextEditor } from "../RichTextEditor"
 import { LessonWritingGuide } from "../LessonWritingGuide"
+import { dndAnnouncements } from "@/lib/dnd-announcements"
 
 const LESSON_TYPES: { value: LessonContentType; label: string; description: string }[] = [
   { value: "video", label: "Pelajaran Video", description: "Konten pelajaran berupa video" },
@@ -95,28 +96,7 @@ const TYPE_ICON: Record<LessonContentType, React.ComponentType<{ className?: str
  * layar. Teksnya menyebut judul pelajaran, bukan id, karena id tidak berarti
  * apa pun bagi yang mendengarkan.
  */
-const dndAccessibility = {
-  announcements: {
-    onDragStart({ active }: { active: { id: string | number; data: { current?: { title?: string } } } }) {
-      return `Mengangkat pelajaran ${active.data.current?.title ?? ""}. Pakai panah atas dan bawah untuk memindahkan, spasi untuk menjatuhkan, Escape untuk membatalkan.`
-    },
-    onDragOver({ active, over }: { active: { data: { current?: { title?: string } } }; over: { data: { current?: { title?: string } } } | null }) {
-      if (!over) return undefined
-      return `Pelajaran ${active.data.current?.title ?? ""} berada di atas ${over.data.current?.title ?? "posisi baru"}.`
-    },
-    onDragEnd({ active, over }: { active: { data: { current?: { title?: string } } }; over: { data: { current?: { title?: string } } } | null }) {
-      if (!over) return `Pelajaran ${active.data.current?.title ?? ""} dikembalikan ke posisi semula.`
-      return `Pelajaran ${active.data.current?.title ?? ""} dijatuhkan di ${over.data.current?.title ?? "posisi baru"}.`
-    },
-    onDragCancel({ active }: { active: { data: { current?: { title?: string } } } }) {
-      return `Pemindahan dibatalkan. Pelajaran ${active.data.current?.title ?? ""} kembali ke posisi semula.`
-    },
-  },
-  screenReaderInstructions: {
-    draggable:
-      "Tekan spasi atau Enter untuk mulai memindahkan pelajaran ini. Lalu pakai panah atas dan bawah untuk memilih posisi, spasi untuk menjatuhkan, dan Escape untuk membatalkan.",
-  },
-}
+const dndAccessibility = dndAnnouncements("Pelajaran")
 
 export function LessonsTab({ quizIssues = [] }: { quizIssues?: QuizIssue[] }) {
   const { draft, dispatch } = useCourseDraft()
@@ -168,6 +148,18 @@ export function LessonsTab({ quizIssues = [] }: { quizIssues?: QuizIssue[] }) {
     setActiveId(null)
     if (!over) return
 
+    // Modul digeser di antara modul. Dibedakan lewat data.type, bukan lewat
+    // menebak dari id, karena satu DndContext menangani keduanya.
+    if (active.data.current?.type === "section") {
+      const overSectionId = sections.some((s) => s.id === over.id)
+        ? (over.id as string)
+        : findSectionIdForLesson(over.id as string)
+      if (overSectionId && overSectionId !== active.id) {
+        dispatch({ type: "moveSection", sectionId: active.id as string, overSectionId })
+      }
+      return
+    }
+
     const fromSectionId = findSectionIdForLesson(active.id as string)
     const toSectionId = sections.some((s) => s.id === over.id)
       ? (over.id as string)
@@ -183,6 +175,7 @@ export function LessonsTab({ quizIssues = [] }: { quizIssues?: QuizIssue[] }) {
   const activeLesson = activeId
     ? sections.flatMap((s) => s.lessons).find((l) => l.id === activeId)
     : null
+  const activeSection = activeId ? sections.find((s) => s.id === activeId) : null
 
   return (
     <QuizIssuesProvider issues={quizIssues}>
@@ -207,6 +200,7 @@ export function LessonsTab({ quizIssues = [] }: { quizIssues?: QuizIssue[] }) {
           onDragEnd={handleDragEnd}
           onDragCancel={() => setActiveId(null)}
         >
+          <SortableContext items={sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
           <div className="flex flex-col gap-4">
             {sections.map((section) => (
               <SectionCard
@@ -222,10 +216,13 @@ export function LessonsTab({ quizIssues = [] }: { quizIssues?: QuizIssue[] }) {
               />
             ))}
           </div>
+          </SortableContext>
           <DragOverlay>
-            {activeLesson && (
+            {(activeSection || activeLesson) && (
               <div className="rounded-xl border border-ring bg-card px-3.5 py-3 text-sm font-bold shadow-lg">
-                {activeLesson.title || "Pelajaran Tanpa Judul"}
+                {activeSection
+                  ? activeSection.title || "Modul Tanpa Nama"
+                  : activeLesson?.title || "Pelajaran Tanpa Judul"}
               </div>
             )}
           </DragOverlay>
@@ -254,6 +251,13 @@ const SectionCard = memo(function SectionCard({
   const [editingTitle, setEditingTitle] = useState(false)
   const [title, setTitle] = useState(section.title)
 
+  /*
+   * Modul ikut bisa digeser. `data.type` wajib ada: DndContext yang sama juga
+   * menangani pelajaran, dan tanpa penanda itu melepas modul di atas modul
+   * lain terbaca sebagai memindahkan pelajaran.
+   */
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id, data: { type: "section", title: section.title } })
+
   function saveTitle() {
     setEditingTitle(false)
     if (title.trim() === section.title || !title.trim()) {
@@ -268,8 +272,24 @@ const SectionCard = memo(function SectionCard({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border">
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition: transition }}
+      className={cn(
+        "overflow-hidden rounded-xl border border-border",
+        isDragging && "opacity-50"
+      )}
+    >
       <div className="flex items-center gap-2.5 bg-secondary/40 px-4 py-3">
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          aria-label={`Pindahkan modul ${section.title}: tekan Spasi untuk mengambil, tombol panah untuk memindahkan, Spasi untuk melepas`}
+          className="-m-1 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded active:cursor-grabbing"
+        >
+          <GripVertical className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+        </button>
         {editingTitle ? (
           <Input
             autoFocus
