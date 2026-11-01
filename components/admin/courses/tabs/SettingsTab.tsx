@@ -17,6 +17,7 @@ import type { Instructor } from "@/lib/courses"
 import type { CoursePrerequisite } from "@/lib/courses-admin"
 import { InstructorPicker } from "../InstructorPicker"
 import { PrerequisitesSettings } from "./PrerequisitesSettings"
+import { SequenceSettings } from "./SequenceSettings"
 import { CertificateSettings } from "./CertificateSettings"
 import { useCourseDraft } from "../CourseDraftContext"
 
@@ -146,6 +147,8 @@ export function SettingsTab({
           </div>
         )}
       </section>
+
+      <SequenceSettings />
 
       <PrerequisitesSettings availableCourses={availableCoursesForPrerequisites} />
 

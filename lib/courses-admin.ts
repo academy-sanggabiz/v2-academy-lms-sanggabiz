@@ -781,6 +781,7 @@ export async function saveCourseDraft(
       who_for: linesToArray(draft.audienceText),
       requirements: linesToArray(draft.requirementsText),
       require_prerequisites: draft.requirePrerequisites,
+      sequential: draft.sequential,
     })
     .eq("id", courseId)
   if (courseError) return wrapSaveError("detail kursus", courseError.message)

@@ -14,6 +14,7 @@ import { LearnShell } from "@/components/learn/LearnShell"
 import { LearnSidebar } from "@/components/learn/LearnSidebar"
 import { LessonPane } from "@/components/learn/LessonPane"
 import { getTranslations } from "@/lib/i18n/server"
+import { computeUnlockedLessons } from "@/lib/lesson-access"
 
 // Judul tab ikut bahasa: generateMetadata bisa membaca cookie, sedangkan
 // `export const metadata` dievaluasi sekali tanpa konteks permintaan.
@@ -39,7 +40,8 @@ export default async function LearnPage({
     redirect(roleHomePath(userRole.role))
   }
 
-  const { course, enrollmentId, completedLessonIds, quizAttempts } = await getLearnData(courseId)
+  const { course, enrollmentId, completedLessonIds, quizAttempts, passedQuizIds } =
+    await getLearnData(courseId)
   if (!course) notFound()
   if (!enrollmentId) redirect(`/learner/courses/${courseId}?enroll=required`)
 
@@ -48,9 +50,34 @@ export default async function LearnPage({
     redirect(`/learner/courses/${courseId}`)
   }
 
+  /*
+   * Kursus berurutan: pelajaran baru terbuka setelah seluruh pelajaran
+   * sebelumnya tuntas. Dihitung di server dan ditegakkan di sini, bukan hanya
+   * dengan menonaktifkan tautan di sidebar -- alamat pelajaran bisa diketik
+   * langsung, dan penjaga yang hanya ada di layar bukan penjaga.
+   */
+  const unlockedLessonIds = computeUnlockedLessons({
+    lessons: allLessons.map((l) => ({
+      id: l.id,
+      content_type: l.content_type,
+      quizId: l.quiz?.id ?? null,
+    })),
+    completedLessonIds,
+    passedQuizIds,
+    sequential: course.sequential,
+  })
+
   const firstIncomplete = allLessons.find((l) => !completedLessonIds.has(l.id))
   const currentLesson =
     allLessons.find((l) => l.id === lessonParam) ?? firstIncomplete ?? allLessons[0]
+
+  // Pelajaran terkunci yang dicapai lewat alamat langsung dikembalikan ke
+  // pelajaran terbuka terakhir, bukan ditolak dengan halaman galat: peserta
+  // tidak melakukan kesalahan, ia hanya belum sampai ke sana.
+  if (!unlockedLessonIds.has(currentLesson.id)) {
+    const lastUnlocked = [...allLessons].reverse().find((l) => unlockedLessonIds.has(l.id))
+    redirect(`/learn/${courseId}${lastUnlocked ? `?lesson=${lastUnlocked.id}` : ""}`)
+  }
 
   const currentIndex = allLessons.findIndex((l) => l.id === currentLesson.id)
   const prevLessonId = currentIndex > 0 ? allLessons[currentIndex - 1].id : null
@@ -182,6 +209,7 @@ export default async function LearnPage({
           sections={course.sections}
           currentLessonId={currentLesson.id}
           completedLessonIds={completedLessonIds}
+          unlockedLessonIds={unlockedLessonIds}
         />
       }
     />

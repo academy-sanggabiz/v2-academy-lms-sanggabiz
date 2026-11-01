@@ -91,6 +91,8 @@ export type CourseDraft = {
   // A real courses column, previously written outside the form by
   // setRequirePrerequisites -- folded into the same batch save now.
   requirePrerequisites: boolean
+  /** true = peserta harus menyelesaikan pelajaran berurutan. */
+  sequential: boolean
   prerequisiteIds: string[]
   // null = no course_certificate_settings row yet.
   certificate: CourseCertificateSettings | null
@@ -274,6 +276,7 @@ export function draftFromDetail(course: AdminCourseDetail): CourseDraft {
     isPrivate: course.is_private,
     passingGrade: course.passing_grade,
     requirePrerequisites: course.require_prerequisites,
+    sequential: course.sequential ?? false,
     prerequisiteIds: course.prerequisites.map((p) => p.id),
     certificate: course.certificate_settings,
     instructorId: course.instructor?.id ?? null,
@@ -426,6 +429,7 @@ export const courseDraftSchema = z.object({
   isPrivate: z.boolean(),
   passingGrade: z.number().int().min(0).max(100),
   requirePrerequisites: z.boolean(),
+  sequential: z.boolean(),
   prerequisiteIds: z.array(z.string().uuid()).max(50),
   certificate: certificateSettingsSchema.nullable(),
   instructorId: z.string().uuid().nullable(),

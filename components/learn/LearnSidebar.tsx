@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ChevronDown, FileText, HelpCircle, Presentation, Video } from "lucide-react"
+import { ChevronDown, FileText, HelpCircle, Presentation, Video, Lock} from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { formatDuration, type CourseSection, type LessonContentType } from "@/lib/courses"
@@ -29,6 +29,7 @@ export function LearnSidebar({
   sections,
   currentLessonId,
   completedLessonIds,
+  unlockedLessonIds,
   basePath = "/learn",
   mode = "learner",
 }: {
@@ -36,6 +37,8 @@ export function LearnSidebar({
   sections: CourseSection[]
   currentLessonId: string
   completedLessonIds: Set<string>
+  /** Semua pelajaran bila kursusnya bebas; sebagian bila berurutan. */
+  unlockedLessonIds?: Set<string>
   basePath?: string
   mode?: "learner" | "admin-preview"
 }) {
@@ -52,6 +55,7 @@ export function LearnSidebar({
         sections={sections}
         currentLessonId={currentLessonId}
         completedLessonIds={completedLessonIds}
+        unlockedLessonIds={unlockedLessonIds}
         basePath={basePath}
         mode={mode}
       />
@@ -64,6 +68,7 @@ function ContentTab({
   sections,
   currentLessonId,
   completedLessonIds,
+  unlockedLessonIds,
   basePath = "/learn",
   mode = "learner",
 }: {
@@ -71,6 +76,8 @@ function ContentTab({
   sections: CourseSection[]
   currentLessonId: string
   completedLessonIds: Set<string>
+  /** Semua pelajaran bila kursusnya bebas; sebagian bila berurutan. */
+  unlockedLessonIds?: Set<string>
   basePath?: string
   mode?: "learner" | "admin-preview"
 }) {
@@ -114,39 +121,63 @@ function ContentTab({
                   const Icon = typeIcon[lesson.content_type]
                   const isActive = lesson.id === currentLessonId
                   const isDone = completedLessonIds.has(lesson.id)
+                  // Tanpa daftar terbuka, kursusnya bebas -- semua terbuka.
+                  const isLocked = unlockedLessonIds ? !unlockedLessonIds.has(lesson.id) : false
+
+                  const body = (
+                    <>
+                      <div className="line-clamp-2 text-[13.5px] leading-snug">{lesson.title}</div>
+                      <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Icon className="size-3" aria-hidden />
+                        <span>
+                          {typeLabel[lesson.content_type]}
+                          {mode === "learner" && isDone ? " · Selesai" : ""}
+                          {isLocked ? " · Terkunci" : ""}
+                          {lesson.duration_seconds ? ` · ${formatDuration(lesson.duration_seconds)}` : ""}
+                        </span>
+                      </div>
+                    </>
+                  )
 
                   return (
                     <div
                       key={lesson.id}
                       className={cn(
                         "flex items-center gap-2.5 border-l-2 px-5 py-2.5",
-                        isActive ? "border-ring bg-secondary" : "border-transparent hover:bg-muted"
+                        isActive ? "border-ring bg-secondary" : "border-transparent hover:bg-muted",
+                        isLocked && "opacity-60"
                       )}
                     >
-                      {mode === "learner" && (
-                        <LessonCompleteCheckbox
-                          courseId={courseId}
-                          lessonId={lesson.id}
-                          title={lesson.title}
-                          isDone={isDone}
-                        />
-                      )}
+                      {mode === "learner" &&
+                        (isLocked ? (
+                          /* Gembok menggantikan kotak centang, bukan menemaninya:
+                             kotak centang yang bisa ditekan pada pelajaran
+                             terkunci akan membuka kunci pelajaran berikutnya
+                             tanpa pelajaran ini pernah dibuka. */
+                          <Lock className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                        ) : (
+                          <LessonCompleteCheckbox
+                            courseId={courseId}
+                            lessonId={lesson.id}
+                            title={lesson.title}
+                            isDone={isDone}
+                          />
+                        ))}
 
+                      {isLocked ? (
+                        /* Teks biasa, bukan tautan dinonaktifkan: tautan yang
+                           tidak membawa ke mana-mana tetap jadi perhentian tab
+                           dan tetap diumumkan sebagai tautan. */
+                        <div className="min-w-0 flex-1">{body}</div>
+                      ) : (
                       <Link
                         href={`${basePath}/${courseId}?lesson=${lesson.id}`}
                         aria-current={isActive ? "page" : undefined}
                         className="min-w-0 flex-1"
                       >
-                        <div className="line-clamp-2 text-[13.5px] leading-snug">{lesson.title}</div>
-                        <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <Icon className="size-3" aria-hidden />
-                          <span>
-                            {typeLabel[lesson.content_type]}
-                            {mode === "learner" && isDone ? " · Selesai" : ""}
-                            {lesson.duration_seconds ? ` · ${formatDuration(lesson.duration_seconds)}` : ""}
-                          </span>
-                        </div>
+                        {body}
                       </Link>
+                      )}
                     </div>
                   )
                 })}

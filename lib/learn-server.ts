@@ -20,6 +20,14 @@ type LearnData = {
   enrollmentId: string | null
   completedLessonIds: Set<string>
   quizAttempts: Map<string, QuizAttemptInfo>
+  /**
+   * Kuis yang **pernah** dilewati dengan lulus, bukan hanya pada percobaan
+   * terakhir. `lastPassed` memakai percobaan representatif, jadi seseorang yang
+   * sudah lulus lalu mengulang dan gagal akan tampak belum lulus -- dan di
+   * kursus berurutan itu berarti ia terkunci keluar dari pelajaran yang sudah
+   * ia buka.
+   */
+  passedQuizIds: Set<string>
 }
 
 export async function getLearnData(courseId: string): Promise<LearnData> {
@@ -29,7 +37,13 @@ export async function getLearnData(courseId: string): Promise<LearnData> {
   const { data: claimsData } = await supabase.auth.getClaims()
   const userId = claimsData?.claims?.sub
   if (!userId) {
-    return { course, enrollmentId: null, completedLessonIds: new Set(), quizAttempts: new Map() }
+    return {
+      course,
+      enrollmentId: null,
+      completedLessonIds: new Set(),
+      quizAttempts: new Map(),
+      passedQuizIds: new Set(),
+    }
   }
 
   const { data: enrollment, error: enrollmentError } = await supabase
@@ -41,11 +55,23 @@ export async function getLearnData(courseId: string): Promise<LearnData> {
 
   if (enrollmentError) {
     console.error("getLearnData enrollment lookup failed:", enrollmentError.message)
-    return { course, enrollmentId: null, completedLessonIds: new Set(), quizAttempts: new Map() }
+    return {
+      course,
+      enrollmentId: null,
+      completedLessonIds: new Set(),
+      quizAttempts: new Map(),
+      passedQuizIds: new Set(),
+    }
   }
 
   if (!enrollment) {
-    return { course, enrollmentId: null, completedLessonIds: new Set(), quizAttempts: new Map() }
+    return {
+      course,
+      enrollmentId: null,
+      completedLessonIds: new Set(),
+      quizAttempts: new Map(),
+      passedQuizIds: new Set(),
+    }
   }
 
   const { data: progress, error: progressError } = await supabase
@@ -65,6 +91,7 @@ export async function getLearnData(courseId: string): Promise<LearnData> {
   const isAssessmentByQuiz = new Map(quizzes.map((q) => [q.id, q.is_assessment]))
 
   const quizAttempts = new Map<string, QuizAttemptInfo>()
+  const passedQuizIds = new Set<string>()
   if (quizIds.length > 0) {
     const { data: attempts, error: attemptsError } = await supabase
       .from("quiz_attempts")
@@ -84,6 +111,7 @@ export async function getLearnData(courseId: string): Promise<LearnData> {
       }
 
       for (const [quizId, quizAttemptsAscending] of byQuiz) {
+        if (quizAttemptsAscending.some((a) => a.passed === true)) passedQuizIds.add(quizId)
         const isAssessment = isAssessmentByQuiz.get(quizId) ?? false
         const latest = quizAttemptsAscending[quizAttemptsAscending.length - 1]
         const representative = pickRepresentativeAttempt(quizAttemptsAscending, isAssessment)
@@ -101,5 +129,5 @@ export async function getLearnData(courseId: string): Promise<LearnData> {
     }
   }
 
-  return { course, enrollmentId: enrollment.id, completedLessonIds, quizAttempts }
+  return { course, enrollmentId: enrollment.id, completedLessonIds, quizAttempts, passedQuizIds }
 }

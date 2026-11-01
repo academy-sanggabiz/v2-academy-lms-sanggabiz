@@ -22,6 +22,8 @@ export type Course = {
   // must reach, on top of completing every lesson and passing every quiz
   // individually, before checkAndIssueCertificate() will issue one.
   passing_grade: number
+  /** true = peserta harus menyelesaikan pelajaran berurutan (lib/lesson-access.ts). */
+  sequential: boolean
   created_by: string | null
   created_at: string
   updated_at: string
