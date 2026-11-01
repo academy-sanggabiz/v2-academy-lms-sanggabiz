@@ -165,7 +165,8 @@ judul pelajaran tanpa baris kosong di antaranya.
 | \`teks\` | Bacaan | — |
 | \`video\` | Video YouTube | \`video:\` berisi tautan YouTube |
 | \`slide\` | Google Slides | \`video:\` berisi tautan slide |
-| \`kuis\` | Latihan soal | \`nilai_lulus:\` 0–100 |
+| \`kuis\` | Latihan soal pilihan ganda | \`nilai_lulus:\` 0–100 |
+| \`studi-kasus\` | Satu soal esai, dinilai pengajar | — |
 
 Pelajaran video dan slide **wajib** disertai transkrip. Peserta yang tidak bisa
 mendengar, sedang di tempat ramai, atau koneksinya lambat membaca transkrip itu.
@@ -210,10 +211,30 @@ antaranya titipan arisan. Berapa laba usahanya?
 Ceritakan satu hal yang paling sulit Anda catat dalam sebulan terakhir.
 \`\`\`
 
-Soal **tanpa** pilihan jawaban otomatis menjadi soal esai, yang dinilai
-pengajar secara manual.
+Setiap soal di dalam \`tipe: kuis\` **wajib punya pilihan jawaban** dengan tepat
+satu \`[x]\`. Soal tanpa pilihan akan dilewati saat impor.
 
 Usahakan 3–5 soal per kuis, masing-masing dengan 3–4 pilihan.
+
+### Studi kasus
+
+Pertanyaan terbuka yang dijawab dengan tulisan dan dinilai pengajar ditulis
+sebagai pelajaran tersendiri bertipe \`studi-kasus\`, berisi **tepat satu**
+soal tanpa pilihan jawaban.
+
+\`\`\`
+### Pelajaran: Studi kasus — keluhan yang sulit
+tipe: studi-kasus
+
+#### Soal
+
+Ceritakan satu keluhan pelanggan yang paling sulit Anda tangani, dan apa yang
+akan Anda ubah setelah mengikuti modul ini.
+\`\`\`
+
+Jangan mencampur soal esai ke dalam \`tipe: kuis\`, dan jangan menaruh lebih
+dari satu soal di dalam \`tipe: studi-kasus\`. Keduanya akan dilewati saat
+impor.
 
 ## Batasan yang perlu diketahui
 
@@ -287,5 +308,13 @@ langkah terbaik?
 > Penjelasan: Angkanya tetap berguna dan tidak boleh dibuang, tetapi
 > memasukkannya ke tanggal hari ini membuat laporan bulan ini salah. Menandai
 > perkiraan menjaga laporan tetap jujur.
+
+### Pelajaran: Studi kasus — catatan Anda sendiri
+tipe: studi-kasus
+
+#### Soal
+
+Ambil catatan penjualan Anda satu minggu terakhir. Sebutkan satu hal yang
+hilang dari catatan itu, dan bagaimana Anda akan melengkapinya mulai besok.
 \`\`\`
 `

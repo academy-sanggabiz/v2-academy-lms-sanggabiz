@@ -54,9 +54,17 @@ bergantung pada itu, satu geseran membuat seluruh berkas gagal dibaca.
 setiap penyunting Markdown. Alternatif seperti menandai dengan bintang atau
 menulis "jawaban: B" jauh lebih sering salah.
 
-**Soal tanpa pilihan otomatis menjadi esai.** Itu kelalaian yang paling sering
-terjadi, dan menebaknya sebagai esai hampir selalu benar — jauh lebih berguna
-daripada menolak berkasnya.
+**Parser harus mematuhi aturan yang sama dengan editor.** Soal esai hanya sah
+di dalam studi kasus: `validateQuizzes` menolak esai di kuis biasa, dan menolak
+studi kasus yang berisi lebih dari satu soal. Versi pertama parser ini
+menjadikan setiap soal tanpa pilihan sebagai esai dan menaruhnya di kuis biasa
+— impornya terlihat berhasil, lalu penyimpanan ditolak dengan "1 masalah kuis"
+dan penyusun kursus tidak punya petunjuk kenapa.
+
+Itu hanya ketahuan dengan menjalankan alurnya sampai menekan Simpan. Sekarang
+studi kasus punya jenis pelajaran sendiri, `tipe: studi-kasus`, dan soal yang
+melanggar dilewati dengan penjelasan alih-alih menghasilkan draf yang tidak
+mungkin disimpan.
 
 ## 4. Parser tidak pernah melempar
 

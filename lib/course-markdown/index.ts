@@ -63,7 +63,14 @@ const MD_TO_TYPE: Record<string, LessonContentType> = {
   ppt: "ppt",
   kuis: "quiz",
   quiz: "quiz",
+  // Studi kasus juga pelajaran kuis; bedanya ada pada bendera is_assessment.
+  "studi-kasus": "quiz",
+  "studi kasus": "quiz",
+  assessment: "quiz",
 }
+
+/** Jenis yang menandai kuis sebagai studi kasus, bukan kuis biasa. */
+const ASSESSMENT_KEYS = new Set(["studi-kasus", "studi kasus", "assessment"])
 
 function slugLine(label: string, value: string | number | null | undefined): string {
   return value === null || value === undefined || value === "" ? "" : `${label}: ${value}\n`
@@ -104,7 +111,11 @@ export function courseToMarkdown(draft: CourseDraft): string {
 
     for (const lesson of section.lessons) {
       out.push(`### Pelajaran: ${lesson.title}`)
-      out.push(`tipe: ${TYPE_TO_MD[lesson.content_type]}`)
+      const typeLabel =
+        lesson.content_type === "quiz" && lesson.quiz?.is_assessment
+          ? "studi-kasus"
+          : TYPE_TO_MD[lesson.content_type]
+      out.push(`tipe: ${typeLabel}`)
       if (lesson.video_url) out.push(`video: ${lesson.video_url}`)
       if (lesson.duration_seconds) out.push(`durasi: ${Math.round(lesson.duration_seconds / 60)} menit`)
       if (lesson.content_type === "quiz" && lesson.quiz) {
@@ -166,13 +177,13 @@ function minutesToSeconds(value: string | undefined): number | null {
   return Number(match[1]) * 60
 }
 
-function emptyQuiz(passScore: number) {
+function emptyQuiz(passScore: number, isAssessment = false) {
   return {
     id: newId(),
     pass_score: passScore,
     max_attempts: null,
     shuffle: true,
-    is_assessment: false,
+    is_assessment: isAssessment,
     questions: [] as DraftQuestion[],
   }
 }
@@ -223,14 +234,45 @@ export function parseCourseMarkdown(raw: string): ParsedCourse {
   const finishQuestion = () => {
     if (!currentQuestion) return
     currentQuestion.prompt = markdownToHtml(questionBody.join("\n").trim())
+    const quiz = currentLesson?.quiz
+    const firstLineOf = () => questionBody.map((l) => l.trim()).find(Boolean) ?? "(tanpa teks)"
+
     if (currentQuestion.options.length === 0) {
-      // Tanpa pilihan, ini pertanyaan esai -- bukan soal rusak.
+      /*
+       * Soal tanpa pilihan adalah soal esai, dan esai hanya sah di dalam studi
+       * kasus -- `validateQuizzes` menolak esai di kuis biasa, dan menolak
+       * studi kasus yang berisi lebih dari satu soal. Parser harus mematuhi
+       * aturan yang sama: menghasilkan sesuatu yang editor tidak akan pernah
+       * mau simpan jauh lebih buruk daripada melewatkannya dengan penjelasan.
+       */
+      if (!quiz?.is_assessment) {
+        const line = firstLineOf()
+        warnings.push(
+          `Soal "${line.slice(0, 50)}${line.length > 50 ? "…" : ""}" tidak punya pilihan jawaban. Soal esai hanya bisa dipakai pada pelajaran bertipe "studi-kasus"; soal dilewati.`
+        )
+        currentQuestion = null
+        questionBody = []
+        return
+      }
+      if (quiz.questions.length > 0) {
+        warnings.push("Studi kasus hanya boleh berisi satu soal; soal berikutnya dilewati.")
+        currentQuestion = null
+        questionBody = []
+        return
+      }
       currentQuestion.type = "essay"
+    } else if (quiz?.is_assessment) {
+      warnings.push(
+        "Studi kasus harus berupa satu soal esai tanpa pilihan jawaban; soal berpilihan dilewati."
+      )
+      currentQuestion = null
+      questionBody = []
+      return
     } else if (!currentQuestion.options.some((o) => o.is_correct)) {
-      // Baris pertama yang berisi, bukan questionBody[0]: baris sesudah
-      // "#### Soal" hampir selalu kosong, dan peringatan yang tidak menyebut
-      // soal yang mana tidak menolong siapa pun.
-      const firstLine = questionBody.map((l) => l.trim()).find(Boolean) ?? "(tanpa teks)"
+      // Baris pertama yang berisi: baris sesudah "#### Soal" hampir selalu
+      // kosong, dan peringatan yang tidak menyebut soal yang mana tidak
+      // menolong siapa pun.
+      const firstLine = firstLineOf()
       warnings.push(
         `Soal "${firstLine.slice(0, 50)}${firstLine.length > 50 ? "…" : ""}" tidak menandai jawaban benar dengan [x]; soal dilewati.`
       )
@@ -293,6 +335,7 @@ export function parseCourseMarkdown(raw: string): ParsedCourse {
         warnings.push(`Jenis pelajaran "${typeKey}" tidak dikenali pada "${lessonHeading[1].trim()}"; dianggap teks.`)
       }
       const resolved: LessonContentType = contentType ?? "text"
+      const isAssessment = ASSESSMENT_KEYS.has(typeKey)
       const passScore = Number(attrs.nilai_lulus ?? attrs.pass_score ?? front.nilai_kelulusan ?? 70) || 70
 
       currentLesson = {
@@ -304,7 +347,7 @@ export function parseCourseMarkdown(raw: string): ParsedCourse {
         transcript: null,
         duration_seconds: minutesToSeconds(attrs.durasi ?? attrs.duration),
         resources: [],
-        quiz: resolved === "quiz" ? emptyQuiz(passScore) : null,
+        quiz: resolved === "quiz" ? emptyQuiz(passScore, isAssessment) : null,
       }
       bucket = "lesson"
       continue
