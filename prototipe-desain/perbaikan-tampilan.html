@@ -1,0 +1,583 @@
+<title>Perbaikan Tampilan Sanggabiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap">
+
+<style>
+  /* ---------------------------------------------------------------
+     Dua dunia tipografi, dan itu disengaja:
+     - IBM Plex Sans = suara analisis (chrome halaman ini)
+     - Poppins       = suara produk (di dalam setiap spesimen)
+     Begitu mata berpindah ke kotak spesimen, fontnya ikut berganti,
+     jadi jelas mana yang sedang dibicarakan dan mana yang dibicarakan.
+     --------------------------------------------------------------- */
+  :root {
+    --ground: #f6f9fa;
+    --surface: #ffffff;
+    --ink: #16262b;
+    --ink-soft: #55686e;
+    --ink-faint: #80959b;
+    --hairline: #dde7ea;
+    --hairline-soft: #e9f0f2;
+
+    /* Penanda sisi: "sekarang" netral dingin, "usulan" memakai teal merek */
+    --now: #7c8d93;
+    --now-bg: #eef2f3;
+    --next: #13707f;
+    --next-bg: #e3f4f7;
+
+    /* Token produk Sanggabiz yang asli — disalin dari app/globals.css.
+       Dipakai di dalam spesimen supaya usulannya memakai merek sendiri. */
+    --sb-primary: #13707f;
+    --sb-ring: #167384;
+    --sb-fg: #14252a;
+    --sb-muted-fg: #566a70;
+    --sb-border: #dfebee;
+    --sb-input: #6f939c;
+    --sb-card: #ffffff;
+    --sb-bg: #f2f8f9;
+    --sb-secondary: #e3f4f7;
+    --sb-destructive: #c24040;
+
+    --radius: 10px;
+    --shadow-sm: 0 1px 2px rgba(20, 55, 64, .06);
+    --shadow-md: 0 6px 20px rgba(20, 55, 64, .08);
+  }
+
+  :root:not([data-theme="light"]) {
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0f1719;
+      --surface: #162225;
+      --ink: #e8f0f2;
+      --ink-soft: #a6bcc2;
+      --ink-faint: #7b949b;
+      --hairline: #27373b;
+      --hairline-soft: #1e2d31;
+      --now: #8ba1a8;
+      --now-bg: #1c2b2f;
+      --next: #4bb3c4;
+      --next-bg: #16363c;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0f1719;
+    --surface: #162225;
+    --ink: #e8f0f2;
+    --ink-soft: #a6bcc2;
+    --ink-faint: #7b949b;
+    --hairline: #27373b;
+    --hairline-soft: #1e2d31;
+    --now: #8ba1a8;
+    --now-bg: #1c2b2f;
+    --next: #4bb3c4;
+    --next-bg: #16363c;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 56px 24px 96px; }
+
+  /* ---- kepala halaman ---- */
+  .masthead { border-bottom: 1px solid var(--hairline); padding-bottom: 32px; margin-bottom: 8px; }
+  .eyebrow {
+    font-size: 12px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--next); margin: 0 0 12px;
+  }
+  h1 {
+    font-size: clamp(28px, 4vw, 40px); line-height: 1.15; font-weight: 600;
+    margin: 0 0 14px; letter-spacing: -.02em; text-wrap: balance;
+  }
+  .lede { font-size: 17px; color: var(--ink-soft); margin: 0; max-width: 62ch; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 24px;
+    font-size: 13px; color: var(--ink-faint);
+  }
+  .meta b { color: var(--ink-soft); font-weight: 500; }
+
+  /* ---- bagian ---- */
+  section { padding-top: 56px; }
+  .sec-head { display: flex; gap: 16px; align-items: baseline; margin-bottom: 6px; }
+  .num {
+    font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600;
+    color: var(--next); background: var(--next-bg);
+    border-radius: 999px; padding: 3px 11px; flex: none;
+  }
+  h2 { font-size: 23px; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+  .why { color: var(--ink-soft); margin: 10px 0 0 59px; max-width: 64ch; font-size: 15px; }
+  .why b { color: var(--ink); font-weight: 600; }
+  @media (max-width: 640px) { .why { margin-left: 0; } }
+
+  /* ---- panel pembanding ---- */
+  .compare {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 26px;
+  }
+  @media (max-width: 860px) { .compare { grid-template-columns: 1fr; } }
+
+  .panel {
+    border: 1px solid var(--hairline); border-radius: 14px;
+    background: var(--surface); overflow: hidden; display: flex; flex-direction: column;
+  }
+  .panel.is-next { border-color: color-mix(in srgb, var(--next) 38%, var(--hairline)); box-shadow: var(--shadow-md); }
+
+  .panel-bar {
+    display: flex; align-items: center; gap: 9px;
+    padding: 11px 16px; border-bottom: 1px solid var(--hairline-soft);
+    font-size: 12.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  }
+  .panel-bar.now  { color: var(--now);  background: var(--now-bg); }
+  .panel-bar.next { color: var(--next); background: var(--next-bg); }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+
+  /* Kanvas produk: selalu terang, karena LMS-nya memang terang.
+     Semua warna di dalamnya ditulis eksplisit supaya tidak ikut
+     berubah mengikuti tema halaman ini. */
+  .canvas {
+    background: var(--sb-bg); padding: 26px 22px; flex: 1;
+    font-family: Poppins, ui-sans-serif, system-ui, sans-serif;
+    color: var(--sb-fg);
+  }
+  .canvas.plain { background: var(--sb-card); }
+
+  .note {
+    padding: 12px 16px; border-top: 1px solid var(--hairline-soft);
+    font-size: 13px; color: var(--ink-soft); background: var(--surface);
+  }
+  .note b { color: var(--ink); font-weight: 600; }
+
+  /* =============================================================
+     SPESIMEN — nilai di sisi "sekarang" disalin dari kode yang
+     benar-benar berjalan, bukan dikira-kira.
+     ============================================================= */
+
+  /* --- ruas isian: SEKARANG (components/ui/input.tsx: h-8, rounded-lg) --- */
+  .f-now input {
+    display: block; width: 100%; height: 32px;
+    border: 1px solid var(--sb-input); border-radius: 8px;
+    background: var(--sb-card); color: var(--sb-fg);
+    padding: 0 10px; font: 400 14px/1 Poppins, sans-serif;
+  }
+  .f-now input::placeholder { color: var(--sb-muted-fg); }
+  .f-now input:focus-visible { outline: none; border-color: var(--sb-ring); box-shadow: 0 0 0 3px rgba(22,115,132,.25); }
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+
+  /* --- ruas isian: USULAN --- */
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field > label {
+    font: 500 13px/1.3 Poppins, sans-serif; color: var(--sb-fg);
+  }
+  .field > label .opt { color: var(--sb-muted-fg); font-weight: 400; }
+  .field input {
+    width: 100%; height: 44px;
+    border: 1px solid #b7cfd5; border-radius: 10px;
+    background: var(--sb-card); color: var(--sb-fg);
+    padding: 0 13px; font: 400 15px/1 Poppins, sans-serif;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .field input::placeholder { color: #93a9af; }
+  .field input:focus-visible {
+    outline: none; border-color: var(--sb-ring);
+    box-shadow: 0 0 0 3px rgba(22,115,132,.22);
+  }
+  .field .help { font: 400 12.5px/1.45 Poppins, sans-serif; color: var(--sb-muted-fg); }
+  .field.err input { border-color: var(--sb-destructive); box-shadow: 0 0 0 3px rgba(194,64,64,.14); }
+  .field .bad {
+    font: 500 12.5px/1.45 Poppins, sans-serif; color: var(--sb-destructive);
+    display: flex; gap: 6px; align-items: flex-start;
+  }
+  .field .bad svg { flex: none; margin-top: 2px; }
+
+  /* --- tombol produk --- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 44px; padding: 0 20px; border-radius: 10px; border: 0;
+    background: var(--sb-primary); color: #fff; cursor: pointer;
+    font: 600 14.5px/1 Poppins, sans-serif;
+  }
+  .btn:hover { filter: brightness(1.07); }
+  .btn:focus-visible { outline: 3px solid rgba(22,115,132,.4); outline-offset: 2px; }
+  .btn.ghost { background: var(--sb-card); color: var(--sb-primary); border: 1px solid #b7cfd5; }
+  .btn.sm { height: 36px; padding: 0 15px; font-size: 13.5px; border-radius: 9px; }
+  .btn.now { height: 32px; padding: 0 14px; border-radius: 8px; font-size: 13.5px; font-weight: 500; }
+  .btn.block { width: 100%; }
+
+  /* --- kartu form --- */
+  .authcard {
+    background: var(--sb-card); border: 1px solid var(--sb-border);
+    border-radius: 14px; padding: 24px 22px; max-width: 340px; margin: 0 auto;
+  }
+  .authcard h3 { font: 700 19px/1.25 Poppins, sans-serif; margin: 0 0 4px; text-align: center; color: var(--sb-fg); }
+  .authcard p.sub { font: 400 13.5px/1.5 Poppins, sans-serif; color: var(--sb-muted-fg); margin: 0 0 20px; text-align: center; }
+
+  /* --- keadaan kosong --- */
+  .card-prod {
+    background: var(--sb-card); border: 1px solid var(--sb-border);
+    border-radius: 14px; padding: 20px;
+  }
+  .card-prod > h4 { font: 600 15.5px/1.3 Poppins, sans-serif; margin: 0 0 14px; color: var(--sb-fg); }
+  .empty-now { font: 400 14px/1.5 Poppins, sans-serif; color: var(--sb-muted-fg); padding: 22px 0 46px; }
+  .empty-next { text-align: center; padding: 22px 8px 24px; }
+  .empty-next .ring {
+    width: 50px; height: 50px; border-radius: 50%; background: var(--sb-secondary);
+    display: inline-flex; align-items: center; justify-content: center; color: var(--sb-primary);
+    margin-bottom: 13px;
+  }
+  .empty-next h5 { font: 600 15px/1.35 Poppins, sans-serif; margin: 0 0 5px; color: var(--sb-fg); }
+  .empty-next p { font: 400 13px/1.55 Poppins, sans-serif; color: var(--sb-muted-fg); margin: 0 auto 16px; max-width: 34ch; }
+
+  /* --- kartu statistik --- */
+  .stats-now { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .stat-now {
+    background: var(--sb-card); border: 1px solid var(--sb-border);
+    border-radius: 14px; padding: 18px 18px 22px;
+  }
+  .stat-now .lab {
+    font: 600 14px/1 Poppins, sans-serif; color: var(--sb-primary);
+    display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  }
+  .stat-now .val { font: 700 30px/1 Poppins, sans-serif; color: var(--sb-fg); }
+
+  .stats-next {
+    background: var(--sb-card); border: 1px solid var(--sb-border);
+    border-radius: 14px; display: grid; grid-template-columns: repeat(4, 1fr);
+    overflow: hidden;
+  }
+  .stat-next { padding: 15px 14px; border-left: 1px solid var(--sb-border); }
+  .stat-next:first-child { border-left: 0; }
+  .stat-next .lab { font: 500 11.5px/1.3 Poppins, sans-serif; color: var(--sb-muted-fg); display: block; margin-bottom: 7px; }
+  .stat-next .val { font: 700 24px/1 Poppins, sans-serif; color: var(--sb-fg); font-variant-numeric: tabular-nums; }
+  .stat-next .sub { font: 400 11.5px/1.3 Poppins, sans-serif; color: var(--sb-muted-fg); margin-top: 5px; }
+  .stat-next .sub.up { color: #18733a; font-weight: 500; }
+  @media (max-width: 520px) { .stats-next { grid-template-columns: 1fr 1fr; } .stat-next:nth-child(3) { border-left: 0; } }
+
+  /* --- skala huruf --- */
+  .scale { font-family: Poppins, sans-serif; }
+  .scale .row {
+    display: flex; align-items: baseline; gap: 14px;
+    padding: 7px 0; border-bottom: 1px dashed var(--sb-border);
+  }
+  .scale .row:last-child { border-bottom: 0; }
+  .scale .tag {
+    font: 500 11px/1 "IBM Plex Sans", sans-serif; color: var(--sb-muted-fg);
+    width: 62px; flex: none; font-variant-numeric: tabular-nums;
+  }
+  .scale .smp { color: var(--sb-fg); }
+
+  /* ---- penutup ---- */
+  .closing {
+    margin-top: 64px; border-top: 1px solid var(--hairline); padding-top: 32px;
+  }
+  .closing h2 { margin-bottom: 14px; }
+  ol.next-steps { margin: 0; padding-left: 20px; color: var(--ink-soft); max-width: 68ch; }
+  ol.next-steps li { margin-bottom: 9px; }
+  ol.next-steps b { color: var(--ink); font-weight: 600; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Purwarupa · bukan bagian dari aplikasi</p>
+    <h1>Perbaikan tampilan, berdampingan dengan yang sekarang</h1>
+    <p class="lede">
+      Empat perbaikan berdampak terbesar dari hasil audit, ditampilkan sebagai komponen sungguhan
+      agar bisa dinilai dengan mata, bukan dibayangkan. Warna, font, dan sudutnya memakai token
+      Sanggabiz yang asli — yang berubah bentuknya, bukan identitasnya.
+    </p>
+    <div class="meta">
+      <span><b>Sisi kiri</b> disalin dari kode yang berjalan hari ini</span>
+      <span><b>Sisi kanan</b> usulan</span>
+      <span><b>Font</b> Poppins · <b>Warna utama</b> #13707f</span>
+    </div>
+  </header>
+
+  <!-- ============================================================ 1 -->
+  <section>
+    <div class="sec-head"><span class="num">1</span><h2>Ruas isian</h2></div>
+    <p class="why">
+      Ruas sekarang setinggi <b>32 piksel</b> dan namanya hanya ada di dalam kotak sebagai
+      placeholder. Begitu seseorang mengetik, nama ruasnya hilang — ia tidak bisa memeriksa ulang
+      apa yang sedang diisi. Inilah satu perubahan yang terlihat di hampir setiap layar.
+      Sebagai pembanding, Material Design menetapkan 56dp; usulan di sini 44px, cukup lega tanpa
+      membuat form jadi panjang.
+    </p>
+
+    <div class="compare">
+      <div class="panel">
+        <div class="panel-bar now"><span class="dot"></span>Sekarang di LMS</div>
+        <div class="canvas plain">
+          <div class="stack f-now">
+            <input type="text" placeholder="Nama lengkap" aria-label="Nama lengkap">
+            <input type="email" placeholder="Email" aria-label="Email">
+            <input type="text" value="Siti Rahayu" aria-label="Nama lengkap terisi">
+          </div>
+        </div>
+        <p class="note">Ruas ketiga sudah terisi — <b>namanya hilang.</b> Tidak ada tempat untuk aturan pengisian maupun pesan galat.</p>
+      </div>
+
+      <div class="panel is-next">
+        <div class="panel-bar next"><span class="dot"></span>Usulan</div>
+        <div class="canvas plain">
+          <div class="stack">
+            <div class="field">
+              <label for="p-nama">Nama lengkap</label>
+              <input id="p-nama" type="text" placeholder="Nama seperti di sertifikat nanti">
+            </div>
+            <div class="field">
+              <label for="p-sandi">Kata sandi</label>
+              <input id="p-sandi" type="password" value="rahasia123">
+              <span class="help">Minimal 8 karakter.</span>
+            </div>
+            <div class="field err">
+              <label for="p-email">Email</label>
+              <input id="p-email" type="text" value="siti.rahayu@" aria-invalid="true" aria-describedby="p-email-bad">
+              <span class="bad" id="p-email-bad">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.8v3.6M8 11.1h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Alamat email belum lengkap. Contoh: nama@perusahaan.com
+              </span>
+            </div>
+          </div>
+        </div>
+        <p class="note">Label tetap terlihat, aturan pengisian muncul <b>sebelum</b> gagal, dan galat menjelaskan cara memperbaikinya.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 2 -->
+  <section>
+    <div class="sec-head"><span class="num">2</span><h2>Form pendaftaran</h2></div>
+    <p class="why">
+      Efek yang sama pada satu form utuh — layar pertama yang dilihat peserta baru.
+      Empat kotak tanpa nama terbaca sebagai purwarupa; empat ruas berlabel terbaca sebagai produk.
+    </p>
+
+    <div class="compare">
+      <div class="panel">
+        <div class="panel-bar now"><span class="dot"></span>Sekarang di LMS</div>
+        <div class="canvas">
+          <div class="authcard">
+            <h3>Buat akun Anda</h3>
+            <p class="sub">Mulai belajar bersama Sanggabiz.</p>
+            <div class="stack f-now">
+              <input type="text" placeholder="Nama lengkap" aria-label="Nama lengkap">
+              <input type="email" placeholder="Email" aria-label="Email">
+              <input type="password" placeholder="Kata sandi" aria-label="Kata sandi">
+              <input type="password" placeholder="Konfirmasi kata sandi" aria-label="Konfirmasi kata sandi">
+              <button class="btn now block" type="button">Daftar</button>
+            </div>
+          </div>
+        </div>
+        <p class="note">Empat kotak identik tanpa nama, dan aturan kata sandi baru muncul setelah gagal.</p>
+      </div>
+
+      <div class="panel is-next">
+        <div class="panel-bar next"><span class="dot"></span>Usulan</div>
+        <div class="canvas">
+          <div class="authcard">
+            <h3>Buat akun Anda</h3>
+            <p class="sub">Mulai belajar bersama Sanggabiz.</p>
+            <div class="stack">
+              <div class="field">
+                <label for="d-nama">Nama lengkap</label>
+                <input id="d-nama" type="text" placeholder="Nama seperti di sertifikat nanti">
+              </div>
+              <div class="field">
+                <label for="d-email">Email</label>
+                <input id="d-email" type="email" placeholder="nama@perusahaan.com">
+              </div>
+              <div class="field">
+                <label for="d-sandi">Kata sandi</label>
+                <input id="d-sandi" type="password">
+                <span class="help">Minimal 8 karakter.</span>
+              </div>
+              <button class="btn block" type="button">Daftar</button>
+            </div>
+          </div>
+        </div>
+        <p class="note">Konfirmasi kata sandi dihapus — tombol lihat-sandi sudah ada, dan satu ruas kurang berarti satu kesempatan gagal lebih sedikit.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 3 -->
+  <section>
+    <div class="sec-head"><span class="num">3</span><h2>Keadaan kosong</h2></div>
+    <p class="why">
+      Ada <b>45 keadaan kosong</b> di aplikasi, hampir semuanya satu kalimat abu-abu. Di dasbor
+      pengelola tiga muncul sekaligus — layar pertama pengelola baru adalah tiga kotak kosong yang
+      tidak memberi tahu apa pun. Ini tempat terbaik untuk mengajari pengguna, dan sekarang terbuang.
+    </p>
+
+    <div class="compare">
+      <div class="panel">
+        <div class="panel-bar now"><span class="dot"></span>Sekarang di LMS</div>
+        <div class="canvas">
+          <div class="card-prod">
+            <h4>Pendaftaran Terbaru</h4>
+            <p class="empty-now">Belum ada pendaftaran</p>
+          </div>
+        </div>
+        <p class="note">Kalimat mati. Pengelola baru tidak tahu apakah ini normal, rusak, atau menunggu sesuatu.</p>
+      </div>
+
+      <div class="panel is-next">
+        <div class="panel-bar next"><span class="dot"></span>Usulan</div>
+        <div class="canvas">
+          <div class="card-prod">
+            <h4>Pendaftaran Terbaru</h4>
+            <div class="empty-next">
+              <span class="ring" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M16 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 17.5V19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="10" cy="8" r="3.2" stroke="currentColor" stroke-width="1.7"/><path d="M18 8h4M20 6v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              </span>
+              <h5>Belum ada peserta yang mendaftar</h5>
+              <p>Pendaftaran muncul di sini begitu kursus Anda terbit. Anda juga bisa mendaftarkan peserta sendiri.</p>
+              <button class="btn sm ghost" type="button">Daftarkan peserta</button>
+            </div>
+          </div>
+        </div>
+        <p class="note">Menjelaskan <b>kenapa kosong</b>, <b>kapan terisi</b>, dan memberi satu langkah berikutnya.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 4 -->
+  <section>
+    <div class="sec-head"><span class="num">4</span><h2>Kepadatan dasbor</h2></div>
+    <p class="why">
+      Kartu statistik sekarang selebar setengah layar hanya untuk menampilkan angka
+      <b>1</b>. Akibatnya isi dasbor memakai sekitar sepertiga tinggi layar dan sisanya kosong.
+      Angka yang dirapatkan memberi ruang untuk hal yang lebih berguna — dan menambah satu baris
+      konteks membuat angkanya bisa dibaca, bukan sekadar dilihat.
+    </p>
+
+    <div class="compare">
+      <div class="panel">
+        <div class="panel-bar now"><span class="dot"></span>Sekarang di LMS</div>
+        <div class="canvas">
+          <div class="stats-now">
+            <div class="stat-now">
+              <span class="lab"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z" stroke="currentColor" stroke-width="1.7"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5v-13Z" stroke="currentColor" stroke-width="1.7"/></svg>Kursus berjalan</span>
+              <span class="val">1</span>
+            </div>
+            <div class="stat-now">
+              <span class="lab"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.2" stroke="currentColor" stroke-width="1.7"/><path d="m8.5 12 2.4 2.4 4.6-4.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Kursus selesai</span>
+              <span class="val">1</span>
+            </div>
+          </div>
+        </div>
+        <p class="note">Dua kartu besar untuk dua angka satu digit, tanpa konteks apa pun.</p>
+      </div>
+
+      <div class="panel is-next">
+        <div class="panel-bar next"><span class="dot"></span>Usulan</div>
+        <div class="canvas">
+          <div class="stats-next">
+            <div class="stat-next">
+              <span class="lab">Kursus berjalan</span>
+              <span class="val">1</span>
+              <div class="sub">dari 2 diikuti</div>
+            </div>
+            <div class="stat-next">
+              <span class="lab">Kursus selesai</span>
+              <span class="val">1</span>
+              <div class="sub up">+1 bulan ini</div>
+            </div>
+            <div class="stat-next">
+              <span class="lab">Pelajaran tuntas</span>
+              <span class="val">8</span>
+              <div class="sub">dari 11</div>
+            </div>
+            <div class="stat-next">
+              <span class="lab">Sertifikat</span>
+              <span class="val">1</span>
+              <div class="sub">siap diunduh</div>
+            </div>
+          </div>
+        </div>
+        <p class="note">Tinggi separuhnya, memuat dua kali lipat informasi, dan tiap angka punya pembanding.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 5 -->
+  <section>
+    <div class="sec-head"><span class="num">5</span><h2>Skala huruf</h2></div>
+    <p class="why">
+      Ada <b>13 ukuran huruf di luar skala</b> yang dipakai 129 kali. Lima di antaranya —
+      13, 13,5, 14, 14,5, dan 15 piksel — praktis tidak terbedakan mata, tetapi membuat tiap
+      layar terasa "hampir rapi". Enam langkah sudah cukup untuk seluruh aplikasi.
+    </p>
+
+    <div class="compare">
+      <div class="panel">
+        <div class="panel-bar now"><span class="dot"></span>Sekarang di LMS</div>
+        <div class="canvas plain scale">
+          <div class="row"><span class="tag">10px</span><span class="smp" style="font-size:10px">Teks kecil</span></div>
+          <div class="row"><span class="tag">11px</span><span class="smp" style="font-size:11px">Teks kecil</span></div>
+          <div class="row"><span class="tag">12,5px</span><span class="smp" style="font-size:12.5px">Teks kecil</span></div>
+          <div class="row"><span class="tag">13px</span><span class="smp" style="font-size:13px">Keterangan pelajaran</span></div>
+          <div class="row"><span class="tag">13,5px</span><span class="smp" style="font-size:13.5px">Keterangan pelajaran</span></div>
+          <div class="row"><span class="tag">14px</span><span class="smp" style="font-size:14px">Keterangan pelajaran</span></div>
+          <div class="row"><span class="tag">14,5px</span><span class="smp" style="font-size:14.5px">Keterangan pelajaran</span></div>
+          <div class="row"><span class="tag">15px</span><span class="smp" style="font-size:15px">Keterangan pelajaran</span></div>
+          <div class="row"><span class="tag">17px</span><span class="smp" style="font-size:17px">Judul bagian</span></div>
+          <div class="row"><span class="tag">19px</span><span class="smp" style="font-size:19px">Judul bagian</span></div>
+        </div>
+        <p class="note">Sepuluh dari tiga belas ditampilkan. Lima baris di tengah membawa pesan yang sama.</p>
+      </div>
+
+      <div class="panel is-next">
+        <div class="panel-bar next"><span class="dot"></span>Usulan</div>
+        <div class="canvas plain scale">
+          <div class="row"><span class="tag">12px</span><span class="smp" style="font-size:12px">Label dan pembantu</span></div>
+          <div class="row"><span class="tag">14px</span><span class="smp" style="font-size:14px">Teks pendukung</span></div>
+          <div class="row"><span class="tag">16px</span><span class="smp" style="font-size:16px">Teks utama</span></div>
+          <div class="row"><span class="tag">20px</span><span class="smp" style="font-size:20px;font-weight:600">Judul kartu</span></div>
+          <div class="row"><span class="tag">26px</span><span class="smp" style="font-size:26px;font-weight:600">Judul halaman</span></div>
+          <div class="row"><span class="tag">34px</span><span class="smp" style="font-size:34px;font-weight:700">Angka utama</span></div>
+        </div>
+        <p class="note">Enam langkah, tiap langkah punya tugas yang jelas. Setiap ukuran baru harus merebut tempatnya.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="closing">
+    <h2>Yang tidak berubah</h2>
+    <p class="why" style="margin-left:0">
+      Warna merek, logo, font Poppins, dan susunan menu tetap. Tidak ada sistem desain pihak
+      ketiga yang diadopsi — usulan ini memakai token yang sudah ada di
+      <code>app/globals.css</code>, hanya dipakai dengan lebih disiplin.
+    </p>
+
+    <h2 style="margin-top:36px">Kalau disetujui, urutan kerjanya</h2>
+    <ol class="next-steps">
+      <li><b>Komponen ruas isian</b> dibangun ulang sekali, lalu seluruh form ikut berubah dengan sendirinya.</li>
+      <li><b>Label dipasang</b> pada 14 berkas yang sekarang hanya punya placeholder.</li>
+      <li><b>Komponen keadaan kosong</b> dibuat satu, dipakai di 45 tempat.</li>
+      <li><b>45 warna hex dipindahkan ke token</b> — ini sekaligus menambal mode kontras tinggi yang sekarang bolong.</li>
+    </ol>
+    <p class="why" style="margin-left:0;margin-top:18px">
+      Keempatnya tidak menyentuh warna merek dan tidak mengubah alur mana pun, jadi risikonya kecil.
+      Skala huruf menyusul karena ia menyentuh banyak berkas sekaligus.
+    </p>
+  </section>
+
+</div>
