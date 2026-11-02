@@ -37,7 +37,21 @@ const results = []
 const LEBAR_DESKTOP = { width: 1366, height: 900 }
 
 async function audit(page, name) {
-  await page.addScriptTag({ content: AXE_SOURCE })
+  /*
+   * Menyuntikkan axe bisa jatuh dengan "Execution context was destroyed"
+   * ketika halaman kebetulan berpindah saat itu juga -- biasanya pengalihan
+   * sisi klien yang baru berjalan. Itu bukan temuan aksesibilitas, hanya
+   * perlombaan waktu, dan gerbang yang kadang-kadang gagal tanpa sebab nyata
+   * cepat berhenti dipercaya. Dicoba ulang sekali setelah halaman tenang.
+   */
+  try {
+    await page.addScriptTag({ content: AXE_SOURCE })
+  } catch (err) {
+    if (!/Execution context was destroyed/i.test(String(err))) throw err
+    await settle(page)
+    await page.addScriptTag({ content: AXE_SOURCE })
+  }
+
   const violations = await page.evaluate(
     async (tags) =>
       (
