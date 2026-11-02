@@ -37,7 +37,7 @@ export default async function AdminTrackingPage({
       <div className="mb-6">
         <h1 className="text-[30px] font-bold">{t.admin.tracking}</h1>
         <p className="text-sm text-muted-foreground">
-          Pantau penyelesaian modul dan tugas setiap peserta per kursus
+          {t.admin.trackingSubtitle}
         </p>
       </div>
 

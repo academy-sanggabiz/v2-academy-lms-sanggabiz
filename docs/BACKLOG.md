@@ -95,42 +95,39 @@ dikembangkan kalau diperlukan: impor per modul ke kursus yang sudah ada, dan
 tampilan perbandingan supaya kursus yang sudah punya peserta pun bisa
 diperbarui sebagian.
 
-### 1. Dwibahasa Indonesia–Inggris — *kerangka dan seluruh layar utama selesai*
+### 1. Dwibahasa Indonesia–Inggris — *sebagian besar selesai, sisanya terukur*
 
-**Sudah selesai:** kerangkanya (`lib/i18n/`), pemilih bahasa di header peserta
-dan pengelola, atribut `lang` yang ikut berganti, judul tab, dan **seluruh
-layar yang dilihat peserta**: masuk, daftar, lupa dan ganti kata sandi,
-navigasi, dasbor, katalog kursus, riwayat pembelian, notifikasi, pengaturan,
-profil beserta form penyuntingannya, pemutar pelajaran, dan kotak catatan.
+**Ada alat ukurnya sekarang:** `node scripts/i18n-check.mjs` membuka LMS dalam
+bahasa Inggris dan menghitung berapa baris antarmuka yang masih berbahasa
+Indonesia, per layar. Judul kursus, judul pelajaran, dan isi notifikasi
+dikecualikan — itu **isi**, bukan antarmuka, dan kursus berbahasa Indonesia
+memang berjudul Indonesia walau layarnya dibuka dalam bahasa Inggris. Tanpa
+pengecualian itu angkanya tidak akan pernah nol, dan alat ukur yang tidak bisa
+mencapai nol berhenti dipakai orang.
 
-**Juga selesai:** navigasi dan dasbor pengelola, serta judul tiap layar
-pengelola.
+Angkanya: **81 → 19 baris** pada 12 layar utama.
 
-**Belum:** isi rinci di dalam layar pengelola — tabel, dialog, dan pesan di
-editor kursus, penilaian, dan pelacakan. Sifatnya mekanis: tiap kalimat
-dipindahkan ke `lib/i18n/dictionaries.ts` dan diganti pemanggilan kamus, dengan
-dua kehati-hatian yang sudah terbukti perlu — daftar di luar komponen menyimpan
-kunci, bukan label jadi, dan Server Component memakai `getTranslations()`
-bukan hook `useI18n()`.
+Dua temuan yang layak dicatat:
+
+- Beberapa kalimat **sudah punya terjemahannya di kamus** tetapi komponennya
+  menulis ulang teks Indonesianya. `settings.emailNotificationsHint` adalah
+  contohnya: ada lengkap dalam dua bahasa, tidak pernah dipanggil.
+- Nama cookie bahasanya `bahasa`, bukan `locale`. Alat ukur versi pertama
+  memakai nama yang salah dan melaporkan seluruh layar "belum diterjemahkan" —
+  yang salah alat ukurnya.
+
+**Sisa 19 baris** terutama satuan yang menyatu dengan angka ("64 pelajaran")
+dan beberapa label di layar pengelola. Sisanya isi rinci di dalam editor
+kursus, penilaian, dan pelacakan — tabel, dialog, dan pesan — yang belum
+disentuh sama sekali.
 
 Juga belum: teks notifikasi, yang ditulis trigger basis data dan karena itu
 tidak tersentuh kamus antarmuka. Menerjemahkannya berarti menyimpan kunci di
 baris notifikasi, bukan kalimat jadi.
 
-**Kenapa ini lebih dulu.** Hampir setiap kalimat di aplikasi ini masih ditulis
-langsung di dalam komponen. Setiap fitur baru yang ditambahkan sebelum
-dwibahasa terpasang berarti satu set kalimat lagi yang harus dipindahkan
-nanti — ongkosnya naik terus selama ditunda. Ini satu-satunya pekerjaan di
-daftar ini yang makin mahal kalau dikerjakan belakangan.
-
-Yang perlu diputuskan saat mengerjakannya: apakah bahasa mengikuti pilihan
-peserta (disimpan di profil) atau alamat URL (`/en/...`). Pilihan kedua
-membuat halaman bisa dibagikan dalam bahasa tertentu dan lebih baik untuk
-mesin pencari, tetapi mengubah seluruh struktur rute.
-
-Termasuk: isi kursus. Judul dan materi pelajaran ada di basis data, jadi
-dwibahasa penuh berarti kolom terjemahan per pelajaran — itu pekerjaan
-tersendiri yang bisa menyusul setelah antarmukanya selesai.
+Dua kehati-hatian yang sudah terbukti perlu saat melanjutkan: daftar di luar
+komponen menyimpan kunci dan bukan label jadi, dan Server Component memakai
+`getTranslations()` bukan hook `useI18n()`.
 
 ### 2. Menu aksesibilitas — ✅ selesai, lihat `docs/STANDAR-AKSESIBILITAS-PREFERENSI.md`
 

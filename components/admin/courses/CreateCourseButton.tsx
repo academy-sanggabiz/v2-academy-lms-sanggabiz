@@ -4,6 +4,7 @@ import { useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { ChevronDown, FileText, Plus, Sparkles } from "lucide-react"
 import { toast } from "sonner"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 import { Button } from "@/components/ui/button"
 import { useAdminBusy } from "@/components/admin/AdminBusyContext"
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export function CreateCourseButton() {
+  const { t } = useI18n()
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const { setBusy } = useAdminBusy()
@@ -58,7 +60,7 @@ export function CreateCourseButton() {
             className="bg-brand-gradient text-white hover:brightness-105"
           >
             <Plus className="size-4" aria-hidden />
-            Buat Kursus
+            {t.admin.createCourse}
             <ChevronDown className="size-4" aria-hidden />
           </Button>
         }

@@ -140,6 +140,35 @@ export type Dictionary = {
   }
   notifications: {
     all: string
+    title: string
+    subtitle: string
+  }
+  pagination: {
+    /** `{from}`, `{to}`, `{total}` diganti angka saat dipakai. */
+    showing: string
+    loading: string
+  }
+  enroll: {
+    join: string
+  }
+  tracking: {
+    cardTitle: string
+    cardHint: string
+    collected: string
+    purpose: string
+    notDone: string
+    storedLabel: string
+    whoSeesLabel: string
+    allow: string
+    stateOn: string
+    stateUndecided: string
+    stateOff: string
+    collectedItems: string[]
+    purposeItems: string[]
+    notDoneItems: string[]
+    storage: string
+    whoSees: string
+    withdrawal: string
   }
   admin: {
     dashboard: string
@@ -163,6 +192,23 @@ export type Dictionary = {
     myLearners: string
     myCompleted: string
     published: string
+    coursesSubtitle: string
+    createCourse: string
+    learnersSubtitle: string
+    gradingSubtitle: string
+    gradingCoursesTitle: string
+    gradingEmpty: string
+    trackingSubtitle: string
+    trackingEmpty: string
+    recentCourses: string
+    recentEnrollments: string
+    noEnrollments: string
+    courseThumbAlt: string
+    totalLearnersLabel: string
+    coursesCompletedLabel: string
+    allLearners: string
+    viewAll: string
+    totalEnrollmentsLabel: string
   }
   landing: {
     signIn: string
@@ -397,6 +443,46 @@ const id: Dictionary = {
   },
   notifications: {
     all: "Semua notifikasi",
+    title: "Notifikasi",
+    subtitle: "Semua notifikasi Anda, dari yang terbaru",
+  },
+  pagination: {
+    showing: "Menampilkan {from}–{to} dari {total}",
+    loading: "Memuat…",
+  },
+  enroll: {
+    join: "Ikuti kursus",
+  },
+  tracking: {
+    cardTitle: "Membantu Memperbaiki Materi",
+    cardHint: "Opsional. Menolak tidak mengurangi apa pun yang bisa Anda pakai.",
+    collected: "Yang dicatat",
+    purpose: "Untuk apa",
+    notDone: "Yang tidak dilakukan",
+    storedLabel: "Disimpan:",
+    whoSeesLabel: "Yang bisa melihat:",
+    allow: "Izinkan pencatatan ini",
+    stateOn:
+      "Sedang dicatat. Mematikannya menghentikan pencatatan dan menghapus data yang sudah terkumpul.",
+    stateUndecided: "Belum ada yang dicatat.",
+    stateOff: "Tidak dicatat, dan data sebelumnya sudah dihapus.",
+    collectedItems: [
+      "Pelajaran yang Anda buka, dan berapa lama halamannya terbuka.",
+      "Kursus yang sedang Anda kerjakan beserta waktunya.",
+    ],
+    purposeItems: [
+      "Mengetahui bagian materi mana yang paling sering ditinggalkan, supaya materinya diperbaiki.",
+      "Membandingkan satu angkatan dengan angkatan berikutnya.",
+    ],
+    notDoneItems: [
+      "Tidak dipakai untuk menilai Anda, dan tidak memengaruhi nilai maupun kelulusan.",
+      "Tidak dipakai membuat keputusan otomatis tentang Anda.",
+      "Tidak dibagikan ke pihak di luar Sanggabiz Academy.",
+    ],
+    storage: "Disimpan paling lama 12 bulan, lalu dihapus otomatis.",
+    whoSees: "Hanya superadmin Sanggabiz Academy, dan Anda sendiri.",
+    withdrawal:
+      "Anda boleh menolak sekarang dan tetap memakai seluruh fitur LMS tanpa terkecuali. Bila sudah menyetujui, Anda bisa menariknya kapan saja — pengumpulan langsung berhenti, dan Anda bisa menghapus data yang sudah terkumpul.",
   },
   admin: {
     dashboard: "Dashboard",
@@ -420,7 +506,25 @@ const id: Dictionary = {
     myCourses: "Kursus Saya",
     myLearners: "Peserta di Kursus Saya",
     myCompleted: "Selesai di Kursus Saya",
-    published: "terbit",
+    published: "Terbit",
+    coursesSubtitle: "Buat, ubah, dan kelola semua kursus di platform belajar Anda",
+    createCourse: "Buat Kursus",
+    learnersSubtitle: "Lihat dan kelola semua peserta yang terdaftar di kursus",
+    gradingSubtitle:
+      "Semua kursus yang memiliki kiriman kuis. Nilai otomatis hanya dapat dibaca, esai perlu dinilai.",
+    gradingCoursesTitle: "Kursus dengan Kiriman",
+    gradingEmpty: "Belum ada kiriman kuis.",
+    trackingSubtitle: "Pantau penyelesaian modul dan tugas setiap peserta per kursus",
+    trackingEmpty: "Belum ada pendaftaran.",
+    recentCourses: "Kursus Terbaru",
+    recentEnrollments: "Pendaftaran Terbaru",
+    noEnrollments: "Belum ada pendaftaran",
+    courseThumbAlt: "gambar kursus",
+    totalLearnersLabel: "Total Peserta",
+    coursesCompletedLabel: "Kursus Selesai",
+    allLearners: "Semua Peserta",
+    viewAll: "Lihat Semua",
+    totalEnrollmentsLabel: "Total Pendaftaran",
   },
   landing: {
     signIn: "Masuk",
@@ -664,6 +768,46 @@ const en: Dictionary = {
   },
   notifications: {
     all: "All notifications",
+    title: "Notifications",
+    subtitle: "All your notifications, newest first",
+  },
+  pagination: {
+    showing: "Showing {from}–{to} of {total}",
+    loading: "Loading…",
+  },
+  enroll: {
+    join: "Enrol in course",
+  },
+  tracking: {
+    cardTitle: "Help Us Improve the Material",
+    cardHint: "Optional. Declining takes nothing away from what you can use.",
+    collected: "What is recorded",
+    purpose: "What it is for",
+    notDone: "What is never done",
+    storedLabel: "Kept for:",
+    whoSeesLabel: "Who can see it:",
+    allow: "Allow this recording",
+    stateOn:
+      "Being recorded. Turning this off stops the recording and deletes what has been collected.",
+    stateUndecided: "Nothing is being recorded.",
+    stateOff: "Not recorded, and earlier data has been deleted.",
+    collectedItems: [
+      "Which lessons you open, and how long the page stays open.",
+      "Which course you are working on, and when.",
+    ],
+    purposeItems: [
+      "Finding which part of the material people most often abandon, so it can be improved.",
+      "Comparing one cohort with the next.",
+    ],
+    notDoneItems: [
+      "Never used to assess you, and never affects your marks or completion.",
+      "Never used to make automated decisions about you.",
+      "Never shared outside Sanggabiz Academy.",
+    ],
+    storage: "Kept for at most 12 months, then deleted automatically.",
+    whoSees: "Only Sanggabiz Academy superadmins, and you.",
+    withdrawal:
+      "You may decline now and still use every feature of the LMS without exception. If you have agreed, you can withdraw at any time — recording stops immediately, and you can delete what has already been collected.",
   },
   admin: {
     dashboard: "Dashboard",
@@ -688,7 +832,25 @@ const en: Dictionary = {
     myCourses: "My courses",
     myLearners: "Learners in my courses",
     myCompleted: "Completed in my courses",
-    published: "published",
+    published: "Published",
+    coursesSubtitle: "Create, edit, and manage every course on your learning platform",
+    createCourse: "Create Course",
+    learnersSubtitle: "View and manage every learner enrolled in a course",
+    gradingSubtitle:
+      "Every course with quiz submissions. Automatic marks are read-only; essays need marking.",
+    gradingCoursesTitle: "Courses with Submissions",
+    gradingEmpty: "No quiz submissions yet.",
+    trackingSubtitle: "Follow each learner's module and task completion, course by course",
+    trackingEmpty: "No enrolments yet.",
+    recentCourses: "Recent Courses",
+    recentEnrollments: "Recent Enrolments",
+    noEnrollments: "No enrolments yet",
+    courseThumbAlt: "course image",
+    totalLearnersLabel: "Total Learners",
+    coursesCompletedLabel: "Courses Completed",
+    allLearners: "All Learners",
+    viewAll: "View All",
+    totalEnrollmentsLabel: "Total Enrolments",
   },
   landing: {
     signIn: "Sign in",

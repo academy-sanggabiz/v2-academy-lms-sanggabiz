@@ -1,5 +1,8 @@
+"use client"
+
 import { cn } from "@/lib/utils"
 import { formatCourseAccess, type Course } from "@/lib/courses"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 export function CourseCard({
   course,
@@ -8,6 +11,8 @@ export function CourseCard({
   course: Course
   className?: string
 }) {
+  const { t } = useI18n()
+
   return (
     <div
       className={cn(
@@ -29,7 +34,7 @@ export function CourseCard({
             className="absolute inset-0 size-full object-cover"
           />
         ) : (
-          "gambar kursus"
+          t.admin.courseThumbAlt
         )}
         <span className="absolute top-3 right-3 rounded-full bg-ring px-3 py-1 text-xs font-semibold text-white">
           {formatCourseAccess(course)}
@@ -39,7 +44,7 @@ export function CourseCard({
         {course.title}
       </div>
       <div className="text-[13px] text-muted-foreground">
-        {course.lesson_count} pelajaran · {course.duration_hours} jam
+        {course.lesson_count} {t.courses.lessons} · {course.duration_hours} {t.courses.hours}
       </div>
     </div>
   )

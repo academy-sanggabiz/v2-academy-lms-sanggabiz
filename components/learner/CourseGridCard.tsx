@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { BookOpen, Clock, Eye, Tag } from "lucide-react"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 import { Button } from "@/components/ui/button"
 import { EnrollButton } from "@/components/learner/EnrollButton"
@@ -15,6 +16,7 @@ export function CourseGridCard({
   enrolled: boolean
   started: boolean
 }) {
+  const { t } = useI18n()
   const price = formatCourseAccess(course)
 
   return (
@@ -30,7 +32,7 @@ export function CourseGridCard({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={course.thumbnail_url} alt="" className="absolute inset-0 size-full object-cover" />
           ) : (
-            "gambar kursus"
+            t.admin.courseThumbAlt
           )}
           <span className="absolute top-3 right-3 rounded-full bg-ring px-3 py-1 text-xs font-semibold text-white">
             {price}

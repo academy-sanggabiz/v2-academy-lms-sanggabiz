@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 import { Button } from "@/components/ui/button"
 import type { Paginated } from "@/lib/pagination"
@@ -9,6 +10,7 @@ import { ListPagination } from "@/components/admin/ListPagination"
 import { ListToolbar } from "@/components/admin/ListToolbar"
 
 export function GradingCoursesClient({ page }: { page: Paginated<GradingCourseSummary> }) {
+  const { t } = useI18n()
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -20,7 +22,7 @@ export function GradingCoursesClient({ page }: { page: Paginated<GradingCourseSu
 
       {page.rows.length === 0 ? (
         <div className="py-12 text-center text-sm text-muted-foreground">
-          {page.total === 0 ? "Belum ada kiriman kuis." : "Tidak ada kursus yang cocok dengan pencarian Anda."}
+          {page.total === 0 ? t.admin.gradingEmpty : "Tidak ada kursus yang cocok dengan pencarian Anda."}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border">

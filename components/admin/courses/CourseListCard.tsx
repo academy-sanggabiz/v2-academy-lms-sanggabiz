@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useTransition } from "react"
 import { BookOpen, Clock, Eye, Pencil, Tag } from "lucide-react"
 import { toast } from "sonner"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 import {
   AlertDialog,
@@ -52,6 +53,7 @@ function StatusBadge({ isPublished, pending }: { isPublished: boolean; pending: 
 }
 
 export function CourseListCard({ course }: { course: Course }) {
+  const { t } = useI18n()
   const [isPending, startTransition] = useTransition()
   const price = formatCourseAccess(course)
   const isPublished = course.status === "published"
@@ -87,7 +89,7 @@ export function CourseListCard({ course }: { course: Course }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={course.thumbnail_url} alt="" className="absolute inset-0 size-full object-cover" />
         ) : (
-          "gambar kursus"
+          t.admin.courseThumbAlt
         )}
         <div className="absolute top-3 left-3">
           {isPublished ? (

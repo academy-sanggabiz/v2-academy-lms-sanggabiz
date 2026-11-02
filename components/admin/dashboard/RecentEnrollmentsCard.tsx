@@ -2,6 +2,7 @@ import type { RecentEnrollment } from "@/lib/dashboard-admin"
 import type { Paginated } from "@/lib/pagination"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ListPagination } from "@/components/admin/ListPagination"
+import { getTranslations } from "@/lib/i18n/server"
 
 const PREFIX = "enroll"
 
@@ -13,12 +14,14 @@ function formatDate(iso: string): string {
   })
 }
 
-export function RecentEnrollmentsCard({ enrollments }: { enrollments: Paginated<RecentEnrollment> }) {
+export async function RecentEnrollmentsCard({ enrollments }: { enrollments: Paginated<RecentEnrollment> }) {
+  // Server Component: getTranslations(), bukan hook useI18n().
+  const { t } = await getTranslations()
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
-      <h2 className="mb-4 text-sm font-semibold">Pendaftaran Terbaru</h2>
+      <h2 className="mb-4 text-sm font-semibold">{t.admin.recentEnrollments}</h2>
       {enrollments.rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Belum ada pendaftaran</p>
+        <p className="text-sm text-muted-foreground">{t.admin.noEnrollments}</p>
       ) : (
         <div className="max-h-[320px] overflow-y-auto rounded-xl border border-border">
           <Table>

@@ -1,6 +1,7 @@
 "use client"
 
 import { BookOpen, Clock, Tag } from "lucide-react"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 import { formatCourseAccess } from "@/lib/courses"
 import { cn } from "@/lib/utils"
@@ -10,6 +11,7 @@ import { useCourseDraft } from "../CourseDraftContext"
 // preview matches what the DB trigger will compute once this draft is
 // saved -- courses.lesson_count/duration_hours are stale until then.
 export function PreviewTab() {
+  const { t } = useI18n()
   const { draft } = useCourseDraft()
 
   const lessons = draft.sections.flatMap((s) => s.lessons)
@@ -34,7 +36,7 @@ export function PreviewTab() {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={draft.thumbnail_url} alt="" className="absolute inset-0 size-full object-cover" />
         ) : (
-          "gambar kursus"
+          t.admin.courseThumbAlt
         )}
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react"
 import { Bell, Shield } from "lucide-react"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 import {
   AlertDialog,
@@ -68,6 +69,7 @@ export function AdminSettingsView({
 }
 
 function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
+  const { t } = useI18n()
   const [enabled, setEnabled] = useState(initialEnabled)
   const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -84,8 +86,7 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
           <div className="mt-0.5 text-[13px] text-muted-foreground">
             {/* Lihat catatan di components/learner/SettingsView.tsx:
                 pengiriman email belum ada, jadi jangan menjanjikannya. */}
-            Pilihan Anda tersimpan, tapi pengiriman email belum aktif. Pemberitahuan
-            sementara ini hanya muncul di halaman Notifikasi.
+{t.settings.emailNotificationsHint}
           </div>
         </div>
         <Switch
@@ -118,6 +119,7 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
 }
 
 function SecurityCard() {
+  const { t } = useI18n()
   const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -127,7 +129,7 @@ function SecurityCard() {
         <Shield className="size-[18px]" />
         Keamanan
       </div>
-      <div className="mb-2.5 text-sm font-semibold">Ubah Kata Sandi</div>
+      <div className="mb-2.5 text-sm font-semibold">{t.settings.changePassword}</div>
       <form
         action={(formData) => {
           setStatus(null)
@@ -168,6 +170,7 @@ function SecurityCard() {
 }
 
 function DeleteAccountCard({ onDeletingChange }: { onDeletingChange: (deleting: boolean) => void }) {
+  const { t } = useI18n()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -178,9 +181,9 @@ function DeleteAccountCard({ onDeletingChange }: { onDeletingChange: (deleting: 
 
   return (
     <div className="rounded-2xl border border-border bg-card p-7">
-      <div className="mb-5 text-lg font-bold">Hapus Akun</div>
+      <div className="mb-5 text-lg font-bold">{t.settings.deleteAccount}</div>
       <div className="rounded-xl border border-[#f3d5d5] bg-[#fdf1f1] p-5">
-        <div className="text-[14.5px] font-semibold text-destructive">Hapus akun Anda secara permanen</div>
+        <div className="text-[14.5px] font-semibold text-destructive">{t.settings.deleteAccountHint}</div>
         <div className="mt-1 mb-3.5 text-[13px] text-destructive">
           Akun yang sudah dihapus tidak dapat dipulihkan
         </div>

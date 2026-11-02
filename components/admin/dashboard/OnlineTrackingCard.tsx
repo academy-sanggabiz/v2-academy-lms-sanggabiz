@@ -21,11 +21,11 @@ export async function OnlineTrackingCard({ rows }: { rows: Paginated<TrackingEnr
           render={<Link href="/admin/tracking" />}
           nativeButton={false}
         >
-          Lihat Semua
+          {t.admin.viewAll}
         </Button>
       </div>
       {rows.rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Belum ada pendaftaran</p>
+        <p className="text-sm text-muted-foreground">{t.admin.noEnrollments}</p>
       ) : (
         <div className="max-h-[320px] overflow-y-auto rounded-xl border border-border">
           <Table>

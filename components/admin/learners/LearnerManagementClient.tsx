@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Mail, Plus } from "lucide-react"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -22,12 +23,13 @@ export function LearnerManagementClient({
   page: Paginated<AdminLearner>
   courses: Course[]
 }) {
+  const { t } = useI18n()
   const [enrollTarget, setEnrollTarget] = useState<AdminLearner | null>(null)
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-bold">Semua Peserta</h2>
+        <h2 className="text-lg font-bold">{t.admin.allLearners}</h2>
         <ListToolbar placeholder="Cari nama atau email...">
           <ListFilterSelect
             paramKey="filter"

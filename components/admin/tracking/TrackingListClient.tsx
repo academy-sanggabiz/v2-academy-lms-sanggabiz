@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -10,6 +11,7 @@ import { ListPagination } from "@/components/admin/ListPagination"
 import { ListToolbar } from "@/components/admin/ListToolbar"
 
 export function TrackingListClient({ page }: { page: Paginated<TrackingEnrollment> }) {
+  const { t } = useI18n()
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -19,7 +21,7 @@ export function TrackingListClient({ page }: { page: Paginated<TrackingEnrollmen
 
       {page.rows.length === 0 ? (
         <div className="py-12 text-center text-sm text-muted-foreground">
-          {page.total === 0 ? "Belum ada pendaftaran." : "Tidak ada peserta yang cocok dengan pencarian Anda."}
+          {page.total === 0 ? t.admin.trackingEmpty : "Tidak ada peserta yang cocok dengan pencarian Anda."}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border">

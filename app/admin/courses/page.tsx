@@ -29,7 +29,7 @@ export default async function AdminCoursesPage({
         <div>
           <h1 className="text-[30px] font-bold">{t.admin.courses}</h1>
           <p className="text-sm text-muted-foreground">
-            Buat, ubah, dan kelola semua kursus di platform belajar Anda
+            {t.admin.coursesSubtitle}
           </p>
         </div>
         <CreateCourseButton />

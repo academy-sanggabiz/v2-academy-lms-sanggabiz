@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PAGE_SIZES, pageWindow } from "@/lib/pagination"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 /**
  * Presentational only -- no router access, so it composes with either the
@@ -35,6 +36,10 @@ export function Pagination({
   disabled?: boolean
   hidePageSize?: boolean
 }) {
+  // Dipanggil sebelum `return null` di bawah: hook yang berada setelah
+  // pengembalian lebih awal berjalan tidak konsisten antar-render.
+  const { t } = useI18n()
+
   if (total === 0) return null
 
   const from = (page - 1) * pageSize + 1
@@ -51,10 +56,13 @@ export function Pagination({
         {disabled ? (
           <>
             <Spinner className="size-3.5" />
-            Memuat…
+            {t.pagination.loading}
           </>
         ) : (
-          `Menampilkan ${from}–${to} dari ${total}`
+          t.pagination.showing
+            .replace("{from}", String(from))
+            .replace("{to}", String(to))
+            .replace("{total}", String(total))
         )}
       </p>
 

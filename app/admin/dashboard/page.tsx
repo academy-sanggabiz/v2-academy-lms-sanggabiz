@@ -102,7 +102,7 @@ export default async function AdminDashboardPage({
           */}
         <StatCard
           icon={GraduationCap}
-          label="Tingkat Penyelesaian"
+          label={t.admin.completionRate}
           value={completionRate === null ? "—" : `${completionRate}%`}
           hint={
             completionRate === null

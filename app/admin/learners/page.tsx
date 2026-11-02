@@ -32,14 +32,14 @@ export default async function AdminLearnersPage({
       <div className="mb-6">
         <h1 className="text-[30px] font-bold">{t.admin.learners}</h1>
         <p className="text-sm text-muted-foreground">
-          Lihat dan kelola semua peserta yang terdaftar di kursus
+          {t.admin.learnersSubtitle}
         </p>
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard icon={Users} label="Total Peserta" value={stats.totalLearners} />
-        <StatCard icon={BookOpen} label="Total Pendaftaran" value={stats.totalEnrollments} />
-        <StatCard icon={Trophy} label="Kursus Selesai" value={stats.totalCompleted} />
+        <StatCard icon={Users} label={t.admin.totalLearnersLabel} value={stats.totalLearners} />
+        <StatCard icon={BookOpen} label={t.admin.totalEnrollmentsLabel} value={stats.totalEnrollments} />
+        <StatCard icon={Trophy} label={t.admin.coursesCompletedLabel} value={stats.totalCompleted} />
       </div>
 
       <LearnerManagementClient page={page} courses={courses} />

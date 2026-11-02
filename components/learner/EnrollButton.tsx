@@ -5,6 +5,7 @@ import Link from "next/link"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 import { enroll } from "@/app/learner/courses/actions"
 import { cn } from "@/lib/utils"
 
@@ -29,6 +30,7 @@ export function EnrollButton({
   className?: string
   onEnrolled?: () => void
 }) {
+  const { t } = useI18n()
   const [pending, startTransition] = useTransition()
 
   if (state !== "not_enrolled") {
@@ -69,7 +71,7 @@ export function EnrollButton({
       pending={pending}
       pendingLabel="Mendaftarkan…"
     >
-      Ikuti kursus
+      {t.enroll.join}
     </Button>
   )
 }

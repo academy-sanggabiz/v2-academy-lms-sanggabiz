@@ -16,7 +16,6 @@ import {
   setTrackingConsent,
   updateNotificationPref,
 } from "@/app/learner/settings/actions"
-import { TRACKING_NOTICE } from "@/lib/tracking-notice"
 import type { TrackingConsentState } from "@/lib/tracking-consent-server"
 import { useI18n } from "@/components/i18n/LocaleProvider"
 
@@ -89,8 +88,7 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
             tidak pernah datang, jadi keterangannya menyebut apa adanya.
           */}
           <div className="mt-0.5 text-[13px] text-muted-foreground">
-            Pilihan Anda tersimpan, tapi pengiriman email belum aktif. Pemberitahuan
-            sementara ini hanya muncul di halaman Notifikasi.
+            {t.settings.emailNotificationsHint}
           </div>
         </div>
         <Switch
@@ -161,6 +159,7 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
  * itu berarti persetujuannya tidak sah.
  */
 function TrackingConsentCard({ state }: { state: TrackingConsentState }) {
+  const { t } = useI18n()
   const [granted, setGranted] = useState(state.granted)
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -181,44 +180,44 @@ function TrackingConsentCard({ state }: { state: TrackingConsentState }) {
     <div className="rounded-2xl border border-border bg-card p-5">
       <div className="mb-1 flex items-center gap-2">
         <LineChart className="size-4 text-muted-foreground" aria-hidden />
-        <h2 className="text-sm font-bold">Membantu Memperbaiki Materi</h2>
+        <h2 className="text-sm font-bold">{t.tracking.cardTitle}</h2>
       </div>
       <p className="mb-4 text-xs text-muted-foreground">
-        Opsional. Menolak tidak mengurangi apa pun yang bisa Anda pakai.
+        {t.tracking.cardHint}
       </p>
 
       <div className="space-y-3 text-xs">
         <div>
-          <div className="font-semibold">Yang dicatat</div>
+          <div className="font-semibold">{t.tracking.collected}</div>
           <ul className="mt-1 list-disc space-y-0.5 pl-4 text-muted-foreground">
-            {TRACKING_NOTICE.dikumpulkan.map((x) => (
+            {t.tracking.collectedItems.map((x) => (
               <li key={x}>{x}</li>
             ))}
           </ul>
         </div>
         <div>
-          <div className="font-semibold">Untuk apa</div>
+          <div className="font-semibold">{t.tracking.purpose}</div>
           <ul className="mt-1 list-disc space-y-0.5 pl-4 text-muted-foreground">
-            {TRACKING_NOTICE.tujuan.map((x) => (
+            {t.tracking.purposeItems.map((x) => (
               <li key={x}>{x}</li>
             ))}
           </ul>
         </div>
         <div>
-          <div className="font-semibold">Yang tidak dilakukan</div>
+          <div className="font-semibold">{t.tracking.notDone}</div>
           <ul className="mt-1 list-disc space-y-0.5 pl-4 text-muted-foreground">
-            {TRACKING_NOTICE.tidakDilakukan.map((x) => (
+            {t.tracking.notDoneItems.map((x) => (
               <li key={x}>{x}</li>
             ))}
           </ul>
         </div>
         <p className="text-muted-foreground">
-          <span className="font-semibold text-foreground">Disimpan:</span>{" "}
-          {TRACKING_NOTICE.penyimpanan}{" "}
-          <span className="font-semibold text-foreground">Yang bisa melihat:</span>{" "}
-          {TRACKING_NOTICE.siapaMelihat}
+          <span className="font-semibold text-foreground">{t.tracking.storedLabel}</span>{" "}
+          {t.tracking.storage}{" "}
+          <span className="font-semibold text-foreground">{t.tracking.whoSeesLabel}</span>{" "}
+          {t.tracking.whoSees}
         </p>
-        <p className="text-muted-foreground">{TRACKING_NOTICE.penarikan}</p>
+        <p className="text-muted-foreground">{t.tracking.withdrawal}</p>
       </div>
 
       {error && (
@@ -229,7 +228,7 @@ function TrackingConsentCard({ state }: { state: TrackingConsentState }) {
 
       <div className="mt-4 flex items-center justify-between gap-4 border-t border-border pt-4">
         <label htmlFor="tracking-consent" className="text-sm font-medium">
-          Izinkan pencatatan ini
+          {t.tracking.allow}
         </label>
         <div className="flex items-center gap-2">
           {pending && <Spinner />}
@@ -243,10 +242,10 @@ function TrackingConsentCard({ state }: { state: TrackingConsentState }) {
       </div>
       <p aria-live="polite" className="mt-2 text-xs text-muted-foreground">
         {granted
-          ? "Sedang dicatat. Mematikannya menghentikan pencatatan dan menghapus data yang sudah terkumpul."
+          ? t.tracking.stateOn
           : state.belumMemutuskan
-            ? "Belum ada yang dicatat."
-            : "Tidak dicatat, dan data sebelumnya sudah dihapus."}
+            ? t.tracking.stateUndecided
+            : t.tracking.stateOff}
       </p>
     </div>
   )

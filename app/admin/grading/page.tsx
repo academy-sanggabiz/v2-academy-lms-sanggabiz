@@ -29,13 +29,13 @@ export default async function AdminGradingPage({
       <div className="mb-6">
         <h1 className="text-[30px] font-bold">{t.admin.grading}</h1>
         <p className="text-sm text-muted-foreground">
-          Semua kursus yang memiliki kiriman kuis. Nilai otomatis hanya dapat dibaca, esai perlu dinilai.
+          {t.admin.gradingSubtitle}
         </p>
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <StatCard icon={ClipboardCheck} label="Percobaan Menunggu Penilaian" value={stats.attemptCount} />
-        <StatCard icon={ClipboardCheck} label="Kursus dengan Kiriman" value={stats.courseCount} />
+        <StatCard icon={ClipboardCheck} label="{t.admin.gradingCoursesTitle}" value={stats.courseCount} />
       </div>
 
       <GradingCoursesClient page={page} />

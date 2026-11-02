@@ -159,7 +159,7 @@ function ProfileTabs({
                     </div>
                     <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
                       <Clock className="size-3" />
-                      {course.lesson_count} pelajaran · {course.duration_hours} jam
+                      {course.lesson_count} {t.courses.lessons} · {course.duration_hours} {t.courses.hours}
                     </div>
                   </div>
                   {course.status === "completed" && (
