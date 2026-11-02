@@ -42,7 +42,7 @@ export function PrerequisitesSettings({ availableCourses }: { availableCourses: 
 
   return (
     <section className="space-y-3">
-      <h3 className="text-[17px] font-bold">Pengaturan Prasyarat</h3>
+      <h3 className="text-xl font-bold">Pengaturan Prasyarat</h3>
       <div className="flex items-start justify-between gap-5">
         <div>
           <div className="text-sm font-medium">Wajibkan Prasyarat</div>
@@ -58,7 +58,11 @@ export function PrerequisitesSettings({ availableCourses }: { availableCourses: 
           <div>
             <div className="mb-2.5 text-xs font-semibold">Kursus Prasyarat</div>
             <div className="flex gap-2.5">
-              <Select value={pickerValue} onValueChange={(v) => v && setPickerValue(v)}>
+              <Select
+                items={pickableCourses.map((c) => ({ value: c.id, label: c.title }))}
+                value={pickerValue}
+                onValueChange={(v) => v && setPickerValue(v)}
+              >
                 <SelectTrigger aria-label="Kursus prasyarat" className="flex-1">
                   <SelectValue placeholder="Pilih kursus" />
                 </SelectTrigger>

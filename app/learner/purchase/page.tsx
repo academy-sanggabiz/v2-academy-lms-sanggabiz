@@ -25,7 +25,7 @@ export default async function LearnerPurchasePage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {tiles.map(({ icon: Icon, label, value }) => (
-          <Card key={label} className="transition-shadow hover:shadow-[0_8px_24px_rgba(20,55,64,0.08)]">
+          <Card key={label} className="transition-shadow hover:shadow-float">
             <CardContent>
               <div className="flex items-center gap-2.5 text-sm font-semibold text-ring">
                 <Icon className="size-[18px]" />

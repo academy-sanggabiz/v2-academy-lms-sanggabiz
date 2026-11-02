@@ -26,7 +26,7 @@ export default async function AdminPurchasesPage({
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-[30px] font-bold">{t.admin.purchases}</h1>
+        <h1 className="text-3xl font-bold">{t.admin.purchases}</h1>
         <p className="text-sm text-muted-foreground">
           Lihat siapa membeli kursus apa dan pantau status pembelian
         </p>

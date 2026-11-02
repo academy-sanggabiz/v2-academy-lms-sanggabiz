@@ -58,10 +58,11 @@ export function SettingsTab({
   return (
     <div className="space-y-8">
       <section className="space-y-3">
-        <h3 className="text-[17px] font-bold">Pengaturan Dasar</h3>
+        <h3 className="text-xl font-bold">Pengaturan Dasar</h3>
         <div className="space-y-1.5">
           <Label htmlFor="level">Tingkat</Label>
           <Select
+            items={LEVELS.map((level) => ({ value: level, label: LEVEL_LABEL[level] ?? level }))}
             value={draft.level || undefined}
             onValueChange={(value) => setField("level", value ?? "")}
           >
@@ -80,7 +81,7 @@ export function SettingsTab({
       </section>
 
       <section className="space-y-3">
-        <h3 className="text-[17px] font-bold">Pengaturan Pendaftaran</h3>
+        <h3 className="text-xl font-bold">Pengaturan Pendaftaran</h3>
         <div className="flex items-start justify-between gap-4 rounded-lg border border-border p-3">
           <div>
             <Label htmlFor="isPrivate" className="text-sm font-medium">
@@ -160,7 +161,7 @@ export function SettingsTab({
       <CertificateSettings defaults={certificateDefaults} ready={certificateDefaultsReady} />
 
       <section className="space-y-3">
-        <h3 className="text-[17px] font-bold">Pengaturan Instruktur</h3>
+        <h3 className="text-xl font-bold">Pengaturan Instruktur</h3>
         <InstructorPicker instructors={instructors} />
       </section>
     </div>

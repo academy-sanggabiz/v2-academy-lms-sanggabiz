@@ -32,7 +32,7 @@ export default async function AdminCoursesPage({
       */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-[30px] font-bold">{t.admin.courses}</h1>
+          <h1 className="text-3xl font-bold">{t.admin.courses}</h1>
           <p className="text-sm text-muted-foreground">
             {t.admin.coursesSubtitle}
           </p>

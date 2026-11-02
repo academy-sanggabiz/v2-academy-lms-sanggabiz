@@ -99,7 +99,7 @@ export function CertificateSettings({
 
   return (
     <section className="space-y-3">
-      <h3 className="text-[17px] font-bold">Pengaturan Sertifikat</h3>
+      <h3 className="text-xl font-bold">Pengaturan Sertifikat</h3>
       <div className="flex items-start justify-between gap-5">
         <div>
           <div className="text-sm font-medium">Aktifkan Sertifikat</div>

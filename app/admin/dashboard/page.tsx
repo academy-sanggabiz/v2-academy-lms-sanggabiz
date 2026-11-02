@@ -77,7 +77,7 @@ export default async function AdminDashboardPage({
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-[30px] font-bold">{t.admin.dashboard}</h1>
+        <h1 className="text-3xl font-bold">{t.admin.dashboard}</h1>
         <p className="text-sm text-muted-foreground">
           {isSuperadmin
             ? t.admin.dashboardSubtitlePlatform

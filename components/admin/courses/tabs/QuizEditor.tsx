@@ -337,7 +337,7 @@ function QuizSettings({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz })
       <div className="flex w-full items-start gap-2 border-t border-border pt-3">
         <span
           className={cn(
-            "mt-0.5 shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
+            "mt-0.5 shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold",
             quiz.is_assessment
               ? "bg-secondary text-secondary-foreground"
               : "bg-muted text-muted-foreground"
@@ -407,7 +407,7 @@ function QuestionCard({ question, index }: { question: DraftQuestion; index: num
           <GripVertical className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
         </button>
         <span className="text-sm font-semibold whitespace-nowrap">Soal {index + 1}</span>
-        <span className="rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-semibold text-secondary-foreground">
+        <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold text-secondary-foreground">
           {typeLabel}
         </span>
         <span className="text-xs text-muted-foreground">

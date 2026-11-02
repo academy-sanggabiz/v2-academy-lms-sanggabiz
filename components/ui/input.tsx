@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils"
 type InputSize = "default" | "sm"
 
 const SIZE_CLASS: Record<InputSize, string> = {
-  default: "h-11 rounded-lg px-3 text-[15px]",
+  default: "h-11 rounded-lg px-3 text-base",
   sm: "h-9 rounded-md px-2.5 text-sm",
 }
 

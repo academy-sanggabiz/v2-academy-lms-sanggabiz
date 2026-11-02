@@ -198,19 +198,19 @@ export function EssayAssessmentPlayer({
     return (
       <Shell>
         <div className="flex flex-col items-center gap-2.5 rounded-2xl border border-border bg-card p-12 text-center">
-          <div className="text-[15px] font-semibold text-muted-foreground">Hasil Studi Kasus</div>
+          <div className="text-base font-semibold text-muted-foreground">Hasil Studi Kasus</div>
           {attemptInfo?.lastScore != null ? (
             <div
               className={cn(
                 "text-5xl font-bold",
-                passed ? "text-emerald-700 dark:text-emerald-400" : "text-destructive"
+                passed ? "text-emerald-700" : "text-destructive"
               )}
             >
               {attemptInfo.lastScore}%
             </div>
           ) : (
             <div className="flex items-center gap-2 text-2xl font-bold">
-              <CheckCircle2 className="size-6 text-emerald-700 dark:text-emerald-400" />
+              <CheckCircle2 className="size-6 text-emerald-700" />
               Sudah dinilai
             </div>
           )}
@@ -347,7 +347,7 @@ function QuestionCard({
     <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-7">
       <div className="text-sm font-semibold text-muted-foreground">Soal {index + 1}</div>
 
-      <QuestionPrompt prompt={question.prompt} className="text-[17px]" />
+      <QuestionPrompt prompt={question.prompt} className="text-xl" />
 
       {isChoice ? (
         <div className="flex flex-col gap-3">
@@ -373,7 +373,7 @@ function QuestionCard({
                 >
                   {selected && <div className={cn("size-2 bg-ring", multi ? "rounded-xs" : "rounded-full")} />}
                 </div>
-                <div className="text-[15px] font-semibold">{option.text}</div>
+                <div className="text-base font-semibold">{option.text}</div>
               </button>
             )
           })}
@@ -388,7 +388,7 @@ function QuestionCard({
           onChange={(e) => onChange(e.target.value)}
           placeholder="Ketik jawaban Anda..."
           aria-label="Jawaban Anda"
-          className="min-h-[120px] w-full resize-y rounded-lg border border-input bg-card p-3.5 text-[15px] outline-none focus:border-ring"
+          className="min-h-[120px] w-full resize-y rounded-lg border border-input bg-card p-3.5 text-base outline-none focus:border-ring"
         />
       )}
     </div>

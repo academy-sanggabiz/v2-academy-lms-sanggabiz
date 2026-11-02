@@ -21,8 +21,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { BusyGuardProvider } from "@/components/ui/busy-guard"
 import { Spinner } from "@/components/ui/spinner"
+import { CourseThumb } from "@/components/CourseThumb"
 import { formatCourseAccess, type Course } from "@/lib/courses"
-import { cn } from "@/lib/utils"
 import { toggleCourseStatusAction } from "@/app/admin/courses/actions"
 
 import { DeleteCourseDialog } from "./DeleteCourseDialog"
@@ -78,19 +78,13 @@ export function CourseListCard({ course }: { course: Course }) {
      * (STANDAR-UMPAN-BALIK-UI.md R14).
      */
     <BusyGuardProvider busy={isPending} reason={isPublished ? "Memindahkan…" : "Menerbitkan…"}>
-    <div className="flex h-full flex-col rounded-xl border border-border bg-card p-5 transition-shadow hover:shadow-[0_8px_24px_rgba(20,55,64,0.08)]">
-      <div
-        className={cn(
-          "relative mb-4 flex h-[160px] items-center justify-center overflow-hidden rounded-md font-mono text-xs text-muted-foreground",
-          !course.thumbnail_url && "course-thumb-placeholder"
-        )}
+    <div className="flex h-full flex-col rounded-xl border border-border bg-card p-5 transition-shadow hover:shadow-float">
+      <CourseThumb
+        src={course.thumbnail_url}
+        title={course.title}
+        seed={course.id}
+        className="mb-4 h-[160px] rounded-md"
       >
-        {course.thumbnail_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={course.thumbnail_url} alt="" className="absolute inset-0 size-full object-cover" />
-        ) : (
-          t.admin.courseThumbAlt
-        )}
         <div className="absolute top-3 left-3">
           {isPublished ? (
             /*
@@ -141,13 +135,13 @@ export function CourseListCard({ course }: { course: Course }) {
         <span className="absolute top-3 right-3 rounded-full bg-ring px-3 py-1 text-xs font-semibold text-white">
           {price}
         </span>
-      </div>
+      </CourseThumb>
 
-      <div className="mb-3 line-clamp-2 min-h-[46px] text-[16px] leading-snug font-bold">
+      <div className="mb-3 line-clamp-2 min-h-[46px] text-base leading-snug font-bold">
         {course.title}
       </div>
 
-      <div className="mb-3 flex flex-wrap gap-4 text-[13px] text-muted-foreground">
+      <div className="mb-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <BookOpen className="size-3.5" />
           {course.lesson_count} {t.courses.lessons}
@@ -164,7 +158,7 @@ export function CourseListCard({ course }: { course: Course }) {
 
       <div className="mb-4 min-h-0 flex-1">
         {course.description && (
-          <p className="line-clamp-2 text-[13.5px] leading-relaxed text-muted-foreground">
+          <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
             {course.description}
           </p>
         )}

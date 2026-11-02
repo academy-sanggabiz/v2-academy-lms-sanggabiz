@@ -1,8 +1,9 @@
 import Link from "next/link"
-import { ArrowRight, BookOpen, CheckCircle2 } from "lucide-react"
+import { ArrowRight, Award, BookOpen, CheckCircle2, ListChecks } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { CourseThumb } from "@/components/CourseThumb"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/server"
 import { getPublishedCourses } from "@/lib/courses-server"
@@ -12,6 +13,7 @@ import {
   type ContinueLearningItem,
 } from "@/lib/enrollments-server"
 import { getTranslations } from "@/lib/i18n/server"
+import { StatCard } from "@/components/admin/StatCard"
 import type { Dictionary } from "@/lib/i18n/dictionaries"
 
 export default async function LearnerDashboardPage() {
@@ -27,6 +29,8 @@ export default async function LearnerDashboardPage() {
     enrolledCourseIds,
     publishedCourses,
     continueItems,
+    { count: lessonsDone },
+    { count: certificateCount },
   ] = await Promise.all([
     supabase.from("profiles").select("full_name").eq("id", claims?.sub ?? "").single(),
     supabase
@@ -42,6 +46,11 @@ export default async function LearnerDashboardPage() {
     getEnrolledCourseIds(),
     getPublishedCourses(),
     getContinueLearning(),
+    // Dua angka tambahan supaya baris ringkasan benar-benar meringkas.
+    // Keduanya dibatasi RLS ke peserta yang sedang masuk: lesson_progress
+    // lewat join enrollments, certificates lewat enrollment miliknya.
+    supabase.from("lesson_progress").select("*", { count: "exact", head: true }).eq("completed", true),
+    supabase.from("certificates").select("*", { count: "exact", head: true }),
   ])
 
   const displayName = profile?.full_name || claims?.email || "Peserta"
@@ -54,25 +63,27 @@ export default async function LearnerDashboardPage() {
         {t.dashboard.greeting}, {displayName}
       </h1>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <Card>
-          <CardContent>
-            <div className="flex items-center gap-2.5 text-sm font-semibold text-ring">
-              <BookOpen className="size-[18px]" aria-hidden />
-              {t.dashboard.coursesInProgress}
-            </div>
-            <div className="mt-4 text-4xl leading-none font-bold">{inProgressCount ?? 0}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <div className="flex items-center gap-2.5 text-sm font-semibold text-primary">
-              <CheckCircle2 className="size-[18px]" aria-hidden />
-              {t.dashboard.coursesCompleted}
-            </div>
-            <div className="mt-4 text-4xl leading-none font-bold">{completedCount ?? 0}</div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatCard
+          icon={BookOpen}
+          label={t.dashboard.coursesInProgress}
+          value={inProgressCount ?? 0}
+          hint={`${t.dashboard.ofEnrolled.replace("{n}", String((inProgressCount ?? 0) + (completedCount ?? 0)))}`}
+        />
+        <StatCard
+          icon={CheckCircle2}
+          label={t.dashboard.coursesCompleted}
+          value={completedCount ?? 0}
+          tone={(completedCount ?? 0) > 0 ? "positive" : "default"}
+          hint={(completedCount ?? 0) > 0 ? t.dashboard.keepGoing : undefined}
+        />
+        <StatCard icon={ListChecks} label={t.dashboard.lessonsCompleted} value={lessonsDone ?? 0} />
+        <StatCard
+          icon={Award}
+          label={t.dashboard.certificates}
+          value={certificateCount ?? 0}
+          hint={(certificateCount ?? 0) > 0 ? t.dashboard.readyToDownload : undefined}
+        />
       </div>
 
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
@@ -108,19 +119,13 @@ export default async function LearnerDashboardPage() {
                       href={`/learner/courses/${course.id}`}
                       className="block overflow-hidden rounded-xl border border-border hover:border-ring"
                     >
-                      <div
-                        className={cn(
-                          "relative flex h-[110px] items-center justify-center font-mono text-[11px] text-muted-foreground",
-                          !course.thumbnail_url && "course-thumb-placeholder"
-                        )}
-                      >
-                        {course.thumbnail_url ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={course.thumbnail_url} alt="" className="absolute inset-0 size-full object-cover" />
-                        ) : (
-                          <span aria-hidden>gambar kursus</span>
-                        )}
-                      </div>
+                      <CourseThumb
+                        src={course.thumbnail_url}
+                        title={course.title}
+                        seed={course.id}
+                        className="h-[110px]"
+                        initialsClassName="text-3xl"
+                      />
                       <div className="p-3.5">
                         <p className="line-clamp-2 text-sm leading-snug font-semibold">{course.title}</p>
                         <p className="mt-1 text-xs text-muted-foreground">{course.lesson_count} {t.courses.lessons}</p>

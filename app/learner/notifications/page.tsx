@@ -23,7 +23,7 @@ export default async function LearnerNotificationsPage({
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-[30px] font-bold">{t.notifications.title}</h1>
+        <h1 className="text-3xl font-bold">{t.notifications.title}</h1>
         <p className="text-sm text-muted-foreground">{t.notifications.subtitle}</p>
       </div>
 

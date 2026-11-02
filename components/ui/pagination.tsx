@@ -7,6 +7,12 @@ import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PAGE_SIZES, pageWindow } from "@/lib/pagination"
+
+/* Label untuk tombol pemilih, supaya yang terbaca "25 / halaman", bukan "25". */
+const PAGE_SIZE_ITEMS = PAGE_SIZES.map((size) => ({
+  value: String(size),
+  label: `${size} / halaman`,
+}))
 import { useI18n } from "@/components/i18n/LocaleProvider"
 
 /**
@@ -52,7 +58,7 @@ export function Pagination({
        * diambil, tombol-tombol hanya meredup dan itu tidak terbaca sebagai
        * "sedang memuat" (STANDAR-UMPAN-BALIK-UI.md R4).
        */}
-      <p role="status" aria-live="polite" className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
+      <p role="status" aria-live="polite" className="flex items-center gap-1.5 text-sm text-muted-foreground">
         {disabled ? (
           <>
             <Spinner className="size-3.5" />
@@ -79,7 +85,7 @@ export function Pagination({
 
         {pageWindow(page, totalPages).map((entry, i) =>
           entry === "…" ? (
-            <span key={`ellipsis-${i}`} className="px-1.5 text-[13px] text-muted-foreground">
+            <span key={`ellipsis-${i}`} className="px-1.5 text-sm text-muted-foreground">
               …
             </span>
           ) : (
@@ -112,6 +118,7 @@ export function Pagination({
 
       {onPageSizeChange && !hidePageSize && (
         <Select
+          items={PAGE_SIZE_ITEMS}
           value={String(pageSize)}
           onValueChange={(value) => onPageSizeChange(Number(value))}
           disabled={disabled}

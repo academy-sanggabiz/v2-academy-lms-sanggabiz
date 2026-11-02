@@ -46,7 +46,7 @@ export function CourseCurriculum({
           <div key={section.id} className="border-b border-muted last:border-b-0">
             <button
               onClick={() => setOpenId(isOpen ? null : section.id)}
-              className="flex w-full items-center gap-3 py-4 text-left text-[15px] font-semibold hover:text-primary"
+              className="flex w-full items-center gap-3 py-4 text-left text-base font-semibold hover:text-primary"
             >
               <span className="flex-1">{section.title}</span>
               <ChevronDown
@@ -75,7 +75,7 @@ export function CourseCurriculum({
                         key={lesson.id}
                         type="button"
                         onClick={onLockedLessonClick}
-                        className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13.5px] text-foreground/80 hover:bg-muted"
+                        className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm text-foreground/80 hover:bg-muted"
                       >
                         {lessonContent}
                       </button>
@@ -86,7 +86,7 @@ export function CourseCurriculum({
                     <Link
                       key={lesson.id}
                       href={`${basePath}/${courseId}?lesson=${lesson.id}`}
-                      className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13.5px] text-foreground/80 hover:bg-muted"
+                      className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-foreground/80 hover:bg-muted"
                     >
                       {lessonContent}
                     </Link>

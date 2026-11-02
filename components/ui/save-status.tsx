@@ -28,7 +28,7 @@ function SaveStatus({
     <p
       role="status"
       aria-live="polite"
-      className={cn("flex items-center gap-1.5 text-[13px]", className)}
+      className={cn("flex items-center gap-1.5 text-sm", className)}
     >
       {state === "saving" && (
         <>

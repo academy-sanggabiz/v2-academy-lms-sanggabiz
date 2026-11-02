@@ -83,10 +83,10 @@ export function CoursesBrowser({
           aria-label={t.courses.searchLabel}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="h-11 flex-1 rounded-[10px] bg-card px-4"
+          className="h-11 flex-1 rounded-xl bg-card px-4"
         />
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex h-11 items-center gap-2.5 rounded-[10px] border border-input bg-card px-4.5 text-sm font-medium hover:border-ring">
+          <DropdownMenuTrigger className="flex h-11 items-center gap-2.5 rounded-xl border border-input bg-card px-4.5 text-sm font-medium hover:border-ring">
             <ArrowUpDown className="size-[15px]" />
             {sortLabel}
             <ChevronDown className="size-3.5 text-muted-foreground" />
@@ -111,7 +111,7 @@ export function CoursesBrowser({
           Dikecilkan, bukan digulir: tiga tab yang sebagian tersembunyi lebih
           buruk daripada tiga tab yang lebih rapat.
         */}
-        <TabsList className="mx-auto h-auto w-fit max-w-full gap-1 rounded-[10px] bg-secondary p-1 sm:gap-1.5 sm:p-1.5">
+        <TabsList className="mx-auto h-auto w-fit max-w-full gap-1 rounded-xl bg-secondary p-1 sm:gap-1.5 sm:p-1.5">
           <TabsTrigger value="all" className="h-9 rounded-lg px-2.5 data-active:bg-card sm:px-4">
             {t.courses.all}
           </TabsTrigger>

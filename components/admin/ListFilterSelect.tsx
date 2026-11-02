@@ -24,7 +24,13 @@ export function ListFilterSelect({
   const value = get(paramKey) || defaultValue
 
   return (
+    /*
+     * `items` wajib diisi, bukan hiasan: tanpa itu base-ui menampilkan NILAI
+     * mentah pilihan di tombolnya -- "all", "published" -- bukan labelnya.
+     * Dulu semua penyaring di aplikasi ini bertuliskan "all".
+     */
     <Select
+      items={options}
       value={value}
       onValueChange={(next) => setParams({ [paramKey]: next === defaultValue ? null : next })}
       disabled={isPending}

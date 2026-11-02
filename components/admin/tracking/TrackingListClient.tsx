@@ -46,7 +46,7 @@ export function TrackingListClient({ page }: { page: Paginated<TrackingEnrollmen
             </TableHeader>
             <TableBody>
               {page.rows.map((e) => (
-                <TableRow key={e.enrollmentId} className="text-[14px]">
+                <TableRow key={e.enrollmentId} className="text-sm">
                   <TableCell>
                     <div className="font-semibold">{e.learnerName}</div>
                     <div className="text-xs text-muted-foreground">{e.learnerEmail}</div>

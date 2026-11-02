@@ -108,7 +108,7 @@ async function LandingBlockView({
               return (
                 <div
                   key={title}
-                  className="rounded-xl border border-border bg-card p-9 text-center transition-shadow hover:shadow-[0_8px_24px_rgba(20,55,64,0.08)]"
+                  className="rounded-xl border border-border bg-card p-9 text-center transition-shadow hover:shadow-float"
                 >
                   <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-full bg-secondary">
                     <Icon className="size-6 text-primary" />

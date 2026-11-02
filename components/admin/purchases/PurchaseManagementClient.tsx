@@ -65,17 +65,17 @@ export function PurchaseManagementClient({ page }: { page: Paginated<AdminPurcha
                         {p.initial}
                       </span>
                       <div className="min-w-0">
-                        <div className="truncate text-[14.5px] font-semibold">{p.learnerName}</div>
-                        <div className="truncate text-[12.5px] text-muted-foreground">{p.learnerEmail}</div>
+                        <div className="truncate text-sm font-semibold">{p.learnerName}</div>
+                        <div className="truncate text-xs text-muted-foreground">{p.learnerEmail}</div>
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="max-w-0 truncate text-[13.5px]">{p.courseTitle}</TableCell>
-                  <TableCell className="text-[13.5px] font-medium whitespace-nowrap">{formatPrice(p.amount)}</TableCell>
+                  <TableCell className="max-w-0 truncate text-sm">{p.courseTitle}</TableCell>
+                  <TableCell className="text-sm font-medium whitespace-nowrap">{formatPrice(p.amount)}</TableCell>
                   <TableCell>
                     <Badge variant={STATUS_VARIANT[p.status]}>{STATUS_LABEL[p.status]}</Badge>
                   </TableCell>
-                  <TableCell className="text-[13px] whitespace-nowrap text-muted-foreground">{formatDate(p.createdAt)}</TableCell>
+                  <TableCell className="text-sm whitespace-nowrap text-muted-foreground">{formatDate(p.createdAt)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

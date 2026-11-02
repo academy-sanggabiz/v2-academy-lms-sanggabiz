@@ -6,13 +6,13 @@ import { getTranslations } from "@/lib/i18n/server"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { CourseThumb } from "@/components/CourseThumb"
 import { CourseCurriculum } from "@/components/learner/CourseCurriculum"
 import { FeedbackTab } from "@/components/admin/courses/tabs/FeedbackTab"
 import { getCourseDetailForAdmin } from "@/lib/courses-admin"
 import { formatCourseAccess } from "@/lib/courses"
 import { getCourseFeedback, getCourseFeedbackSummary } from "@/lib/feedback-admin"
 import { parseListParams, type RawSearchParams } from "@/lib/pagination"
-import { cn } from "@/lib/utils"
 
 export default async function AdminCoursePreviewPage({
   params,
@@ -70,7 +70,7 @@ export default async function AdminCoursePreviewPage({
             <CardContent>
               <div className="mb-3.5 text-lg font-bold">Ringkasan Kursus</div>
               <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">{course.description}</p>
-              <div className="mt-4 flex gap-2 border-t border-muted pt-4 text-[13px] text-muted-foreground">
+              <div className="mt-4 flex gap-2 border-t border-muted pt-4 text-sm text-muted-foreground">
                 <span>{course.lesson_count} {t.courses.lessons}</span>
                 <span>·</span>
                 <span>{course.duration_hours} jam</span>
@@ -115,8 +115,8 @@ export default async function AdminCoursePreviewPage({
             <CardContent className="flex items-center gap-4">
               <div className="course-thumb-placeholder size-16 shrink-0 rounded-full" />
               <div>
-                <div className="text-[17px] font-bold">{course.instructor?.name ?? "Tim Sanggabiz"}</div>
-                <div className="mt-0.5 text-[13px] text-muted-foreground">Instruktur Kursus</div>
+                <div className="text-xl font-bold">{course.instructor?.name ?? "Tim Sanggabiz"}</div>
+                <div className="mt-0.5 text-sm text-muted-foreground">Instruktur Kursus</div>
               </div>
             </CardContent>
           </Card>
@@ -130,19 +130,12 @@ export default async function AdminCoursePreviewPage({
         </div>
 
         <div className="sticky top-20 rounded-xl border border-border bg-card p-5 shadow-sm">
-          <div
-            className={cn(
-              "relative mb-4 flex h-[180px] items-center justify-center overflow-hidden rounded-md font-mono text-xs text-muted-foreground",
-              !course.thumbnail_url && "course-thumb-placeholder"
-            )}
-          >
-            {course.thumbnail_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={course.thumbnail_url} alt="" className="absolute inset-0 size-full object-cover" />
-            ) : (
-              "gambar kursus"
-            )}
-          </div>
+          <CourseThumb
+            src={course.thumbnail_url}
+            title={course.title}
+            seed={course.id}
+            className="mb-4 h-[180px] rounded-md"
+          />
           <div className="mb-4 flex items-center justify-between">
             <div className="text-2xl font-bold">{price}</div>
             <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white">{price}</span>
@@ -157,7 +150,7 @@ export default async function AdminCoursePreviewPage({
             Ubah Kursus
           </Button>
 
-          <div className="mt-4 flex flex-col gap-3 text-[13.5px] text-muted-foreground">
+          <div className="mt-4 flex flex-col gap-3 text-sm text-muted-foreground">
             <div className="flex items-center gap-2.5">
               <FileText className="size-4" />
               {course.resource_count} sumber belajar

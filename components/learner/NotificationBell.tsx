@@ -60,7 +60,7 @@ export function NotificationBell({
       >
         <Bell className="size-[18px]" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 flex min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] leading-4 font-semibold text-white">
+          <span className="absolute top-1 right-1 flex min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-xs leading-4 font-semibold text-white">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -100,7 +100,7 @@ export function NotificationBell({
                 {n.body && (
                   <span className="truncate text-xs text-muted-foreground">{n.body}</span>
                 )}
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {relativeTime(n.createdAt)}
                 </span>
               </span>

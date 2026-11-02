@@ -126,7 +126,7 @@ function ContentTab({
 
                   const body = (
                     <>
-                      <div className="line-clamp-2 text-[13.5px] leading-snug">{lesson.title}</div>
+                      <div className="line-clamp-2 text-sm leading-snug">{lesson.title}</div>
                       <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Icon className="size-3" aria-hidden />
                         <span>

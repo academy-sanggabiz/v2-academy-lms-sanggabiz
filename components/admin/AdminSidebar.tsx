@@ -51,7 +51,7 @@ export function AdminSidebar({
     <aside id="app-sidebar" aria-label={t.shell.mainNavigation} className={sidebarClasses(open, mobileOpen)}>
       <div className="flex items-center gap-2 px-4 py-4 whitespace-nowrap">
         <img src="/logo.png" alt="" className="size-8 object-contain" />
-        <span className="text-[17px] font-bold tracking-tight text-ring">sanggabiz</span>
+        <span className="text-xl font-bold tracking-tight text-ring">sanggabiz</span>
         <div className="flex-1" />
         <button
           type="button"
@@ -91,7 +91,7 @@ export function AdminSidebar({
       <div className="flex-1" />
 
       <div className="border-t border-border p-3 text-center whitespace-nowrap">
-        <div className="text-[11px] text-muted-foreground">© {new Date().getFullYear()} Sanggabiz</div>
+        <div className="text-xs text-muted-foreground">© {new Date().getFullYear()} Sanggabiz</div>
       </div>
     </aside>
   )

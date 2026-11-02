@@ -96,7 +96,7 @@ export default async function Home() {
          * STANDAR-DIGITAL-LEARNING §17. "Ketentuan" belum ditulis, jadi untuk
          * sekarang ia memang tidak ditampilkan daripada ditampilkan mati.
          */}
-        <div className="flex gap-4.5 text-[13.5px]">
+        <div className="flex gap-4.5 text-sm">
           <Link href="/legal/privasi" className="underline underline-offset-4">
             {t.landing.privacy}
           </Link>

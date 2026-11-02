@@ -21,7 +21,7 @@ export async function CourseNotes({ courseId, notes }: { courseId: string; notes
         <h2 id="course-notes-heading" className="mb-1 text-lg font-bold">
           {t.player.myNotes}
         </h2>
-        <p className="mb-4 text-[13px] text-muted-foreground">Hanya Anda yang dapat melihat catatan ini.</p>
+        <p className="mb-4 text-sm text-muted-foreground">Hanya Anda yang dapat melihat catatan ini.</p>
 
         {notes.length === 0 ? (
           <div className="flex items-start gap-3 rounded-lg border border-dashed border-input p-4 text-sm text-muted-foreground">
@@ -38,7 +38,7 @@ export async function CourseNotes({ courseId, notes }: { courseId: string; notes
                 <div className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                   {note.sectionTitle}
                 </div>
-                <h3 className="text-[15px] font-semibold">{note.lessonTitle}</h3>
+                <h3 className="text-base font-semibold">{note.lessonTitle}</h3>
                 <p className="text-sm leading-relaxed break-words text-muted-foreground">{noteExcerpt(note.content)}</p>
                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                   <span className="text-xs text-muted-foreground">

@@ -57,7 +57,7 @@ export function EmptyState({
         <Icon className={compact ? "size-5" : "size-6"} />
       </span>
 
-      <p className={cn("font-semibold text-foreground", compact ? "text-sm" : "text-[15px]")}>
+      <p className={cn("font-semibold text-foreground", compact ? "text-sm" : "text-base")}>
         {title}
       </p>
 

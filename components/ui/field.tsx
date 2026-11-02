@@ -45,7 +45,7 @@ export function Field({
 
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
-      <Label htmlFor={htmlFor} className="text-[13px] font-medium">
+      <Label htmlFor={htmlFor} className="text-sm font-medium">
         {label}
         {optional && <span className="font-normal text-muted-foreground">(opsional)</span>}
       </Label>

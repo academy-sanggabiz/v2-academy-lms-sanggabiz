@@ -27,7 +27,7 @@ export default async function AdminGradingPage({
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-[30px] font-bold">{t.admin.grading}</h1>
+        <h1 className="text-3xl font-bold">{t.admin.grading}</h1>
         <p className="text-sm text-muted-foreground">
           {t.admin.gradingSubtitle}
         </p>

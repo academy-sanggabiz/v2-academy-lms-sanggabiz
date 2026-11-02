@@ -36,7 +36,7 @@ export function MentorOverview({ mentors }: { mentors: MentorOverviewRow[] }) {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-[30px] font-bold">Mentor</h1>
+        <h1 className="text-3xl font-bold">Mentor</h1>
         <p className="text-sm text-muted-foreground">
           Kinerja tiap mentor berdampingan. Angka ini untuk membantu mereka, bukan memeringkat.
         </p>
@@ -79,7 +79,7 @@ export function MentorOverview({ mentors }: { mentors: MentorOverviewRow[] }) {
               {mentors.map((m) => {
                 const pct = completionPct(m)
                 return (
-                  <TableRow key={m.mentorId} className="text-[14px]">
+                  <TableRow key={m.mentorId} className="text-sm">
                     <TableCell>
                       <div className="font-semibold">{m.fullName}</div>
                       <div className="text-xs text-muted-foreground">{m.email}</div>

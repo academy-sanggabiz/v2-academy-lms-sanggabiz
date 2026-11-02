@@ -75,7 +75,7 @@ export function LearnersTab({
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-[17px] font-bold">
+          <h3 className="text-xl font-bold">
             Peserta Terdaftar {roster.total > 0 && `(${roster.total})`}
           </h3>
           <p className="mt-0.5 text-xs text-muted-foreground">

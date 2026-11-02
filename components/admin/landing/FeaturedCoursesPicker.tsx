@@ -43,7 +43,11 @@ export function FeaturedCoursesPicker({
   return (
     <div className="space-y-3">
       <div className="flex gap-2.5">
-        <Select value={pickerValue} onValueChange={(v) => v && setPickerValue(v)}>
+        <Select
+          items={pickableCourses.map((c) => ({ value: c.id, label: c.title }))}
+          value={pickerValue}
+          onValueChange={(v) => v && setPickerValue(v)}
+        >
           <SelectTrigger aria-label="Kursus unggulan" className="flex-1">
             <SelectValue placeholder="Pilih kursus" />
           </SelectTrigger>

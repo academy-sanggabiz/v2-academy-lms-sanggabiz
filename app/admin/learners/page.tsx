@@ -30,7 +30,7 @@ export default async function AdminLearnersPage({
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-[30px] font-bold">{t.admin.learners}</h1>
+        <h1 className="text-3xl font-bold">{t.admin.learners}</h1>
         <p className="text-sm text-muted-foreground">
           {t.admin.learnersSubtitle}
         </p>

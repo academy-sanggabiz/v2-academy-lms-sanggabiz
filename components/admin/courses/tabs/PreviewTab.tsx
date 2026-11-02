@@ -3,8 +3,8 @@
 import { BookOpen, Clock, Tag } from "lucide-react"
 import { useI18n } from "@/components/i18n/LocaleProvider"
 
+import { CourseThumb } from "@/components/CourseThumb"
 import { formatCourseAccess } from "@/lib/courses"
-import { cn } from "@/lib/utils"
 import { useCourseDraft } from "../CourseDraftContext"
 
 // Mirrors recalculate_course_lesson_stats() (databaseSetup.sql) so the
@@ -26,23 +26,16 @@ export function PreviewTab() {
 
   return (
     <div>
-      <div
-        className={cn(
-          "relative mb-5 flex h-[280px] items-center justify-center overflow-hidden rounded-xl font-mono text-xs text-muted-foreground",
-          !draft.thumbnail_url && "course-thumb-placeholder"
-        )}
-      >
-        {draft.thumbnail_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={draft.thumbnail_url} alt="" className="absolute inset-0 size-full object-cover" />
-        ) : (
-          t.admin.courseThumbAlt
-        )}
-      </div>
+      <CourseThumb
+        src={draft.thumbnail_url}
+        title={draft.title || "Kursus tanpa judul"}
+        seed={draft.title || "draf"}
+        className="mb-5 h-[280px] rounded-xl"
+      />
 
       <h2 className="mb-3 text-2xl leading-snug font-bold">{draft.title || "Kursus tanpa judul"}</h2>
 
-      <div className="mb-3.5 flex flex-wrap gap-4.5 text-[13px] text-muted-foreground">
+      <div className="mb-3.5 flex flex-wrap gap-4.5 text-sm text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <BookOpen className="size-3.5" />
           {lessonCount} pelajaran

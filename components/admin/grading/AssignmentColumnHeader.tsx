@@ -8,7 +8,7 @@ import type { GradingColumn } from "@/lib/grading-server"
 export function AssignmentColumnHeader({ column }: { column: GradingColumn }) {
   return (
     <div className="flex items-center gap-1.5">
-      <span className="text-[13px] font-semibold text-foreground">{column.quizTitle}</span>
+      <span className="text-sm font-semibold text-foreground">{column.quizTitle}</span>
       <Popover>
         <PopoverTrigger className="text-muted-foreground hover:text-foreground">
           <Info className="size-3.5" />

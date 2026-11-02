@@ -66,10 +66,10 @@ export function LearnerManagementClient({
                       <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-ring text-sm font-semibold text-primary-foreground uppercase">
                         {l.initial}
                       </span>
-                      <span className="text-[14.5px] font-semibold whitespace-nowrap">{l.name}</span>
+                      <span className="text-sm font-semibold whitespace-nowrap">{l.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="max-w-0 text-[13.5px] text-muted-foreground">
+                  <TableCell className="max-w-0 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2 truncate">
                       <Mail className="size-[15px] shrink-0" />
                       <span className="truncate">{l.email}</span>

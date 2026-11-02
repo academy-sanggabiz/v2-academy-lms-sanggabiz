@@ -93,7 +93,7 @@ export function TrackingDetailView({ detail }: { detail: TrackingDetail }) {
           <p className="text-sm text-muted-foreground">Kursus ini tidak memiliki kuis.</p>
         ) : (
           <div className="overflow-hidden rounded-xl border border-border">
-            <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-3 border-b border-border bg-muted/50 px-3 py-2.5 text-[13px] font-semibold text-muted-foreground">
+            <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-3 border-b border-border bg-muted/50 px-3 py-2.5 text-sm font-semibold text-muted-foreground">
               <div>Kuis</div>
               <div>Status</div>
               <div>Nilai</div>

@@ -64,8 +64,8 @@ export function LearnerDetailTabs({
                 >
                   <div className="h-[52px] w-[72px] shrink-0 rounded-lg bg-secondary" />
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[14.5px] font-semibold">{c.title}</div>
-                    <div className="mt-0.5 text-[13px] text-muted-foreground">{c.pct}% selesai</div>
+                    <div className="truncate text-sm font-semibold">{c.title}</div>
+                    <div className="mt-0.5 text-sm text-muted-foreground">{c.pct}% selesai</div>
                   </div>
                   {c.completed && (
                     <span className="shrink-0 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
@@ -121,7 +121,7 @@ export function LearnerDetailTabs({
                     <Award className="size-5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="line-clamp-2 text-[13.5px] leading-snug font-semibold">
+                    <div className="line-clamp-2 text-sm leading-snug font-semibold">
                       {cert.courseTitle}
                     </div>
                     <div className="mt-1 text-xs text-muted-foreground">
@@ -166,7 +166,7 @@ export function LearnerDetailTabs({
                   className="flex items-center gap-3.5 rounded-xl border border-border p-3.5"
                 >
                   <div className="min-w-0 flex-1">
-                    <div className="line-clamp-1 text-[13.5px] leading-snug font-semibold">{q.quizTitle}</div>
+                    <div className="line-clamp-1 text-sm leading-snug font-semibold">{q.quizTitle}</div>
                     <div className="mt-1 truncate text-xs text-muted-foreground">
                       {q.courseTitle}
                       {q.submittedAt &&

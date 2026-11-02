@@ -47,6 +47,15 @@ export function PurchaseHistoryClient({ purchases }: { purchases: LearnerPurchas
   const { t } = useI18n()
   const [query, setQuery] = useState("")
   const [status, setStatus] = useState<StatusFilter>("all")
+  /* Satu daftar dipakai dua kali: untuk `items` (label di tombol) dan untuk
+     butir-butir di dalam daftarnya. */
+  const statusOptions: { value: StatusFilter; label: string }[] = [
+    { value: "all", label: t.purchases.allStatuses },
+    { value: "completed", label: t.purchases.statusPaid },
+    { value: "free", label: t.purchases.statusFree },
+    { value: "pending", label: t.purchases.statusPending },
+    { value: "refunded", label: t.purchases.statusRefunded },
+  ]
 
   const filtered = useMemo(() => {
     return purchases.filter((p) => {
@@ -72,16 +81,20 @@ export function PurchaseHistoryClient({ purchases }: { purchases: LearnerPurchas
               className="h-9 pl-8"
             />
           </div>
-          <Select value={status} onValueChange={(value) => setStatus(value as StatusFilter)}>
+          <Select
+            items={statusOptions}
+            value={status}
+            onValueChange={(value) => setStatus(value as StatusFilter)}
+          >
             <SelectTrigger aria-label={t.purchases.filterLabel} className="h-9 w-[160px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t.purchases.allStatuses}</SelectItem>
-              <SelectItem value="completed">{t.purchases.statusPaid}</SelectItem>
-              <SelectItem value="free">{t.purchases.statusFree}</SelectItem>
-              <SelectItem value="pending">{t.purchases.statusPending}</SelectItem>
-              <SelectItem value="refunded">{t.purchases.statusRefunded}</SelectItem>
+              {statusOptions.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -105,12 +118,12 @@ export function PurchaseHistoryClient({ purchases }: { purchases: LearnerPurchas
             <TableBody>
               {filtered.map((p) => (
                 <TableRow key={p.id}>
-                  <TableCell className="max-w-0 truncate text-[13.5px] font-medium">{p.courseTitle}</TableCell>
-                  <TableCell className="text-[13.5px] font-medium whitespace-nowrap">{formatPrice(p.amount)}</TableCell>
+                  <TableCell className="max-w-0 truncate text-sm font-medium">{p.courseTitle}</TableCell>
+                  <TableCell className="text-sm font-medium whitespace-nowrap">{formatPrice(p.amount)}</TableCell>
                   <TableCell>
                     <Badge variant={STATUS_VARIANT[p.status]}>{STATUS_LABEL[p.status]}</Badge>
                   </TableCell>
-                  <TableCell className="text-[13px] whitespace-nowrap text-muted-foreground">{formatDate(p.createdAt)}</TableCell>
+                  <TableCell className="text-sm whitespace-nowrap text-muted-foreground">{formatDate(p.createdAt)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

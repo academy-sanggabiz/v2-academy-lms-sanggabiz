@@ -26,7 +26,7 @@ export function GradingCoursesClient({ page }: { page: Paginated<GradingCourseSu
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border">
-          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_220px] gap-3 border-b border-border bg-muted/50 px-3 py-2.5 text-[13px] font-semibold text-muted-foreground">
+          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_220px] gap-3 border-b border-border bg-muted/50 px-3 py-2.5 text-sm font-semibold text-muted-foreground">
             <div>Kursus</div>
             <div>Kuis</div>
             <div>Peserta</div>
@@ -36,7 +36,7 @@ export function GradingCoursesClient({ page }: { page: Paginated<GradingCourseSu
           {page.rows.map((c) => (
             <div
               key={c.courseId}
-              className="grid grid-cols-[2fr_1fr_1fr_1fr_220px] items-center gap-3 border-b border-border px-3 py-3 text-[14px] last:border-b-0"
+              className="grid grid-cols-[2fr_1fr_1fr_1fr_220px] items-center gap-3 border-b border-border px-3 py-3 text-sm last:border-b-0"
             >
               <div className="font-semibold">{c.courseTitle}</div>
               <div className="text-muted-foreground">{c.quizCount}</div>

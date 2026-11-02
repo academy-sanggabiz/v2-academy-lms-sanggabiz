@@ -89,6 +89,11 @@ export type Dictionary = {
     greeting: string
     coursesInProgress: string
     coursesCompleted: string
+    ofEnrolled: string
+    keepGoing: string
+    lessonsCompleted: string
+    certificates: string
+    readyToDownload: string
     continueLearning: string
     nextLesson: string
     lessonsDone: string
@@ -215,7 +220,6 @@ export type Dictionary = {
     noCoursesHint: string
     noNotifications: string
     noNotificationsHint: string
-    courseThumbAlt: string
     totalLearnersLabel: string
     coursesCompletedLabel: string
     allLearners: string
@@ -411,6 +415,11 @@ const id: Dictionary = {
     greeting: "Halo",
     coursesInProgress: "Kursus berjalan",
     coursesCompleted: "Kursus selesai",
+    ofEnrolled: "dari {n} diikuti",
+    keepGoing: "Pertahankan",
+    lessonsCompleted: "Pelajaran tuntas",
+    certificates: "Sertifikat",
+    readyToDownload: "siap diunduh",
     continueLearning: "Lanjutkan belajar",
     nextLesson: "Berikutnya: pelajaran",
     lessonsDone: "selesai",
@@ -551,7 +560,6 @@ const id: Dictionary = {
     noCoursesHint: "Kursus yang Anda buat akan muncul di sini, termasuk yang masih berupa draf.",
     noNotifications: "Belum ada pemberitahuan",
     noNotificationsHint: "Kabar tentang kursus dan sertifikat Anda akan muncul di sini.",
-    courseThumbAlt: "gambar kursus",
     totalLearnersLabel: "Total Peserta",
     coursesCompletedLabel: "Kursus Selesai",
     allLearners: "Semua Peserta",
@@ -756,6 +764,11 @@ const en: Dictionary = {
     greeting: "Hello",
     coursesInProgress: "Courses in progress",
     coursesCompleted: "Courses completed",
+    ofEnrolled: "of {n} enrolled",
+    keepGoing: "Keep going",
+    lessonsCompleted: "Lessons done",
+    certificates: "Certificates",
+    readyToDownload: "ready to download",
     continueLearning: "Continue learning",
     nextLesson: "Next: lesson",
     lessonsDone: "done",
@@ -897,7 +910,6 @@ const en: Dictionary = {
     noCoursesHint: "Courses you create appear here, including ones still in draft.",
     noNotifications: "No notices yet",
     noNotificationsHint: "News about your courses and certificates appears here.",
-    courseThumbAlt: "course image",
     totalLearnersLabel: "Total Learners",
     coursesCompletedLabel: "Courses Completed",
     allLearners: "All Learners",

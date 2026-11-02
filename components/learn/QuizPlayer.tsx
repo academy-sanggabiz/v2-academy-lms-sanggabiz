@@ -176,11 +176,11 @@ export function QuizPlayer({
             <div className="text-2xl font-bold">
               Soal {questionIndex + 1} dari {questions.length}
             </div>
-            <div className="shrink-0 rounded-full bg-secondary px-4 py-2 text-[13.5px] font-semibold whitespace-nowrap">
+            <div className="shrink-0 rounded-full bg-secondary px-4 py-2 text-sm font-semibold whitespace-nowrap">
               Percobaan {attemptNumber}
             </div>
           </div>
-          <QuestionPrompt prompt={question.prompt} className="mt-4 text-[17px]" />
+          <QuestionPrompt prompt={question.prompt} className="mt-4 text-xl" />
         </div>
 
         {isChoice ? (
@@ -216,7 +216,7 @@ export function QuizPlayer({
                   >
                     {selected && <div className={cn("size-2 bg-ring", multi ? "rounded-xs" : "rounded-full")} />}
                   </div>
-                  <div className="text-[15px] font-semibold">{option.text}</div>
+                  <div className="text-base font-semibold">{option.text}</div>
                 </button>
               )
             })}
@@ -235,7 +235,7 @@ export function QuizPlayer({
               value={answers[question.id] ?? ""}
               onChange={(e) => setAnswers((a) => ({ ...a, [question.id]: e.target.value }))}
               placeholder="Ketik jawaban Anda..."
-              className="min-h-[120px] w-full resize-y rounded-lg border border-input bg-card p-3.5 text-[15px] outline-none focus:border-ring"
+              className="min-h-[120px] w-full resize-y rounded-lg border border-input bg-card p-3.5 text-base outline-none focus:border-ring"
             />
           </div>
         )}
@@ -277,11 +277,11 @@ export function QuizPlayer({
     return (
       <div className="mx-auto flex max-w-2xl flex-col gap-5 p-10">
         <div className="flex flex-col items-center gap-2.5 rounded-2xl border border-border bg-card p-10 text-center">
-          <div className="text-[15px] font-semibold text-muted-foreground">Hasil Kuis</div>
+          <div className="text-base font-semibold text-muted-foreground">Hasil Kuis</div>
           {result.pending ? (
             <>
               <div className="text-2xl font-bold text-muted-foreground">Menunggu penilaian</div>
-              <p className="text-[14.5px] text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Kuis ini berisi soal yang dinilai oleh instruktur. Nilai akhir Anda akan
                 tampil setelah penilaian selesai.
               </p>
@@ -291,12 +291,12 @@ export function QuizPlayer({
               <div
                 className={cn(
                   "text-5xl font-bold",
-                  result.passed ? "text-emerald-700 dark:text-emerald-400" : "text-destructive"
+                  result.passed ? "text-emerald-700" : "text-destructive"
                 )}
               >
                 {result.score}%
               </div>
-              <div className="text-[14.5px] text-muted-foreground">
+              <div className="text-sm text-muted-foreground">
                 {result.correctCount} dari {result.total} benar · {result.passed ? "Lulus" : "Belum lulus"}
               </div>
               {/* Feedback ends with the next step (Hattie & Timperley: where to next). */}
@@ -334,7 +334,7 @@ export function QuizPlayer({
                 className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4.5"
               >
                 {isCorrect === true && (
-                  <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-700 dark:text-emerald-400" aria-hidden />
+                  <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-700" aria-hidden />
                 )}
                 {isCorrect === false && (
                   <XCircle className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden />
@@ -347,23 +347,23 @@ export function QuizPlayer({
                   <div
                     className={cn(
                       "mb-1 text-xs font-semibold tracking-wide uppercase",
-                      isCorrect === true && "text-emerald-700 dark:text-emerald-400",
+                      isCorrect === true && "text-emerald-700",
                       isCorrect === false && "text-destructive",
                       isCorrect === null && "text-muted-foreground"
                     )}
                   >
                     {isCorrect === true ? "Benar" : isCorrect === false ? "Salah" : "Menunggu penilaian"}
                   </div>
-                  <QuestionPrompt prompt={question.prompt} className="text-[14.5px] font-semibold" />
-                  <div className="mt-1 text-[13px] text-muted-foreground">Jawaban Anda: {answerText}</div>
+                  <QuestionPrompt prompt={question.prompt} className="text-sm font-semibold" />
+                  <div className="mt-1 text-sm text-muted-foreground">Jawaban Anda: {answerText}</div>
                   {result.explanations?.[question.id] && (
-                    <p className="mt-2 rounded-lg bg-secondary/60 px-3 py-2 text-[13px] leading-relaxed text-foreground">
+                    <p className="mt-2 rounded-lg bg-secondary/60 px-3 py-2 text-sm leading-relaxed text-foreground">
                       <span className="font-semibold">Penjelasan: </span>
                       {result.explanations[question.id]}
                     </p>
                   )}
                   {isCorrect === false && reviewLessons.length > 0 && (
-                    <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
+                    <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                       <span className="text-muted-foreground">Pelajari lagi:</span>
                       {reviewLessons.map((lesson) => (
                         <Link

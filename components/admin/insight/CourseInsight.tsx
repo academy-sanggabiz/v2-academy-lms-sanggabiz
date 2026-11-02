@@ -47,7 +47,7 @@ export function CourseInsight({
             </TableHeader>
             <TableBody>
               {answered.map((q) => (
-                <TableRow key={q.questionId} className="text-[14px]">
+                <TableRow key={q.questionId} className="text-sm">
                   <TableCell className="max-w-md">
                     <span className="line-clamp-2">{plainText(q.prompt)}</span>
                   </TableCell>
@@ -90,7 +90,7 @@ export function CourseInsight({
               </TableHeader>
               <TableBody>
                 {effort.map((e) => (
-                  <TableRow key={e.quizId} className="text-[14px]">
+                  <TableRow key={e.quizId} className="text-sm">
                     <TableCell className="font-semibold">{e.lessonTitle}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {e.passed} dari {e.learners}

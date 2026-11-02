@@ -123,7 +123,7 @@ export function DisplaySettings({ className }: { className?: string }) {
           </fieldset>
         ))}
 
-        <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
           {t.display.deviceHint} {t.display.browserZoomHint}
         </p>
       </DropdownMenuContent>

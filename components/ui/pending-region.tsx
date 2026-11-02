@@ -39,7 +39,7 @@ function PendingRegion({
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-2 z-10 flex justify-center"
         >
-          <span className="flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-[13px] font-medium shadow-sm">
+          <span className="flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium shadow-sm">
             <Spinner className="size-3.5" />
             {label}
           </span>

@@ -600,7 +600,7 @@ function TextContent({
             type="button"
             onClick={() => setFullscreen(true)}
             aria-label={t.player.readFullscreen}
-            className="sticky top-3.5 float-right mr-5 flex size-9 items-center justify-center rounded-[10px] border border-input bg-card text-muted-foreground shadow-sm hover:bg-muted hover:text-foreground"
+            className="sticky top-3.5 float-right mr-5 flex size-9 items-center justify-center rounded-xl border border-input bg-card text-muted-foreground shadow-sm hover:bg-muted hover:text-foreground"
           >
             <Maximize2 className="size-4" aria-hidden />
           </button>
@@ -620,11 +620,11 @@ function TextContent({
           <div className="mb-2.5 text-xs font-semibold tracking-wider text-ring uppercase">
             Bacaan{lesson.duration_seconds ? ` · ${formatDuration(lesson.duration_seconds)}` : ""}
           </div>
-          <h1 className="mb-7 text-2xl leading-tight font-bold sm:text-[28px]">{lesson.title}</h1>
+          <h1 className="mb-7 text-2xl leading-tight font-bold sm:text-3xl">{lesson.title}</h1>
           {lesson.content ? (
             <div className="lesson-prose" dangerouslySetInnerHTML={{ __html: lesson.content }} />
           ) : (
-            <p className="text-[15px] leading-[1.85] text-muted-foreground">
+            <p className="text-base leading-[1.85] text-muted-foreground">
               Konten untuk pelajaran ini belum tersedia.
             </p>
           )}
@@ -782,7 +782,7 @@ function AboutCourse({ course }: { course: Course }) {
           Tentang kursus ini
         </h2>
         <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">{course.description}</p>
-        <div className="mt-4 flex flex-wrap gap-2 text-[13px] text-muted-foreground">
+        <div className="mt-4 flex flex-wrap gap-2 text-sm text-muted-foreground">
           <span>{course.lesson_count} {t.courses.lessons}</span>
           <span aria-hidden>·</span>
           <span>{course.duration_hours} jam</span>

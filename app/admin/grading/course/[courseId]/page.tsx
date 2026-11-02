@@ -41,7 +41,7 @@ export default async function AdminGradingCoursePage({
       <GradingBreadcrumb courseTitle={matrix.courseTitle} />
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-[30px] font-bold">{matrix.courseTitle}</h1>
+          <h1 className="text-3xl font-bold">{matrix.courseTitle}</h1>
           <p className="text-sm text-muted-foreground">
             Semua nilai kuis untuk kursus ini. Sel nilai otomatis hanya dapat dibaca, sel esai perlu dinilai.
           </p>

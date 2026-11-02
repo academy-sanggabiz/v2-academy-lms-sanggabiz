@@ -80,7 +80,7 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
     <div>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-[30px] font-bold">Halaman Depan</h1>
+          <h1 className="text-3xl font-bold">Halaman Depan</h1>
           <p className="text-sm text-muted-foreground">
             Susun bagian halaman depan: tambah, sembunyikan, hapus, dan urutkan.
           </p>

@@ -72,10 +72,10 @@ export function ProfileView({
             <img
               src={avatarUrl}
               alt=""
-              className="size-[100px] rounded-full border-4 border-white object-cover shadow-[0_4px_14px_rgba(20,55,64,0.12)]"
+              className="size-[100px] rounded-full border-4 border-white object-cover shadow-card"
             />
           ) : (
-            <div className="flex size-[100px] items-center justify-center rounded-full border-4 border-white bg-brand-gradient text-4xl font-semibold text-white uppercase shadow-[0_4px_14px_rgba(20,55,64,0.12)]">
+            <div className="flex size-[100px] items-center justify-center rounded-full border-4 border-white bg-brand-gradient text-4xl font-semibold text-white uppercase shadow-card">
               {initial}
             </div>
           )}
@@ -83,14 +83,14 @@ export function ProfileView({
             onClick={() => setIsEditing(true)}
             title={t.profile.edit}
             aria-label={t.profile.edit}
-            className="absolute right-0 bottom-0 flex size-8 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-[0_2px_8px_rgba(20,55,64,0.15)] hover:bg-muted"
+            className="absolute right-0 bottom-0 flex size-8 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-raised hover:bg-muted"
           >
             <Pencil className="size-3.5" />
           </button>
         </div>
         <div className="min-w-0">
           <div className="text-2xl font-bold">{name}</div>
-          <div className="mt-2.5 flex flex-col gap-1.5 text-[13.5px] text-muted-foreground">
+          <div className="mt-2.5 flex flex-col gap-1.5 text-sm text-muted-foreground">
             {/*
               `min-w-0` + `truncate` supaya alamat email panjang tidak
               melebarkan halaman. Tanpa keduanya, satu alamat memaksa seluruh
@@ -160,7 +160,7 @@ function ProfileTabs({
                 >
                   <div className="course-thumb-placeholder h-[52px] w-[72px] flex-none rounded-lg" />
                   <div className="min-w-0 flex-1">
-                    <div className="line-clamp-2 text-[13.5px] leading-snug font-semibold">
+                    <div className="line-clamp-2 text-sm leading-snug font-semibold">
                       {course.title}
                     </div>
                     <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -204,7 +204,7 @@ function ProfileTabs({
                     <Award className="size-5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="line-clamp-2 text-[13.5px] leading-snug font-semibold">
+                    <div className="line-clamp-2 text-sm leading-snug font-semibold">
                       {cert.courseTitle}
                     </div>
                     <div className="mt-1 text-xs text-muted-foreground">

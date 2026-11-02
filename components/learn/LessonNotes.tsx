@@ -147,7 +147,7 @@ export function LessonNotes({ lessonId, initialNote }: { lessonId: string; initi
         <h2 id={`${textareaId}-heading`} className="mb-1 text-lg font-bold">
           {t.player.myNotes}
         </h2>
-        <p id={hintId} className="mb-3 flex items-start gap-1.5 text-[13px] text-muted-foreground">
+        <p id={hintId} className="mb-3 flex items-start gap-1.5 text-sm text-muted-foreground">
           <Lock className="mt-0.5 size-3.5 shrink-0" aria-hidden />
           Hanya Anda yang dapat melihat catatan ini. Catatan tersimpan otomatis saat Anda berhenti mengetik.
         </p>
@@ -165,11 +165,11 @@ export function LessonNotes({ lessonId, initialNote }: { lessonId: string; initi
           aria-describedby={describedBy}
           aria-invalid={state.kind === "error" || undefined}
           placeholder="Tulis poin penting, pertanyaan, atau ide Anda dari pelajaran ini."
-          className="max-h-[60vh] min-h-32 bg-card text-[15px] leading-relaxed md:text-[15px]"
+          className="max-h-[60vh] min-h-32 bg-card text-base leading-relaxed md:text-base"
         />
 
         <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <div aria-live="polite" role="status" className="min-h-6 text-[13px]">
+          <div aria-live="polite" role="status" className="min-h-6 text-sm">
             <StatusText state={state} initialNote={initialNote} />
           </div>
           {state.kind === "error" && (
@@ -181,7 +181,7 @@ export function LessonNotes({ lessonId, initialNote }: { lessonId: string; initi
             <span
               id={counterId}
               className={cn(
-                "ml-auto text-[13px] tabular-nums",
+                "ml-auto text-sm tabular-nums",
                 value.length >= NOTE_MAX_LENGTH ? "font-semibold text-destructive" : "text-muted-foreground"
               )}
             >

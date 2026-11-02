@@ -68,7 +68,7 @@ export function CourseDropoff({ data }: { data: CourseDropoffData }) {
             {data.steps.map((s) => (
               <TableRow
                 key={s.lessonId}
-                className={cn("text-[14px]", s.lessonId === highlightId && "bg-muted/40")}
+                className={cn("text-sm", s.lessonId === highlightId && "bg-muted/40")}
               >
                 <TableCell>
                   <span className="text-muted-foreground">{s.stepNo}.</span> {s.lessonTitle}

@@ -83,7 +83,7 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
       <div className="flex items-center justify-between gap-5">
         <div>
           <div className="text-sm font-semibold">Notifikasi Email</div>
-          <div className="mt-0.5 text-[13px] text-muted-foreground">
+          <div className="mt-0.5 text-sm text-muted-foreground">
             {/* Lihat catatan di components/learner/SettingsView.tsx:
                 pengiriman email belum ada, jadi jangan menjanjikannya. */}
 {t.settings.emailNotificationsHint}
@@ -183,8 +183,8 @@ function DeleteAccountCard({ onDeletingChange }: { onDeletingChange: (deleting: 
     <div className="rounded-2xl border border-border bg-card p-7">
       <div className="mb-5 text-lg font-bold">{t.settings.deleteAccount}</div>
       <div className="rounded-xl border border-danger-surface-border bg-danger-surface p-5">
-        <div className="text-[14.5px] font-semibold text-destructive">{t.settings.deleteAccountHint}</div>
-        <div className="mt-1 mb-3.5 text-[13px] text-destructive">
+        <div className="text-sm font-semibold text-destructive">{t.settings.deleteAccountHint}</div>
+        <div className="mt-1 mb-3.5 text-sm text-destructive">
           {t.settings.deleteAccountWarning}
         </div>
         <StatusMessage className="mb-3">{error}</StatusMessage>

@@ -35,7 +35,7 @@ export default async function AdminTrackingPage({
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-[30px] font-bold">{t.admin.tracking}</h1>
+        <h1 className="text-3xl font-bold">{t.admin.tracking}</h1>
         <p className="text-sm text-muted-foreground">
           {t.admin.trackingSubtitle}
         </p>

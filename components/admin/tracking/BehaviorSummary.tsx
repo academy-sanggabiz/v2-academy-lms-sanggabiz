@@ -62,7 +62,7 @@ export function BehaviorSummary({ data }: { data: Data }) {
             </TableHeader>
             <TableBody>
               {data.courses.map((c) => (
-                <TableRow key={c.courseId} className="text-[14px]">
+                <TableRow key={c.courseId} className="text-sm">
                   <TableCell>{c.courseTitle}</TableCell>
                   <TableCell className="text-right tabular-nums">{c.peserta}</TableCell>
                   <TableCell className="text-right tabular-nums">{durasi(c.totalDetik)}</TableCell>

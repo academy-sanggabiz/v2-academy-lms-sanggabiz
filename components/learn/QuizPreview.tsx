@@ -19,10 +19,10 @@ export function QuizPreview({ quiz }: { quiz: AdminQuiz }) {
 
         return (
           <div key={question.id} className="rounded-2xl border border-border bg-card p-6">
-            <div className="text-[13px] font-semibold text-muted-foreground">
+            <div className="text-sm font-semibold text-muted-foreground">
               Soal {index + 1} · {question.points} poin
             </div>
-            <QuestionPrompt prompt={question.prompt} className="mt-1.5 text-[17px] font-semibold" />
+            <QuestionPrompt prompt={question.prompt} className="mt-1.5 text-xl font-semibold" />
 
             {(question.type === "multiple_choice" || question.type === "true_false") && (
               <div className="mt-4 flex flex-col gap-2.5">
@@ -42,7 +42,7 @@ export function QuizPreview({ quiz }: { quiz: AdminQuiz }) {
                     >
                       {option.is_correct && <Check className="size-3 text-white" strokeWidth={3} />}
                     </div>
-                    <div className="text-[15px]">{option.text}</div>
+                    <div className="text-base">{option.text}</div>
                   </div>
                 ))}
               </div>
@@ -58,7 +58,7 @@ export function QuizPreview({ quiz }: { quiz: AdminQuiz }) {
                     {keywordOptions.map((option) => (
                       <span
                         key={option.id}
-                        className="rounded-full border border-emerald-500/60 bg-emerald-500/10 px-3 py-1 text-[13px]"
+                        className="rounded-full border border-emerald-500/60 bg-emerald-500/10 px-3 py-1 text-sm"
                       >
                         {option.text}
                       </span>

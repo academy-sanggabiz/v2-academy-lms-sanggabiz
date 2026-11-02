@@ -180,7 +180,7 @@ export function LessonsTab({ quizIssues = [] }: { quizIssues?: QuizIssue[] }) {
   return (
     <QuizIssuesProvider issues={quizIssues}>
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-[17px] font-bold">Pelajaran Kursus</h3>
+        <h3 className="text-xl font-bold">Pelajaran Kursus</h3>
         <Button onClick={handleAddSection} className="bg-brand-gradient text-white hover:brightness-105">
           <Plus className="size-3.5" />
           Tambah Modul
@@ -479,19 +479,19 @@ const LessonCard = memo(function LessonCard({
         </span>
         <span
           className={cn(
-            "rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap",
+            "rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap",
             isComplete ? "bg-success text-success-foreground" : "bg-amber-100 text-amber-700"
           )}
         >
           {isComplete ? "Lengkap" : "Belum lengkap"}
         </span>
         {issues.length > 0 && (
-          <span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap text-destructive">
+          <span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-destructive">
             {issues.length} masalah kuis
           </span>
         )}
         {durationMin && (
-          <span className="flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
+          <span className="flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
             <Clock className="size-3" />
             {durationMin} menit
           </span>
@@ -882,8 +882,8 @@ function ResourceRow({
     <div className="overflow-hidden rounded-xl border border-border">
       <div className="flex items-center gap-2.5 bg-muted/40 px-3 py-2.5">
         <Icon className="size-3.5 shrink-0 text-primary" />
-        <span className="min-w-0 flex-1 truncate text-[13px] font-semibold">{resource.title}</span>
-        <span className="shrink-0 rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-semibold text-secondary-foreground">
+        <span className="min-w-0 flex-1 truncate text-sm font-semibold">{resource.title}</span>
+        <span className="shrink-0 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold text-secondary-foreground">
           {resource.type === "file" ? "Berkas" : "Tautan"}
         </span>
         <Button type="button" variant="ghost" size="icon-sm" onClick={onRemove} aria-label={`Hapus ${resource.title}`}>
