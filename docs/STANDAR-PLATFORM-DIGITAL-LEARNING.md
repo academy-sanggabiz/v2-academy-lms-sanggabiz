@@ -29,10 +29,14 @@ ditulis **belum diperiksa**, bukan dikosongkan — perbedaan antara "lolos" dan
 > sebuah halaman aksesibel karena sebuah alat lolos.**
 
 Ini kalimat langsung dari materi Hari 7 dan Hari 13, dan **LMS ini sudah
-membuktikannya sendiri**: gerbang axe kami melaporkan 58/58 halaman bersih
-WCAG 2.2 AA, padahal dua halaman gagal kriteria 1.4.10 Reflow — isinya
-melebar sampai 437px pada layar 320px sehingga harus digulir ke samping.
-axe tidak menguji reflow, dan gerbang kami hanya menguji di 1366px dan 375px.
+membuktikannya sendiri, dan hasilnya tidak enak dibaca**: gerbang axe kami
+melaporkan **58/58 halaman bersih** WCAG 2.2 AA. Setelah satu kriteria yang
+tidak diuji axe ditambahkan — 1.4.10 Reflow — angkanya menjadi **71/83,
+dengan 12 halaman gagal**.
+
+Bukan aplikasinya yang berubah malam itu. Yang berubah hanya apa yang kami
+periksa. Selama berbulan-bulan kami menyebut LMS ini "bersih WCAG 2.2 AA"
+berdasarkan satu alat yang memang tidak menguji kriteria itu.
 
 Konsekuensinya untuk berkas ini: **setiap butir aksesibilitas butuh tiga
 jenis bukti**, dan satu saja tidak pernah cukup —
@@ -90,7 +94,7 @@ jenis bukti**, dan satu saja tidak pernah cukup —
 | E1 | **Kontras** teks biasa minimal 4,5 : 1; teks besar 3 : 1 | axe otomatis | ✅ 58/58 halaman |
 | E2 | **Alternatif teks** untuk tiap gambar/diagram yang membawa isi; gambar hiasan tidak perlu | axe + periksa manual diagram | ✅ otomatis; ⚠️ diagram materi belum ditinjau manusia |
 | E3 | **Papan ketik**: semua yang bisa dengan tetikus harus bisa dengan papan ketik, urutan masuk akal, fokus terlihat | Telusuri satu kursus penuh hanya dengan Tab/Enter/Spasi | ⚠️ sebagian (geser urutan terbukti; alur belajar penuh belum) |
-| E4 | **Reflow (WCAG 1.4.10)**: pada lebar 320px tidak boleh ada gulir mendatar | Buka tiap layar di 320px, bandingkan `scrollWidth` dengan `innerWidth` | ❌ **gagal**: beranda publik (425px) dan katalog peserta (360px) |
+| E4 | **Reflow (WCAG 1.4.10)**: pada lebar 320px tidak boleh ada gulir mendatar | Otomatis di `scripts/a11y-audit.mjs` | ❌ **12 halaman gagal** — lihat §K |
 | E5 | **Ukuran sasaran sentuh** minimal 24px (WCAG 2.2 AA); 44px lebih baik | axe 2.5.8 + ukur manual di ponsel | ✅ otomatis; belum diukur di perangkat nyata |
 | E6 | **Video butuh takarir**; batas waktu harus bisa disesuaikan | Periksa tiap pelajaran video | ⚠️ ada kolom transkrip tapi **tidak diwajibkan**; tidak ada batas waktu (aman) |
 | E7 | **Judul nyata dan berurutan**, menu dangkal dan sama di tiap halaman, tiap halaman punya judul jelas | axe + baca struktur judul | ✅ otomatis |
@@ -157,10 +161,20 @@ Dipakai setiap kali menilai usulan fitur. Ini yang paling sering dilewati.
 
 **Temuan yang harus diperbaiki:**
 
-1. **E4/G2 — Reflow gagal.** Beranda publik melebar 425px dan katalog peserta
-   360px pada layar 320px. Penyebab di beranda: tombol header dan kartu kursus
-   pilihan. Ini kegagalan WCAG 2.2 AA yang luput karena axe tidak menguji
-   reflow dan gerbang kami hanya menguji 1366px dan 375px.
+1. **E4/G2 — Reflow gagal di 12 halaman.** Gerbang sekarang **71/83**, turun
+   dari 58/58 semata-mata karena kriteria ini mulai diperiksa.
+
+   | Halaman | Lebar isi |
+   |---|---|
+   | Beranda publik | 425px |
+   | Katalog peserta | 360px |
+   | Profil peserta | 340px |
+   | **Sembilan layar pengelola** (dasbor, kursus, peserta, pembelian, penilaian, pelacakan, pengaturan, profil, editor kursus) | 379px — semuanya sama |
+
+   Angka 379px yang identik di sembilan layar menunjukkan **satu penyebab
+   bersama**, kemungkinan lebar minimum pada kerangka layar pengelola — jadi
+   sembilan kegagalan itu mungkin satu perbaikan. Beranda dan katalog punya
+   penyebab sendiri: tombol header dan kartu kursus.
 2. **E8 — Belum pernah diuji dengan pembaca layar.** Seluruh klaim
    aksesibilitas kami bersandar pada satu alat otomatis.
 3. **I1 — KPI tanpa definisi dan target.** Dasbor menampilkan angka yang tidak
