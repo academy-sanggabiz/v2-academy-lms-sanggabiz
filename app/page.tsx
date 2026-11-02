@@ -26,10 +26,18 @@ export default async function Home() {
   // belajar maupun layar pengelola (lib/landing-theme.ts).
   return (
     <div className="min-h-screen bg-card" style={themeStyle(theme)}>
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border bg-card/90 px-6 backdrop-blur-sm sm:px-10">
-        <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="Sanggabiz" className="size-8 object-contain" />
-          <span className="text-xl font-bold tracking-tight text-ring">sanggabiz</span>
+      {/*
+        Padding dan kata "sanggabiz" menyusut di layar sempit. Pada 320px --
+        lebar yang disyaratkan WCAG 1.4.10 Reflow -- header ini memuat logo,
+        kata merek, dua pemilih, dan dua tombol; bersama-sama mereka melebar
+        sampai 425px dan memaksa seluruh halaman digulir menyamping.
+      */}
+      <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-2 border-b border-border bg-card/90 px-4 backdrop-blur-sm sm:px-10">
+        <div className="flex min-w-0 items-center gap-2">
+          <img src="/logo.png" alt="Sanggabiz" className="size-8 shrink-0 object-contain" />
+          <span className="hidden text-xl font-bold tracking-tight text-ring min-[380px]:inline">
+            sanggabiz
+          </span>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
           {/*
@@ -41,17 +49,22 @@ export default async function Home() {
           */}
           <DisplaySettings />
           <LanguageSwitcher />
+          {/*
+            Tombol ini dan "Mulai" di bawahnya menuju alamat yang sama, jadi
+            menyembunyikannya di layar sempit tidak menghilangkan satu pun
+            tujuan -- hanya menghapus pilihan ganda yang tidak muat.
+          */}
           <Button
             variant="ghost"
             size="lg"
-            className="h-10 px-5 text-sm font-semibold"
+            className="hidden h-10 px-5 text-sm font-semibold sm:inline-flex"
             render={<Link href="/auth/login" />} nativeButton={false}
           >
             {t.landing.signIn}
           </Button>
           <Button
             size="lg"
-            className="h-10 px-5 text-sm font-semibold bg-brand-gradient text-white hover:brightness-105"
+            className="h-10 shrink-0 px-4 text-sm font-semibold bg-brand-gradient text-white hover:brightness-105 sm:px-5"
             render={<Link href="/auth/login" />} nativeButton={false}
           >
             {t.landing.getStarted}

@@ -104,14 +104,20 @@ export function CoursesBrowser({
       </div>
 
       <Tabs defaultValue="all">
-        <TabsList className="mx-auto h-auto w-fit gap-1.5 rounded-[10px] bg-secondary p-1.5">
-          <TabsTrigger value="all" className="h-9 rounded-lg px-4 data-active:bg-card">
+        {/*
+          Padding tab menyusut di layar sempit. Ketiga tab bersama memakan
+          344px, lebih lebar dari 320px yang disyaratkan WCAG 1.4.10 Reflow.
+          Dikecilkan, bukan digulir: tiga tab yang sebagian tersembunyi lebih
+          buruk daripada tiga tab yang lebih rapat.
+        */}
+        <TabsList className="mx-auto h-auto w-fit max-w-full gap-1 rounded-[10px] bg-secondary p-1 sm:gap-1.5 sm:p-1.5">
+          <TabsTrigger value="all" className="h-9 rounded-lg px-2.5 data-active:bg-card sm:px-4">
             {t.courses.all}
           </TabsTrigger>
-          <TabsTrigger value="enrolled" className="h-9 rounded-lg px-4 data-active:bg-card">
+          <TabsTrigger value="enrolled" className="h-9 rounded-lg px-2.5 data-active:bg-card sm:px-4">
             {t.courses.enrolled}
           </TabsTrigger>
-          <TabsTrigger value="completed" className="h-9 rounded-lg px-4 data-active:bg-card">
+          <TabsTrigger value="completed" className="h-9 rounded-lg px-2.5 data-active:bg-card sm:px-4">
             {t.courses.completed}
           </TabsTrigger>
         </TabsList>

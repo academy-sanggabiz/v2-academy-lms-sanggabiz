@@ -26,13 +26,27 @@ export function AdminUserMenu({ name, role }: { name: string; role: "mentor" | "
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-xl py-1.5 pr-2.5 pl-1.5 outline-none hover:bg-muted">
+      {/*
+        Nama dan lencana peran disembunyikan di layar sempit, bukan dikecilkan:
+        keduanya memakan 210px dan membuat seluruh layar pengelola melebihi
+        320px, sehingga gagal WCAG 1.4.10 Reflow. Keduanya tetap muncul di
+        dalam menu saat dibuka, jadi tidak ada informasi yang hilang.
+
+        `aria-label` menanggung namanya saat teksnya tidak terlihat -- tanpa itu
+        tombol ini hanya terbaca sebagai satu huruf inisial oleh pembaca layar.
+      */}
+      <DropdownMenuTrigger
+        aria-label={`${name} · ${roleLabel}`}
+        className="flex max-w-full items-center gap-2.5 rounded-xl py-1.5 pr-2.5 pl-1.5 outline-none hover:bg-muted"
+      >
         <Avatar>
           <AvatarFallback className="bg-brand-gradient text-white">{initial}</AvatarFallback>
         </Avatar>
-        <span className="text-sm font-semibold">{name}</span>
-        <Badge variant="secondary">{roleLabel}</Badge>
-        <ChevronDown className="size-3.5 text-muted-foreground" />
+        <span className="hidden truncate text-sm font-semibold sm:inline">{name}</span>
+        <span className="hidden sm:inline">
+          <Badge variant="secondary">{roleLabel}</Badge>
+        </span>
+        <ChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuGroup>
