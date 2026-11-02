@@ -127,3 +127,35 @@ statistik selebar setengah layar hanya untuk menampilkan angka "1".
 
 Nomor 1 sampai 4 memberi perubahan kesan terbesar dengan risiko terkecil, dan
 tidak satu pun menyentuh warna merek.
+
+## 6. Hasil: kesembilan butir sudah dikerjakan
+
+Dikerjakan di branch `gaya-sistem-desain`, dua commit (`9d6eea6` untuk butir
+1–4, `a96c411` untuk butir 5–9). Gerbang a11y 83/83 bersih, `tsc` dan `build`
+bersih.
+
+| # | Hasil |
+|---|---|
+| 1 | `components/ui/field.tsx` baru (label + kendali + bantuan + galat, `id`/`aria-describedby`/`aria-invalid` disambungkan sendiri). Tinggi bawaan ruas isian 32px → 44px, dengan ragam `sm` 36px untuk bilah penyaring. |
+| 2 | Form masuk, daftar, dan lupa sandi dipindah ke `<Field>`. `confirmPassword` dihapus — sudah ada tombol lihat sandi, dan satu ruas lebih sedikit berarti satu kegagalan lebih sedikit. |
+| 3 | `components/ui/empty-state.tsx` baru: ikon, judul, satu kalimat yang menjelaskan kapan layarnya akan terisi, dan tombol tindakan bila ada. |
+| 4 | **Angkanya salah di analisis awal: 12, bukan 45.** Warna merek Google, PDF sertifikat (tanpa CSS), dan palet teks pilihan penulis memang harus tetap hex. Yang dipindah ke token: `--danger-surface`, `--quiz-surface`, `--rating`, `--profile-tint`, dan tiga bayangan. |
+| 5 | 129 ukuran lepas di 62 berkas (bukan 13 — itu pun salah hitung) jadi enam langkah: 12/14/16/20/24/30. |
+| 6 | Tiga bayangan jadi token dengan tugas masing-masing; sudut lepas dipetakan ke skala. |
+| 7 | `StatCard` dipadatkan; dasbor peserta dari dua kartu besar jadi empat angka. |
+| 8 | **Dihapus, tidak dihidupkan.** Juga salah hitung: 23 gaya `dark:`, dan 18 di antaranya bawaan komponen base-ui, bukan milik kita. Blok `.dark` berisi 36 abu-abu shadcn dibuang karena kelasnya tidak pernah dipasang di mana pun dan belasan token kita tidak punya pasangan gelap. Alasan lengkapnya ada di `app/globals.css`. |
+| 9 | `components/CourseThumb.tsx` baru: bidang warna dari keluarga warna Sanggabiz dengan inisial judul, lima ragam yang ditentukan dari id kursus. Tujuh layar yang mengulang blok yang sama kini memakai satu komponen. |
+
+### Dua hal yang ketahuan saat mengerjakan, bukan dari analisis awal
+
+**Semua `<Select>` menampilkan nilai mentah, bukan label.** Penyaring kursus
+dan riwayat pembelian bertuliskan `all`; pemilih baris bertuliskan `25`
+alih-alih `25 / halaman`; pemilih prasyarat dan kursus unggulan akan
+menampilkan UUID begitu ada isinya. base-ui butuh `items` di `Select.Root`
+untuk menampilkan label. Enam pemanggil diperbaiki.
+
+**Tombol "Lanjutkan belajar" menyembul keluar dari batasnya.** Penentunya
+lebar kartu, bukan lebar layar — di layar lebar pun kartu itu hanya sepertiga
+kisi. Ambangnya pindah ke container query. Sekalian ketahuan bahwa `flex-1`
+pada arah kolom meratakan tinggi tombol jadi nol, yang membuat tombol di
+layar sempit tergencet.
