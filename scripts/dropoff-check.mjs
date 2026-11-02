@@ -11,6 +11,12 @@
  * lebih meyakinkan daripada satu implementasi yang "kelihatannya benar".
  *
  * Hanya MEMBACA. Keluar 1 bila ada selisih.
+ *
+ * Fungsi SQL-nya dijaga `owns_course()`, yang membaca `auth.uid()`. Kunci
+ * service role tidak punya `auth.uid()`, jadi memanggilnya dengan kunci itu
+ * SELALU mengembalikan nol baris -- terbaca seperti fungsinya rusak padahal
+ * penjaganya justru bekerja. Karena itu pemanggilannya memakai token
+ * pengelola sungguhan, dan hanya kursus milik pengelola itu yang dibandingkan.
  */
 import fs from "node:fs"
 
@@ -29,6 +35,32 @@ if (!URL_BASE || !KEY) {
 }
 
 const headers = { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" }
+
+/** Token pengelola, untuk memanggil fungsi yang dijaga owns_course(). */
+async function masukSebagaiPengelola() {
+  // Dicoba berurutan, bukan dipilih salah satu: kata sandi di environment
+  // bisa saja sudah tidak berlaku, dan berhenti pada yang pertama gagal
+  // membuat alat ini menyerah padahal masih ada akun yang bisa dipakai.
+  const kandidat = [
+    { email: env.AUDIT_ADMIN_EMAIL, sandi: env.AUDIT_ADMIN_PASSWORD },
+    { email: env.DEMO_ADMIN_EMAIL, sandi: env.DEMO_ADMIN_PASSWORD },
+  ].filter((k) => k.email && k.sandi)
+
+  for (const k of kandidat) {
+    const r = await fetch(`${URL_BASE}/auth/v1/token?grant_type=password`, {
+      method: "POST",
+      headers: { apikey: env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ email: k.email, password: k.sandi }),
+    })
+    if (!r.ok) {
+      console.log(`  (gagal masuk sebagai ${k.email}, mencoba akun berikutnya)`)
+      continue
+    }
+    const d = await r.json()
+    if (d.access_token) return { token: d.access_token, userId: d.user?.id, email: k.email }
+  }
+  return null
+}
 async function get(path) {
   const r = await fetch(`${URL_BASE}/rest/v1/${path}`, { headers })
   if (!r.ok) throw new Error(`${path} -> ${r.status} ${(await r.text()).slice(0, 160)}`)
@@ -81,25 +113,39 @@ async function reference(courseId) {
   }
 }
 
-async function rpc(courseId) {
+async function rpc(courseId, token) {
   const r = await fetch(`${URL_BASE}/rest/v1/rpc/admin_course_dropoff`, {
     method: "POST",
-    headers,
+    headers: { apikey: env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({ p_course_id: courseId }),
   })
   if (!r.ok) return { error: `${r.status} ${(await r.text()).slice(0, 200)}` }
   return { rows: await r.json() }
 }
 
-const courses = await get("courses?select=id,title&limit=50")
+const pengelola = await masukSebagaiPengelola()
+if (!pengelola) {
+  console.log("lewati: gagal masuk sebagai pengelola -- periksa AUDIT_ADMIN_* / DEMO_ADMIN_* di .env.local")
+  process.exit(0)
+}
+const [profil] = await get(`profiles?id=eq.${pengelola.userId}&select=role`)
+const superadmin = profil?.role === "superadmin"
+console.log(`memeriksa sebagai ${pengelola.email}${superadmin ? " (superadmin: semua kursus)" : " (mentor: hanya kursus sendiri)"}\n`)
+
+const courses = await get("courses?select=id,title,created_by&limit=50")
 let checked = 0
 let mismatches = 0
 
+let dilewati = 0
 for (const course of courses) {
+  // Kursus milik orang lain memang tidak boleh terbaca; membandingkannya
+  // hanya akan menghasilkan "selisih" palsu.
+  if (!superadmin && course.created_by !== pengelola.userId) { dilewati++; continue }
+
   const ref = await reference(course.id)
   if (!ref || ref.totalLearners === 0) continue
 
-  const result = await rpc(course.id)
+  const result = await rpc(course.id, pengelola.token)
   if (result.error) {
     console.log(`\nTIDAK BISA DIUJI: ${result.error}`)
     console.log("Jalankan supabase/migrations/20261101130000_course_dropoff.sql di SQL Editor lebih dulu.")
@@ -142,4 +188,5 @@ for (const course of courses) {
 }
 
 console.log(`\n${checked - mismatches}/${checked} kursus cocok antara fungsi SQL dan perhitungan pembanding`)
+if (dilewati) console.log(`${dilewati} kursus dilewati: bukan milik pengelola ini, jadi memang tidak terbaca`)
 process.exit(mismatches > 0 ? 1 : 0)

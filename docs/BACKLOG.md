@@ -7,18 +7,18 @@ alasannya. Diperbarui 1 November 2026.
 
 ## Belum dikerjakan
 
-### A. Sertifikat kustom, tata letak, dan pratinjau — ✅ kode selesai, **menunggu satu langkah SQL**
+### A. Sertifikat kustom, tata letak, dan pratinjau — ✅ selesai dan terbukti
 
 Lihat `docs/STANDAR-SERTIFIKAT.md`. Pengaturan utama perusahaan ada di
 `/admin/certificates` (khusus superadmin); kursus mewarisinya **per ruas**,
 sehingga satu kursus bisa memakai nama penanda tangan sendiri sambil tetap
 mewarisi jabatan, templat, dan deskripsi.
 
-**Langkah yang tersisa:** jalankan
-`supabase/migrations/20261101120000_certificate_defaults.sql` di SQL Editor
-Supabase. Selama belum dijalankan, aplikasinya tetap berjalan dengan bentuk
-lama — `getCertificateDefaults()` jatuh ke bawaan bawaan-kode dan layar
-`/admin/certificates` menjelaskan apa yang kurang, bukan gagal.
+Migrasinya sudah dijalankan (2 November 2026, lewat `supabase db query
+--linked`). Terbukti di layar: opsi "Ikut Pengaturan Utama" dan pemilih tata
+letak muncul, bingkai pratinjau ter-render. Baris sertifikat kursus yang sudah
+ada tetap `layout = null` (ikut pengaturan utama), jadi tidak ada kursus yang
+berubah perilakunya.
 
 Ditambahkan kemudian: tiga **tata letak** yang bisa dipilih di dalam LMS
 (klasik, modern, formal) dan **pratinjau** yang merender PDF sungguhan dengan
@@ -53,13 +53,16 @@ Angka kedua itu yang menjawab pertanyaannya. "Berapa yang menyelesaikan" saja
 hanya memperlihatkan corong yang menurun — setiap pelajaran setelah titik
 berhenti juga ikut rendah, jadi ia tidak menunjuk di mana orang berhenti.
 
-**Langkah tersisa:** jalankan
-`supabase/migrations/20261101130000_course_dropoff.sql` di SQL Editor. Sebelum
-itu, layarnya menjelaskan apa yang kurang alih-alih rusak. Sesudahnya,
-`node scripts/dropoff-check.mjs` membuktikan fungsi SQL-nya dengan
-membandingkannya terhadap perhitungan kedua yang ditulis terpisah di
-JavaScript — fungsi SQL-nya belum pernah benar-benar dijalankan karena tidak
-ada Postgres di mesin ini.
+Migrasinya sudah dijalankan, dan fungsinya **terbukti benar**:
+`node scripts/dropoff-check.mjs` membandingkannya terhadap perhitungan kedua
+yang ditulis terpisah di JavaScript, dan keduanya cocok persis — termasuk
+peserta berstatus selesai yang benar TIDAK dihitung sebagai "berhenti".
+
+Catatan untuk pemeriksaan berikutnya: fungsinya dijaga `owns_course()`, yang
+membaca `auth.uid()`. Memanggilnya dengan kunci service role selalu
+mengembalikan nol baris dan terbaca seperti fungsinya rusak, padahal
+penjaganya justru bekerja. Pembandingnya karena itu masuk sebagai pengelola
+sungguhan dan hanya membandingkan kursus milik pengelola itu.
 
 **Yang masih butuh persetujuan:** berapa lama sebuah halaman dibuka, jam
 berapa seseorang belajar, dan apa yang sedang ia buka saat ini. Ketiganya
@@ -208,21 +211,17 @@ Dua tingkat, bisa dikerjakan bertahap:
    mengambil sebagian secara acak. Ini menyentuh editor kuis, penilaian, dan
    tampilan hasil.
 
-### 9. Bank soal — ✅ kode selesai, **menunggu satu langkah SQL**
+### 9. Bank soal — ✅ selesai dan terbukti
 
 Lihat `docs/STANDAR-BANK-SOAL.md`. Soal yang sudah ditulis bisa disimpan ke
 bank lalu **disalin** ke kuis lain — bukan dirujuk, karena soal yang dirujuk
 berarti menyunting satu soal mengubah kuis yang sudah dikerjakan orang, dan
 riwayat nilainya jadi tidak bisa dipertanggungjawabkan.
 
-**Langkah tersisa:** jalankan
-`supabase/migrations/20261101140000_question_bank.sql` di SQL Editor.
-Sebelum itu, dialognya menjelaskan apa yang kurang alih-alih rusak.
-
-Belum terbukti: perjalanan datanya (simpan ke bank → muncul di daftar →
-tersalin ke kuis), karena tabelnya belum ada. Yang terbukti: tombol dan
-dialognya muncul di tempat yang benar, dialognya lolos audit WCAG 2.2 AA,
-dan keadaan "belum aktif" ditangani dengan penjelasan, bukan galat.
+Migrasinya sudah dijalankan, dan perjalanan datanya **terbukti penuh**:
+simpan ke bank → muncul di daftar dialog → tersalin ke kuis (jumlah soal
+bertambah dari 2 menjadi 3). Dialognya juga lolos audit WCAG 2.2 AA. Data uji
+yang dipakai sudah dihapus kembali.
 
 Yang masih terbuka adalah bagian kedua permintaan lama: menarik sebagian soal
 secara acak dari bank (misalnya 10 dari 50). Itu membuat tiap peserta
