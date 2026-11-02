@@ -97,6 +97,49 @@ async function settle(page) {
     .catch(() => {})
 }
 
+/**
+ * WCAG 2.2 AA kriteria 1.4.10 (Reflow): pada lebar 320 px tidak boleh ada
+ * gulir mendatar.
+ *
+ * Diperiksa terpisah karena **axe tidak mengujinya**, dan itu bukan kekurangan
+ * kecil: gerbang ini pernah melaporkan 58/58 halaman bersih sementara dua
+ * halaman melebar sampai 437 px. Alat yang lolos bukan bukti halaman bisa
+ * dipakai -- docs/STANDAR-PLATFORM-DIGITAL-LEARNING.md §1.
+ *
+ * 320 px dipilih karena itu lebar yang disyaratkan kriterianya, bukan lebar
+ * ponsel terkecil yang kebetulan kita punya.
+ */
+async function reflow(page, path) {
+  const sebelum = page.viewportSize()
+  await page.setViewportSize({ width: 320, height: 800 })
+  await page.goto(BASE + path)
+  await settle(page)
+
+  const landed = new URL(page.url()).pathname
+  if (landed !== path) {
+    if (sebelum) await page.setViewportSize(sebelum)
+    return
+  }
+
+  const ukuran = await page.evaluate(() => ({
+    isi: document.documentElement.scrollWidth,
+    layar: window.innerWidth,
+  }))
+  // Satu piksel ditoleransi: pembulatan sub-piksel browser bukan pelanggaran.
+  const meluber = ukuran.isi - ukuran.layar > 1
+  results.push({
+    name: `${path} [reflow 320px]`,
+    violations: meluber
+      ? [{ id: "reflow-320", help: `isi ${ukuran.isi}px melebihi layar ${ukuran.layar}px`, nodes: [] }]
+      : [],
+  })
+  console.log(
+    `${meluber ? "GAGAL" : "ok   "} ${path} [reflow 320px]` +
+      (meluber ? ` -- isi ${ukuran.isi}px vs layar ${ukuran.layar}px` : "")
+  )
+  if (sebelum) await page.setViewportSize(sebelum)
+}
+
 async function visit(page, path) {
   for (const { label, width, height } of WIDTHS) {
     await page.setViewportSize({ width, height })
@@ -113,6 +156,7 @@ async function visit(page, path) {
     }
     await audit(page, `${path} [${label}]`)
   }
+  await reflow(page, path)
 }
 
 /**

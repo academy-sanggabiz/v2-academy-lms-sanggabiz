@@ -93,9 +93,30 @@ dua, dan hampir selalu salah satu dari keduanya:
 2. Nilai **Points to** tersalin tidak utuh — sebagian penyedia DNS menambahkan
    titik di akhir, dan sebagian lagi menolaknya.
 
-## 6. Yang belum dikerjakan
+## 6. Sesudah domainnya hidup — sudah dikerjakan
 
-Alamat baru ini perlu didaftarkan juga di Supabase sebagai **Redirect URL**,
-kalau tidak, tautan konfirmasi email dan lupa sandi akan mengarahkan peserta
-kembali ke alamat `.vercel.app` yang lama. Letaknya di Supabase →
-**Authentication** → **URL Configuration**. Dikerjakan setelah domainnya hidup.
+Gejalanya muncul persis seperti yang diduga: masuk lewat Google melempar
+peserta kembali ke alamat `.vercel.app` lama. Penyebabnya bukan di kode —
+`signInWithOAuth` memakai `window.location.origin`, yang sudah benar.
+Penyebabnya di Supabase: alamat baru belum ada di daftar izin, dan ketika
+tujuan tidak dikenali Supabase memakai **Site URL** sebagai gantinya, yang
+masih alamat lama.
+
+Diperbaiki lewat `supabase/config.toml` lalu `supabase config push`, bukan
+lewat dasbor, supaya setelannya tercatat di repositori dan tidak hilang kalau
+proyek dibuat ulang:
+
+- `site_url` menjadi `https://lms.sanggabiz.com`
+- `additional_redirect_urls` menambahkan `https://lms.sanggabiz.com/**`
+
+Alamat `.vercel.app` **sengaja tetap diizinkan**. Deployment pratinjau
+memakai alamat itu untuk menguji sebelum rilis, dan ia juga jadi jalan masuk
+cadangan kalau suatu saat DNS `sanggabiz.com` bermasalah.
+
+Terbukti: menekan tombol Google di `lms.sanggabiz.com` kini mengirim
+`redirect_to=https://lms.sanggabiz.com/auth/callback`, dan Google menerimanya.
+
+Satu catatan untuk lain kali: `supabase config push` mendorong **seluruh**
+konfigurasi, bukan hanya yang Anda ubah. Jalankan `supabase config diff`
+lebih dulu dan baca daftarnya — setelan yang pernah diubah lewat dasbor bisa
+tertimpa oleh isi `config.toml`.
