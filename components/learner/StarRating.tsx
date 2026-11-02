@@ -34,7 +34,7 @@ export function StarRating({
             !readOnly && "cursor-pointer transition-transform hover:scale-110"
           )}
         >
-          <Star className={cn(starSize, n <= value && "fill-[#f5a623] text-[#f5a623]")} />
+          <Star className={cn(starSize, n <= value && "fill-rating text-rating")} />
         </button>
       ))}
     </div>

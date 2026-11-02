@@ -27,6 +27,11 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
+  --color-danger-surface: var(--danger-surface);
+  --color-danger-surface-border: var(--danger-surface-border);
+  --color-quiz-surface: var(--quiz-surface);
+  --color-rating: var(--rating);
+  --color-profile-tint: var(--profile-tint);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
@@ -79,6 +84,19 @@
   --input: #6f939c;
   --ring: #167384;
   --pill-border: #b5d8de;
+  /* Kotak "zona berbahaya" di layar pengaturan. Dulu ditulis langsung sebagai
+     hex di dua komponen, sehingga mode kontras tinggi melewatinya. */
+  --danger-surface: #fdf1f1;
+  --danger-surface-border: #f3d5d5;
+  /* Latar lembut untuk layar kuis, dan warna bintang penilaian.
+     Nilai lamanya #f5a623 hanya 2,03:1 terhadap putih -- gagal syarat 3:1
+     untuk grafik bermakna (WCAG 1.4.11), dan pemeriksa otomatis tidak
+     menangkapnya karena ia tidak menghitung kontras isian SVG. #c27d06
+     adalah amber terdekat yang lolos di atas putih (3,37:1) maupun di atas
+     latar kartu (3,14:1). */
+  --quiz-surface: #f4f8fa;
+  --rating: #c27d06;
+  --profile-tint: #e8f1fc;
   --draft-background: #fdeeee;
   --brand-gradient: linear-gradient(90deg, #167384, #2a6d93);
   --chart-1: oklch(0.87 0 0);
@@ -186,6 +204,13 @@
      terhadap latarnya melewati 7:1 (WCAG 2.2 SC 1.4.6 tingkat AAA), sementara
      palet bawaan dirancang untuk 4.5:1 (AA). */
   html[data-contrast="high"] {
+    /* Mode kontras tinggi harus ikut mengubah warna-warna ini juga; itulah
+       alasan mereka dipindahkan dari komponen ke sini. */
+    --danger-surface: #ffffff;
+    --danger-surface-border: #8a1f1f;
+    --quiz-surface: #ffffff;
+    --rating: #7a4a00;
+    --profile-tint: #ffffff;
     --background: #ffffff;
     --foreground: #000000;
     --card: #ffffff;

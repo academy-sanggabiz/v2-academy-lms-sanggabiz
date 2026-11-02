@@ -63,7 +63,9 @@ export type Dictionary = {
     title: string
     subtitle: string
     fullName: string
-    confirmPassword: string
+    fullNameHelp: string
+    emailHelp: string
+    passwordHelp: string
     submit: string
     submitting: string
     checkEmail: string
@@ -142,6 +144,8 @@ export type Dictionary = {
     all: string
     title: string
     subtitle: string
+    empty: string
+    emptyHint: string
   }
   pagination: {
     /** `{from}`, `{to}`, `{total}` diganti angka saat dipakai. */
@@ -206,6 +210,11 @@ export type Dictionary = {
     recentCourses: string
     recentEnrollments: string
     noEnrollments: string
+    noEnrollmentsHint: string
+    noCourses: string
+    noCoursesHint: string
+    noNotifications: string
+    noNotificationsHint: string
     courseThumbAlt: string
     totalLearnersLabel: string
     coursesCompletedLabel: string
@@ -376,7 +385,9 @@ const id: Dictionary = {
     title: "Buat akun Anda",
     subtitle: "Mulai belajar bersama Sanggabiz.",
     fullName: "Nama lengkap",
-    confirmPassword: "Konfirmasi kata sandi",
+    fullNameHelp: "Nama ini yang akan tercetak di sertifikat Anda.",
+    emailHelp: "Dipakai untuk masuk dan menerima pemberitahuan kursus.",
+    passwordHelp: "Minimal 8 karakter.",
     submit: "Daftar",
     submitting: "Mendaftarkan…",
     checkEmail: "Periksa email Anda",
@@ -455,6 +466,8 @@ const id: Dictionary = {
     all: "Semua notifikasi",
     title: "Notifikasi",
     subtitle: "Semua notifikasi Anda, dari yang terbaru",
+    empty: "Belum ada pemberitahuan",
+    emptyHint: "Kabar tentang kursus, nilai, dan sertifikat Anda akan muncul di sini.",
   },
   pagination: {
     showing: "Menampilkan {from}–{to} dari {total}",
@@ -531,7 +544,13 @@ const id: Dictionary = {
     trackingEmpty: "Belum ada pendaftaran.",
     recentCourses: "Kursus Terbaru",
     recentEnrollments: "Pendaftaran Terbaru",
-    noEnrollments: "Belum ada pendaftaran",
+    noEnrollments: "Belum ada peserta yang mendaftar",
+    noEnrollmentsHint:
+      "Pendaftaran muncul di sini begitu kursus Anda terbit. Anda juga bisa mendaftarkan peserta sendiri.",
+    noCourses: "Belum ada kursus",
+    noCoursesHint: "Kursus yang Anda buat akan muncul di sini, termasuk yang masih berupa draf.",
+    noNotifications: "Belum ada pemberitahuan",
+    noNotificationsHint: "Kabar tentang kursus dan sertifikat Anda akan muncul di sini.",
     courseThumbAlt: "gambar kursus",
     totalLearnersLabel: "Total Peserta",
     coursesCompletedLabel: "Kursus Selesai",
@@ -711,7 +730,9 @@ const en: Dictionary = {
     title: "Create your account",
     subtitle: "Start learning with Sanggabiz.",
     fullName: "Full name",
-    confirmPassword: "Confirm password",
+    fullNameHelp: "This is the name printed on your certificate.",
+    emailHelp: "Used to sign in and to receive course notices.",
+    passwordHelp: "At least 8 characters.",
     submit: "Sign up",
     submitting: "Creating account…",
     checkEmail: "Check your email",
@@ -790,6 +811,8 @@ const en: Dictionary = {
     all: "All notifications",
     title: "Notifications",
     subtitle: "All your notifications, newest first",
+    empty: "No notices yet",
+    emptyHint: "News about your courses, marks, and certificates appears here.",
   },
   pagination: {
     showing: "Showing {from}–{to} of {total}",
@@ -867,7 +890,13 @@ const en: Dictionary = {
     trackingEmpty: "No enrolments yet.",
     recentCourses: "Recent Courses",
     recentEnrollments: "Recent Enrolments",
-    noEnrollments: "No enrolments yet",
+    noEnrollments: "No learners have enrolled yet",
+    noEnrollmentsHint:
+      "Enrolments appear here once your course is published. You can also enrol learners yourself.",
+    noCourses: "No courses yet",
+    noCoursesHint: "Courses you create appear here, including ones still in draft.",
+    noNotifications: "No notices yet",
+    noNotificationsHint: "News about your courses and certificates appears here.",
     courseThumbAlt: "course image",
     totalLearnersLabel: "Total Learners",
     coursesCompletedLabel: "Courses Completed",

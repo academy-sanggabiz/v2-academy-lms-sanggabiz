@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ListPagination } from "@/components/admin/ListPagination"
 import { getTranslations } from "@/lib/i18n/server"
+import { BookPlus } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
 
 const PREFIX = "course"
 
@@ -22,7 +24,12 @@ export async function RecentCoursesCard({ courses }: { courses: Paginated<Course
     <div className="rounded-2xl border border-border bg-card p-5">
       <h2 className="mb-4 text-sm font-semibold">{t.admin.recentCourses}</h2>
       {courses.rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Belum ada kursus</p>
+        <EmptyState
+          compact
+          icon={BookPlus}
+          title={t.admin.noCourses}
+          description={t.admin.noCoursesHint}
+        />
       ) : (
         <div className="max-h-[320px] overflow-y-auto rounded-xl border border-border">
           <Table>

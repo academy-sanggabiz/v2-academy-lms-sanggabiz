@@ -476,6 +476,7 @@ const CellView = memo(function CellView({
     return (
       <div className="flex items-center gap-2">
         <Input
+          inputSize="sm"
           // Uncontrolled, keyed on the server-confirmed baseline: converting
           // percent <-> points on every keystroke (as a controlled `value`
           // would require) is lossy at this denominator (points step to 1/20
@@ -543,6 +544,7 @@ const CellView = memo(function CellView({
               {grade.hasResponse ? (
                 <>
                   <Input
+          inputSize="sm"
                     type="number"
                     min={0}
                     max={grade.points}

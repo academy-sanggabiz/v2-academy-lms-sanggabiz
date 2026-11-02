@@ -63,7 +63,7 @@ export function ProfileView({
 
   return (
     <div>
-      <div className="mb-6 flex items-center gap-6 rounded-2xl border border-border bg-gradient-to-br from-[#e3f4f7] to-[#e8f1fc] p-8">
+      <div className="mb-6 flex items-center gap-6 rounded-2xl border border-border bg-gradient-to-br from-secondary to-profile-tint p-8">
         <div className="relative flex-none">
           {/* Foto profil bersifat dekoratif: namanya sudah tertulis di
               sebelahnya, jadi alt kosong mencegah pembaca layar membacanya
@@ -337,10 +337,10 @@ function EditProfileForm({
             <img
               src={photo}
               alt=""
-              className="size-[72px] flex-none rounded-full border-2 border-[#e3f4f7] object-cover"
+              className="size-[72px] flex-none rounded-full border-2 border-secondary object-cover"
             />
           ) : (
-            <div className="flex size-[72px] flex-none items-center justify-center rounded-full border-2 border-[#e3f4f7] bg-brand-gradient text-2xl font-semibold text-white uppercase">
+            <div className="flex size-[72px] flex-none items-center justify-center rounded-full border-2 border-secondary bg-brand-gradient text-2xl font-semibold text-white uppercase">
               {initial}
             </div>
           )}

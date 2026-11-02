@@ -146,6 +146,21 @@ async function reflow(page, path) {
   await page.setViewportSize(LEBAR_DESKTOP)
 }
 
+/**
+ * Batas waktu Playwright bawaan 30 detik cukup untuk build produksi, tetapi
+ * tidak untuk server dev yang mengompilasi halaman saat pertama dibuka --
+ * editor kursus bisa lewat satu menit. Dinaikkan di satu tempat supaya tidak
+ * ditambal per pemanggilan, dan supaya kegagalan yang tersisa benar-benar
+ * berarti halamannya rusak.
+ */
+const BATAS_MS = 120_000
+
+function siapkanBatas(page) {
+  page.setDefaultTimeout(BATAS_MS)
+  page.setDefaultNavigationTimeout(BATAS_MS)
+  return page
+}
+
 async function visit(page, path) {
   for (const { label, width, height } of WIDTHS) {
     await page.setViewportSize({ width, height })
@@ -175,9 +190,15 @@ async function visit(page, path) {
  * berteriak tentang hal yang bukan urusannya.
  */
 async function login(browser, loginPath, email, password, label) {
-  const page = await (await browser.newContext({ viewport: { width: 1366, height: 900 } })).newPage()
+  const page = siapkanBatas(await (await browser.newContext({ viewport: { width: 1366, height: 900 } })).newPage())
   try {
     await page.goto(BASE + loginPath)
+    // Ditunggu sampai jaringan tenang sebelum mengisi. Tanpa ini, pada server
+    // dev yang masih mengompilasi halaman, isian masuk sebelum halaman
+    // terhidrasi -- pengiriman lalu berjalan sebagai POST biasa tanpa penangan
+    // sisi klien, dan auditnya melaporkan "gagal masuk" untuk kredensial yang
+    // sebenarnya benar.
+    await page.waitForLoadState("networkidle")
     await page.fill("input[name=email]", email)
     await page.fill("input[name=password]", password)
     await page.click("button[type=submit]")
@@ -192,7 +213,7 @@ async function login(browser, loginPath, email, password, label) {
 
 const browser = await chromium.launch()
 try {
-  const anon = await (await browser.newContext()).newPage()
+  const anon = siapkanBatas(await (await browser.newContext()).newPage())
   for (const path of [
     "/",
     "/auth/login",
@@ -295,7 +316,7 @@ try {
     if (editHref) {
       await visit(page, editHref)
       for (const tab of ["Pelajaran", "Pengaturan", "Peserta", "Pratinjau"]) {
-        await page.click(`[role=tab]:has-text("${tab}")`)
+        await page.click(`[role=tab]:has-text("${tab}")`, { timeout: 90000 })
         await page.waitForTimeout(500)
         await settle(page)
         await audit(page, `${editHref} [${tab}]`)
@@ -317,7 +338,7 @@ try {
       // yang paling sering kehilangan nama pada kotak centangnya.
       await page.goto(BASE + editHref)
       await settle(page)
-      await page.click('[role=tab]:has-text("Pelajaran")')
+      await page.click('[role=tab]:has-text("Pelajaran")', { timeout: 90000 })
       await page.waitForTimeout(500)
       const toggles = page.locator('button[title="Buka/tutup"]')
       const toggleCount = await toggles.count()

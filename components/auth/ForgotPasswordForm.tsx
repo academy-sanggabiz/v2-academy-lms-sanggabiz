@@ -6,6 +6,7 @@ import { MailCheck } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Field } from "@/components/ui/field"
 import { StatusMessage } from "@/components/ui/status-message"
 import { createClient } from "@/lib/supabase/client"
 import { authErrorMessage } from "@/lib/auth/auth-error-message"
@@ -80,16 +81,20 @@ export function ForgotPasswordForm() {
       {/* post, bukan get: lihat catatan di components/auth/LoginForm.tsx --
           tanpa ini pengiriman pra-hidrasi menaruh isian di query string. */}
       <form method="post" onSubmit={handleSubmit} className="space-y-3">
-        <Input
-          type="email"
-          name="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder={t.auth.email}
-          aria-label={t.auth.email}
-          autoComplete="username"
-          required
-        />
+        <Field
+          label={t.auth.email}
+          htmlFor="lupa-email"
+          help="Kami kirimkan tautan untuk membuat kata sandi baru ke alamat ini."
+        >
+          <Input
+            type="email"
+            name="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="username"
+            required
+          />
+        </Field>
         <Button type="submit" className="w-full" pending={isPending} pendingLabel={t.forgot.submitting}>
           Kirim tautan
         </Button>

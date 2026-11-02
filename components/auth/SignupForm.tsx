@@ -10,6 +10,7 @@ import { Mail } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Field } from "@/components/ui/field"
 import { StatusMessage } from "@/components/ui/status-message"
 import { PasswordInput } from "@/components/auth/PasswordInput"
 import { GoogleIcon } from "@/components/auth/GoogleIcon"
@@ -49,7 +50,7 @@ export function SignupForm() {
     formState: { errors },
   } = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { fullName: "", email: "", password: "", confirmPassword: "" },
+    defaultValues: { fullName: "", email: "", password: "" },
   })
 
   React.useEffect(() => {
@@ -81,7 +82,6 @@ export function SignupForm() {
     formData.set("fullName", values.fullName)
     formData.set("email", values.email)
     formData.set("password", values.password)
-    formData.set("confirmPassword", values.confirmPassword)
     formData.set("captchaToken", captchaToken ?? "")
     React.startTransition(() => formAction(formData))
   })
@@ -101,79 +101,24 @@ export function SignupForm() {
 
       {/* post, bukan get: lihat catatan di components/auth/LoginForm.tsx --
           tanpa ini pengiriman pra-hidrasi menaruh isian di query string. */}
-      <form method="post" onSubmit={onSubmit} className="space-y-3">
+      <form method="post" onSubmit={onSubmit} className="space-y-4">
         {/*
          * Pesan per-kolom disambungkan ke inputnya dengan aria-describedby dan
          * aria-invalid, bukan dibuat live region sendiri: pembaca layar
          * membacakannya saat fokus masuk ke kolom yang bermasalah, dan kolomnya
          * ikut ditandai (WCAG 2.2 SC 3.3.1).
          */}
-        <div>
-          <Input
-            type="text"
-            id="signup-fullName"
-            autoComplete="name"
-            placeholder={t.signup.fullName}
-            aria-label={t.signup.fullName}
-            aria-invalid={errors.fullName ? true : undefined}
-            aria-describedby={errors.fullName ? "signup-fullName-error" : undefined}
-            {...register("fullName")}
-          />
-          {errors.fullName && (
-            <p id="signup-fullName-error" className="mt-1 text-xs text-destructive">
-              {errors.fullName.message}
-            </p>
-          )}
-        </div>
-        <div>
-          <Input
-            type="email"
-            id="signup-email"
-            autoComplete="username"
-            placeholder={t.auth.email}
-            aria-label={t.auth.email}
-            aria-invalid={errors.email ? true : undefined}
-            aria-describedby={errors.email ? "signup-email-error" : undefined}
-            {...register("email")}
-          />
-          {errors.email && (
-            <p id="signup-email-error" className="mt-1 text-xs text-destructive">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
-        <div>
-          <PasswordInput
-            id="signup-password"
-            autoComplete="new-password"
-            placeholder={t.auth.password}
-            aria-label={t.auth.password}
-            aria-invalid={errors.password ? true : undefined}
-            aria-describedby={errors.password ? "signup-password-error" : undefined}
-            {...register("password")}
-          />
-          {errors.password && (
-            <p id="signup-password-error" className="mt-1 text-xs text-destructive">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
-        <div>
-          <PasswordInput
-            id="signup-confirmPassword"
-            autoComplete="new-password"
-            placeholder={t.signup.confirmPassword}
-            aria-label={t.signup.confirmPassword}
-            aria-invalid={errors.confirmPassword ? true : undefined}
-            aria-describedby={errors.confirmPassword ? "signup-confirmPassword-error" : undefined}
-            {...register("confirmPassword")}
-          />
-          {errors.confirmPassword && (
-            <p id="signup-confirmPassword-error" className="mt-1 text-xs text-destructive">
-              {errors.confirmPassword.message}
-            </p>
-          )}
-        </div>
+        <Field label={t.signup.fullName} htmlFor="signup-fullName" help={t.signup.fullNameHelp} error={errors.fullName?.message}>
+          <Input type="text" autoComplete="name" {...register("fullName")} />
+        </Field>
+
+        <Field label={t.auth.email} htmlFor="signup-email" help={t.signup.emailHelp} error={errors.email?.message}>
+          <Input type="email" autoComplete="username" {...register("email")} />
+        </Field>
+
+        <Field label={t.auth.password} htmlFor="signup-password" help={t.signup.passwordHelp} error={errors.password?.message}>
+          <PasswordInput autoComplete="new-password" {...register("password")} />
+        </Field>
 
         {HCAPTCHA_SITE_KEY && (
           <HCaptcha
@@ -191,7 +136,7 @@ export function SignupForm() {
           pending={isPending}
           pendingLabel={t.signup.submitting}
         >
-          Daftar
+          {t.signup.submit}
         </Button>
       </form>
 

@@ -64,6 +64,7 @@ export function PurchaseHistoryClient({ purchases }: { purchases: LearnerPurchas
           <div className="relative min-w-[240px]">
             <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
+          inputSize="sm"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t.courses.searchPlaceholder}

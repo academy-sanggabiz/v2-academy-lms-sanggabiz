@@ -182,7 +182,7 @@ function DeleteAccountCard({ onDeletingChange }: { onDeletingChange: (deleting: 
   return (
     <div className="rounded-2xl border border-border bg-card p-7">
       <div className="mb-5 text-lg font-bold">{t.settings.deleteAccount}</div>
-      <div className="rounded-xl border border-[#f3d5d5] bg-[#fdf1f1] p-5">
+      <div className="rounded-xl border border-danger-surface-border bg-danger-surface p-5">
         <div className="text-[14.5px] font-semibold text-destructive">{t.settings.deleteAccountHint}</div>
         <div className="mt-1 mb-3.5 text-[13px] text-destructive">
           {t.settings.deleteAccountWarning}

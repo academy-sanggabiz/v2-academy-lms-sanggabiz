@@ -22,10 +22,9 @@ export async function signup(
   const fullName = String(formData.get("fullName") ?? "")
   const email = String(formData.get("email") ?? "")
   const password = String(formData.get("password") ?? "")
-  const confirmPassword = String(formData.get("confirmPassword") ?? "")
   const captchaToken = String(formData.get("captchaToken") ?? "")
 
-  const parsed = signupSchema.safeParse({ fullName, email, password, confirmPassword })
+  const parsed = signupSchema.safeParse({ fullName, email, password })
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Data tidak valid" }
   }

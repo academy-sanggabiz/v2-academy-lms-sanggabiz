@@ -7,6 +7,7 @@ import HCaptcha from "@hcaptcha/react-hcaptcha"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Field } from "@/components/ui/field"
 import { StatusMessage } from "@/components/ui/status-message"
 import { PasswordInput } from "@/components/auth/PasswordInput"
 import { GoogleIcon } from "@/components/auth/GoogleIcon"
@@ -146,22 +147,13 @@ export function LoginForm() {
         di query string, riwayat peramban, dan log akses perantara mana pun.
         Dengan post, pengiriman pra-hidrasi gagal tanpa membocorkan apa pun.
       */}
-      <form method="post" onSubmit={onSubmit} className="space-y-3">
-        <Input
-          type="email"
-          name="email"
-          placeholder={t.auth.email}
-          aria-label={t.auth.email}
-          autoComplete="username"
-          required
-        />
-        <PasswordInput
-          name="password"
-          placeholder={t.auth.password}
-          aria-label={t.auth.password}
-          autoComplete="current-password"
-          required
-        />
+      <form method="post" onSubmit={onSubmit} className="space-y-4">
+        <Field label={t.auth.email} htmlFor="login-email">
+          <Input type="email" name="email" autoComplete="username" required />
+        </Field>
+        <Field label={t.auth.password} htmlFor="login-password">
+          <PasswordInput name="password" autoComplete="current-password" required />
+        </Field>
         <div className="text-right">
           <Link href="/auth/lupa-sandi" className="text-sm text-ring underline underline-offset-4">
             {t.auth.forgotPassword}

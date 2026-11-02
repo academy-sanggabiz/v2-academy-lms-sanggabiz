@@ -134,6 +134,7 @@ export function QuestionBankDialog({
 
         <div className="space-y-2">
           <Input
+          inputSize="sm"
             type="search"
             placeholder="Cari teks soal atau label…"
             value={search}

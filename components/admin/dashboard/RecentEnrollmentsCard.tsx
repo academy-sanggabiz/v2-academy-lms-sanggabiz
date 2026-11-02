@@ -3,6 +3,8 @@ import type { Paginated } from "@/lib/pagination"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ListPagination } from "@/components/admin/ListPagination"
 import { getTranslations } from "@/lib/i18n/server"
+import { UserPlus } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
 
 const PREFIX = "enroll"
 
@@ -21,7 +23,12 @@ export async function RecentEnrollmentsCard({ enrollments }: { enrollments: Pagi
     <div className="rounded-2xl border border-border bg-card p-5">
       <h2 className="mb-4 text-sm font-semibold">{t.admin.recentEnrollments}</h2>
       {enrollments.rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t.admin.noEnrollments}</p>
+        <EmptyState
+          compact
+          icon={UserPlus}
+          title={t.admin.noEnrollments}
+          description={t.admin.noEnrollmentsHint}
+        />
       ) : (
         <div className="max-h-[320px] overflow-y-auto rounded-xl border border-border">
           <Table>

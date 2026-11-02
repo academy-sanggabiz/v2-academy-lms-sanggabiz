@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import { BellOff } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
 
 import { ListPagination } from "@/components/admin/ListPagination"
 import type { Notification } from "@/lib/notifications-server"
@@ -18,7 +20,7 @@ export function NotificationsListClient({ page }: { page: Paginated<Notification
 
       {page.rows.length === 0 ? (
         <p className="px-2 py-12 text-center text-sm text-muted-foreground">
-          Belum ada notifikasi.
+          <EmptyState icon={BellOff} title={t.notifications.empty} description={t.notifications.emptyHint} />
         </p>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border">

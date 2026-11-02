@@ -74,7 +74,7 @@ export function LessonPane({
   const [showFinished, setShowFinished] = useState(false)
 
   return (
-    <div className={cn("relative flex min-w-0 flex-1 flex-col overflow-y-auto", isQuiz && "bg-[#f4f8fa]")}>
+    <div className={cn("relative flex min-w-0 flex-1 flex-col overflow-y-auto", isQuiz && "bg-quiz-surface")}>
       <div className={cn("flex-1", isQuiz && !isAssessment && "flex flex-col justify-center py-10")}>
         {showFinished ? (
           <CourseFinishedPane

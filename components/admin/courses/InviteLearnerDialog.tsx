@@ -150,6 +150,7 @@ function InviteLearnerDialogContent({
       <div className="relative">
         <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
+          inputSize="sm"
           autoFocus
           value={query}
           onChange={(e) => setQuery(e.target.value)}

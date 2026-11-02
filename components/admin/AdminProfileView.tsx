@@ -35,7 +35,7 @@ export function AdminProfileView({ name, email, joinedYear, role }: AdminProfile
 
   return (
     <div>
-      <div className="mb-6 flex items-center gap-6 rounded-2xl border border-border bg-gradient-to-br from-[#e3f4f7] to-[#e8f1fc] p-8">
+      <div className="mb-6 flex items-center gap-6 rounded-2xl border border-border bg-gradient-to-br from-secondary to-profile-tint p-8">
         <div className="relative flex-none">
           <div className="flex size-[100px] items-center justify-center rounded-full border-4 border-white bg-brand-gradient text-4xl font-semibold text-white uppercase shadow-[0_4px_14px_rgba(20,55,64,0.12)]">
             {initial}
@@ -129,7 +129,7 @@ function EditProfileForm({
         className="max-w-[560px] rounded-2xl border border-border bg-card p-7"
       >
         <div className="mb-5 flex items-center gap-5">
-          <div className="flex size-[72px] flex-none items-center justify-center rounded-full border-2 border-[#e3f4f7] bg-brand-gradient text-2xl font-semibold text-white uppercase">
+          <div className="flex size-[72px] flex-none items-center justify-center rounded-full border-2 border-secondary bg-brand-gradient text-2xl font-semibold text-white uppercase">
             {initial}
           </div>
         </div>

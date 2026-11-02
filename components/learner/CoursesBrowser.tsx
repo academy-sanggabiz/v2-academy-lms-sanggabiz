@@ -78,6 +78,7 @@ export function CoursesBrowser({
     <div className="space-y-5">
       <div className="flex gap-3.5">
         <Input
+          inputSize="sm"
           placeholder={t.courses.searchPlaceholder}
           aria-label={t.courses.searchLabel}
           value={query}
