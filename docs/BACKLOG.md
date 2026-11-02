@@ -72,23 +72,29 @@ ditolak tanpa kehilangan akses, dan bisa ditarik. Syarat minimumnya ada di
 `docs/STANDAR-PELACAKAN.md` §4. Urutan kerjanya: mekanisme pemberitahuan dan
 persetujuan lebih dulu, baru pengumpulannya.
 
-### C. Riwayat migrasi Supabase tidak sinkron — risiko saat menyiapkan lingkungan baru
+### C. Riwayat migrasi Supabase — ✅ selesai
 
-`supabase migration list --linked` hanya mencatat satu migrasi di sisi remote
-(`20260101000000`), padahal 34 berkas migrasi lain sudah benar-benar
-diterapkan — skemanya lengkap dan aplikasinya berjalan. Penyebabnya: migrasi
-dijalankan sebagai SQL langsung, bukan lewat `supabase db push`, sehingga
-tabel `supabase_migrations.schema_migrations` tidak ikut terisi.
+Dulu: riwayat di sisi remote hanya mencatat satu migrasi padahal 37 berkas
+lain sudah benar-benar diterapkan, karena SQL-nya dijalankan langsung dan
+bukan lewat `db push`. Akibatnya `db push` berikutnya akan mencoba menerapkan
+ulang semuanya.
 
-Tidak ada yang rusak sekarang. Risikonya muncul nanti: `db push` berikutnya
-akan mengira seluruh 34 migrasi itu belum pernah jalan dan mencoba
-menerapkannya lagi. Sebagian akan gagal (kolom sudah ada), sebagian justru
-berbahaya kalau tidak idempoten.
+Sebelum dicatat, setiap migrasi diperiksa dulu: tiap berkas dibaca untuk
+mencari objek yang ia buat (tabel, fungsi, view, kolom), lalu keberadaan
+objek itu dicek ke `information_schema` dan `pg_proc`. Dari 45 objek, 43 ada.
+Dua yang tidak ada — fungsi `admin_grading_quizzes` dan kolom
+`quizzes.weight` — ternyata memang **dihapus** oleh migrasi berikutnya, jadi
+ketidakhadirannya benar. Barulah ke-37 versi dicatat.
 
-Perbaikannya `supabase migration repair --status applied <versi>` untuk tiap
-versi yang sudah terlanjur diterapkan. **Belum dikerjakan karena ini menyentuh
-pembukuan basis data produksi dan sebaiknya dijalankan dengan sepengetahuan
-pemilik proyek,** bukan diselipkan di tengah pekerjaan lain.
+Satu entri remote tanpa berkas lokal (`20260101000000`, penanda skema dasar
+dari `databaseSetup.sql`) ditutup dengan berkas penanda tanpa DDL — riwayatnya
+sejajar tanpa menggandakan satu perintah pun. `supabase db push --dry-run`
+kini menjawab "Remote database is up to date".
+
+**Cara menerapkan SQL di proyek ini:** `supabase db query --linked -f <berkas>`
+menjalankan SQL lewat Management API tanpa menyentuh riwayat migrasi — berguna
+untuk perbaikan sekali jalan. Untuk migrasi biasa, `supabase db push` kini
+sudah bisa dipakai seperti biasa.
 
 ### 0. Impor kursus dari berkas .md — ✅ selesai
 
