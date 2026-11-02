@@ -129,3 +129,51 @@ export async function getCourseDropoff(courseId: string): Promise<CourseDropoff>
     ready: true,
   }
 }
+
+
+export type LearnerDifficulty = {
+  questionId: string
+  prompt: string
+  lessonId: string
+  lessonTitle: string
+  sectionTitle: string
+  /** Berapa kali soal ini dijawab salah oleh peserta ini. */
+  salah: number
+  dijawab: number
+  /** Jawaban terakhirnya benar -- artinya sudah dikuasai meski sempat salah. */
+  akhirnyaBenar: boolean
+}
+
+/**
+ * Titik kesulitan satu peserta pada satu kursus.
+ *
+ * Berbeda dari `getQuestionDifficulty`, dan perbedaannya disengaja: fungsi itu
+ * menjawab "soal mana yang sulit bagi semua orang" (tentang materinya), yang
+ * ini menjawab "di mana ORANG INI tersangkut" (tentang orangnya). Yang pertama
+ * dipakai memperbaiki kursus, yang kedua menolong satu peserta.
+ *
+ * Tidak memerlukan persetujuan pelacakan: seluruhnya dibaca ulang dari jawaban
+ * kuis, yang memang harus dicatat untuk menilai.
+ */
+export async function getLearnerDifficulty(enrollmentId: string): Promise<LearnerDifficulty[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc("admin_learner_difficulty", {
+    p_enrollment_id: enrollmentId,
+  })
+
+  if (error) {
+    console.error("getLearnerDifficulty failed:", error.message)
+    return []
+  }
+
+  return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+    questionId: r.question_id as string,
+    prompt: r.prompt as string,
+    lessonId: r.lesson_id as string,
+    lessonTitle: r.lesson_title as string,
+    sectionTitle: r.section_title as string,
+    salah: Number(r.salah ?? 0),
+    dijawab: Number(r.dijawab ?? 0),
+    akhirnyaBenar: Boolean(r.akhirnya_benar),
+  }))
+}

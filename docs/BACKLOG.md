@@ -87,6 +87,26 @@ menjalankan SQL lewat Management API tanpa menyentuh riwayat migrasi — berguna
 untuk perbaikan sekali jalan. Untuk migrasi biasa, `supabase db push` kini
 sudah bisa dipakai seperti biasa.
 
+### D. Teks penjelasan bocor ke dalam teks soal (impor .md)
+
+Ditemukan saat menguji layar titik kesulitan. Pada kursus **Menangani Keluhan
+Pelanggan di Toko** (draf), **2 dari 3 soal** punya potongan kalimat penjelasan
+yang ikut tersimpan di dalam `questions.prompt` sebagai `<blockquote>`:
+
+> `<p>Pelanggan mengirim pesan: "Barangnya rusak waktu sampai!" ...</p>`
+> `<blockquote><p>membuat percakapan bergerak ke penyelesaian. Membantah di pesan pertama</p></blockquote>`
+
+Kalimatnya terpotong di tengah, jadi ini bukan sekadar salah tempat —
+penjelasannya juga tidak utuh. Keluarga bug yang sama dengan `<p>` yang dulu
+muncul di deskripsi kursus: pengurai impor salah menempatkan isi.
+
+Belum diperbaiki karena **isi yang benar tidak bisa disimpulkan** dari
+potongan yang tersisa; penyusunnya yang tahu kalimat utuhnya. Cakupannya
+terbatas pada satu kursus draf.
+
+Layar titik kesulitan menampilkan paragraf pertama saja, jadi cacat ini tidak
+terlihat di sana — tetapi itu menutupi, bukan memperbaiki.
+
 ### 0. Impor kursus dari berkas .md — ✅ selesai
 
 Lihat `docs/STANDAR-IMPOR-KURSUS.md`. LMS tidak memanggil AI; ia menyediakan
