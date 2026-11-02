@@ -37,40 +37,31 @@ mencetak "ok" untuk halaman yang tidak pernah terbuka — kelemahan yang
 ternyata juga membuat `/admin/landing` dan `/admin/mentor` selama ini
 terhitung lolos tanpa pernah diaudit.
 
-### B. Pelacakan perilaku: siapa membuka apa, berapa lama — sebagian selesai, sisanya **butuh persetujuan**
+### B. Pelacakan perilaku — ✅ selesai
 
-Yang diminta: tahu peserta sedang membuka apa, berapa lama di tiap kursus, dan
-di bagian mana orang paling banyak tidak melanjutkan.
+Dua bagian, keduanya ada sekarang.
 
-**Bagian "di bagian mana orang berhenti" sudah selesai** dan tidak butuh
-persetujuan tambahan. Jawabannya ternyata ada pada pelajaran terjauh yang
-diselesaikan seseorang — sudah tercatat sejak awal untuk menjalankan kursus
-(UU PDP Pasal 20 huruf b). Fungsi `admin_course_dropoff` menghitung, per
-pelajaran, berapa peserta menyelesaikannya dan berapa yang **berhenti tepat di
-situ**; tampil di layar Penilaian per kursus.
+**Titik berhenti** (tanpa persetujuan tambahan, dasar huruf b): sudah selesai
+lebih dulu — lihat bagian 3.
 
-Angka kedua itu yang menjawab pertanyaannya. "Berapa yang menyelesaikan" saja
-hanya memperlihatkan corong yang menurun — setiap pelajaran setelah titik
-berhenti juga ikut rendah, jadi ia tidak menunjuk di mana orang berhenti.
+**Lama membuka dan sedang membuka apa** (dasar huruf a): mekanisme
+persetujuannya dibangun lebih dulu, baru pengumpulannya. Peserta memutuskan di
+Pengaturan dengan pemberitahuan lengkap; bawaannya mati; menolak tidak
+mengurangi fitur apa pun; penarikan menghapus data yang sudah terkumpul.
 
-Migrasinya sudah dijalankan, dan fungsinya **terbukti benar**:
-`node scripts/dropoff-check.mjs` membandingkannya terhadap perhitungan kedua
-yang ditulis terpisah di JavaScript, dan keduanya cocok persis — termasuk
-peserta berstatus selesai yang benar TIDAK dihitung sebagai "berhenti".
+Penegakannya di basis data, bukan di kode aplikasi: policy `learning_events`
+mensyaratkan `has_tracking_consent()` pada setiap insert. Terbukti ujung ke
+ujung — membuka pelajaran tanpa persetujuan menghasilkan nol baris, setelah
+menyetujui satu baris berisi 9 detik, setelah menarik nol lagi dengan data
+sebelumnya terhapus. Catatan persetujuannya terbukti tidak bisa disunting
+maupun dihapus.
 
-Catatan untuk pemeriksaan berikutnya: fungsinya dijaga `owns_course()`, yang
-membaca `auth.uid()`. Memanggilnya dengan kunci service role selalu
-mengembalikan nol baris dan terbaca seperti fungsinya rusak, padahal
-penjaganya justru bekerja. Pembandingnya karena itu masuk sebagai pengelola
-sungguhan dan hanya membandingkan kursus milik pengelola itu.
+Superadmin melihat lama belajar per kursus di layar Pelacakan, dengan jumlah
+peserta yang menyetujui ditampilkan di atas angkanya — angka itu menggambarkan
+kelompok yang menyetujui saja, bukan seluruh peserta.
 
-**Yang masih butuh persetujuan:** berapa lama sebuah halaman dibuka, jam
-berapa seseorang belajar, dan apa yang sedang ia buka saat ini. Ketiganya
-pengamatan perilaku, bukan penyampaian materi, jadi dasarnya huruf a —
-persetujuan eksplisit yang harus diminta **sebelum** data dikumpulkan, bisa
-ditolak tanpa kehilangan akses, dan bisa ditarik. Syarat minimumnya ada di
-`docs/STANDAR-PELACAKAN.md` §4. Urutan kerjanya: mekanisme pemberitahuan dan
-persetujuan lebih dulu, baru pengumpulannya.
+Syarat lengkap dan cara masing-masing ditegakkan ada di
+`docs/STANDAR-PELACAKAN.md` §4.
 
 ### C. Riwayat migrasi Supabase — ✅ selesai
 

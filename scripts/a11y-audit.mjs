@@ -190,8 +190,29 @@ try {
     ])
       await visit(page, path)
     if (page) {
+    // Kursus yang BISA dibuka peserta ini dicari dengan mencobanya, bukan
+    // ditebak dari tautan pertama. Katalog dan dasbor sama-sama memuat kursus
+    // yang belum tentu ia ikuti, dan /learn/<id> untuk kursus yang tidak
+    // diikuti akan dialihkan -- sehingga halaman belajar kadang teraudit dan
+    // kadang terlewat, tergantung kursus mana yang kebetulan tampil pertama.
     await page.goto(BASE + "/learner/courses")
-    const courseHref = await page.locator('a[href^="/learner/courses/"]').first().getAttribute("href").catch(() => null)
+    await settle(page)
+    const kandidat = await page
+      .locator('a[href^="/learner/courses/"]')
+      .evaluateAll((ns) => [...new Set(ns.map((n) => n.getAttribute("href")).filter(Boolean))])
+
+    let courseHref = null
+    for (const href of kandidat) {
+      await page.goto(BASE + href.replace("/learner/courses/", "/learn/"))
+      if (new URL(page.url()).pathname.startsWith("/learn/")) {
+        courseHref = href
+        break
+      }
+    }
+    if (!courseHref && kandidat.length > 0) {
+      console.log("lewat halaman belajar: peserta audit tidak mengikuti satu kursus pun yang bisa dibuka")
+    }
+
     if (courseHref) {
       await visit(page, courseHref)
       await visit(page, courseHref.replace("/learner/courses/", "/learn/"))

@@ -15,6 +15,8 @@ import { LearnSidebar } from "@/components/learn/LearnSidebar"
 import { LessonPane } from "@/components/learn/LessonPane"
 import { getTranslations } from "@/lib/i18n/server"
 import { computeUnlockedLessons } from "@/lib/lesson-access"
+import { getTrackingConsent } from "@/lib/tracking-consent-server"
+import { LessonTracker } from "@/components/learn/LessonTracker"
 
 // Judul tab ikut bahasa: generateMetadata bisa membaca cookie, sedangkan
 // `export const metadata` dievaluasi sekali tanpa konteks permintaan.
@@ -44,6 +46,10 @@ export default async function LearnPage({
     await getLearnData(courseId)
   if (!course) notFound()
   if (!enrollmentId) redirect(`/learner/courses/${courseId}?enroll=required`)
+
+  // Dibaca di server supaya komponen pencatatnya tidak dirender sama sekali
+  // bagi peserta yang belum menyetujui -- bukan dirender lalu diam.
+  const { granted: bolehDicatat } = await getTrackingConsent()
 
   const allLessons = course.sections.flatMap((s) => s.lessons)
   if (allLessons.length === 0) {
@@ -150,7 +156,11 @@ export default async function LearnPage({
     .reduce((sum, l) => sum + (l.duration_seconds ?? 0), 0)
 
   return (
-    <LearnShell
+    <>
+      {/* Tidak dirender sama sekali bagi peserta yang belum menyetujui --
+          bukan dirender lalu diam. */}
+      {bolehDicatat && <LessonTracker courseId={courseId} lessonId={currentLesson.id} />}
+      <LearnShell
       header={
         <>
           <Link
@@ -215,6 +225,7 @@ export default async function LearnPage({
           unlockedLessonIds={unlockedLessonIds}
         />
       }
-    />
+      />
+    </>
   )
 }

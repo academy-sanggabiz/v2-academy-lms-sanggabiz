@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { authErrorMessage } from "@/lib/auth/auth-error-message"
 import { createClient } from "@/lib/supabase/server"
 import { MIN_PASSWORD_LENGTH } from "@/lib/auth/password-policy"
+import { deleteOwnLearningEvents, recordTrackingConsent } from "@/lib/tracking-consent-server"
 
 async function getUserId() {
   const supabase = await createClient()
@@ -66,4 +67,24 @@ export async function deleteAccount() {
   // Aksi tak dapat dibatalkan harus ditutup dengan konfirmasi (R8); halaman
   // masuk membacanya dari parameter ini.
   redirect("/auth/login?akun=terhapus")
+}
+
+/**
+ * Mencatat keputusan pelacakan perilaku.
+ *
+ * Menarik persetujuan sekaligus menghapus data yang sudah terkumpul.
+ * Menghentikan pengumpulan saja tidak cukup: data lama yang tetap dipakai
+ * berarti penarikannya hanya setengah berlaku.
+ */
+export async function setTrackingConsent(granted: boolean): Promise<{ error: string | null }> {
+  const hasil = await recordTrackingConsent(granted)
+  if (hasil.error) return hasil
+
+  if (!granted) {
+    const hapus = await deleteOwnLearningEvents()
+    if (hapus.error) return hapus
+  }
+
+  revalidatePath("/learner/settings")
+  return { error: null }
 }

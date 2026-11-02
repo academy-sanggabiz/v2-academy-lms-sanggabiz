@@ -1,5 +1,6 @@
 import { SettingsView } from "@/components/learner/SettingsView"
 import { createClient } from "@/lib/supabase/server"
+import { getTrackingConsent } from "@/lib/tracking-consent-server"
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -12,5 +13,12 @@ export default async function SettingsPage() {
     .eq("id", userId)
     .single()
 
-  return <SettingsView notificationEmailEnabled={profile?.notification_email_enabled ?? true} />
+  const trackingConsent = await getTrackingConsent()
+
+  return (
+    <SettingsView
+      notificationEmailEnabled={profile?.notification_email_enabled ?? true}
+      trackingConsent={trackingConsent}
+    />
+  )
 }

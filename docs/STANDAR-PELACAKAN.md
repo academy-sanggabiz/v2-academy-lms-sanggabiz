@@ -91,21 +91,47 @@ jumlah jawabannya, supaya pembacanya melihat sendiri kapan angkanya tidak
 bermakna. API publik memakai aturan yang lebih keras lagi: jumlah peserta di
 bawah lima disembunyikan.
 
-## 4. Kalau nanti pelacakan perilaku jadi dibangun
+## 4. Pelacakan perilaku — sudah dibangun, dengan lima syarat ini
 
-Syarat minimum, berdasarkan UU PDP:
+Syarat minimum berdasarkan UU PDP, dan **bagaimana masing-masing ditegakkan**
+(bukan sekadar dijanjikan):
 
-1. **Pemberitahuan sebelum pengumpulan**, menyebutkan secara spesifik: data apa,
-   untuk tujuan apa, disimpan berapa lama, dan siapa yang bisa melihatnya.
-   Bukan satu kalimat umum di kebijakan privasi.
-2. **Persetujuan yang bisa dipisahkan.** Peserta harus bisa menolak pelacakan
-   perilaku dan tetap memakai LMS sepenuhnya. Persetujuan yang menjadi syarat
-   memakai layanan bukan persetujuan yang bebas.
-3. **Bisa ditarik semudah diberikan**, dan penarikan menghentikan pengumpulan
-   berikutnya.
-4. **Batas penyimpanan yang ditentukan di awal**, bukan "selamanya".
-5. **Tidak dipakai untuk keputusan otomatis** tentang orangnya tanpa jalur
-   peninjauan manusia.
+1. **Pemberitahuan spesifik sebelum pengumpulan.** Isinya di
+   `lib/tracking-notice.ts`: data apa, untuk tujuan apa, disimpan berapa lama,
+   siapa yang melihat, dan apa yang **tidak** dilakukan. Versinya ikut dicatat
+   pada tiap keputusan — mengubah teksnya berarti menaikkan versinya, karena
+   persetujuan atas teks lama tidak mencakup pengumpulan yang baru.
+2. **Persetujuan terpisah, bawaannya mati.** Tidak ada saklar yang sudah
+   menyala. Menolak tidak mengurangi satu fitur pun; kartunya mengatakan itu
+   di kalimat pertama.
+3. **Penarikan semudah pemberian**, dan ia **menghapus data yang sudah
+   terkumpul** — bukan hanya menghentikan penambahan. Data lama yang tetap
+   dipakai berarti penarikannya hanya setengah berlaku.
+4. **Batas simpan 12 bulan**, ditulis di `purge_old_learning_events()`. Cukup
+   untuk membandingkan satu angkatan dengan berikutnya, tidak lebih.
+5. **Tidak dipakai untuk keputusan otomatis.** Tidak memengaruhi nilai maupun
+   kelulusan, dan tidak ada pemeringkatan orang.
+
+### Ditegakkan basis data, bukan kode aplikasi
+
+Policy `learning_events` mensyaratkan `has_tracking_consent()` pada setiap
+insert. Rute API bisa salah, lupa diperiksa, atau diganti; policy tidak.
+**Terbukti:** membuka pelajaran tanpa persetujuan menghasilkan nol baris,
+setelah menyetujui satu baris, dan setelah menarik persetujuan nol lagi
+dengan data sebelumnya terhapus.
+
+Catatan persetujuannya **hanya bertambah** — tidak ada policy UPDATE maupun
+DELETE. Kalau suatu saat dipersoalkan, yang harus bisa ditunjukkan bukan
+"sekarang dia setuju" melainkan "dia menyetujui versi ini, pada tanggal ini,
+lalu menariknya pada tanggal itu". Terbukti tidak bisa disunting maupun
+dihapus dari sesi pemiliknya sendiri.
+
+### Angkanya tidak mewakili seluruh peserta
+
+Karena hanya yang menyetujui yang tercatat, layar superadmin menampilkan
+**jumlah yang menyetujui di atas angkanya**, bukan di catatan kaki.
+"Rata-rata 40 menit" dari tiga orang terbaca sama meyakinkannya dengan dari
+tiga ratus, dan itu kesalahan baca yang paling mahal di layar seperti ini.
 
 Catatan desain: sebagian besar nilai dari "kebiasaan belajar" bisa didapat
 tanpa menyimpan jejak per orang sama sekali — misalnya menghitung distribusi

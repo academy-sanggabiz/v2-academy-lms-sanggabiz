@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { Bell, Shield } from "lucide-react"
+import { Bell, LineChart, Shield } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { BusyRegion } from "@/components/ui/busy-region"
@@ -10,13 +10,22 @@ import { Spinner } from "@/components/ui/spinner"
 import { StatusMessage } from "@/components/ui/status-message"
 import { Switch } from "@/components/ui/switch"
 import { PasswordInput } from "@/components/auth/PasswordInput"
-import { changePassword, deleteAccount, updateNotificationPref } from "@/app/learner/settings/actions"
+import {
+  changePassword,
+  deleteAccount,
+  setTrackingConsent,
+  updateNotificationPref,
+} from "@/app/learner/settings/actions"
+import { TRACKING_NOTICE } from "@/lib/tracking-notice"
+import type { TrackingConsentState } from "@/lib/tracking-consent-server"
 import { useI18n } from "@/components/i18n/LocaleProvider"
 
 export function SettingsView({
   notificationEmailEnabled,
+  trackingConsent,
 }: {
   notificationEmailEnabled: boolean
+  trackingConsent: TrackingConsentState
 }) {
   const { t } = useI18n()
   const [isDeleting, startDeleting] = useTransition()
@@ -34,6 +43,7 @@ export function SettingsView({
         <BusyRegion busy={isDeleting} label={t.settings.deletingAccount}>
           <div className="flex flex-col gap-6">
             <NotificationsCard initialEnabled={notificationEmailEnabled} />
+            <TrackingConsentCard state={trackingConsent} />
             <SecurityCard />
           </div>
         </BusyRegion>
@@ -133,6 +143,110 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
         ) : (
           status?.message
         )}
+      </p>
+    </div>
+  )
+}
+
+/**
+ * Persetujuan pelacakan perilaku.
+ *
+ * Bawaannya MATI, dan itu bukan pilihan desain melainkan syarat: UU PDP
+ * menuntut persetujuan diberikan sebelum pengumpulan, bukan diasumsikan
+ * sampai ditolak. Karena itu tidak ada saklar yang sudah menyala di sini.
+ *
+ * Isinya sengaja panjang. Pemberitahuan yang ringkas memang lebih enak
+ * dilihat, tetapi yang diwajibkan justru yang spesifik -- data apa, untuk
+ * apa, berapa lama, siapa yang melihat. Meringkasnya sampai tidak menjawab
+ * itu berarti persetujuannya tidak sah.
+ */
+function TrackingConsentCard({ state }: { state: TrackingConsentState }) {
+  const [granted, setGranted] = useState(state.granted)
+  const [pending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
+
+  function ubah(nilai: boolean) {
+    setError(null)
+    setGranted(nilai)
+    startTransition(async () => {
+      const hasil = await setTrackingConsent(nilai)
+      if (hasil.error) {
+        setError(hasil.error)
+        setGranted(!nilai)
+      }
+    })
+  }
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="mb-1 flex items-center gap-2">
+        <LineChart className="size-4 text-muted-foreground" aria-hidden />
+        <h2 className="text-sm font-bold">Membantu Memperbaiki Materi</h2>
+      </div>
+      <p className="mb-4 text-xs text-muted-foreground">
+        Opsional. Menolak tidak mengurangi apa pun yang bisa Anda pakai.
+      </p>
+
+      <div className="space-y-3 text-xs">
+        <div>
+          <div className="font-semibold">Yang dicatat</div>
+          <ul className="mt-1 list-disc space-y-0.5 pl-4 text-muted-foreground">
+            {TRACKING_NOTICE.dikumpulkan.map((x) => (
+              <li key={x}>{x}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <div className="font-semibold">Untuk apa</div>
+          <ul className="mt-1 list-disc space-y-0.5 pl-4 text-muted-foreground">
+            {TRACKING_NOTICE.tujuan.map((x) => (
+              <li key={x}>{x}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <div className="font-semibold">Yang tidak dilakukan</div>
+          <ul className="mt-1 list-disc space-y-0.5 pl-4 text-muted-foreground">
+            {TRACKING_NOTICE.tidakDilakukan.map((x) => (
+              <li key={x}>{x}</li>
+            ))}
+          </ul>
+        </div>
+        <p className="text-muted-foreground">
+          <span className="font-semibold text-foreground">Disimpan:</span>{" "}
+          {TRACKING_NOTICE.penyimpanan}{" "}
+          <span className="font-semibold text-foreground">Yang bisa melihat:</span>{" "}
+          {TRACKING_NOTICE.siapaMelihat}
+        </p>
+        <p className="text-muted-foreground">{TRACKING_NOTICE.penarikan}</p>
+      </div>
+
+      {error && (
+        <div className="mt-3">
+          <StatusMessage variant="error">{error}</StatusMessage>
+        </div>
+      )}
+
+      <div className="mt-4 flex items-center justify-between gap-4 border-t border-border pt-4">
+        <label htmlFor="tracking-consent" className="text-sm font-medium">
+          Izinkan pencatatan ini
+        </label>
+        <div className="flex items-center gap-2">
+          {pending && <Spinner />}
+          <Switch
+            id="tracking-consent"
+            checked={granted}
+            disabled={pending}
+            onCheckedChange={ubah}
+          />
+        </div>
+      </div>
+      <p aria-live="polite" className="mt-2 text-xs text-muted-foreground">
+        {granted
+          ? "Sedang dicatat. Mematikannya menghentikan pencatatan dan menghapus data yang sudah terkumpul."
+          : state.belumMemutuskan
+            ? "Belum ada yang dicatat."
+            : "Tidak dicatat, dan data sebelumnya sudah dihapus."}
       </p>
     </div>
   )
