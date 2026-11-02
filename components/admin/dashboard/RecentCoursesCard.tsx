@@ -28,9 +28,9 @@ export async function RecentCoursesCard({ courses }: { courses: Paginated<Course
           <Table>
             <TableHeader>
               <TableRow className="sticky top-0 z-10 bg-muted/50 hover:bg-muted/50">
-                <TableHead>Judul</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Tanggal</TableHead>
+                <TableHead>{t.admin.colTitle}</TableHead>
+                <TableHead>{t.admin.colStatus}</TableHead>
+                <TableHead>{t.admin.colDate}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

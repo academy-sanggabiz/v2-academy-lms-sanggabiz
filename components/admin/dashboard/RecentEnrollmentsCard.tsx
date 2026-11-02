@@ -27,9 +27,9 @@ export async function RecentEnrollmentsCard({ enrollments }: { enrollments: Pagi
           <Table>
             <TableHeader>
               <TableRow className="sticky top-0 z-10 bg-muted/50 hover:bg-muted/50">
-                <TableHead>Peserta</TableHead>
-                <TableHead>Kursus</TableHead>
-                <TableHead>Tanggal</TableHead>
+                <TableHead>{t.admin.colLearner}</TableHead>
+                <TableHead>{t.admin.colCourse}</TableHead>
+                <TableHead>{t.admin.colDate}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

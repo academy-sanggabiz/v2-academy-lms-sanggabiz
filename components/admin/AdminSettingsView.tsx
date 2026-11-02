@@ -159,7 +159,7 @@ function SecurityCard() {
           pendingLabel="Menyimpan…"
           className="bg-brand-gradient text-white hover:brightness-105"
         >
-          Simpan
+          {t.common.save}
         </Button>
       </form>
       <StatusMessage variant={status?.type === "error" ? "error" : "success"} className="mt-2.5">
@@ -185,7 +185,7 @@ function DeleteAccountCard({ onDeletingChange }: { onDeletingChange: (deleting: 
       <div className="rounded-xl border border-[#f3d5d5] bg-[#fdf1f1] p-5">
         <div className="text-[14.5px] font-semibold text-destructive">{t.settings.deleteAccountHint}</div>
         <div className="mt-1 mb-3.5 text-[13px] text-destructive">
-          Akun yang sudah dihapus tidak dapat dipulihkan
+          {t.settings.deleteAccountWarning}
         </div>
         <StatusMessage className="mb-3">{error}</StatusMessage>
         <AlertDialog
@@ -205,7 +205,7 @@ function DeleteAccountCard({ onDeletingChange }: { onDeletingChange: (deleting: 
               />
             }
           >
-            Hapus Akun
+            {t.settings.deleteAccount}
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -234,7 +234,7 @@ function DeleteAccountCard({ onDeletingChange }: { onDeletingChange: (deleting: 
                   })
                 }}
               >
-                Hapus Akun
+                {t.settings.deleteAccount}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

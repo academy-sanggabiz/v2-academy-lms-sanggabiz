@@ -106,7 +106,7 @@ export default async function AdminDashboardPage({
           value={completionRate === null ? "—" : `${completionRate}%`}
           hint={
             completionRate === null
-              ? "Belum ada pendaftaran"
+              ? t.admin.noEnrollments
               : `${learnerStats.totalCompleted} selesai dari ${learnerStats.totalEnrollments} pendaftaran`
           }
         />

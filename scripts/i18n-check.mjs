@@ -85,9 +85,18 @@ async function ambilIsi() {
   ].filter((x) => typeof x === "string" && x.trim().length > 3)
 }
 
-const ISI = await ambilIsi()
+/**
+ * Spasi disamakan di kedua sisi sebelum dibandingkan. Teks yang dirender
+ * melewati pembungkusan baris dan `whitespace-pre-line`, jadi satu paragraf
+ * yang sama bisa punya baris baru di tempat berbeda dari nilainya di basis
+ * data -- dan perbandingan apa adanya menyatakan "belum diterjemahkan" untuk
+ * isi yang justru memang harus tetap Indonesia.
+ */
+const rapikan = (x) => x.replace(/\s+/g, " ").trim()
+const ISI = (await ambilIsi()).map(rapikan)
 function adalahIsi(baris) {
-  return ISI.some((t) => baris.includes(t) || t.includes(baris))
+  const b = rapikan(baris)
+  return ISI.some((t) => b.includes(t) || t.includes(b))
 }
 
 const hasil = []

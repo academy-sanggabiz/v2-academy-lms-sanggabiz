@@ -46,7 +46,7 @@ export function LearnerManagementClient({
 
       {page.rows.length === 0 ? (
         <div className="py-12 text-center text-sm text-muted-foreground">
-          Tidak ada peserta yang cocok dengan pencarian Anda.
+          {t.admin.noLearnerMatches}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border">

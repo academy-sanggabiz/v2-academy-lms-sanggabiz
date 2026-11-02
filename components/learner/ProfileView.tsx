@@ -165,7 +165,7 @@ function ProfileTabs({
                   {course.status === "completed" && (
                     <span className="flex flex-none items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
                       <CheckCircle2 className="size-3.5" />
-                      Selesai
+                      {t.courses.completed}
                     </span>
                   )}
                 </Link>

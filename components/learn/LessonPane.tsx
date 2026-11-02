@@ -774,6 +774,7 @@ function LessonFooter({
  * were silently lost on navigation.
  */
 function AboutCourse({ course }: { course: Course }) {
+  const { t } = useI18n()
   return (
     <section aria-labelledby="about-course-heading" className="bg-card">
       <div className="max-w-[840px] p-5 sm:p-7">
@@ -782,7 +783,7 @@ function AboutCourse({ course }: { course: Course }) {
         </h2>
         <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">{course.description}</p>
         <div className="mt-4 flex flex-wrap gap-2 text-[13px] text-muted-foreground">
-          <span>{course.lesson_count} pelajaran</span>
+          <span>{course.lesson_count} {t.courses.lessons}</span>
           <span aria-hidden>·</span>
           <span>{course.duration_hours} jam</span>
           <span aria-hidden>·</span>

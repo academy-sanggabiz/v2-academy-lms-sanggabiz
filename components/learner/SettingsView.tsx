@@ -292,7 +292,7 @@ function SecurityCard() {
           pendingLabel="Menyimpan…"
           className="bg-brand-gradient text-white hover:brightness-105"
         >
-          Simpan
+          {t.common.save}
         </Button>
       </form>
       <StatusMessage
@@ -338,7 +338,7 @@ function DeleteAccountCard({
             onConfirm()
           }}
         >
-          Hapus Akun
+          {t.settings.deleteAccount}
         </Button>
         {isPending && (
           <p className="mt-3 text-[13px] text-destructive">

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ArrowLeft, FileText, Globe, Users } from "lucide-react"
+import { getTranslations } from "@/lib/i18n/server"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -20,6 +21,7 @@ export default async function AdminCoursePreviewPage({
   params: Promise<{ id: string }>
   searchParams: Promise<RawSearchParams>
 }) {
+  const { t } = await getTranslations()
   const [{ id }, raw] = await Promise.all([params, searchParams])
   const feedbackParams = parseListParams<Record<string, never>>(raw, {
     prefix: "feedback",
@@ -69,7 +71,7 @@ export default async function AdminCoursePreviewPage({
               <div className="mb-3.5 text-lg font-bold">Ringkasan Kursus</div>
               <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">{course.description}</p>
               <div className="mt-4 flex gap-2 border-t border-muted pt-4 text-[13px] text-muted-foreground">
-                <span>{course.lesson_count} pelajaran</span>
+                <span>{course.lesson_count} {t.courses.lessons}</span>
                 <span>·</span>
                 <span>{course.duration_hours} jam</span>
               </div>

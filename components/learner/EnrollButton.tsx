@@ -37,7 +37,11 @@ export function EnrollButton({
     // The full "Enrolled ✓" prefix only fits the wide xl sidebar button; the
     // compact grid-card size sits next to a Preview button in the same row.
     const label =
-      state === "in_progress" ? "Lanjutkan belajar" : size === "xl" ? "Terdaftar ✓ Mulai belajar" : "Mulai belajar"
+      state === "in_progress"
+        ? t.enroll.continueLearning
+        : size === "xl"
+          ? t.enroll.enrolledStartLearning
+          : t.enroll.startLearning
     return (
       <Button
         size={size}

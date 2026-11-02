@@ -150,7 +150,7 @@ export function CourseListCard({ course }: { course: Course }) {
       <div className="mb-3 flex flex-wrap gap-4 text-[13px] text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <BookOpen className="size-3.5" />
-          {course.lesson_count} pelajaran
+          {course.lesson_count} {t.courses.lessons}
         </span>
         <span className="flex items-center gap-1.5">
           <Clock className="size-3.5" />

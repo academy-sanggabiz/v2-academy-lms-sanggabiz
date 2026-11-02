@@ -95,7 +95,7 @@ dikembangkan kalau diperlukan: impor per modul ke kursus yang sudah ada, dan
 tampilan perbandingan supaya kursus yang sudah punya peserta pun bisa
 diperbarui sebagian.
 
-### 1. Dwibahasa Indonesia–Inggris — *sebagian besar selesai, sisanya terukur*
+### 1. Dwibahasa Indonesia–Inggris — ✅ 12 layar utama selesai, sisanya terukur
 
 **Ada alat ukurnya sekarang:** `node scripts/i18n-check.mjs` membuka LMS dalam
 bahasa Inggris dan menghitung berapa baris antarmuka yang masih berbahasa
@@ -105,7 +105,7 @@ memang berjudul Indonesia walau layarnya dibuka dalam bahasa Inggris. Tanpa
 pengecualian itu angkanya tidak akan pernah nol, dan alat ukur yang tidak bisa
 mencapai nol berhenti dipakai orang.
 
-Angkanya: **81 → 19 baris** pada 12 layar utama.
+Angkanya: **81 → 0 baris** pada 12 layar utama. `12/12 layar penuh bahasa Inggris`.
 
 Dua temuan yang layak dicatat:
 
@@ -116,10 +116,17 @@ Dua temuan yang layak dicatat:
   memakai nama yang salah dan melaporkan seluruh layar "belum diterjemahkan" —
   yang salah alat ukurnya.
 
-**Sisa 19 baris** terutama satuan yang menyatu dengan angka ("64 pelajaran")
-dan beberapa label di layar pengelola. Sisanya isi rinci di dalam editor
-kursus, penilaian, dan pelacakan — tabel, dialog, dan pesan — yang belum
-disentuh sama sekali.
+**Yang belum disentuh** adalah layar yang tidak masuk 12 itu: isi rinci di
+dalam editor kursus (tab Pelajaran, editor kuis, pengaturan sertifikat),
+dialog penilaian, dan layar superadmin (mentor, halaman depan, sertifikat).
+Alat ukurnya tinggal ditambah jalurnya ketika giliran layar itu tiba.
+
+Satu jebakan yang ikut diperbaiki di alat ukurnya: spasi harus disamakan di
+kedua sisi sebelum membandingkan teks terender dengan isi di basis data.
+Teks yang dirender melewati pembungkusan baris dan `whitespace-pre-line`,
+jadi paragraf yang sama bisa punya baris baru di tempat berbeda — dan
+perbandingan apa adanya menyatakan "belum diterjemahkan" untuk deskripsi
+kursus yang justru memang harus tetap berbahasa Indonesia.
 
 Juga belum: teks notifikasi, yang ditulis trigger basis data dan karena itu
 tidak tersentuh kamus antarmuka. Menerjemahkannya berarti menyimpan kunci di

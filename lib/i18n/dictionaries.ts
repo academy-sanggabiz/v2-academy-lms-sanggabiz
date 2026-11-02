@@ -150,6 +150,9 @@ export type Dictionary = {
   }
   enroll: {
     join: string
+    continueLearning: string
+    startLearning: string
+    enrolledStartLearning: string
   }
   tracking: {
     cardTitle: string
@@ -209,6 +212,13 @@ export type Dictionary = {
     allLearners: string
     viewAll: string
     totalEnrollmentsLabel: string
+    colTitle: string
+    colStatus: string
+    colDate: string
+    colLearner: string
+    colCourse: string
+    noLearnerMatches: string
+    learnersHeading: string
   }
   landing: {
     signIn: string
@@ -452,6 +462,9 @@ const id: Dictionary = {
   },
   enroll: {
     join: "Ikuti kursus",
+    continueLearning: "Lanjutkan belajar",
+    startLearning: "Mulai belajar",
+    enrolledStartLearning: "Terdaftar ✓ Mulai belajar",
   },
   tracking: {
     cardTitle: "Membantu Memperbaiki Materi",
@@ -525,6 +538,13 @@ const id: Dictionary = {
     allLearners: "Semua Peserta",
     viewAll: "Lihat Semua",
     totalEnrollmentsLabel: "Total Pendaftaran",
+    colTitle: "Judul",
+    colStatus: "Status",
+    colDate: "Tanggal",
+    colLearner: "Peserta",
+    colCourse: "Kursus",
+    noLearnerMatches: "Tidak ada peserta yang cocok dengan pencarian Anda.",
+    learnersHeading: "Peserta",
   },
   landing: {
     signIn: "Masuk",
@@ -777,6 +797,9 @@ const en: Dictionary = {
   },
   enroll: {
     join: "Enrol in course",
+    continueLearning: "Continue learning",
+    startLearning: "Start learning",
+    enrolledStartLearning: "Enrolled ✓ Start learning",
   },
   tracking: {
     cardTitle: "Help Us Improve the Material",
@@ -851,6 +874,13 @@ const en: Dictionary = {
     allLearners: "All Learners",
     viewAll: "View All",
     totalEnrollmentsLabel: "Total Enrolments",
+    colTitle: "Title",
+    colStatus: "Status",
+    colDate: "Date",
+    colLearner: "Learner",
+    colCourse: "Course",
+    noLearnerMatches: "No learner matches your search.",
+    learnersHeading: "Learners",
   },
   landing: {
     signIn: "Sign in",

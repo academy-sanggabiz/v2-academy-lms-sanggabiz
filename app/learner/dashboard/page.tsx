@@ -123,7 +123,7 @@ export default async function LearnerDashboardPage() {
                       </div>
                       <div className="p-3.5">
                         <p className="line-clamp-2 text-sm leading-snug font-semibold">{course.title}</p>
-                        <p className="mt-1 text-xs text-muted-foreground">{course.lesson_count} pelajaran</p>
+                        <p className="mt-1 text-xs text-muted-foreground">{course.lesson_count} {t.courses.lessons}</p>
                       </div>
                     </Link>
                   </li>

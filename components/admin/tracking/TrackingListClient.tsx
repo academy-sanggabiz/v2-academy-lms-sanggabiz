@@ -15,7 +15,7 @@ export function TrackingListClient({ page }: { page: Paginated<TrackingEnrollmen
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-bold">Peserta</h2>
+        <h2 className="text-lg font-bold">{t.admin.learnersHeading}</h2>
         <ListToolbar placeholder="Cari peserta atau kursus..." />
       </div>
 
@@ -28,7 +28,7 @@ export function TrackingListClient({ page }: { page: Paginated<TrackingEnrollmen
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50 hover:bg-muted/50">
-                <TableHead>Peserta</TableHead>
+                <TableHead>{t.admin.colLearner}</TableHead>
                 <TableHead>Kursus</TableHead>
                 <TableHead>Modul</TableHead>
                 {/*
