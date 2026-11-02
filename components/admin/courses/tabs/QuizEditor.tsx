@@ -241,6 +241,31 @@ function QuizSettings({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz })
   const { dispatch } = useCourseDraft()
   const [passScore, setPassScore] = useState(String(quiz.pass_score))
   const [maxAttempts, setMaxAttempts] = useState(quiz.max_attempts ? String(quiz.max_attempts) : "")
+  const [drawCount, setDrawCount] = useState(quiz.draw_count ? String(quiz.draw_count) : "")
+  const total = quiz.questions.length
+
+  /**
+   * Angka di luar 1..total tidak punya arti: nol soal bukan kuis, dan menarik
+   * lebih banyak daripada yang ada sama saja dengan menampilkan semuanya.
+   * Dibulatkan ke dalam rentang alih-alih ditolak -- penyusun yang mengetik
+   * 50 dari 30 soal jelas maksudnya "semuanya".
+   */
+  function simpanPenarikan() {
+    const angka = Number(drawCount)
+    if (!drawCount.trim() || !Number.isFinite(angka) || angka < 1) {
+      setDrawCount("")
+      save({ draw_count: null })
+      return
+    }
+    const dipakai = Math.min(Math.floor(angka), total)
+    if (dipakai >= total) {
+      setDrawCount("")
+      save({ draw_count: null })
+      return
+    }
+    setDrawCount(String(dipakai))
+    save({ draw_count: dipakai })
+  }
 
   function save(patch: Partial<Omit<DraftQuiz, "id" | "questions">>) {
     dispatch({ type: "patchQuiz", lessonId, patch })
@@ -278,6 +303,21 @@ function QuizSettings({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz })
           </p>
         )}
       </div>
+      {!quiz.is_assessment && (
+        <div className="w-44 space-y-1.5">
+          <Label htmlFor={`draw-count-${quiz.id}`}>Soal per Percobaan</Label>
+          <Input
+            id={`draw-count-${quiz.id}`}
+            type="number"
+            min={1}
+            max={total}
+            placeholder={`Semua (${total})`}
+            value={drawCount}
+            onChange={(e) => setDrawCount(e.target.value)}
+            onBlur={simpanPenarikan}
+          />
+        </div>
+      )}
       <div className="flex items-center gap-2">
         <Switch
           id={`shuffle-${quiz.id}`}
@@ -286,6 +326,14 @@ function QuizSettings({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz })
         />
         <Label htmlFor={`shuffle-${quiz.id}`}>Acak Soal</Label>
       </div>
+      {quiz.draw_count !== null && quiz.draw_count < total && (
+        <p className="w-full text-xs text-muted-foreground">
+          Tiap peserta menghadapi {quiz.draw_count} soal acak dari {total}. Soalnya dipilih saat
+          percobaan dimulai dan tetap sama sampai percobaan itu selesai. Karena kumpulan soalnya
+          berbeda-beda, nilai antarpeserta tidak lagi langsung sebanding — pastikan seluruh soal
+          setara tingkat kesulitannya.
+        </p>
+      )}
       <div className="flex w-full items-start gap-2 border-t border-border pt-3">
         <span
           className={cn(

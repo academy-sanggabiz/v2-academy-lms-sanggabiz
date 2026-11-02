@@ -283,6 +283,7 @@ function reducer(state: State, action: CourseDraftAction): State {
             pass_score: 70,
             max_attempts: null,
             shuffle: true,
+            draw_count: null,
             is_assessment: action.isAssessment ?? false,
             questions: [],
           }
@@ -311,6 +312,7 @@ function reducer(state: State, action: CourseDraftAction): State {
             pass_score: 70,
             max_attempts: null,
             shuffle: true,
+            draw_count: null,
             is_assessment: action.isAssessment ?? false,
             questions: [],
           }

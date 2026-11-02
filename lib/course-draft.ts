@@ -44,6 +44,11 @@ export type DraftQuiz = {
   pass_score: number
   max_attempts: number | null
   shuffle: boolean
+  /**
+   * Berapa soal ditarik acak tiap percobaan. NULL = tampilkan semuanya.
+   * Soal yang ditarik dipilih basis data saat percobaan dibuat, bukan di sini.
+   */
+  draw_count: number | null
   is_assessment: boolean
   // No `weight`: a quiz's weight in the final course grade is derived from
   // is_assessment (see quizGradeWeight in lib/course-grade.ts), not authored.
@@ -313,6 +318,7 @@ export function draftFromDetail(course: AdminCourseDetail): CourseDraft {
                 pass_score: quiz.pass_score,
                 max_attempts: quiz.max_attempts,
                 shuffle: quiz.shuffle,
+                draw_count: quiz.draw_count ?? null,
                 is_assessment: quiz.is_assessment,
                 questions: quiz.questions.map((q) => ({
                   id: q.id,
@@ -374,6 +380,7 @@ const quizSchema = z.object({
   pass_score: z.number().min(0).max(100),
   max_attempts: z.number().min(1).nullable(),
   shuffle: z.boolean(),
+  draw_count: z.number().int().min(1).nullish().transform((v) => v ?? null),
   is_assessment: z.boolean(),
   questions: z.array(questionSchema).max(200),
 })

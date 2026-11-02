@@ -558,6 +558,7 @@ export async function saveCourseDraft(
     pass_score: number
     max_attempts: number | null
     shuffle: boolean
+    draw_count: number | null
     is_assessment: boolean
   }[] = []
   const questionRows: {
@@ -662,6 +663,7 @@ export async function saveCourseDraft(
           existingQuiz.pass_score !== lesson.quiz.pass_score ||
           existingQuiz.max_attempts !== lesson.quiz.max_attempts ||
           existingQuiz.shuffle !== lesson.quiz.shuffle ||
+          existingQuiz.draw_count !== lesson.quiz.draw_count ||
           existingQuiz.is_assessment !== lesson.quiz.is_assessment ||
           existingQuiz.title !== lesson.title
         ) {
@@ -672,6 +674,7 @@ export async function saveCourseDraft(
             pass_score: lesson.quiz.pass_score,
             max_attempts: lesson.quiz.max_attempts,
             shuffle: lesson.quiz.shuffle,
+            draw_count: lesson.quiz.draw_count,
             is_assessment: lesson.quiz.is_assessment,
           })
         }

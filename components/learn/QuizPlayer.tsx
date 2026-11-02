@@ -41,6 +41,8 @@ export function QuizPlayer({
   const [isPending, startTransition] = useTransition()
   const [attemptId, setAttemptId] = useState<string | null>(null)
   const [attemptNumber, setAttemptNumber] = useState(1)
+  /** Soal yang ditarik basis data untuk percobaan ini; null = semuanya. */
+  const [drawnIds, setDrawnIds] = useState<string[] | null>(null)
   const [questionIndex, setQuestionIndex] = useState(0)
 
   /*
@@ -49,8 +51,8 @@ export function QuizPlayer({
    * soal sebelumnya tidak mengacak ulang. Lihat lib/quiz-shuffle.ts.
    */
   const questions = useMemo(
-    () => orderQuestionsForAttempt(quiz.questions, { enabled: quiz.shuffle, attemptId }),
-    [quiz.questions, quiz.shuffle, attemptId]
+    () => orderQuestionsForAttempt(quiz.questions, { enabled: quiz.shuffle, attemptId, drawnIds }),
+    [quiz.questions, quiz.shuffle, attemptId, drawnIds]
   )
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [result, setResult] = useState<SubmitQuizResult | null>(null)
@@ -79,6 +81,7 @@ export function QuizPlayer({
       }
       setAttemptId(res.attemptId)
       setAttemptNumber(res.attemptNumber)
+      setDrawnIds(res.questionIds)
       setQuestionIndex(0)
       setAnswers({})
       setStage("active")

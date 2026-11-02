@@ -63,11 +63,30 @@ type ShuffleableQuestion = { id: string; options?: { id: string }[] }
  */
 export function orderQuestionsForAttempt<T extends ShuffleableQuestion>(
   questions: readonly T[],
-  { enabled, attemptId }: { enabled: boolean; attemptId: string | null }
+  {
+    enabled,
+    attemptId,
+    drawnIds = null,
+  }: {
+    enabled: boolean
+    attemptId: string | null
+    /**
+     * Soal yang ditarik untuk percobaan ini, dipilih basis data saat percobaan
+     * dibuat. NULL berarti seluruh soal kuis.
+     *
+     * Penyaringannya memakai daftar ini apa adanya dan tidak pernah menebak:
+     * penilaian di server memakai daftar yang sama, jadi apa pun yang tampil
+     * di sini harus persis itu. Soal yang namanya ada di daftar tetapi sudah
+     * dihapus penyusun hilang dengan sendirinya karena tidak ketemu di
+     * `questions`.
+     */
+    drawnIds?: string[] | null
+  }
 ): T[] {
-  if (!enabled || !attemptId) return [...questions]
+  const dipakai = drawnIds ? questions.filter((q) => drawnIds.includes(q.id)) : questions
+  if (!enabled || !attemptId) return [...dipakai]
 
-  return seededShuffle(questions, `${attemptId}:soal`).map((question) =>
+  return seededShuffle(dipakai, `${attemptId}:soal`).map((question) =>
     question.options && question.options.length > 0
       ? { ...question, options: seededShuffle(question.options, `${attemptId}:${question.id}`) }
       : question

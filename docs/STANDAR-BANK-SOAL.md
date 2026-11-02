@@ -64,13 +64,47 @@ kursus tidak boleh ikut menghapus soal yang sudah masuk bank.
    kumpulan. Penyusun biasanya menekannya setelah menulis sebagian; menolak
    semuanya karena satu soal kosong membuat tombolnya terasa rusak.
 
-## 4. Pengacakan dan bank
+## 4. Pengacakan dan penarikan
 
-Pengacakan urutan soal sudah ada (`quizzes.shuffle`). Yang **belum** ada
-adalah menarik sebagian soal secara acak dari bank — misalnya 10 dari 50 —
-sehingga tiap peserta menghadapi kumpulan berbeda.
+Dua hal berbeda, keduanya sudah ada:
 
-Itu perubahan yang lebih besar daripada kelihatannya: begitu tiap peserta
-mengerjakan kumpulan soal yang berbeda, nilai antarpeserta tidak lagi
-langsung sebanding, dan `admin_question_difficulty` harus dibaca per soal
-dan bukan per kuis. Dikerjakan terpisah, bukan diselipkan di sini.
+- **`quizzes.shuffle`** mengacak *urutan* soal dan pilihan jawaban. Benihnya
+  id percobaan, jadi urutannya tetap selama percobaan berlangsung.
+- **`quizzes.draw_count`** menarik *sebagian* soal — misalnya 10 dari 30 —
+  sehingga tiap peserta menghadapi kumpulan yang berbeda. NULL berarti
+  tampilkan semuanya.
+
+### Soal yang ditarik disimpan, tidak dihitung ulang
+
+Soal yang ditarik dicatat di `quiz_attempts.question_ids`, bukan diturunkan
+dari benih seperti pengacakan urutan. Tiga alasannya:
+
+1. **Penilaian harus memakai daftar yang persis sama dengan yang dilihat
+   peserta.** Dua perhitungan terpisah — satu di JavaScript untuk tampilan,
+   satu di plpgsql untuk penilaian — harus sepakat sampai elemen terakhir,
+   selamanya. Sekali tidak sepakat, peserta dinilai atas soal yang tidak
+   pernah ia lihat.
+2. **Kalau nilainya dipersoalkan, harus bisa ditunjukkan soal mana saja yang
+   ia hadapi.** Benih tidak menjawab itu dengan jujur.
+3. **Penyusun bisa menambah atau menghapus soal kapan saja.** Daftar yang
+   dihitung ulang akan ikut berubah, termasuk untuk percobaan yang sedang
+   berlangsung.
+
+### Pemilihannya di basis data, bukan di aplikasi
+
+Percobaan dibuat oleh sesi **peserta**. Kalau aplikasi yang mengirim daftar
+soalnya, peserta bisa mengirim daftarnya sendiri lewat REST — memilih sepuluh
+soal termudah, atau satu soal saja. Trigger `draw_attempt_questions` menimpa
+apa pun yang dikirim, jadi pemilihannya tidak pernah ada di tangan yang
+dinilai. **Terbukti:** percobaan yang dikirim dengan empat soal pilihan
+sendiri tersimpan hanya berisi satu soal yang dipilih server.
+
+### Akibat yang harus disadari penyusun
+
+Begitu tiap peserta mengerjakan kumpulan berbeda, **nilai antarpeserta tidak
+lagi langsung sebanding**. Layar editor mengatakannya terus terang saat
+penarikan dinyalakan, bukan membiarkannya ditemukan sendiri. Seluruh soal
+karena itu harus setara tingkat kesulitannya.
+
+`admin_question_difficulty` tetap benar tanpa perubahan: ia menghitung per
+soal dari jawaban yang masuk, bukan per kuis.

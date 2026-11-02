@@ -187,6 +187,7 @@ function emptyQuiz(passScore: number, isAssessment = false) {
     pass_score: passScore,
     max_attempts: null,
     shuffle: true,
+    draw_count: null,
     is_assessment: isAssessment,
     questions: [] as DraftQuestion[],
   }

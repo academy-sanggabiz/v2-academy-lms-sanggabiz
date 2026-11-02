@@ -200,22 +200,24 @@ Belum, dan hanya kalau memang diperlukan: pratinjau langsung di sebelah
 formulir, undo/redo, serta alur draf lalu terbit. Ketiganya ada di acuan tetapi
 tidak diperlukan untuk menyusun halaman.
 
-### 5. Bank soal dan pengacakan — ✅ bank soal selesai (**menunggu SQL**), penarikan acak masih terbuka
+### 5. Bank soal, pengacakan, dan penarikan — ✅ selesai
 
-Diminta bersama pencabutan batas percobaan: kalau peserta boleh mengulang
-sampai lulus, soalnya sebaiknya tidak selalu sama persis. Kolom
-`quizzes.shuffle` sudah ada di basis data tetapi **tidak pernah dibaca kode
-mana pun** -- jadi pengacakan sama sekali belum berfungsi.
+Ketiganya ada dan terbukti:
 
-Dua tingkat, bisa dikerjakan bertahap:
+- **Pengacakan urutan** (`quizzes.shuffle`), berbenih id percobaan.
+- **Bank soal** — lihat bagian 9 di bawah.
+- **Penarikan sebagian** (`quizzes.draw_count`): penyusun menulis 30 soal lalu
+  menampilkan 10 acak tiap percobaan.
 
-1. Mengacak urutan soal dan urutan pilihan jawaban per percobaan, diacak dengan
-   benih tetap dari id percobaan supaya menyegarkan halaman tidak mengacak
-   ulang di tengah jalan. Kecil, dan sudah cukup mencegah peserta menghafal
-   "jawabannya pilihan kedua".
-2. Bank soal sungguhan: satu kumpulan soal per kuis, dan tiap percobaan
-   mengambil sebagian secara acak. Ini menyentuh editor kuis, penilaian, dan
-   tampilan hasil.
+Soal yang ditarik disimpan di `quiz_attempts.question_ids` dan dipilih
+**trigger basis data**, bukan aplikasi — percobaan dibuat oleh sesi peserta,
+jadi daftar yang dikirim aplikasi bisa diganti lewat REST oleh orang yang
+dinilai. Terbukti: percobaan yang dikirim dengan empat soal pilihan sendiri
+tersimpan hanya berisi satu soal pilihan server, dan penilaiannya menghasilkan
+100 atas satu soal itu — bukan 25 atas keempatnya.
+
+Alasan lengkap kenapa disimpan dan bukan dihitung ulang ada di
+`docs/STANDAR-BANK-SOAL.md` §4.
 
 ### 9. Bank soal — ✅ selesai dan terbukti
 

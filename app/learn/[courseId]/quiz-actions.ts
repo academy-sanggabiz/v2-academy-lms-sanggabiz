@@ -18,7 +18,7 @@ export type SubmitQuizResult = {
 
 export async function startQuiz(
   quizId: string
-): Promise<{ attemptId: string; attemptNumber: number } | { error: string }> {
+): Promise<{ attemptId: string; attemptNumber: number; questionIds: string[] | null } | { error: string }> {
   const supabase = await createClient()
   const { data: claimsData } = await supabase.auth.getClaims()
   const userId = claimsData?.claims?.sub
@@ -81,12 +81,19 @@ export async function startQuiz(
       attempt_number: attemptNumber,
       started_at: new Date().toISOString(),
     })
-    .select("id")
+    // question_ids diisi trigger draw_attempt_questions di basis data, bukan
+    // di sini: percobaan dibuat oleh sesi peserta, jadi daftar soal yang
+    // dipilih aplikasi bisa diganti lewat REST oleh orang yang dinilai.
+    .select("id, question_ids")
     .single()
 
   if (insertError || !attempt) return { error: insertError ? userFacingError(insertError.message) : "Gagal memulai kuis." }
 
-  return { attemptId: attempt.id, attemptNumber }
+  return {
+    attemptId: attempt.id,
+    attemptNumber,
+    questionIds: (attempt.question_ids as string[] | null) ?? null,
+  }
 }
 
 /**
