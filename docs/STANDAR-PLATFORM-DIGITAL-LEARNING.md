@@ -94,7 +94,7 @@ jenis bukti**, dan satu saja tidak pernah cukup —
 | E1 | **Kontras** teks biasa minimal 4,5 : 1; teks besar 3 : 1 | axe otomatis | ✅ 58/58 halaman |
 | E2 | **Alternatif teks** untuk tiap gambar/diagram yang membawa isi; gambar hiasan tidak perlu | axe + periksa manual diagram | ✅ otomatis; ⚠️ diagram materi belum ditinjau manusia |
 | E3 | **Papan ketik**: semua yang bisa dengan tetikus harus bisa dengan papan ketik, urutan masuk akal, fokus terlihat | Telusuri satu kursus penuh hanya dengan Tab/Enter/Spasi | ⚠️ sebagian (geser urutan terbukti; alur belajar penuh belum) |
-| E4 | **Reflow (WCAG 1.4.10)**: pada lebar 320px tidak boleh ada gulir mendatar | Otomatis di `scripts/a11y-audit.mjs` | ❌ **12 halaman gagal** — lihat §K |
+| E4 | **Reflow (WCAG 1.4.10)**: pada lebar 320px tidak boleh ada gulir mendatar | Otomatis di `scripts/a11y-audit.mjs` | ✅ **83/83** sejak 2 November 2026 |
 | E5 | **Ukuran sasaran sentuh** minimal 24px (WCAG 2.2 AA); 44px lebih baik | axe 2.5.8 + ukur manual di ponsel | ✅ otomatis; belum diukur di perangkat nyata |
 | E6 | **Video butuh takarir**; batas waktu harus bisa disesuaikan | Periksa tiap pelajaran video | ⚠️ ada kolom transkrip tapi **tidak diwajibkan**; tidak ada batas waktu (aman) |
 | E7 | **Judul nyata dan berurutan**, menu dangkal dan sama di tiap halaman, tiap halaman punya judul jelas | axe + baca struktur judul | ✅ otomatis |
@@ -117,7 +117,7 @@ jenis bukti**, dan satu saja tidak pernah cukup —
 | | Aturan | Cara periksa | Status |
 |---|---|---|---|
 | G1 | Isi diprioritaskan per perangkat: apa yang sama di mana-mana, apa yang pertama di ponsel, apa yang hanya muat di layar besar | Bandingkan layar yang sama di 375px dan 1366px | ✅ diaudit di dua lebar |
-| G2 | Teks mengalir mengikuti lebar layar; **tidak ada gulir menyamping** | Sama dengan E4 | ❌ gagal di dua halaman |
+| G2 | Teks mengalir mengikuti lebar layar; **tidak ada gulir menyamping** | Sama dengan E4 | ✅ |
 | G3 | Kemajuan, penanda, dan posisi terakhir **tersinkron antar perangkat** | Mulai di ponsel, lanjut di laptop | ✅ tersimpan di basis data |
 | G4 | Nama dan logika sama di tiap perangkat; **hanya tata letaknya yang menyesuaikan** | Bandingkan label antar lebar | ✅ komponen sama |
 | G5 | Diuji di **ponsel sungguhan**, sebagian sambil bergerak — meja lab menyembunyikan konteks | Catatan uji | ❌ belum pernah |
@@ -159,28 +159,23 @@ Dipakai setiap kali menilai usulan fitur. Ini yang paling sering dilewati.
 
 ## K. Hasil pemeriksaan 2 November 2026
 
-**Temuan yang harus diperbaiki:**
+**Sudah diperbaiki pada hari yang sama:**
 
-1. **E4/G2 — Reflow gagal di 12 halaman.** Gerbang sekarang **71/83**, turun
-   dari 58/58 semata-mata karena kriteria ini mulai diperiksa.
+**E4/G2 — Reflow.** Dari **12 halaman gagal** menjadi **83/83 lolos**. Empat
+penyebab, bukan dua belas:
 
-   | Halaman | Lebar isi |
-   |---|---|
-   | Beranda publik | 425px |
-   | Katalog peserta | 360px |
-   | Profil peserta | 340px |
-   | **Sembilan layar pengelola** (dasbor, kursus, peserta, pembelian, penilaian, pelacakan, pengaturan, profil, editor kursus) | 379px — semuanya sama |
+| Penyebab | Terdampak | Perbaikan |
+|---|---|---|
+| Tombol menu pengguna di header pengelola (210px: avatar + nama + lencana + panah) | 9 layar pengelola | Nama dan lencana disembunyikan di bawah `sm`; `aria-label` menanggung namanya untuk pembaca layar |
+| Header beranda (logo + kata merek + 2 pemilih + 2 tombol) | Beranda publik | Kata merek dan tombol "Masuk" disembunyikan di layar sempit — keduanya menuju alamat yang sama dengan "Mulai", jadi tidak ada tujuan yang hilang |
+| Dua tombol berdampingan di kartu kursus | Katalog peserta | Ditumpuk di bawah 380px; sekalian memperbesar sasaran sentuh |
+| Alamat email dan nama tanpa `min-w-0`/`truncate` | Profil peserta dan pengelola | Ikon `shrink-0`, teks `truncate` |
 
-   Angka 379px yang identik di sembilan layar menunjukkan **satu penyebab
-   bersama**, kemungkinan lebar minimum pada kerangka layar pengelola — jadi
-   sembilan kegagalan itu mungkin satu perbaikan. Beranda dan katalog punya
-   penyebab sendiri: tombol header dan kartu kursus.
-2. **E8 — Belum pernah diuji dengan pembaca layar.** Seluruh klaim
-   aksesibilitas kami bersandar pada satu alat otomatis.
-3. **I1 — KPI tanpa definisi dan target.** Dasbor menampilkan angka yang tidak
-   bisa diperiksa benar-salahnya.
-4. **A5, E9, G5 — Belum pernah ada uji dengan pengguna sungguhan**, baik
-   pengujian struktur, pengguna berkebutuhan khusus, maupun ponsel nyata.
+Pelajaran yang paling berguna dari ini: **sembilan kegagalan ternyata satu
+perbaikan.** Angka 379px yang identik di sembilan layar adalah petunjuknya,
+dan mengejar penyebab bersama lebih murah daripada memperbaiki satu per satu.
+
+**Temuan yang masih terbuka:**
 
 **Yang sudah kuat:** struktur navigasi, umpan balik kuis, pelabelan kemajuan,
 penegakan persetujuan pelacakan di basis data, dan penolakan jalan pintas

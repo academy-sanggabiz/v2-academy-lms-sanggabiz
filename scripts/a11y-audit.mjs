@@ -33,6 +33,9 @@ const EXTRA_RULES = ["landmark-one-main", "region", "landmark-unique"]
 
 const results = []
 
+/** Lebar yang dipulihkan setelah pemeriksaan reflow. */
+const LEBAR_DESKTOP = { width: 1366, height: 900 }
+
 async function audit(page, name) {
   await page.addScriptTag({ content: AXE_SOURCE })
   const violations = await page.evaluate(
@@ -110,14 +113,13 @@ async function settle(page) {
  * ponsel terkecil yang kebetulan kita punya.
  */
 async function reflow(page, path) {
-  const sebelum = page.viewportSize()
   await page.setViewportSize({ width: 320, height: 800 })
   await page.goto(BASE + path)
   await settle(page)
 
   const landed = new URL(page.url()).pathname
   if (landed !== path) {
-    if (sebelum) await page.setViewportSize(sebelum)
+    await page.setViewportSize(LEBAR_DESKTOP)
     return
   }
 
@@ -137,7 +139,11 @@ async function reflow(page, path) {
     `${meluber ? "GAGAL" : "ok   "} ${path} [reflow 320px]` +
       (meluber ? ` -- isi ${ukuran.isi}px vs layar ${ukuran.layar}px` : "")
   )
-  if (sebelum) await page.setViewportSize(sebelum)
+  // Dikembalikan ke lebar desktop, bukan ke lebar sebelumnya. Pemeriksaan
+  // sesudah ini membuka dialog dan menekan tab yang hanya ada di layar lebar;
+  // meninggalkan halaman pada lebar ponsel membuatnya gagal mencari tab yang
+  // sebenarnya ada.
+  await page.setViewportSize(LEBAR_DESKTOP)
 }
 
 async function visit(page, path) {

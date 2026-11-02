@@ -67,10 +67,16 @@ export function CourseGridCard({
         )}
       </div>
 
-      <div className="mt-auto flex gap-3">
+      {/*
+        Ditumpuk di layar sempit, berdampingan mulai 380px. Berdampingan pada
+        320px memaksa "Lanjutkan belajar" melebihi lebar layar -- `flex-1`
+        tidak menolong karena isi tombol tidak bisa menyusut di bawah lebar
+        teksnya. Menumpuknya juga memperbesar sasaran sentuh (standar G3).
+      */}
+      <div className="mt-auto flex flex-col gap-3 min-[380px]:flex-row">
         <Button
           variant="outline"
-          className="h-11 flex-1"
+          className="h-11 min-w-0 flex-1"
           render={<Link href={`/learner/courses/${course.id}`} />}
           nativeButton={false}
         >
@@ -80,7 +86,7 @@ export function CourseGridCard({
         <EnrollButton
           courseId={course.id}
           state={!enrolled ? "not_enrolled" : started ? "in_progress" : "not_started"}
-          className="h-11 flex-1"
+          className="h-11 min-w-0 flex-1"
         />
       </div>
     </div>

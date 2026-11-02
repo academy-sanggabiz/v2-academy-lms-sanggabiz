@@ -25,7 +25,12 @@ export default async function AdminCoursesPage({
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      {/*
+        Membungkus di layar sempit: judul, keterangan, dan tombol "Buat Kursus"
+        berdampingan memakan 360px, melebihi 320px yang disyaratkan WCAG
+        1.4.10 Reflow.
+      */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-[30px] font-bold">{t.admin.courses}</h1>
           <p className="text-sm text-muted-foreground">

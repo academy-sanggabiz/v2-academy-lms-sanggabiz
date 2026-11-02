@@ -91,9 +91,15 @@ export function ProfileView({
         <div className="min-w-0">
           <div className="text-2xl font-bold">{name}</div>
           <div className="mt-2.5 flex flex-col gap-1.5 text-[13.5px] text-muted-foreground">
-            <span className="flex items-center gap-2">
-              <Mail className="size-3.5 text-ring" />
-              {email}
+            {/*
+              `min-w-0` + `truncate` supaya alamat email panjang tidak
+              melebarkan halaman. Tanpa keduanya, satu alamat memaksa seluruh
+              layar digulir menyamping pada 320px (WCAG 1.4.10 Reflow).
+              Ikonnya `shrink-0` supaya yang menyusut teksnya, bukan ikonnya.
+            */}
+            <span className="flex min-w-0 items-center gap-2">
+              <Mail className="size-3.5 shrink-0 text-ring" />
+              <span className="truncate">{email}</span>
             </span>
             <span className="flex items-center gap-2">
               <Calendar className="size-3.5 text-ring" />
