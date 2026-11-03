@@ -148,8 +148,20 @@ export function LoginForm() {
         Dengan post, pengiriman pra-hidrasi gagal tanpa membocorkan apa pun.
       */}
       <form method="post" onSubmit={onSubmit} className="space-y-4">
+        {/*
+          Placeholder di sini BUKAN pengganti label -- labelnya sudah ada di
+          atas. Isinya contoh bentuk yang diharapkan, hal yang tidak bisa
+          dikatakan oleh label. Ruas kata sandi tidak diberi placeholder:
+          tidak ada contoh yang masuk akal untuk ditunjukkan di sana.
+        */}
         <Field label={t.auth.email} htmlFor="login-email">
-          <Input type="email" name="email" autoComplete="username" required />
+          <Input
+            type="email"
+            name="email"
+            placeholder={t.auth.emailPlaceholder}
+            autoComplete="username"
+            required
+          />
         </Field>
         <Field label={t.auth.password} htmlFor="login-password">
           <PasswordInput name="password" autoComplete="current-password" required />
@@ -194,7 +206,7 @@ export function LoginForm() {
         className="w-full"
         onClick={handleGoogleSignIn}
         pending={isGoogleLoading}
-        pendingLabel="Mengalihkan…"
+        pendingLabel={t.auth.redirecting}
       >
         <GoogleIcon className="size-4" />
         {t.auth.continueWithGoogle}

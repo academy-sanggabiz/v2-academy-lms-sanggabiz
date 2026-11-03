@@ -52,14 +52,13 @@ export function ForgotPasswordForm() {
         <MailCheck className="mx-auto size-10 text-ring" />
         <h1 className="text-xl font-bold">{t.forgot.checkEmail}</h1>
         <p className="text-sm text-muted-foreground">
-          Jika <span className="font-medium text-foreground">{email.trim()}</span> terdaftar, kami
-          mengirimkan tautan untuk membuat kata sandi baru. Tautannya berlaku sementara.
+          {t.forgot.sentTo.split("{email}")[0]}
+          <span className="font-medium text-foreground">{email.trim()}</span>
+          {t.forgot.sentTo.split("{email}")[1]} {t.forgot.sentHint}
         </p>
-        <p className="text-sm text-muted-foreground">
-          Tidak ada di kotak masuk? Periksa folder spam.
-        </p>
+        <p className="text-sm text-muted-foreground">{t.forgot.checkSpam}</p>
         <Link href="/auth/login" className="inline-block text-sm text-ring underline underline-offset-4">
-          Kembali ke halaman masuk
+          {t.forgot.backToSignIn}
         </Link>
       </div>
     )
@@ -69,9 +68,7 @@ export function ForgotPasswordForm() {
     <>
       <div className="space-y-1 text-center">
         <h1 className="text-xl font-bold">{t.forgot.title}</h1>
-        <p className="text-sm text-muted-foreground">
-          Masukkan email akun Anda. Kami kirimkan tautan untuk membuat kata sandi baru.
-        </p>
+        <p className="text-sm text-muted-foreground">{t.forgot.subtitle}</p>
       </div>
 
       <StatusMessage className={error ? "rounded-lg bg-destructive/10 px-3 py-2" : undefined}>
@@ -81,29 +78,26 @@ export function ForgotPasswordForm() {
       {/* post, bukan get: lihat catatan di components/auth/LoginForm.tsx --
           tanpa ini pengiriman pra-hidrasi menaruh isian di query string. */}
       <form method="post" onSubmit={handleSubmit} className="space-y-3">
-        <Field
-          label={t.auth.email}
-          htmlFor="lupa-email"
-          help="Kami kirimkan tautan untuk membuat kata sandi baru ke alamat ini."
-        >
+        <Field label={t.auth.email} htmlFor="lupa-email">
           <Input
             type="email"
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            placeholder={t.auth.emailPlaceholder}
             autoComplete="username"
             required
           />
         </Field>
         <Button type="submit" className="w-full" pending={isPending} pendingLabel={t.forgot.submitting}>
-          Kirim tautan
+          {t.forgot.submit}
         </Button>
       </form>
 
       <p className="text-center text-sm text-muted-foreground">
-        Ingat kata sandi Anda?{" "}
+        {t.forgot.rememberPassword}{" "}
         <Link href="/auth/login" className="text-ring underline underline-offset-4">
-          Masuk
+          {t.auth.signIn}
         </Link>
       </p>
     </>

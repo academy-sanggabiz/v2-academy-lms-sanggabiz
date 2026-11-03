@@ -113,7 +113,12 @@ export function SignupForm() {
         </Field>
 
         <Field label={t.auth.email} htmlFor="signup-email" help={t.signup.emailHelp} error={errors.email?.message}>
-          <Input type="email" autoComplete="username" {...register("email")} />
+          <Input
+            type="email"
+            placeholder={t.auth.emailPlaceholder}
+            autoComplete="username"
+            {...register("email")}
+          />
         </Field>
 
         <Field label={t.auth.password} htmlFor="signup-password" help={t.signup.passwordHelp} error={errors.password?.message}>
@@ -159,9 +164,9 @@ export function SignupForm() {
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
-        Sudah punya akun?{" "}
+        {t.signup.haveAccount}{" "}
         <Link href="/auth/login" className="text-ring underline underline-offset-4">
-          Masuk
+          {t.signup.signIn}
         </Link>
       </p>
     </>

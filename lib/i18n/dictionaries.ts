@@ -42,6 +42,8 @@ export type Dictionary = {
     continueWithGoogle: string
     noAccount: string
     register: string
+    emailPlaceholder: string
+    redirecting: string
   }
   settings: {
     title: string
@@ -75,9 +77,15 @@ export type Dictionary = {
   }
   forgot: {
     title: string
+    subtitle: string
     submit: string
     submitting: string
     checkEmail: string
+    sentTo: string
+    sentHint: string
+    checkSpam: string
+    backToSignIn: string
+    rememberPassword: string
   }
   newPassword: {
     title: string
@@ -367,6 +375,8 @@ const id: Dictionary = {
     continueWithGoogle: "Lanjutkan dengan Google",
     noAccount: "Belum punya akun?",
     register: "Daftar",
+    emailPlaceholder: "nama@email.com",
+    redirecting: "Mengalihkan…",
   },
   settings: {
     title: "Pengaturan",
@@ -401,9 +411,15 @@ const id: Dictionary = {
   },
   forgot: {
     title: "Lupa kata sandi",
+    subtitle: "Masukkan email akun Anda. Kami kirimkan tautan untuk membuat kata sandi baru.",
     submit: "Kirim tautan",
     submitting: "Mengirim…",
     checkEmail: "Periksa email Anda",
+    sentTo: "Jika {email} terdaftar, kami mengirimkan tautan untuk membuat kata sandi baru.",
+    sentHint: "Tautannya berlaku sementara.",
+    checkSpam: "Tidak ada di kotak masuk? Periksa folder spam.",
+    backToSignIn: "Kembali ke halaman masuk",
+    rememberPassword: "Ingat kata sandi Anda?",
   },
   newPassword: {
     title: "Buat kata sandi baru",
@@ -716,6 +732,8 @@ const en: Dictionary = {
     continueWithGoogle: "Continue with Google",
     noAccount: "Don't have an account?",
     register: "Sign up",
+    emailPlaceholder: "name@example.com",
+    redirecting: "Redirecting…",
   },
   settings: {
     title: "Settings",
@@ -750,9 +768,15 @@ const en: Dictionary = {
   },
   forgot: {
     title: "Forgot your password",
+    subtitle: "Enter your account email. We will send you a link to create a new password.",
     submit: "Send link",
     submitting: "Sending…",
     checkEmail: "Check your email",
+    sentTo: "If {email} is registered, we have sent a link to create a new password.",
+    sentHint: "The link is valid for a limited time.",
+    checkSpam: "Not in your inbox? Check the spam folder.",
+    backToSignIn: "Back to sign in",
+    rememberPassword: "Remember your password?",
   },
   newPassword: {
     title: "Create a new password",
