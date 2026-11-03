@@ -177,7 +177,9 @@ function TrackingConsentCard({ state }: { state: TrackingConsentState }) {
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    // `id` dipakai tautan dari ajakan di dasbor; scroll-mt memberi ruang di
+    // bawah header lengket supaya judul kartunya tidak tertutup.
+    <div id="pelacakan" className="scroll-mt-24 rounded-2xl border border-border bg-card p-5">
       <div className="mb-1 flex items-center gap-2">
         <LineChart className="size-4 text-muted-foreground" aria-hidden />
         <h2 className="text-sm font-bold">{t.tracking.cardTitle}</h2>

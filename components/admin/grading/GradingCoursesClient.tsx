@@ -14,7 +14,7 @@ export function GradingCoursesClient({ page }: { page: Paginated<GradingCourseSu
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-bold">Kursus</h2>
+        <h2 className="text-lg font-bold">{t.admin.colCourse}</h2>
         <div className="flex items-center gap-2">
           <ListToolbar placeholder="Cari kursus..." />
         </div>
@@ -26,10 +26,10 @@ export function GradingCoursesClient({ page }: { page: Paginated<GradingCourseSu
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border">
-          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_220px] gap-3 border-b border-border bg-muted/50 px-3 py-2.5 text-sm font-semibold text-muted-foreground">
-            <div>Kursus</div>
-            <div>Kuis</div>
-            <div>Peserta</div>
+          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_220px] gap-3 border-b border-border bg-muted/50 px-3 py-2.5 text-[13px] font-semibold text-muted-foreground">
+            <div>{t.admin.colCourse}</div>
+            <div>{t.admin.colQuiz}</div>
+            <div>{t.admin.colLearner}</div>
             <div>Percobaan</div>
             <div />
           </div>

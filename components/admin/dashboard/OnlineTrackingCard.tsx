@@ -32,9 +32,9 @@ export async function OnlineTrackingCard({ rows }: { rows: Paginated<TrackingEnr
             <TableHeader>
               <TableRow className="sticky top-0 z-10 bg-muted/50 hover:bg-muted/50">
                 <TableHead>{t.admin.colLearner}</TableHead>
-                <TableHead>Kursus</TableHead>
-                <TableHead>Modul</TableHead>
-                <TableHead>Tugas</TableHead>
+                <TableHead>{t.admin.colCourse}</TableHead>
+                <TableHead>{t.admin.colModule}</TableHead>
+                <TableHead>{t.admin.colTask}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

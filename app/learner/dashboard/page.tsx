@@ -14,6 +14,8 @@ import {
 } from "@/lib/enrollments-server"
 import { getTranslations } from "@/lib/i18n/server"
 import { StatCard } from "@/components/admin/StatCard"
+import { getTrackingConsent } from "@/lib/tracking-consent-server"
+import { ConsentNudge } from "@/components/learner/ConsentNudge"
 import type { Dictionary } from "@/lib/i18n/dictionaries"
 
 export default async function LearnerDashboardPage() {
@@ -53,6 +55,10 @@ export default async function LearnerDashboardPage() {
     supabase.from("certificates").select("*", { count: "exact", head: true }),
   ])
 
+  // Ajakan persetujuan pelacakan hanya untuk yang BELUM pernah memutuskan:
+  // yang sudah mengizinkan maupun menolak tidak perlu ditanya-tanya lagi.
+  const { belumMemutuskan } = await getTrackingConsent()
+
   const displayName = profile?.full_name || claims?.email || "Peserta"
   const recommended = publishedCourses.filter((c) => !enrolledCourseIds.includes(c.id)).slice(0, 2)
   const [primary, ...others] = continueItems
@@ -62,6 +68,8 @@ export default async function LearnerDashboardPage() {
       <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
         {t.dashboard.greeting}, {displayName}
       </h1>
+
+      {belumMemutuskan && <ConsentNudge />}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard

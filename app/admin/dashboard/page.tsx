@@ -107,7 +107,9 @@ export default async function AdminDashboardPage({
           hint={
             completionRate === null
               ? t.admin.noEnrollments
-              : `${learnerStats.totalCompleted} selesai dari ${learnerStats.totalEnrollments} pendaftaran`
+              : t.admin.completedOfEnrollments
+                  .replace("{selesai}", String(learnerStats.totalCompleted))
+                  .replace("{total}", String(learnerStats.totalEnrollments))
           }
         />
         <StatCard icon={Trophy} label={scope.completed} value={learnerStats.totalCompleted} />

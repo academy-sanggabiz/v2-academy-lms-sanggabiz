@@ -183,6 +183,10 @@ export type Dictionary = {
     stateOn: string
     stateUndecided: string
     stateOff: string
+    nudgeTitle: string
+    nudgeBody: string
+    nudgeAction: string
+    nudgeDismiss: string
     collectedItems: string[]
     purposeItems: string[]
     notDoneItems: string[]
@@ -240,6 +244,14 @@ export type Dictionary = {
     colCourse: string
     noLearnerMatches: string
     learnersHeading: string
+    colModule: string
+    colTask: string
+    colTasksDone: string
+    colEmail: string
+    colActions: string
+    colQuiz: string
+    /** `{selesai}` dan `{total}` diganti angka. */
+    completedOfEnrollments: string
   }
   landing: {
     signIn: string
@@ -517,6 +529,11 @@ const id: Dictionary = {
       "Sedang dicatat. Mematikannya menghentikan pencatatan dan menghapus data yang sudah terkumpul.",
     stateUndecided: "Belum ada yang dicatat.",
     stateOff: "Tidak dicatat, dan data sebelumnya sudah dihapus.",
+    nudgeTitle: "Bantu memperbaiki materi?",
+    nudgeBody:
+      "Anda bisa mengizinkan pencatatan pelajaran mana yang Anda buka dan berapa lama, untuk memperbaiki materi. Sepenuhnya pilihan — menolak tidak mengurangi apa pun.",
+    nudgeAction: "Baca dan putuskan",
+    nudgeDismiss: "Nanti saja",
     collectedItems: [
       "Pelajaran yang Anda buka, dan berapa lama halamannya terbuka.",
       "Kursus yang sedang Anda kerjakan beserta waktunya.",
@@ -588,6 +605,13 @@ const id: Dictionary = {
     colCourse: "Kursus",
     noLearnerMatches: "Tidak ada peserta yang cocok dengan pencarian Anda.",
     learnersHeading: "Peserta",
+    colModule: "Modul",
+    colTask: "Tugas",
+    colTasksDone: "Tugas dikerjakan",
+    colEmail: "Email",
+    colActions: "Aksi",
+    colQuiz: "Kuis",
+    completedOfEnrollments: "{selesai} selesai dari {total} pendaftaran",
   },
   landing: {
     signIn: "Masuk",
@@ -874,6 +898,11 @@ const en: Dictionary = {
       "Being recorded. Turning this off stops the recording and deletes what has been collected.",
     stateUndecided: "Nothing is being recorded.",
     stateOff: "Not recorded, and earlier data has been deleted.",
+    nudgeTitle: "Help improve the material?",
+    nudgeBody:
+      "You can allow recording of which lessons you open and for how long, to improve the material. Entirely your choice — declining takes nothing away.",
+    nudgeAction: "Read and decide",
+    nudgeDismiss: "Not now",
     collectedItems: [
       "Which lessons you open, and how long the page stays open.",
       "Which course you are working on, and when.",
@@ -946,6 +975,13 @@ const en: Dictionary = {
     colCourse: "Course",
     noLearnerMatches: "No learner matches your search.",
     learnersHeading: "Learners",
+    colModule: "Module",
+    colTask: "Task",
+    colTasksDone: "Tasks done",
+    colEmail: "Email",
+    colActions: "Actions",
+    colQuiz: "Quiz",
+    completedOfEnrollments: "{selesai} completed of {total} enrolments",
   },
   landing: {
     signIn: "Sign in",

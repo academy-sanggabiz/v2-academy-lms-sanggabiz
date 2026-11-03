@@ -31,8 +31,8 @@ export function TrackingListClient({ page }: { page: Paginated<TrackingEnrollmen
             <TableHeader>
               <TableRow className="bg-muted/50 hover:bg-muted/50">
                 <TableHead>{t.admin.colLearner}</TableHead>
-                <TableHead>Kursus</TableHead>
-                <TableHead>Modul</TableHead>
+                <TableHead>{t.admin.colCourse}</TableHead>
+                <TableHead>{t.admin.colModule}</TableHead>
                 {/*
                   Bukan "Tugas" begitu saja: angkanya menghitung kuis yang sudah
                   dikirim, lulus atau tidak (admin_tracking_enrollments.assignment_pct
@@ -40,8 +40,8 @@ export function TrackingListClient({ page }: { page: Paginated<TrackingEnrollmen
                   tercatat 100%, jadi label pendek akan terbaca sebagai capaian
                   padahal maksudnya keikutsertaan.
                 */}
-                <TableHead>Tugas dikerjakan</TableHead>
-                <TableHead><span className="sr-only">Aksi</span></TableHead>
+                <TableHead>{t.admin.colTasksDone}</TableHead>
+                <TableHead><span className="sr-only">{t.admin.colActions}</span></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
