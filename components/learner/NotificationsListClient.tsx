@@ -11,7 +11,7 @@ import { relativeTime } from "@/lib/notification-format"
 import { useI18n } from "@/components/i18n/LocaleProvider"
 
 export function NotificationsListClient({ page }: { page: Paginated<Notification> }) {
-  const { t } = useI18n()
+  const { locale, t } = useI18n()
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -35,7 +35,7 @@ export function NotificationsListClient({ page }: { page: Paginated<Notification
                 </span>
                 {n.body && <span className="text-sm text-muted-foreground">{n.body}</span>}
                 <span className="text-xs text-muted-foreground">
-                  {relativeTime(n.createdAt)}
+                  {relativeTime(n.createdAt, t, locale)}
                 </span>
               </span>
             )

@@ -17,7 +17,7 @@ export async function FeedbackTab({
   summary: CourseFeedbackSummary
   feedback: Paginated<CourseFeedbackEntry>
 }) {
-  const { t } = await getTranslations()
+  const { locale, t } = await getTranslations()
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-6 rounded-xl border border-border p-4">
@@ -69,7 +69,7 @@ export async function FeedbackTab({
                     <span className="text-sm font-semibold">{entry.learnerName}</span>
                     <StarRating value={entry.rating} readOnly size="sm" />
                   </div>
-                  <span className="shrink-0 text-xs text-muted-foreground">{relativeTime(entry.createdAt)}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">{relativeTime(entry.createdAt, t, locale)}</span>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">{entry.comment}</p>
               </li>

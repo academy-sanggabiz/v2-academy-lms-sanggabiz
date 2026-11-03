@@ -306,6 +306,11 @@ try {
     let courseHref = null
     for (const href of kandidat) {
       await page.goto(BASE + href.replace("/learner/courses/", "/learn/"))
+      // Tunggu pengalihan meta-refresh Next selesai dulu: tanpa ini kursus
+      // yang sebenarnya menolak akses sempat terbaca "/learn/..." sesaat,
+      // terpilih sebagai kandidat, lalu kunjungan sungguhan dialihkan dan
+      // halaman pemutarnya tidak pernah diaudit.
+      await tungguPengalihan(page)
       if (new URL(page.url()).pathname.startsWith("/learn/")) {
         courseHref = href
         break

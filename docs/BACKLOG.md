@@ -115,7 +115,7 @@ dikembangkan kalau diperlukan: impor per modul ke kursus yang sudah ada, dan
 tampilan perbandingan supaya kursus yang sudah punya peserta pun bisa
 diperbarui sebagian.
 
-### 1. Dwibahasa Indonesia–Inggris — ✅ 12 layar utama selesai, sisanya terukur
+### 1. Dwibahasa Indonesia–Inggris — ✅ seluruh antarmuka selesai (17/17 layar terukur)
 
 **Ada alat ukurnya sekarang:** `node scripts/i18n-check.mjs` membuka LMS dalam
 bahasa Inggris dan menghitung berapa baris antarmuka yang masih berbahasa
@@ -136,10 +136,26 @@ Dua temuan yang layak dicatat:
   memakai nama yang salah dan melaporkan seluruh layar "belum diterjemahkan" —
   yang salah alat ukurnya.
 
-**Yang belum disentuh** adalah layar yang tidak masuk 12 itu: isi rinci di
-dalam editor kursus (tab Pelajaran, editor kuis, pengaturan sertifikat),
-dialog penilaian, dan layar superadmin (mentor, halaman depan, sertifikat).
-Alat ukurnya tinggal ditambah jalurnya ketika giliran layar itu tiba.
+**Pembaruan (3 Nov 2026):** sisanya sudah selesai. Editor kursus lengkap (tab
+Pelajaran, editor kuis, pengaturan + sertifikat, dialog impor .md dan bank
+soal, editor teks kaya beserta pengumuman seret-lepas untuk pembaca layar),
+matriks penilaian beserta ekspor/impor CSV, wawasan/pelacakan rinci, detail
+kursus peserta, dan ketiga layar superadmin (mentor, halaman depan,
+sertifikat bawaan) semuanya pindah ke kamus. Alat ukurnya kini membuka 17
+layar (termasuk rute dinamis yang id-nya dicari dari basis data saat
+berjalan) dan menguncinya sebagai selesai: 0 baris tersisa.
+
+Dua batas yang jujur dicatat:
+
+- **Pesan validasi rakitan masih Indonesia** — `describeDraftIssue`,
+  `validateQuizzes`, dan pesan zod di `lib/course-draft*.ts` merakit kalimat
+  dari potongan. Ia hanya muncul pada simpanan yang gagal, dan menerjemahkannya
+  berarti mengoper kamus ke pustaka validasi; ditunda sampai ada penutur
+  Inggris yang benar-benar menyusun kursus.
+- **Layar superadmin belum terbukti di browser** — kata sandi akun superadmin
+  audit sudah diganti pemiliknya, jadi render EN-nya baru terbukti lewat
+  tsc/build, bukan kunjungan. Pemeriksa akan menjangkaunya begitu kredensial
+  audit superadmin tersedia lagi.
 
 Satu jebakan yang ikut diperbaiki di alat ukurnya: spasi harus disamakan di
 kedua sisi sebelum membandingkan teks terender dengan isi di basis data.

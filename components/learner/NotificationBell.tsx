@@ -19,6 +19,7 @@ import {
 import type { Notification } from "@/lib/notifications-server"
 import { markNotificationsReadAction } from "@/app/learner/notifications-actions"
 import { relativeTime } from "@/lib/notification-format"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 export function NotificationBell({
   items,
@@ -30,6 +31,7 @@ export function NotificationBell({
   seeAllHref?: string | null
 }) {
   const router = useRouter()
+  const { locale, t } = useI18n()
   const [isMarking, startTransition] = useTransition()
   const [markError, setMarkError] = useState<string | null>(null)
 
@@ -101,7 +103,7 @@ export function NotificationBell({
                   <span className="truncate text-xs text-muted-foreground">{n.body}</span>
                 )}
                 <span className="text-xs text-muted-foreground">
-                  {relativeTime(n.createdAt)}
+                  {relativeTime(n.createdAt, t, locale)}
                 </span>
               </span>
             )
