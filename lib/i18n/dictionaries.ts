@@ -171,6 +171,17 @@ export type Dictionary = {
     startLearning: string
     enrolledStartLearning: string
   }
+  kpi: {
+    title: string
+    noTarget: string
+    defLearners: string
+    defCourses: string
+    defCompletionRate: string
+    defCompleted: string
+    defEnrollments: string
+    defTrackedEnrollments: string
+    defAvgModulePct: string
+  }
   adaptive: {
     suggestTitle: string
     /** `{soal}` cuplikan soal, `{n}` jumlah salah. */
@@ -522,6 +533,21 @@ const id: Dictionary = {
     continueLearning: "Lanjutkan belajar",
     startLearning: "Mulai belajar",
     enrolledStartLearning: "Terdaftar ✓ Mulai belajar",
+  },
+  kpi: {
+    title: "Apa persisnya yang dihitung",
+    noTarget:
+      "Target belum ditetapkan. Angka tanpa target hanya bisa dilihat, belum bisa dinilai berhasil atau tidaknya \u2014 menetapkannya adalah keputusan pemilik.",
+    defLearners:
+      "Jumlah orang berbeda yang terdaftar di setidaknya satu kursus dalam lingkup Anda (superadmin: seluruh platform). Satu orang yang mengikuti tiga kursus dihitung satu.",
+    defCourses: "Jumlah kursus dalam lingkup Anda, draf maupun terbit. Keterangan kecilnya menyebut berapa yang sudah terbit.",
+    defCompletionRate:
+      "Pendaftaran berstatus selesai dibagi seluruh pendaftaran, dihitung per pendaftaran dan bukan per orang \u2014 satu orang yang menyelesaikan dua kursus menyumbang dua.",
+    defCompleted: "Jumlah pendaftaran yang mencapai status selesai: seluruh pelajaran tuntas dan seluruh kuisnya lulus.",
+    defEnrollments: "Jumlah baris pendaftaran pada kursus dalam lingkup Anda. Satu orang di dua kursus dihitung dua.",
+    defTrackedEnrollments: "Seluruh pendaftaran pada kursus dalam lingkup Anda, apa pun statusnya.",
+    defAvgModulePct:
+      "Persentase pelajaran yang sudah diselesaikan, dihitung untuk tiap pendaftaran lalu dirata-rata. Pendaftaran yang belum mulai ikut dihitung sebagai 0%.",
   },
   adaptive: {
     suggestTitle: "Saran sebelum mencoba lagi",
@@ -897,6 +923,21 @@ const en: Dictionary = {
     continueLearning: "Continue learning",
     startLearning: "Start learning",
     enrolledStartLearning: "Enrolled ✓ Start learning",
+  },
+  kpi: {
+    title: "What exactly is counted",
+    noTarget:
+      "No targets set yet. A number without a target can only be looked at, not judged \u2014 setting one is the owner's decision.",
+    defLearners:
+      "Distinct people enrolled in at least one course within your scope (superadmin: the whole platform). One person on three courses counts once.",
+    defCourses: "Courses within your scope, draft and published alike. The small note says how many are published.",
+    defCompletionRate:
+      "Completed enrolments divided by all enrolments, counted per enrolment rather than per person \u2014 one person finishing two courses contributes two.",
+    defCompleted: "Enrolments that reached completed status: every lesson done and every quiz passed.",
+    defEnrollments: "Enrolment rows on courses within your scope. One person on two courses counts twice.",
+    defTrackedEnrollments: "Every enrolment on courses within your scope, whatever its status.",
+    defAvgModulePct:
+      "The percentage of lessons completed, computed per enrolment and then averaged. Enrolments that never started count as 0%.",
   },
   adaptive: {
     suggestTitle: "A suggestion before you retry",

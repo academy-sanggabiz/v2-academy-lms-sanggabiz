@@ -5,6 +5,7 @@ import { getAdminLearnerList, getAdminLearnerStats, type AdminLearnerFilters } f
 import { parseListParams, type RawSearchParams } from "@/lib/pagination"
 import { LearnerManagementClient } from "@/components/admin/learners/LearnerManagementClient"
 import { StatCard } from "@/components/admin/StatCard"
+import { KpiDefinitions } from "@/components/admin/KpiDefinitions"
 import { getTranslations } from "@/lib/i18n/server"
 
 export default async function AdminLearnersPage({
@@ -40,6 +41,18 @@ export default async function AdminLearnersPage({
         <StatCard icon={Users} label={t.admin.totalLearnersLabel} value={stats.totalLearners} />
         <StatCard icon={BookOpen} label={t.admin.totalEnrollmentsLabel} value={stats.totalEnrollments} />
         <StatCard icon={Trophy} label={t.admin.coursesCompletedLabel} value={stats.totalCompleted} />
+      </div>
+
+      <div className="-mt-3 mb-6">
+        <KpiDefinitions
+          title={t.kpi.title}
+          noTarget={t.kpi.noTarget}
+          items={[
+            { label: t.admin.totalLearnersLabel, definition: t.kpi.defLearners },
+            { label: t.admin.totalEnrollmentsLabel, definition: t.kpi.defEnrollments },
+            { label: t.admin.coursesCompletedLabel, definition: t.kpi.defCompleted },
+          ]}
+        />
       </div>
 
       <LearnerManagementClient page={page} courses={courses} />

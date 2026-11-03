@@ -9,6 +9,7 @@ import { parseListParams, type RawSearchParams } from "@/lib/pagination"
 import { resolveAdminProfile } from "@/lib/auth/require-admin"
 import { getMentorOverview } from "@/lib/mentors-server"
 import { StatCard } from "@/components/admin/StatCard"
+import { KpiDefinitions } from "@/components/admin/KpiDefinitions"
 import { RecentEnrollmentsCard } from "@/components/admin/dashboard/RecentEnrollmentsCard"
 import { RecentCoursesCard } from "@/components/admin/dashboard/RecentCoursesCard"
 import { OnlineTrackingCard } from "@/components/admin/dashboard/OnlineTrackingCard"
@@ -113,6 +114,19 @@ export default async function AdminDashboardPage({
           }
         />
         <StatCard icon={Trophy} label={scope.completed} value={learnerStats.totalCompleted} />
+      </div>
+
+      <div className="-mt-3 mb-6">
+        <KpiDefinitions
+          title={t.kpi.title}
+          noTarget={t.kpi.noTarget}
+          items={[
+            { label: scope.learners, definition: t.kpi.defLearners },
+            { label: scope.courses, definition: t.kpi.defCourses },
+            { label: t.admin.completionRate, definition: t.kpi.defCompletionRate },
+            { label: scope.completed, definition: t.kpi.defCompleted },
+          ]}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

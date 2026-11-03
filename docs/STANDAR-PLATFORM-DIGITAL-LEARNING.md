@@ -135,7 +135,7 @@ jenis bukti**, dan satu saja tidak pernah cukup —
 
 | | Aturan | Cara periksa | Status |
 |---|---|---|---|
-| I1 | KPI punya **nama, definisi (apa persis yang dihitung), dan target**; yang utama sekitar **tiga** saja | Baca dasbor: adakah definisinya? | ❌ dasbor menampilkan angka tanpa definisi maupun target |
+| I1 | KPI punya **nama, definisi (apa persis yang dihitung), dan target**; yang utama sekitar **tiga** saja | Baca dasbor: adakah definisinya? | ⚠️ definisi ✅ di tiga layar (blok "Apa persisnya yang dihitung"); **target menunggu keputusan pemilik**, dan blok itu mengatakannya terus terang |
 | I2 | Utamakan KPI yang menunjukkan **hasil**: penyelesaian, berhenti minggu pertama, kembali dalam 7 hari. Jumlah tayangan dan total pendaftar hanya naik | Tinjau kartu statistik | ⚠️ ada penyelesaian; tidak ada berhenti-minggu-pertama maupun kembali-7-hari |
 | I3 | **Angka adalah gejala, bukan sebab.** Pasangkan dengan uji yang menunjukkan penyebabnya | Setiap kali mengutip angka berhenti, sebutkan apa yang belum diketahui | ✅ analisis titik berhenti menyebut batasnya |
 | I4 | Bandingkan yang **sebanding**: hari yang sama, jenis peserta yang sama, bukan musim libur lawan hari biasa | Saat membandingkan periode, catat asumsinya | — aturan kerja |

@@ -4,6 +4,7 @@ import { getTrackingStats, listTrackingEnrollments } from "@/lib/tracking-server
 import { requireAdmin } from "@/lib/auth/require-admin"
 import { parseListParams, type RawSearchParams } from "@/lib/pagination"
 import { StatCard } from "@/components/admin/StatCard"
+import { KpiDefinitions } from "@/components/admin/KpiDefinitions"
 import { TrackingListClient } from "@/components/admin/tracking/TrackingListClient"
 import { getTranslations } from "@/lib/i18n/server"
 import { resolveSuperAdminProfile } from "@/lib/auth/require-admin"
@@ -44,6 +45,17 @@ export default async function AdminTrackingPage({
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <StatCard icon={GraduationCap} label="Pendaftaran Dipantau" value={stats.totalEnrollments} />
         <StatCard icon={Activity} label="Rata-rata Penyelesaian Modul" value={`${stats.avgModulePct}%`} />
+      </div>
+
+      <div className="-mt-3 mb-6">
+        <KpiDefinitions
+          title={t.kpi.title}
+          noTarget={t.kpi.noTarget}
+          items={[
+            { label: "Pendaftaran Dipantau", definition: t.kpi.defTrackedEnrollments },
+            { label: "Rata-rata Penyelesaian Modul", definition: t.kpi.defAvgModulePct },
+          ]}
+        />
       </div>
 
       <TrackingListClient page={page} />
