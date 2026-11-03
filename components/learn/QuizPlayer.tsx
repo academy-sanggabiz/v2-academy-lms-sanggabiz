@@ -14,8 +14,18 @@ import { startQuiz, submitQuiz, type SubmitQuizResult } from "@/app/learn/[cours
 import { FileUploadAnswer } from "@/components/learn/EssayAssessmentPlayer"
 import { QuestionPrompt } from "@/components/learn/QuestionPrompt"
 import { useLearnBusy } from "@/components/learn/LearnBusyContext"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 type Stage = "intro" | "active" | "results"
+
+/** Cuplikan soal untuk kalimat saran: paragraf pertama, tanpa markup,
+ *  dipenggal di batas kata. Soal utuhnya sudah tampil di daftar bawah. */
+function cuplikanSoal(html: string): string {
+  const paragraf = html.match(/<p[^>]*>([\s\S]*?)<\/p>/i)
+  const teks = (paragraf ? paragraf[1] : html).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+  if (teks.length <= 70) return teks
+  return teks.slice(0, 70).replace(/\s+\S*$/, "") + "\u2026"
+}
 
 export function QuizPlayer({
   quiz,
@@ -39,6 +49,7 @@ export function QuizPlayer({
 }) {
   const [stage, setStage] = useState<Stage>("intro")
   const [isPending, startTransition] = useTransition()
+  const { t } = useI18n()
   const [attemptId, setAttemptId] = useState<string | null>(null)
   const [attemptNumber, setAttemptNumber] = useState(1)
   /** Soal yang ditarik basis data untuk percobaan ini; null = semuanya. */
@@ -310,6 +321,44 @@ export function QuizPlayer({
             </>
           )}
         </div>
+
+        {/*
+          Aturan adaptif pertama, dan tiga syarat Day 12 yang dipenuhinya:
+          TERLIHAT (kotak tersendiri, bukan perubahan diam-diam), BERALASAN
+          (menyebut data pemicunya: soal mana, berapa kali), dan BISA
+          DIABAIKAN (kalimat terakhir menegaskan mencoba lagi tetap boleh,
+          dan tombol Coba Lagi tidak berubah sedikit pun).
+        */}
+        {result.repeatedStruggles.length > 0 && reviewLessons.length > 0 && (
+          <section
+            aria-label={t.adaptive.suggestTitle}
+            className="rounded-xl border border-ring/40 bg-secondary/40 p-4 text-left"
+          >
+            <p className="text-sm font-semibold">{t.adaptive.suggestTitle}</p>
+            <ul className="mt-1.5 space-y-1 text-sm text-muted-foreground">
+              {result.repeatedStruggles.map((item) => (
+                <li key={item.questionId}>
+                  {t.adaptive.struggled
+                    .replace("{soal}", cuplikanSoal(item.prompt))
+                    .replace("{n}", String(item.timesWrong))}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+              <span>{t.adaptive.reason}</span>
+              {reviewLessons.map((lesson) => (
+                <Link
+                  key={lesson.href}
+                  href={lesson.href}
+                  className="font-semibold text-ring underline underline-offset-4"
+                >
+                  {lesson.title}
+                </Link>
+              ))}
+            </p>
+            <p className="mt-1.5 text-xs text-muted-foreground">{t.adaptive.freedom}</p>
+          </section>
+        )}
 
         <div className="flex flex-col gap-3">
           {questions.map((question) => {

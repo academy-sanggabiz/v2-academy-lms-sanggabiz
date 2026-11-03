@@ -14,6 +14,13 @@ export type SubmitQuizResult = {
   perQuestion: Record<string, boolean | null>
   /** question_id -> author's explanation; only questions that have one. */
   explanations: Record<string, string>
+  /**
+   * Soal yang masih salah pada percobaan INI dan sudah tiga kali atau lebih
+   * salah secara kumulatif. Aturan adaptif pertama (Day 12): pemutar memakai
+   * ini untuk MENYARANKAN membuka ulang materi, lengkap dengan alasannya --
+   * tidak pernah mengubah jalur diam-diam, dan mencoba lagi tetap boleh.
+   */
+  repeatedStruggles: { questionId: string; timesWrong: number; prompt: string }[]
 }
 
 export async function startQuiz(
@@ -239,7 +246,11 @@ export async function submitQuiz(
 
   if (error) return { error: userFacingError(error.message) }
 
-  const result = { ...(data as Omit<SubmitQuizResult, "explanations">), explanations: {} } as SubmitQuizResult
+  const result = {
+    ...(data as Omit<SubmitQuizResult, "explanations" | "repeatedStruggles">),
+    explanations: {},
+    repeatedStruggles: [],
+  } as SubmitQuizResult
 
   // Explanations become readable (RLS) only now that this attempt is
   // submitted -- see supabase/migrations/20261028000000_question_explanations.sql.
@@ -252,6 +263,52 @@ export async function submitQuiz(
     if (explanationError) console.error("submitQuiz explanations lookup failed:", explanationError.message)
     for (const row of explanationRows ?? []) {
       if (row.explanation.trim()) result.explanations[row.question_id] = row.explanation
+    }
+
+    /*
+     * Aturan adaptif pertama: soal yang masih salah SEKARANG dan sudah >= 3
+     * kali salah sepanjang riwayat peserta ini pada kuis ini.
+     *
+     * Dihitung dengan klien pemanggil, bukan service role: policy "own quiz
+     * responses readable" membuat RLS sendiri yang membatasi hitungan ke
+     * jawaban milik peserta ini, jadi tidak ada id yang perlu dipercaya dari
+     * parameter. Ambangnya tiga -- dua kali salah masih wajar saat belajar;
+     * tiga kali pada soal yang sama adalah pola, bukan kebetulan.
+     */
+    const masihSalah = Object.entries(result.perQuestion)
+      .filter(([, benar]) => benar === false)
+      .map(([id]) => id)
+
+    if (masihSalah.length > 0) {
+      const { data: salahRows, error: salahError } = await supabase
+        .from("quiz_responses")
+        .select("question_id, attempt:quiz_attempts!inner(quiz_id)")
+        .eq("is_correct", false)
+        .in("question_id", masihSalah)
+        .eq("attempt.quiz_id", attemptRow.quiz_id)
+
+      if (salahError) {
+        console.error("submitQuiz struggle lookup failed:", salahError.message)
+      } else {
+        const hitung = new Map<string, number>()
+        for (const row of salahRows ?? []) {
+          hitung.set(row.question_id, (hitung.get(row.question_id) ?? 0) + 1)
+        }
+        const berulang = [...hitung].filter(([, n]) => n >= 3)
+
+        if (berulang.length > 0) {
+          const { data: soal } = await supabase
+            .from("questions")
+            .select("id, prompt")
+            .in("id", berulang.map(([id]) => id))
+
+          result.repeatedStruggles = berulang.map(([id, n]) => ({
+            questionId: id,
+            timesWrong: n,
+            prompt: soal?.find((q) => q.id === id)?.prompt ?? "",
+          }))
+        }
+      }
     }
   }
 

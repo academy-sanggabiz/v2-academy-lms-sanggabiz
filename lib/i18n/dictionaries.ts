@@ -171,6 +171,13 @@ export type Dictionary = {
     startLearning: string
     enrolledStartLearning: string
   }
+  adaptive: {
+    suggestTitle: string
+    /** `{soal}` cuplikan soal, `{n}` jumlah salah. */
+    struggled: string
+    reason: string
+    freedom: string
+  }
   tracking: {
     cardTitle: string
     cardHint: string
@@ -515,6 +522,12 @@ const id: Dictionary = {
     continueLearning: "Lanjutkan belajar",
     startLearning: "Mulai belajar",
     enrolledStartLearning: "Terdaftar ✓ Mulai belajar",
+  },
+  adaptive: {
+    suggestTitle: "Saran sebelum mencoba lagi",
+    struggled: "Soal \u201C{soal}\u201D sudah {n} kali terjawab salah.",
+    reason: "Karena itu kami menyarankan membuka ulang materinya lebih dulu:",
+    freedom: "Ini hanya saran \u2014 Anda tetap bisa langsung mencoba lagi.",
   },
   tracking: {
     cardTitle: "Membantu Memperbaiki Materi",
@@ -884,6 +897,12 @@ const en: Dictionary = {
     continueLearning: "Continue learning",
     startLearning: "Start learning",
     enrolledStartLearning: "Enrolled ✓ Start learning",
+  },
+  adaptive: {
+    suggestTitle: "A suggestion before you retry",
+    struggled: "The question \u201C{soal}\u201D has now been answered wrongly {n} times.",
+    reason: "So we suggest reopening the material first:",
+    freedom: "Just a suggestion \u2014 you can retry right away.",
   },
   tracking: {
     cardTitle: "Help Us Improve the Material",

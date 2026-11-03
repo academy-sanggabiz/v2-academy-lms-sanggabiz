@@ -126,8 +126,8 @@ jenis bukti**, dan satu saja tidak pernah cukup —
 
 | | Aturan | Cara periksa | Status |
 |---|---|---|---|
-| H1 | **Setiap adaptasi harus terlihat dan bisa dijelaskan**: peserta tahu apa yang berubah dan kenapa | Jika sistem memilihkan sesuatu, adakah alasannya di layar? | ✅ belum ada adaptasi — tidak ada yang tersembunyi |
-| H2 | Tiap pola personalisasi punya **jalan kembali** | Adakah cara membatalkan? | — belum berlaku |
+| H1 | **Setiap adaptasi harus terlihat dan bisa dijelaskan**: peserta tahu apa yang berubah dan kenapa | Jika sistem memilihkan sesuatu, adakah alasannya di layar? | ✅ aturan pertama hidup: saran menyebut soal mana dan berapa kali salah |
+| H2 | Tiap pola personalisasi punya **jalan kembali** | Adakah cara membatalkan? | ✅ hanya saran — "Coba Lagi" tidak berubah, tidak ada yang dipaksakan |
 | H3 | Mulai dari **aturan sederhana**, bukan model. Model butuh data banyak dan berkualitas | Sebelum membangun rekomendasi, periksa dasar datanya | — aturan kerja |
 | H4 | Tanpa masalah peserta yang nyata, data memadai, dan varian isi — adaptif adalah **rekayasa berlebih** | Tiga pertanyaan itu dijawab sebelum membangun | — aturan kerja |
 
