@@ -130,6 +130,7 @@ async function reflow(page, path) {
   await page.setViewportSize({ width: 320, height: 800 })
   await page.goto(BASE + path)
   await settle(page)
+  await tungguPengalihan(page)
 
   const landed = new URL(page.url()).pathname
   if (landed !== path) {
@@ -175,11 +176,27 @@ function siapkanBatas(page) {
   return page
 }
 
+/**
+ * redirect() di Server Component kadang dirender Next sebagai halaman perantara
+ * ber-meta-refresh (#__next-page-redirect) sebelum peramban benar-benar
+ * berpindah. Kalau audit berjalan tepat di jendela itu, axe menandai
+ * meta-refresh sebagai pelanggaran kritis -- padahal yang diaudit adalah
+ * halaman perantara yang tidak pernah dilihat siapa pun lebih dari sekejap.
+ * Ditunggu habis dulu; kalau 5 detik masih ada, biarkan audit menilainya,
+ * karena meta-refresh yang bertahan selama itu memang masalah sungguhan.
+ */
+async function tungguPengalihan(page) {
+  await page
+    .waitForFunction(() => !document.querySelector("#__next-page-redirect"), { timeout: 5000 })
+    .catch(() => {})
+}
+
 async function visit(page, path) {
   for (const { label, width, height } of WIDTHS) {
     await page.setViewportSize({ width, height })
     await page.goto(BASE + path)
     await settle(page)
+    await tungguPengalihan(page)
     // Halaman khusus superadmin mengalihkan akun pengelola biasa ke dasbor.
     // Tanpa pemeriksaan ini auditnya mencetak "ok <halaman>" padahal yang
     // diperiksa dasbor -- laporan bersih untuk halaman yang tidak pernah
