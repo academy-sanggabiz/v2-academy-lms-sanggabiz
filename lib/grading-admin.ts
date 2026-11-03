@@ -51,7 +51,7 @@ export async function gradeAttempt(
     )
 
   if (existingResponsesError || !existingResponses) {
-    return { error: dbErrorMessage(existingResponsesError?.message, "Gagal memuat jawaban.") }
+    return { error: dbErrorMessage(existingResponsesError?.message, "Gagal memuat jawaban. Muat ulang halaman, lalu coba lagi.") }
   }
 
   const responseByQuestion = new Map(existingResponses.map((r) => [r.question_id, r.response]))
@@ -122,7 +122,7 @@ async function finalizeAttempt(
     .select("question_id, is_correct, points_awarded")
     .eq("attempt_id", attemptId)
 
-  if (responsesError || !responses) return { error: dbErrorMessage(responsesError?.message, "Gagal memuat jawaban.") }
+  if (responsesError || !responses) return { error: dbErrorMessage(responsesError?.message, "Gagal memuat jawaban. Muat ulang halaman, lalu coba lagi.") }
 
   const stillUngraded = responses.some((r) => r.is_correct === null)
   if (stillUngraded) return { error: "Masih ada jawaban yang belum dinilai." }

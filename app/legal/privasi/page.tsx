@@ -75,7 +75,7 @@ export default function PrivasiPage() {
           <p className="mt-3 text-sm">
             Pembatasan ini ditegakkan di tingkat database, bukan hanya di tampilan. Peserta lain
             tidak dapat melihat data Anda. Statistik publik yang kami terbitkan hanya berupa
-            angka gabungan tanpa nama, dan jumlah peserta di bawah lima sengaja disembunyikan
+            angka gabungan tanpa nama. Jumlah peserta di bawah lima sengaja disembunyikan
             supaya tidak bisa ditelusuri ke orang tertentu.
           </p>
         </section>

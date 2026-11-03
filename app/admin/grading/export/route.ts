@@ -121,7 +121,7 @@ export async function GET(request: Request) {
       .eq("quiz_id", quizId)
       .order("position", { ascending: true })
 
-    if (questionsError || !allQuestions) return new NextResponse("Gagal memuat soal", { status: 500 })
+    if (questionsError || !allQuestions) return new NextResponse("Gagal memuat soal. Coba unduh lagi.", { status: 500 })
 
     // An all-objective quiz exports too -- it just has no per-question
     // answer/score pairs, only the attempt-level Quiz Score column.
@@ -166,7 +166,7 @@ export async function GET(request: Request) {
     .eq("lesson.section.course_id", course.id)
     .order("title", { ascending: true })
 
-  if (quizzesError || !courseQuizzes) return new NextResponse("Gagal memuat kuis", { status: 500 })
+  if (quizzesError || !courseQuizzes) return new NextResponse("Gagal memuat kuis. Coba unduh lagi.", { status: 500 })
 
   // One questions query for the whole course instead of one per quiz.
   const { data: allQuestions, error: questionsError } = await supabase
@@ -178,7 +178,7 @@ export async function GET(request: Request) {
     )
     .order("position", { ascending: true })
 
-  if (questionsError || !allQuestions) return new NextResponse("Gagal memuat soal", { status: 500 })
+  if (questionsError || !allQuestions) return new NextResponse("Gagal memuat soal. Coba unduh lagi.", { status: 500 })
 
   const questionsByQuiz = new Map<string, QuestionRow[]>()
   for (const question of allQuestions) {

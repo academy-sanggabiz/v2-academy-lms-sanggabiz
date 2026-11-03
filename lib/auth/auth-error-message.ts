@@ -5,14 +5,14 @@
  * English into the page.
  */
 const AUTH_ERROR_MESSAGES: [RegExp, string][] = [
-  [/invalid login credentials/i, "Email atau kata sandi salah."],
+  [/invalid login credentials/i, "Email atau kata sandi salah. Periksa kembali lalu coba lagi."],
   [/email not confirmed/i, "Email belum dikonfirmasi. Periksa kotak masuk Anda."],
   [/user already registered|already been registered/i, "Email ini sudah terdaftar. Silakan masuk."],
   [/password should be at least/i, "Kata sandi minimal 8 karakter."],
   [/captcha/i, "Verifikasi captcha gagal. Coba lagi."],
   [/rate limit|too many requests|security purposes/i, "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi."],
   [/invalid email|unable to validate email/i, "Masukkan email yang valid."],
-  [/signups not allowed|signup is disabled/i, "Pendaftaran akun sedang ditutup."],
+  [/signups not allowed|signup is disabled/i, "Pendaftaran akun sedang ditutup. Hubungi admin untuk dibuatkan akun."],
   [/new password should be different/i, "Kata sandi baru harus berbeda dari kata sandi lama."],
   [/weak password|password is too weak/i, "Kata sandi terlalu lemah. Gunakan kombinasi yang lebih kuat."],
 ]

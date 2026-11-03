@@ -339,7 +339,7 @@ export async function createDraftCourse(): Promise<{ id: string } | { error: str
     .single()
 
   if (error || !data) {
-    return { error: dbErrorMessage(error?.message, "Gagal membuat kursus.") }
+    return { error: dbErrorMessage(error?.message, "Gagal membuat kursus. Coba lagi.") }
   }
 
   return { id: data.id }
@@ -385,7 +385,7 @@ export async function createInstructor(input: {
     .select("id")
     .single()
 
-  if (error || !data) return { error: dbErrorMessage(error?.message, "Gagal menambahkan instruktur.") }
+  if (error || !data) return { error: dbErrorMessage(error?.message, "Gagal menambahkan instruktur. Coba lagi.") }
   return { id: data.id }
 }
 

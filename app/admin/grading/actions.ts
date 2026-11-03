@@ -70,7 +70,7 @@ export async function getAttemptSubmissionAction(
   }
 
   const responses = await getAttemptSubmission(attemptId)
-  if (!responses) return { ok: false, error: "Gagal memuat kiriman" }
+  if (!responses) return { ok: false, error: "Gagal memuat kiriman. Muat ulang halaman, lalu coba lagi." }
 
   return { ok: true, data: responses }
 }

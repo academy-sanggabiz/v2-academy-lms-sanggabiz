@@ -94,7 +94,7 @@ export async function startQuiz(
     .select("id, question_ids")
     .single()
 
-  if (insertError || !attempt) return { error: insertError ? userFacingError(insertError.message) : "Gagal memulai kuis." }
+  if (insertError || !attempt) return { error: insertError ? userFacingError(insertError.message) : "Gagal memulai kuis. Coba lagi." }
 
   return {
     attemptId: attempt.id,
@@ -190,7 +190,7 @@ export async function startAssessmentAttempt(
     .select("id")
     .single()
 
-  if (insertError || !attempt) return { error: insertError ? userFacingError(insertError.message) : "Gagal memulai studi kasus." }
+  if (insertError || !attempt) return { error: insertError ? userFacingError(insertError.message) : "Gagal memulai studi kasus. Coba lagi." }
 
   return { attemptId: attempt.id, attemptNumber }
 }
