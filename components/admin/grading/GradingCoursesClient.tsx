@@ -16,13 +16,13 @@ export function GradingCoursesClient({ page }: { page: Paginated<GradingCourseSu
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-bold">{t.admin.colCourse}</h2>
         <div className="flex items-center gap-2">
-          <ListToolbar placeholder="Cari kursus..." />
+          <ListToolbar placeholder={t.grading.searchCourses} />
         </div>
       </div>
 
       {page.rows.length === 0 ? (
         <div className="py-12 text-center text-sm text-muted-foreground">
-          {page.total === 0 ? t.admin.gradingEmpty : "Tidak ada kursus yang cocok dengan pencarian Anda."}
+          {page.total === 0 ? t.admin.gradingEmpty : t.grading.noCourseMatches}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border">
@@ -30,7 +30,7 @@ export function GradingCoursesClient({ page }: { page: Paginated<GradingCourseSu
             <div>{t.admin.colCourse}</div>
             <div>{t.admin.colQuiz}</div>
             <div>{t.admin.colLearner}</div>
-            <div>Percobaan</div>
+            <div>{t.grading.colAttempts}</div>
             <div />
           </div>
           {page.rows.map((c) => (
@@ -49,7 +49,7 @@ export function GradingCoursesClient({ page }: { page: Paginated<GradingCourseSu
                   render={<Link href={`/admin/grading/course/${c.courseId}`} />}
                   nativeButton={false}
                 >
-                  Buka
+                  {t.grading.open}
                 </Button>
               </div>
             </div>

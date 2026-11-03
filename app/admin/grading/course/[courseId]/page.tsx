@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation"
 
+import { getTranslations } from "@/lib/i18n/server"
+
 import { getCourseGradingMatrix } from "@/lib/grading-server"
 import { requireAdmin } from "@/lib/auth/require-admin"
 import { parseListParams, type RawSearchParams } from "@/lib/pagination"
@@ -19,6 +21,7 @@ export default async function AdminGradingCoursePage({
   searchParams: Promise<RawSearchParams>
 }) {
   await requireAdmin()
+  const { t } = await getTranslations()
   const [{ courseId }, raw] = await Promise.all([params, searchParams])
 
   const listParams = parseListParams<Record<string, never>>(raw, {
@@ -43,7 +46,7 @@ export default async function AdminGradingCoursePage({
         <div>
           <h1 className="text-3xl font-bold">{matrix.courseTitle}</h1>
           <p className="text-sm text-muted-foreground">
-            Semua nilai kuis untuk kursus ini. Sel nilai otomatis hanya dapat dibaca, sel esai perlu dinilai.
+            {t.grading.matrixSubtitle}
           </p>
         </div>
         <div className="flex items-center gap-2">

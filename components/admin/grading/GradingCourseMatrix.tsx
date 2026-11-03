@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ListToolbar } from "@/components/admin/ListToolbar"
 import { ListPagination } from "@/components/admin/ListPagination"
 import { useNavigationBlocker } from "@/components/admin/NavigationBlockerContext"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 import type { CourseGradingMatrix, GradingCell, GradingColumn, GradingMatrixRow } from "@/lib/grading-server"
 import { gradeAttemptsAction, type BulkGradeEntry, type BulkGradeResult } from "@/app/admin/grading/actions"
 import { AssignmentColumnHeader } from "@/components/admin/grading/AssignmentColumnHeader"
@@ -93,6 +94,7 @@ function dropSupersededEdits(
 }
 
 export function GradingCourseMatrix({ matrix }: { matrix: CourseGradingMatrix }) {
+  const { t } = useI18n()
   const [previewTarget, setPreviewTarget] = useState<PreviewTarget | null>(null)
   const [pendingEdits, setPendingEdits] = useState<Record<string, PendingEdit>>({})
   const [saveSummary, setSaveSummary] = useState<BulkGradeResult | null>(null)
@@ -154,7 +156,7 @@ export function GradingCourseMatrix({ matrix }: { matrix: CourseGradingMatrix })
     for (const edit of edits) {
       const value = edit.value.trim() === "" ? 0 : Number(edit.value)
       if (!Number.isFinite(value) || value < 0 || value > edit.maxPoints) {
-        toast.error(`Poin harus antara 0 dan ${edit.maxPoints}`)
+        toast.error(t.grading.pointsRange.replace("{maks}", String(edit.maxPoints)))
         return
       }
     }
@@ -192,12 +194,14 @@ export function GradingCourseMatrix({ matrix }: { matrix: CourseGradingMatrix })
       })
 
       if (result.data.failed.length === 0) {
-        toast.success(`${result.data.succeeded.length} percobaan dinilai`)
+        toast.success(t.grading.attemptsGraded.replace("{n}", String(result.data.succeeded.length)))
       } else if (result.data.succeeded.length === 0) {
-        toast.error("Gagal menyimpan nilai. Periksa rinciannya di atas tabel, lalu coba lagi.")
+        toast.error(t.grading.saveFailedAll)
       } else {
         toast.error(
-          `${result.data.failed.length} dari ${result.data.failed.length + result.data.succeeded.length} percobaan gagal dinilai. Periksa rinciannya di atas tabel, lalu coba lagi.`
+          t.grading.saveFailedSome
+            .replace("{gagal}", String(result.data.failed.length))
+            .replace("{total}", String(result.data.failed.length + result.data.succeeded.length))
         )
       }
     })
@@ -229,7 +233,7 @@ export function GradingCourseMatrix({ matrix }: { matrix: CourseGradingMatrix })
     return [
       {
         id: "learner",
-        header: "Peserta",
+        header: t.admin.colLearner,
         cell: ({ row }) => (
           <div className="flex flex-col">
             <Link
@@ -265,14 +269,14 @@ export function GradingCourseMatrix({ matrix }: { matrix: CourseGradingMatrix })
       })),
       {
         id: "courseGrade",
-        header: "Nilai Kursus",
+        header: t.grading.courseGradeCol,
         cell: ({ row }) => {
           const { grade, pendingCount } = row.original.courseGrade
           return (
             <div className="flex flex-col">
               <span className="font-semibold">{grade}%</span>
               {pendingCount > 0 && (
-                <span className="text-xs text-muted-foreground">{pendingCount} menunggu</span>
+                <span className="text-xs text-muted-foreground">{t.grading.pendingCount.replace("{n}", String(pendingCount))}</span>
               )}
             </div>
           )
@@ -280,11 +284,13 @@ export function GradingCourseMatrix({ matrix }: { matrix: CourseGradingMatrix })
         meta: { headClassName: GRADE_HEAD_CLASS, cellClassName: GRADE_CELL_CLASS },
       },
     ]
+    // t ikut dalam dependensi: label kolom harus ikut bahasa antarmuka, dan t
+    // hanya berganti saat pengguna menukar bahasa -- bukan per ketukan.
     // Deliberately depends only on matrix.columns: pendingEdits/isSaving change on
     // every keystroke, and including them here would rebuild the whole column model (and
     // thus TanStack Table's internal state) on every keystroke instead of just the one
     // edited cell. Fast-changing values are threaded through table `meta` instead.
-  }, [matrix.columns])
+  }, [matrix.columns, t])
 
   const table = useReactTable({
     // pageRows is the server payload straight through -- no client-side
@@ -305,7 +311,7 @@ export function GradingCourseMatrix({ matrix }: { matrix: CourseGradingMatrix })
   if (matrix.columns.length === 0) {
     return (
       <div className="rounded-2xl border border-border bg-card p-12 text-center text-sm text-muted-foreground">
-        Kursus ini belum memiliki kuis.
+        {t.grading.noQuizzes}
       </div>
     )
   }
@@ -321,29 +327,29 @@ export function GradingCourseMatrix({ matrix }: { matrix: CourseGradingMatrix })
          */}
         <BusyRegion
           busy={isSaving}
-          label="Menyimpan nilai…"
+          label={t.grading.savingGrades}
           showOverlay={false}
           className={cn(isSaving && "opacity-60")}
         >
-          <ListToolbar placeholder="Cari peserta..." />
+          <ListToolbar placeholder={t.grading.searchLearners} />
         </BusyRegion>
         <Button
           onClick={handleSaveAll}
           disabled={!isDirty}
           pending={isSaving}
-          pendingLabel="Menyimpan…"
+          pendingLabel={t.common.saving}
         >
-          Simpan
+          {t.common.save}
         </Button>
       </div>
 
       <div role="status" aria-live="polite">
         {saveSummary && (
           <div className="mb-4 rounded-lg bg-muted p-3 text-sm">
-            <div>{saveSummary.succeeded.length} percobaan berhasil dinilai.</div>
+            <div>{t.grading.succeededSummary.replace("{n}", String(saveSummary.succeeded.length))}</div>
             {saveSummary.failed.length > 0 && (
               <div className="mt-2 text-destructive">
-                {saveSummary.failed.length} percobaan gagal:
+                {t.grading.failedSummary.replace("{n}", String(saveSummary.failed.length))}
                 <ul className="mt-1 list-disc pl-4">
                   {saveSummary.failed.map((f, i) => (
                     <li key={i}>
@@ -377,7 +383,7 @@ export function GradingCourseMatrix({ matrix }: { matrix: CourseGradingMatrix })
             {table.getRowModel().rows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length} className="py-12 text-center text-muted-foreground">
-                  Tidak ada peserta yang cocok dengan pencarian Anda.
+                  {t.admin.noLearnerMatches}
                 </TableCell>
               </TableRow>
             ) : (
@@ -449,11 +455,13 @@ const CellView = memo(function CellView({
   onPreview: (target: PreviewTarget) => void
   onScoreChange: (attemptId: string, questionId: string, maxPoints: number, baseline: string, value: string) => void
 }) {
+  // Konteks lokal di komponen memo: hanya berganti saat bahasa ditukar.
+  const { t } = useI18n()
   const hasAttempt = cell.status !== "no_attempt"
   const scoreText = cell.score !== null ? String(cell.score) : "–"
 
   if (!hasAttempt) {
-    return <span className="text-xs text-muted-foreground">Tidak ada kiriman</span>
+    return <span className="text-xs text-muted-foreground">{t.grading.noSubmission}</span>
   }
 
   // A study case is always exactly one manually-graded question and nothing
@@ -466,7 +474,7 @@ const CellView = memo(function CellView({
     const [grade] = cell.grades
 
     if (!grade.hasResponse) {
-      return <span className="text-xs text-muted-foreground">Tidak ada kiriman</span>
+      return <span className="text-xs text-muted-foreground">{t.grading.noSubmission}</span>
     }
 
     const baselinePoints = String(grade.pointsAwarded ?? 0)
@@ -495,9 +503,9 @@ const CellView = memo(function CellView({
             onScoreChange(cell.attemptId as string, grade.questionId, grade.points, baselinePoints, String(points))
           }}
           className="h-7 w-16"
-          aria-label={`Nilai ${learnerName} untuk ${column.quizTitle} (0-100)`}
+          aria-label={t.grading.gradeAria.replace("{nama}", learnerName).replace("{kuis}", column.quizTitle)}
         />
-        {cell.status === "pending_review" && <span className="text-xs text-muted-foreground">menunggu</span>}
+        {cell.status === "pending_review" && <span className="text-xs text-muted-foreground">{t.grading.pendingShort}</span>}
         {cell.attemptId && (
           <button
             type="button"
@@ -505,7 +513,7 @@ const CellView = memo(function CellView({
               onPreview({ attemptId: cell.attemptId as string, quizTitle: column.quizTitle, learnerName })
             }
             className="text-muted-foreground hover:text-foreground"
-            aria-label="Pratinjau kiriman"
+            aria-label={t.grading.previewSubmission}
           >
             <Eye className="size-3.5" />
           </button>
@@ -528,10 +536,10 @@ const CellView = memo(function CellView({
             "text-sm",
             cell.status === "pending_review" ? "text-muted-foreground italic" : "text-foreground"
           )}
-          title={cell.status === "pending_review" ? "Sementara: hanya dari soal yang dinilai otomatis" : undefined}
+          title={cell.status === "pending_review" ? t.grading.provisionalTitle : undefined}
         >
           {scoreText}
-          {cell.status === "pending_review" && <span className="ml-1 text-xs">menunggu</span>}
+          {cell.status === "pending_review" && <span className="ml-1 text-xs">{t.grading.pendingShort}</span>}
         </span>
         {cell.grades.map((grade, i) => {
           const baseline = String(grade.pointsAwarded ?? 0)
@@ -554,12 +562,12 @@ const CellView = memo(function CellView({
                       onScoreChange(cell.attemptId as string, grade.questionId, grade.points, baseline, e.target.value)
                     }
                     className="h-7 w-16"
-                    aria-label={`Poin soal ${i + 1} untuk ${learnerName} (maks. ${grade.points})`}
+                    aria-label={t.grading.pointsAria.replace("{i}", String(i + 1)).replace("{nama}", learnerName).replace("{maks}", String(grade.points))}
                   />
                   <span className="text-xs text-muted-foreground">/ {grade.points}</span>
                 </>
               ) : (
-                <span className="text-xs text-muted-foreground">Tidak ada kiriman</span>
+                <span className="text-xs text-muted-foreground">{t.grading.noSubmission}</span>
               )}
             </div>
           )
@@ -572,7 +580,7 @@ const CellView = memo(function CellView({
             onPreview({ attemptId: cell.attemptId as string, quizTitle: column.quizTitle, learnerName })
           }
           className="text-muted-foreground hover:text-foreground"
-          aria-label="Pratinjau kiriman"
+          aria-label={t.grading.previewSubmission}
         >
           <Eye className="size-3.5" />
         </button>

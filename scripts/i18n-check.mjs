@@ -37,7 +37,19 @@ const SUDAH_SELESAI = new Set([
   "/learner/settings",
   "/learner/notifications",
   "/admin/dashboard",
+  "/admin/courses",
+  "/admin/learners",
+  "/admin/grading",
+  "/admin/tracking",
+  "/admin/settings",
+  "/admin/profile",
 ])
+
+/** Layar dinamis yang juga sudah selesai -- dicocokkan dengan awalan jalur. */
+const AWALAN_SELESAI = ["/admin/grading/course/", "/admin/tracking/"]
+function sudahSelesai(path) {
+  return SUDAH_SELESAI.has(path) || AWALAN_SELESAI.some((a) => path.startsWith(a))
+}
 
 async function masuk(browser, path, email, sandi) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 } })
@@ -71,17 +83,21 @@ async function ambilIsi() {
     const r = await fetch(`${U}/rest/v1/${p}`, { headers: h })
     return r.ok ? r.json() : []
   }
-  const [kursus, pelajaran, modul, notif] = await Promise.all([
+  const [kursus, pelajaran, modul, notif, soal] = await Promise.all([
     ambil("courses?select=title,description"),
     ambil("lessons?select=title&limit=1000"),
     ambil("course_sections?select=title&limit=500"),
     ambil("notifications?select=title,body&limit=500"),
+    // Teks soal adalah ISI juga: layar kesulitan peserta dan matriks
+    // penilaian menampilkannya. Tag HTML dibuang karena yang dirender teksnya.
+    ambil("questions?select=prompt&limit=1000"),
   ])
   return [
     ...kursus.flatMap((x) => [x.title, x.description]),
     ...pelajaran.map((x) => x.title),
     ...modul.map((x) => x.title),
     ...notif.flatMap((x) => [x.title, x.body]),
+    ...soal.map((x) => String(x.prompt ?? "").replace(/<[^>]*>/g, " ")),
   ].filter((x) => typeof x === "string" && x.trim().length > 3)
 }
 
@@ -134,13 +150,35 @@ try {
   if (admin) {
     for (const p of ["/admin/dashboard", "/admin/courses", "/admin/learners", "/admin/grading", "/admin/tracking", "/admin/settings", "/admin/profile"])
       await periksa(admin, p)
+
+    // Layar dinamis: matriks penilaian dan rincian pelacakan. Id-nya dicari
+    // dari basis data (kursus milik admin demo yang punya pendaftaran) supaya
+    // alat ini tidak menyimpan id yang membusuk.
+    const h = { apikey: env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` }
+    const U = env.NEXT_PUBLIC_SUPABASE_URL
+    if (U && env.SUPABASE_SERVICE_ROLE_KEY) {
+      const profil = await fetch(`${U}/rest/v1/profiles?select=id&email=eq.${encodeURIComponent(adminEmail)}`, { headers: h }).then((r) => (r.ok ? r.json() : []))
+      const adminId = profil[0]?.id
+      if (adminId) {
+        const kursus = await fetch(`${U}/rest/v1/courses?select=id&created_by=eq.${adminId}&limit=10`, { headers: h }).then((r) => (r.ok ? r.json() : []))
+        let pendaftaran = null
+        for (const k of kursus) {
+          const e = await fetch(`${U}/rest/v1/enrollments?select=id,course_id&course_id=eq.${k.id}&limit=1`, { headers: h }).then((r) => (r.ok ? r.json() : []))
+          if (e[0]) { pendaftaran = e[0]; break }
+        }
+        if (pendaftaran) {
+          await periksa(admin, `/admin/grading/course/${pendaftaran.course_id}`)
+          await periksa(admin, `/admin/tracking/${pendaftaran.id}`)
+        } else console.log("lewat matriks penilaian/pelacakan: admin demo belum punya kursus berpendaftaran")
+      }
+    } else console.log("lewat layar dinamis: SUPABASE_SERVICE_ROLE_KEY tidak ada")
   } else console.log("lewat layar pengelola: gagal masuk")
 } finally {
   await browser.close()
 }
 
 const total = hasil.reduce((n, r) => n + r.sisa.length, 0)
-const gagal = hasil.filter((r) => SUDAH_SELESAI.has(r.path) && r.sisa.length > 0)
+const gagal = hasil.filter((r) => sudahSelesai(r.path) && r.sisa.length > 0)
 console.log(
   `\n${hasil.filter((r) => r.sisa.length === 0).length}/${hasil.length} layar sudah penuh bahasa Inggris, ` +
     `${total} baris antarmuka tersisa (judul kursus, pelajaran, dan isi notifikasi tidak dihitung)`

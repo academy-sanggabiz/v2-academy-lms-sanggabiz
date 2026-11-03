@@ -34,8 +34,8 @@ export default async function AdminGradingPage({
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <StatCard icon={ClipboardCheck} label="Percobaan Menunggu Penilaian" value={stats.attemptCount} />
-        <StatCard icon={ClipboardCheck} label="{t.admin.gradingCoursesTitle}" value={stats.courseCount} />
+        <StatCard icon={ClipboardCheck} label={t.grading.attemptsPendingReview} value={stats.attemptCount} />
+        <StatCard icon={ClipboardCheck} label={t.admin.gradingCoursesTitle} value={stats.courseCount} />
       </div>
 
       <GradingCoursesClient page={page} />

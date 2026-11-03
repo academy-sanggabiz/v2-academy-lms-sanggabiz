@@ -1,6 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import type { CourseDropoff as CourseDropoffData } from "@/lib/insight-server"
 import { cn } from "@/lib/utils"
+import { getTranslations } from "@/lib/i18n/server"
 
 /**
  * Di bagian mana peserta berhenti melanjutkan.
@@ -17,13 +18,14 @@ import { cn } from "@/lib/utils"
  * Semuanya agregat; tidak ada nama peserta di layar ini. Yang per orang ada
  * di layar Pelacakan, tempat pengajar memang perlu tahu siapa yang tertinggal.
  */
-export function CourseDropoff({ data }: { data: CourseDropoffData }) {
+export async function CourseDropoff({ data }: { data: CourseDropoffData }) {
+  const { t } = await getTranslations()
   if (!data.ready) {
     return (
       <div className="mt-8 rounded-xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-        Analisis titik berhenti belum aktif: fungsi <code>admin_course_dropoff</code> belum ada di
-        basis data. Jalankan{" "}
-        <code>supabase/migrations/20261101130000_course_dropoff.sql</code> di SQL Editor Supabase.
+        {t.insight.dropoffNotReadyPrefix} <code>admin_course_dropoff</code>{" "}
+        {t.insight.notReadyMiddle}{" "}
+        <code>supabase/migrations/20261101130000_course_dropoff.sql</code> {t.insight.notReadyEnd}
       </div>
     )
   }
@@ -39,29 +41,29 @@ export function CourseDropoff({ data }: { data: CourseDropoffData }) {
   return (
     <div className="mt-8 space-y-4">
       <div>
-        <h2 className="text-lg font-bold">Di mana peserta berhenti</h2>
+        <h2 className="text-lg font-bold">{t.insight.dropoffTitle}</h2>
         <p className="text-sm text-muted-foreground">
-          Dihitung dari penyelesaian pelajaran yang memang sudah dicatat untuk menjalankan kursus.
-          Dari {data.totalLearners} peserta terdaftar, {data.notStarted} belum menyelesaikan satu
-          pelajaran pun.
+          {t.insight.dropoffSubtitle
+            .replace("{total}", String(data.totalLearners))
+            .replace("{belum}", String(data.notStarted))}
         </p>
       </div>
 
       {highlightId && (
         <div className="rounded-xl border border-border bg-muted/30 p-4 text-sm">
-          Paling banyak berhenti di <strong>{worst.lessonTitle}</strong> — {worst.stalled} peserta
-          berhenti tepat di sini.
+          {t.insight.mostStopPrefix} <strong>{worst.lessonTitle}</strong>{" "}
+          {t.insight.mostStopSuffix.replace("{n}", String(worst.stalled))}
         </div>
       )}
 
       <div className="overflow-hidden rounded-xl border border-border">
-        <Table scrollLabel="Corong penyelesaian pelajaran, dapat digulir mendatar">
+        <Table scrollLabel={t.insight.scrollFunnel}>
           <TableHeader>
             <TableRow className="bg-muted/50 hover:bg-muted/50">
-              <TableHead>Pelajaran</TableHead>
-              <TableHead>Modul</TableHead>
-              <TableHead className="text-right">Selesai</TableHead>
-              <TableHead className="text-right">Berhenti di sini</TableHead>
+              <TableHead>{t.insight.colLesson}</TableHead>
+              <TableHead>{t.admin.colModule}</TableHead>
+              <TableHead className="text-right">{t.insight.colDone}</TableHead>
+              <TableHead className="text-right">{t.insight.colStalled}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

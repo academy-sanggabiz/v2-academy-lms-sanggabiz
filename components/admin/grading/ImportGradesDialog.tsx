@@ -14,11 +14,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { importGradesAction, type ImportGradesSummary } from "@/app/admin/grading/actions"
 
 export function ImportGradesDialog() {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [fileName, setFileName] = useState<string | null>(null)
@@ -47,7 +49,7 @@ export function ImportGradesDialog() {
 
   function processFile(file: File) {
     if (!file.name.toLowerCase().endsWith(".csv") && file.type !== "text/csv") {
-      toast.error("Pilih berkas CSV")
+      toast.error(t.grading.pickCsv)
       return
     }
 
@@ -63,7 +65,7 @@ export function ImportGradesDialog() {
       }
       setSummary(result.data)
       if (result.data.failedRows.length === 0) {
-        toast.success(`${result.data.gradedCount} percobaan dinilai`)
+        toast.success(t.grading.attemptsGraded.replace("{n}", String(result.data.gradedCount)))
       }
     })
   }
@@ -96,14 +98,13 @@ export function ImportGradesDialog() {
       }}
     >
       <DialogTrigger render={<Button variant="outline" />}>
-        Impor Nilai
+        {t.grading.importGrades}
       </DialogTrigger>
       <DialogContent className="max-w-[460px]">
         <DialogHeader>
-          <DialogTitle>Impor Nilai dari CSV</DialogTitle>
+          <DialogTitle>{t.grading.importTitle}</DialogTitle>
           <DialogDescription>
-            Unggah CSV yang diekspor dari halaman Penilaian ini (dengan nilai esai sudah diisi) untuk
-            menerapkan nilai sekaligus.
+            {t.grading.importDescription}
           </DialogDescription>
         </DialogHeader>
 
@@ -131,12 +132,12 @@ export function ImportGradesDialog() {
             <p className="text-sm font-medium">{fileName}</p>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Seret & lepas CSV di sini, atau <span className="font-medium text-foreground">klik untuk memilih berkas</span>
+              {t.grading.dropHere} <span className="font-medium text-foreground">{t.grading.clickToChoose}</span>
             </p>
           )}
           {isPending && (
             <p className="text-sm font-medium">
-              Mengimpor… Jangan tutup jendela ini sampai impor selesai.
+              {t.grading.importingDontClose}
             </p>
           )}
           <input
@@ -152,10 +153,10 @@ export function ImportGradesDialog() {
         <div role="status" aria-live="polite">
           {summary && (
             <div className="rounded-lg bg-muted p-3 text-sm">
-              <div>{summary.gradedCount} percobaan berhasil dinilai.</div>
+              <div>{t.grading.succeededSummary.replace("{n}", String(summary.gradedCount))}</div>
               {summary.failedRows.length > 0 && (
                 <div className="mt-2 text-destructive">
-                  {summary.failedRows.length} baris gagal:
+                  {t.grading.rowsFailed.replace("{n}", String(summary.failedRows.length))}
                   <ul className="mt-1 list-disc pl-4">
                     {summary.failedRows.map((r, i) => (
                       <li key={i}>
@@ -170,8 +171,8 @@ export function ImportGradesDialog() {
         </div>
 
         <DialogFooter>
-          <Button onClick={() => setOpen(false)} pending={isPending} pendingLabel="Mengimpor…">
-            Selesai
+          <Button onClick={() => setOpen(false)} pending={isPending} pendingLabel={t.grading.importing}>
+            {t.grading.done}
           </Button>
         </DialogFooter>
       </DialogContent>

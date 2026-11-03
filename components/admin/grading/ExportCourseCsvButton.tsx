@@ -4,6 +4,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 function filenameFromDisposition(header: string | null, fallback: string): string {
   const match = header?.match(/filename="([^"]+)"/)
@@ -16,6 +17,7 @@ function filenameFromDisposition(header: string | null, fallback: string): strin
  * fetch the CSV here and hand it to the browser once it has actually arrived.
  */
 export function ExportCourseCsvButton({ courseId }: { courseId: string }) {
+  const { t } = useI18n()
   const [isExporting, setIsExporting] = useState(false)
 
   async function handleExport() {
@@ -25,7 +27,7 @@ export function ExportCourseCsvButton({ courseId }: { courseId: string }) {
         `/admin/grading/export?courseId=${encodeURIComponent(courseId)}`
       )
       if (!response.ok) {
-        toast.error("Gagal mengekspor CSV. Muat ulang halaman, lalu coba lagi.")
+        toast.error(t.grading.exportFailedReload)
         return
       }
 
@@ -42,9 +44,9 @@ export function ExportCourseCsvButton({ courseId }: { courseId: string }) {
       link.remove()
       // Revoking in the same tick cancels the download in some browsers.
       setTimeout(() => URL.revokeObjectURL(url), 1000)
-      toast.success("CSV diunduh")
+      toast.success(t.grading.csvDownloaded)
     } catch {
-      toast.error("Gagal mengekspor CSV. Periksa koneksi Anda, lalu coba lagi.")
+      toast.error(t.grading.exportFailedNetwork)
     } finally {
       setIsExporting(false)
     }
@@ -55,9 +57,9 @@ export function ExportCourseCsvButton({ courseId }: { courseId: string }) {
       variant="outline"
       onClick={handleExport}
       pending={isExporting}
-      pendingLabel="Mengekspor…"
+      pendingLabel={t.grading.exporting}
     >
-      Ekspor CSV Kursus
+      {t.grading.exportCsv}
     </Button>
   )
 }

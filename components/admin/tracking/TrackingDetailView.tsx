@@ -2,21 +2,28 @@ import { CheckCircle2, Circle } from "lucide-react"
 
 import type { TrackingDetail } from "@/lib/tracking-server"
 import { Badge } from "@/components/ui/badge"
+import { getTranslations } from "@/lib/i18n/server"
+import type { Dictionary } from "@/lib/i18n/dictionaries"
+import type { Locale } from "@/lib/i18n/config"
 
-function formatDate(iso: string | null): string {
-  if (!iso) return "—"
-  return new Date(iso).toLocaleDateString("id-ID", { month: "short", day: "numeric", year: "numeric" })
+function formatDate(iso: string | null, locale: Locale): string {
+  if (!iso) return "\u2014"
+  return new Date(iso).toLocaleDateString(locale === "en" ? "en-US" : "id-ID", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })
 }
 
-function QuizStatusBadge({ quiz }: { quiz: TrackingDetail["quizzes"][number] }) {
+function QuizStatusBadge({ quiz, t }: { quiz: TrackingDetail["quizzes"][number]; t: Dictionary }) {
   if (quiz.status === "not_started") {
-    return <Badge variant="outline">Belum dimulai</Badge>
+    return <Badge variant="outline">{t.insight.badgeNotStarted}</Badge>
   }
   if (quiz.status === "in_progress") {
-    return <Badge variant="outline">Sedang dikerjakan</Badge>
+    return <Badge variant="outline">{t.insight.badgeInProgress}</Badge>
   }
   if (quiz.status === "pending_review") {
-    return <Badge className="bg-draft-background text-foreground">Menunggu penilaian</Badge>
+    return <Badge className="bg-draft-background text-foreground">{t.insight.badgePendingReview}</Badge>
   }
   return (
     <Badge
@@ -26,12 +33,13 @@ function QuizStatusBadge({ quiz }: { quiz: TrackingDetail["quizzes"][number] }) 
           : "bg-destructive/10 text-destructive"
       }
     >
-      {quiz.passed ? "Lulus" : "Belum lulus"}
+      {quiz.passed ? t.insight.badgePassed : t.insight.badgeNotPassed}
     </Badge>
   )
 }
 
-export function TrackingDetailView({ detail }: { detail: TrackingDetail }) {
+export async function TrackingDetailView({ detail }: { detail: TrackingDetail }) {
+  const { locale, t } = await getTranslations()
   const sections = new Map<string, typeof detail.lessons>()
   for (const lesson of detail.lessons) {
     const list = sections.get(lesson.sectionTitle) ?? []
@@ -47,23 +55,23 @@ export function TrackingDetailView({ detail }: { detail: TrackingDetail }) {
         <p className="mt-1 text-sm font-medium">{detail.courseTitle}</p>
         <div className="mt-4 flex gap-6 text-sm">
           <div>
-            <div className="text-muted-foreground">Penyelesaian Modul</div>
+            <div className="text-muted-foreground">{t.insight.moduleCompletion}</div>
             <div className="text-lg font-bold">{detail.modulePct}%</div>
           </div>
           <div>
             {/* Lihat catatan di TrackingListClient: ini keikutsertaan kuis,
                 bukan kelulusannya. */}
-            <div className="text-muted-foreground">Tugas dikerjakan</div>
+            <div className="text-muted-foreground">{t.insight.tasksDoneLabel}</div>
             <div className="text-lg font-bold">{detail.assignmentPct}%</div>
-            <div className="text-xs text-muted-foreground">kuis terkirim, lulus atau tidak</div>
+            <div className="text-xs text-muted-foreground">{t.insight.submittedNote}</div>
           </div>
         </div>
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="mb-4 text-sm font-semibold">Modul</h2>
+        <h2 className="mb-4 text-sm font-semibold">{t.insight.moduleHead}</h2>
         {sections.size === 0 ? (
-          <p className="text-sm text-muted-foreground">Belum ada pelajaran di kursus ini.</p>
+          <p className="text-sm text-muted-foreground">{t.insight.noLessons}</p>
         ) : (
           <div className="flex flex-col gap-4">
             {[...sections.entries()].map(([sectionTitle, lessons]) => (
@@ -88,16 +96,16 @@ export function TrackingDetailView({ detail }: { detail: TrackingDetail }) {
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="mb-4 text-sm font-semibold">Kuis</h2>
+        <h2 className="mb-4 text-sm font-semibold">{t.insight.quizzesHead}</h2>
         {detail.quizzes.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Kursus ini tidak memiliki kuis.</p>
+          <p className="text-sm text-muted-foreground">{t.insight.noQuizzesHere}</p>
         ) : (
           <div className="overflow-hidden rounded-xl border border-border">
             <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-3 border-b border-border bg-muted/50 px-3 py-2.5 text-sm font-semibold text-muted-foreground">
-              <div>Kuis</div>
-              <div>Status</div>
-              <div>Nilai</div>
-              <div>Dikirim</div>
+              <div>{t.admin.colQuiz}</div>
+              <div>{t.admin.colStatus}</div>
+              <div>{t.insight.colScore}</div>
+              <div>{t.insight.colSubmitted}</div>
             </div>
             {detail.quizzes.map((quiz) => (
               <div
@@ -106,10 +114,10 @@ export function TrackingDetailView({ detail }: { detail: TrackingDetail }) {
               >
                 <div className="min-w-0 truncate font-medium">{quiz.quizTitle}</div>
                 <div>
-                  <QuizStatusBadge quiz={quiz} />
+                  <QuizStatusBadge quiz={quiz} t={t} />
                 </div>
                 <div className="text-muted-foreground">{quiz.score !== null ? quiz.score : "—"}</div>
-                <div className="text-muted-foreground">{formatDate(quiz.submittedAt)}</div>
+                <div className="text-muted-foreground">{formatDate(quiz.submittedAt, locale)}</div>
               </div>
             ))}
           </div>

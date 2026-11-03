@@ -3,6 +3,7 @@ import { AlertTriangle, CheckCircle2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import type { LearnerDifficulty as Row } from "@/lib/insight-server"
+import { getTranslations } from "@/lib/i18n/server"
 
 /**
  * Pertanyaannya saja, sebagai teks biasa.
@@ -38,15 +39,13 @@ function pertanyaan(html: string): string {
  *    tujuh percobaan terbaca semeyakinkan persentase dari tujuh ratus;
  *    pecahannya menunjukkan sendiri kapan angkanya belum berarti.
  */
-export function LearnerDifficulty({ rows, courseId }: { rows: Row[]; courseId: string }) {
+export async function LearnerDifficulty({ rows, courseId }: { rows: Row[]; courseId: string }) {
+  const { t } = await getTranslations()
   if (rows.length === 0) {
     return (
       <section className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="mb-1 text-sm font-semibold">Titik kesulitan</h2>
-        <p className="text-sm text-muted-foreground">
-          Belum ada soal yang dijawab salah. Titik kesulitan muncul di sini setelah peserta
-          mengerjakan kuis.
-        </p>
+        <h2 className="mb-1 text-sm font-semibold">{t.insight.difficultyTitle}</h2>
+        <p className="text-sm text-muted-foreground">{t.insight.difficultyEmpty}</p>
       </section>
     )
   }
@@ -55,15 +54,15 @@ export function LearnerDifficulty({ rows, courseId }: { rows: Row[]; courseId: s
 
   return (
     <section className="rounded-2xl border border-border bg-card p-5">
-      <h2 className="mb-1 text-sm font-semibold">Titik kesulitan</h2>
+      <h2 className="mb-1 text-sm font-semibold">{t.insight.difficultyTitle}</h2>
       <p className="mb-4 text-sm text-muted-foreground">
         {belumDikuasai.length > 0 ? (
           <>
-            <strong>{belumDikuasai.length} soal</strong> masih belum dikuasai. Tiap baris menautkan
-            ke pelajaran yang mengajarkannya.
+            <strong>{t.insight.nUnmastered.replace("{n}", String(belumDikuasai.length))}</strong>{" "}
+            {t.insight.unmasteredRest}
           </>
         ) : (
-          <>Semua soal yang sempat salah akhirnya dijawab benar.</>
+          <>{t.insight.allMastered}</>
         )}
       </p>
 
@@ -86,9 +85,9 @@ export function LearnerDifficulty({ rows, courseId }: { rows: Row[]; courseId: s
                 <p className="text-sm">{pertanyaan(r.prompt)}</p>
                 <p className="mt-1.5 text-xs text-muted-foreground">
                   <span className={cn("font-semibold", !r.akhirnyaBenar && "text-destructive")}>
-                    Salah {r.salah} dari {r.dijawab} kali
+                    {t.insight.wrongOf.replace("{salah}", String(r.salah)).replace("{total}", String(r.dijawab))}
                   </span>
-                  {r.akhirnyaBenar && " · akhirnya dijawab benar"}
+                  {r.akhirnyaBenar && ` · ${t.insight.finallyCorrect}`}
                   {" · "}
                   {r.sectionTitle}
                 </p>
@@ -100,7 +99,7 @@ export function LearnerDifficulty({ rows, courseId }: { rows: Row[]; courseId: s
                   href={`/admin/courses/preview/${courseId}?lesson=${r.lessonId}`}
                   className="mt-1.5 inline-block text-xs font-semibold text-ring underline-offset-2 hover:underline"
                 >
-                  Buka pelajaran: {r.lessonTitle}
+                  {t.insight.openLesson.replace("{judul}", r.lessonTitle)}
                 </Link>
               </div>
             </div>

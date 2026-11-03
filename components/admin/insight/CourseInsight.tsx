@@ -1,5 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import type { QuestionDifficulty, QuizEffort } from "@/lib/insight-server"
+import { getTranslations } from "@/lib/i18n/server"
 
 /** Membuang tag HTML dari prompt soal supaya aman tampil sebagai teks biasa. */
 function plainText(html: string): string {
@@ -15,34 +16,34 @@ function plainText(html: string): string {
  * sulit", dan itu pertanyaan tentang materinya. Melihat per orang tersedia di
  * layar Pelacakan, di mana memang ada keperluannya.
  */
-export function CourseInsight({
+export async function CourseInsight({
   questions,
   effort,
 }: {
   questions: QuestionDifficulty[]
   effort: QuizEffort[]
 }) {
+  const { t } = await getTranslations()
   const answered = questions.filter((q) => q.answered > 0)
   if (answered.length === 0 && effort.length === 0) return null
 
   return (
     <div className="mt-8 space-y-6">
       <div>
-        <h2 className="text-lg font-bold">Di mana peserta kesulitan</h2>
+        <h2 className="text-lg font-bold">{t.insight.strugglesTitle}</h2>
         <p className="text-sm text-muted-foreground">
-          Dihitung dari jawaban yang sudah masuk, digabung lintas peserta. Soal yang belum
-          pernah dijawab tidak ditampilkan.
+          {t.insight.strugglesSubtitle}
         </p>
       </div>
 
       {answered.length > 0 && (
         <div className="overflow-hidden rounded-xl border border-border">
-          <Table scrollLabel="Soal tersulit, dapat digulir mendatar">
+          <Table scrollLabel={t.insight.scrollHardest}>
             <TableHeader>
               <TableRow className="bg-muted/50 hover:bg-muted/50">
-                <TableHead>Soal</TableHead>
-                <TableHead>Pelajaran</TableHead>
-                <TableHead>Benar</TableHead>
+                <TableHead>{t.insight.colQuestion}</TableHead>
+                <TableHead>{t.insight.colLesson}</TableHead>
+                <TableHead>{t.insight.colCorrect}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -58,7 +59,7 @@ export function CourseInsight({
                   <TableCell className="text-muted-foreground">
                     {q.correctPct}%
                     <span className="block text-xs">
-                      {q.correct} dari {q.answered} jawaban
+                      {t.insight.ofAnswers.replace("{benar}", String(q.correct)).replace("{total}", String(q.answered))}
                     </span>
                   </TableCell>
                 </TableRow>
@@ -71,21 +72,20 @@ export function CourseInsight({
       {effort.length > 0 && (
         <>
           <div>
-            <h2 className="text-lg font-bold">Seberapa berat kuisnya</h2>
+            <h2 className="text-lg font-bold">{t.insight.effortTitle}</h2>
             <p className="text-sm text-muted-foreground">
-              Percobaan tidak dibatasi, jadi angka ini menunjukkan berapa kali peserta perlu
-              mengulang sampai paham — bukan berapa kali ia boleh mencoba.
+              {t.insight.effortSubtitle}
             </p>
           </div>
           <div className="overflow-hidden rounded-xl border border-border">
-            <Table scrollLabel="Beban kuis, dapat digulir mendatar">
+            <Table scrollLabel={t.insight.scrollEffort}>
               <TableHeader>
                 <TableRow className="bg-muted/50 hover:bg-muted/50">
-                  <TableHead>Kuis</TableHead>
-                  <TableHead>Lulus</TableHead>
-                  <TableHead>Percobaan sampai lulus</TableHead>
-                  <TableHead>Nilai percobaan pertama</TableHead>
-                  <TableHead>Nilai terbaik</TableHead>
+                  <TableHead>{t.admin.colQuiz}</TableHead>
+                  <TableHead>{t.insight.colPassed}</TableHead>
+                  <TableHead>{t.insight.colAttemptsToPass}</TableHead>
+                  <TableHead>{t.insight.colFirstScore}</TableHead>
+                  <TableHead>{t.insight.colBestScore}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -93,14 +93,14 @@ export function CourseInsight({
                   <TableRow key={e.quizId} className="text-sm">
                     <TableCell className="font-semibold">{e.lessonTitle}</TableCell>
                     <TableCell className="text-muted-foreground">
-                      {e.passed} dari {e.learners}
-                      <span className="block text-xs">{e.attempts} percobaan seluruhnya</span>
+                      {t.insight.passedOf.replace("{lulus}", String(e.passed)).replace("{total}", String(e.learners))}
+                      <span className="block text-xs">{t.insight.attemptsTotal.replace("{n}", String(e.attempts))}</span>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {/* Tanda pisah, bukan nol: belum ada yang lulus bukan berarti nol kali. */}
                       {e.avgAttemptsToPass === null ? "—" : `${e.avgAttemptsToPass}×`}
                       <span className="block text-xs">
-                        {e.avgAttemptsToPass === null ? "belum ada yang lulus" : "rata-rata"}
+                        {e.avgAttemptsToPass === null ? t.insight.nonePassed : t.insight.average}
                       </span>
                     </TableCell>
                     <TableCell className="text-muted-foreground">

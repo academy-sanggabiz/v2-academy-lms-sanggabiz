@@ -6,6 +6,7 @@ import { LinkIcon } from "lucide-react"
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 import { getAttemptSubmissionAction } from "@/app/admin/grading/actions"
 import type { AttemptSubmissionResponse } from "@/lib/grading-server"
 
@@ -34,6 +35,7 @@ export function SubmissionPreviewDialog({
   quizTitle: string
   learnerName: string
 }) {
+  const { t } = useI18n()
   const [responses, setResponses] = useState<AttemptSubmissionResponse[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -74,7 +76,7 @@ export function SubmissionPreviewDialog({
               <div className="h-20 animate-pulse rounded-lg bg-muted" />
             </div>
           ) : responses.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Tidak ada kiriman</p>
+            <p className="text-sm text-muted-foreground">{t.grading.noSubmission}</p>
           ) : (
             responses.map((response) => (
               <div key={response.questionId} className="flex flex-col gap-1.5">
@@ -92,10 +94,10 @@ export function SubmissionPreviewDialog({
                       className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3.5 py-2.5 text-sm font-medium text-ring underline underline-offset-4"
                     >
                       <LinkIcon className="size-4 shrink-0" />
-                      Buka tautan yang dikirim
+                      {t.grading.openSubmittedLink}
                     </a>
                   ) : (
-                    <p className="text-sm text-muted-foreground">Tidak ada kiriman</p>
+                    <p className="text-sm text-muted-foreground">{t.grading.noSubmission}</p>
                   )
                 ) : response.response ? (
                   <div
@@ -103,7 +105,7 @@ export function SubmissionPreviewDialog({
                     dangerouslySetInnerHTML={{ __html: sanitize(response.response) }}
                   />
                 ) : (
-                  <p className="text-sm text-muted-foreground">Tidak ada kiriman</p>
+                  <p className="text-sm text-muted-foreground">{t.grading.noSubmission}</p>
                 )}
               </div>
             ))
@@ -112,7 +114,7 @@ export function SubmissionPreviewDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Tutup
+            {t.grading.close}
           </Button>
         </DialogFooter>
       </DialogContent>

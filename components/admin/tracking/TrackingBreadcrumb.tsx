@@ -17,7 +17,7 @@ export async function TrackingBreadcrumb({
         className="flex items-center gap-1 font-medium text-foreground hover:underline"
       >
         <ChevronLeft className="size-4" />
-        Kembali
+        {t.insight.back}
       </Link>
       <div className="flex flex-wrap items-center gap-1.5">
         <Link href="/admin/tracking" className="hover:text-foreground hover:underline">

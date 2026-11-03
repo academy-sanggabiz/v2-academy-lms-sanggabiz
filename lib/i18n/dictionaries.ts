@@ -220,6 +220,149 @@ export type Dictionary = {
     whoSees: string
     withdrawal: string
   }
+  grading: {
+    backToGrading: string
+    attemptsPendingReview: string
+    matrixSubtitle: string
+    searchCourses: string
+    searchLearners: string
+    colAttempts: string
+    open: string
+    noCourseMatches: string
+    courseGradeCol: string
+    noQuizzes: string
+    savingGrades: string
+    /** `{maks}` poin maksimum. */
+    pointsRange: string
+    /** `{n}` jumlah percobaan. */
+    attemptsGraded: string
+    saveFailedAll: string
+    /** `{gagal}` dan `{total}` diganti angka. */
+    saveFailedSome: string
+    /** `{n}` jumlah percobaan. */
+    succeededSummary: string
+    /** `{n}` jumlah percobaan. */
+    failedSummary: string
+    noSubmission: string
+    pendingShort: string
+    /** `{n}` jumlah sel yang menunggu. */
+    pendingCount: string
+    provisionalTitle: string
+    /** `{nama}` peserta, `{kuis}` judul kuis. */
+    gradeAria: string
+    /** `{i}` nomor soal, `{nama}` peserta, `{maks}` poin maksimum. */
+    pointsAria: string
+    previewSubmission: string
+    taskInfo: string
+    /** `{n}` persen. */
+    passScore: string
+    /** `{n}` bobot. */
+    weightInGrade: string
+    untitledQuestion: string
+    /** `{n}` jumlah tambahan. */
+    moreCount: string
+    exportCsv: string
+    exporting: string
+    csvDownloaded: string
+    exportFailedReload: string
+    exportFailedNetwork: string
+    importGrades: string
+    importTitle: string
+    importDescription: string
+    pickCsv: string
+    dropHere: string
+    clickToChoose: string
+    importing: string
+    importingDontClose: string
+    /** `{n}` jumlah baris. */
+    rowsFailed: string
+    done: string
+    close: string
+    openSubmittedLink: string
+  }
+  insight: {
+    back: string
+    dropoffTitle: string
+    /** `{total}` peserta terdaftar, `{belum}` yang belum mulai. */
+    dropoffSubtitle: string
+    mostStopPrefix: string
+    /** `{n}` jumlah peserta. */
+    mostStopSuffix: string
+    scrollFunnel: string
+    colLesson: string
+    colDone: string
+    colStalled: string
+    dropoffNotReadyPrefix: string
+    behaviorNotReadyPrefix: string
+    notReadyMiddle: string
+    notReadyEnd: string
+    strugglesTitle: string
+    strugglesSubtitle: string
+    scrollHardest: string
+    colQuestion: string
+    colCorrect: string
+    /** `{benar}` dan `{total}`. */
+    ofAnswers: string
+    effortTitle: string
+    effortSubtitle: string
+    scrollEffort: string
+    colPassed: string
+    colAttemptsToPass: string
+    colFirstScore: string
+    colBestScore: string
+    /** `{lulus}` dan `{total}`. */
+    passedOf: string
+    /** `{n}` jumlah percobaan. */
+    attemptsTotal: string
+    nonePassed: string
+    average: string
+    behaviorTitle: string
+    consentPrefix: string
+    /** `{total}` seluruh peserta. */
+    ofLearners: string
+    /** `{n}` yang menolak. */
+    declinedSuffix: string
+    /** `{n}` yang belum memutuskan. */
+    undecidedSuffix: string
+    consentTail: string
+    noConsentYet: string
+    noTimeYet: string
+    scrollStudyTime: string
+    colLearnersHead: string
+    colTotal: string
+    colAverage: string
+    /** `{n}` detik. */
+    seconds: string
+    /** `{n}` menit. */
+    minutes: string
+    /** `{j}` jam, `{m}` menit. */
+    hoursMinutes: string
+    moduleCompletion: string
+    tasksDoneLabel: string
+    submittedNote: string
+    moduleHead: string
+    noLessons: string
+    quizzesHead: string
+    noQuizzesHere: string
+    colScore: string
+    colSubmitted: string
+    badgeNotStarted: string
+    badgeInProgress: string
+    badgePendingReview: string
+    badgePassed: string
+    badgeNotPassed: string
+    difficultyTitle: string
+    difficultyEmpty: string
+    /** `{n}` jumlah soal. */
+    nUnmastered: string
+    unmasteredRest: string
+    allMastered: string
+    /** `{salah}` dan `{total}`. */
+    wrongOf: string
+    finallyCorrect: string
+    /** `{judul}` judul pelajaran. */
+    openLesson: string
+  }
   admin: {
     dashboard: string
     courses: string
@@ -612,6 +755,130 @@ const id: Dictionary = {
     whoSees: "Hanya superadmin Sanggabiz Academy, dan Anda sendiri.",
     withdrawal:
       "Anda boleh menolak sekarang dan tetap memakai seluruh fitur LMS tanpa terkecuali. Bila sudah menyetujui, Anda bisa menariknya kapan saja — pengumpulan langsung berhenti, dan Anda bisa menghapus data yang sudah terkumpul.",
+  },
+  grading: {
+    backToGrading: "Kembali ke Penilaian",
+    attemptsPendingReview: "Percobaan Menunggu Penilaian",
+    matrixSubtitle:
+      "Semua nilai kuis untuk kursus ini. Sel nilai otomatis hanya dapat dibaca, sel esai perlu dinilai.",
+    searchCourses: "Cari kursus...",
+    searchLearners: "Cari peserta...",
+    colAttempts: "Percobaan",
+    open: "Buka",
+    noCourseMatches: "Tidak ada kursus yang cocok dengan pencarian Anda.",
+    courseGradeCol: "Nilai Kursus",
+    noQuizzes: "Kursus ini belum memiliki kuis.",
+    savingGrades: "Menyimpan nilai\u2026",
+    pointsRange: "Poin harus antara 0 dan {maks}",
+    attemptsGraded: "{n} percobaan dinilai",
+    saveFailedAll: "Gagal menyimpan nilai. Periksa rinciannya di atas tabel, lalu coba lagi.",
+    saveFailedSome:
+      "{gagal} dari {total} percobaan gagal dinilai. Periksa rinciannya di atas tabel, lalu coba lagi.",
+    succeededSummary: "{n} percobaan berhasil dinilai.",
+    failedSummary: "{n} percobaan gagal:",
+    noSubmission: "Tidak ada kiriman",
+    pendingShort: "menunggu",
+    pendingCount: "{n} menunggu",
+    provisionalTitle: "Sementara: hanya dari soal yang dinilai otomatis",
+    gradeAria: "Nilai {nama} untuk {kuis} (0-100)",
+    pointsAria: "Poin soal {i} untuk {nama} (maks. {maks})",
+    previewSubmission: "Pratinjau kiriman",
+    taskInfo: "Info tugas",
+    passScore: "Nilai lulus: {n}%",
+    weightInGrade: "Bobot {n}\u00D7 dalam nilai kursus",
+    untitledQuestion: "Soal tanpa judul",
+    moreCount: "+{n} lainnya",
+    exportCsv: "Ekspor CSV Kursus",
+    exporting: "Mengekspor\u2026",
+    csvDownloaded: "CSV diunduh",
+    exportFailedReload: "Gagal mengekspor CSV. Muat ulang halaman, lalu coba lagi.",
+    exportFailedNetwork: "Gagal mengekspor CSV. Periksa koneksi Anda, lalu coba lagi.",
+    importGrades: "Impor Nilai",
+    importTitle: "Impor Nilai dari CSV",
+    importDescription:
+      "Unggah CSV yang diekspor dari halaman Penilaian ini (dengan nilai esai sudah diisi) untuk menerapkan nilai sekaligus.",
+    pickCsv: "Pilih berkas CSV",
+    dropHere: "Seret & lepas CSV di sini, atau",
+    clickToChoose: "klik untuk memilih berkas",
+    importing: "Mengimpor\u2026",
+    importingDontClose: "Mengimpor\u2026 Jangan tutup jendela ini sampai impor selesai.",
+    rowsFailed: "{n} baris gagal:",
+    done: "Selesai",
+    close: "Tutup",
+    openSubmittedLink: "Buka tautan yang dikirim",
+  },
+  insight: {
+    back: "Kembali",
+    dropoffTitle: "Di mana peserta berhenti",
+    dropoffSubtitle:
+      "Dihitung dari penyelesaian pelajaran yang memang sudah dicatat untuk menjalankan kursus. Dari {total} peserta terdaftar, {belum} belum menyelesaikan satu pelajaran pun.",
+    mostStopPrefix: "Paling banyak berhenti di",
+    mostStopSuffix: "\u2014 {n} peserta berhenti tepat di sini.",
+    scrollFunnel: "Corong penyelesaian pelajaran, dapat digulir mendatar",
+    colLesson: "Pelajaran",
+    colDone: "Selesai",
+    colStalled: "Berhenti di sini",
+    dropoffNotReadyPrefix: "Analisis titik berhenti belum aktif: fungsi",
+    behaviorNotReadyPrefix: "Pelacakan perilaku belum aktif: fungsi",
+    notReadyMiddle: "belum ada di basis data. Jalankan",
+    notReadyEnd: "di SQL Editor Supabase.",
+    strugglesTitle: "Di mana peserta kesulitan",
+    strugglesSubtitle:
+      "Dihitung dari jawaban yang sudah masuk, digabung lintas peserta. Soal yang belum pernah dijawab tidak ditampilkan.",
+    scrollHardest: "Soal tersulit, dapat digulir mendatar",
+    colQuestion: "Soal",
+    colCorrect: "Benar",
+    ofAnswers: "{benar} dari {total} jawaban",
+    effortTitle: "Seberapa berat kuisnya",
+    effortSubtitle:
+      "Percobaan tidak dibatasi, jadi angka ini menunjukkan berapa kali peserta perlu mengulang sampai paham \u2014 bukan berapa kali ia boleh mencoba.",
+    scrollEffort: "Beban kuis, dapat digulir mendatar",
+    colPassed: "Lulus",
+    colAttemptsToPass: "Percobaan sampai lulus",
+    colFirstScore: "Nilai percobaan pertama",
+    colBestScore: "Nilai terbaik",
+    passedOf: "{lulus} dari {total}",
+    attemptsTotal: "{n} percobaan seluruhnya",
+    nonePassed: "belum ada yang lulus",
+    average: "rata-rata",
+    behaviorTitle: "Lama belajar",
+    consentPrefix: "Dicatat hanya untuk peserta yang menyetujuinya:",
+    ofLearners: "dari {total} peserta",
+    declinedSuffix: "({n} menolak)",
+    undecidedSuffix: ", {n} belum memutuskan",
+    consentTail: "Angka di bawah karena itu menggambarkan kelompok itu saja, bukan seluruh peserta.",
+    noConsentYet: "Belum ada peserta yang menyetujui pencatatan, jadi belum ada yang bisa ditampilkan.",
+    noTimeYet: "Belum ada waktu belajar yang tercatat.",
+    scrollStudyTime: "Lama belajar per kursus, dapat digulir mendatar",
+    colLearnersHead: "Peserta",
+    colTotal: "Total",
+    colAverage: "Rata-rata",
+    seconds: "{n} detik",
+    minutes: "{n} menit",
+    hoursMinutes: "{j} jam {m} menit",
+    moduleCompletion: "Penyelesaian Modul",
+    tasksDoneLabel: "Tugas dikerjakan",
+    submittedNote: "kuis terkirim, lulus atau tidak",
+    moduleHead: "Modul",
+    noLessons: "Belum ada pelajaran di kursus ini.",
+    quizzesHead: "Kuis",
+    noQuizzesHere: "Kursus ini tidak memiliki kuis.",
+    colScore: "Nilai",
+    colSubmitted: "Dikirim",
+    badgeNotStarted: "Belum dimulai",
+    badgeInProgress: "Sedang dikerjakan",
+    badgePendingReview: "Menunggu penilaian",
+    badgePassed: "Lulus",
+    badgeNotPassed: "Belum lulus",
+    difficultyTitle: "Titik kesulitan",
+    difficultyEmpty:
+      "Belum ada soal yang dijawab salah. Titik kesulitan muncul di sini setelah peserta mengerjakan kuis.",
+    nUnmastered: "{n} soal",
+    unmasteredRest: "masih belum dikuasai. Tiap baris menautkan ke pelajaran yang mengajarkannya.",
+    allMastered: "Semua soal yang sempat salah akhirnya dijawab benar.",
+    wrongOf: "Salah {salah} dari {total} kali",
+    finallyCorrect: "akhirnya dijawab benar",
+    openLesson: "Buka pelajaran: {judul}",
   },
   admin: {
     dashboard: "Dashboard",
@@ -1016,6 +1283,130 @@ const en: Dictionary = {
     whoSees: "Only Sanggabiz Academy superadmins, and you.",
     withdrawal:
       "You may decline now and still use every feature of the LMS without exception. If you have agreed, you can withdraw at any time — recording stops immediately, and you can delete what has already been collected.",
+  },
+  grading: {
+    backToGrading: "Back to Grading",
+    attemptsPendingReview: "Attempts Pending Review",
+    matrixSubtitle:
+      "All quiz grades for this course. Auto-graded cells are read-only; essay cells need grading.",
+    searchCourses: "Search courses...",
+    searchLearners: "Search learners...",
+    colAttempts: "Attempts",
+    open: "Open",
+    noCourseMatches: "No course matches your search.",
+    courseGradeCol: "Course Grade",
+    noQuizzes: "This course has no quizzes yet.",
+    savingGrades: "Saving grades\u2026",
+    pointsRange: "Points must be between 0 and {maks}",
+    attemptsGraded: "{n} attempts graded",
+    saveFailedAll: "Could not save grades. Check the details above the table, then try again.",
+    saveFailedSome:
+      "{gagal} of {total} attempts could not be graded. Check the details above the table, then try again.",
+    succeededSummary: "{n} attempts graded successfully.",
+    failedSummary: "{n} attempts failed:",
+    noSubmission: "No submission",
+    pendingShort: "pending",
+    pendingCount: "{n} pending",
+    provisionalTitle: "Provisional: auto-graded questions only",
+    gradeAria: "Grade for {nama} on {kuis} (0-100)",
+    pointsAria: "Points for question {i}, {nama} (max {maks})",
+    previewSubmission: "Preview submission",
+    taskInfo: "Assignment info",
+    passScore: "Passing score: {n}%",
+    weightInGrade: "Weight {n}\u00D7 in the course grade",
+    untitledQuestion: "Untitled question",
+    moreCount: "+{n} more",
+    exportCsv: "Export Course CSV",
+    exporting: "Exporting\u2026",
+    csvDownloaded: "CSV downloaded",
+    exportFailedReload: "Could not export the CSV. Reload the page, then try again.",
+    exportFailedNetwork: "Could not export the CSV. Check your connection, then try again.",
+    importGrades: "Import Grades",
+    importTitle: "Import Grades from CSV",
+    importDescription:
+      "Upload the CSV exported from this Grading page (with essay grades filled in) to apply grades in one go.",
+    pickCsv: "Choose a CSV file",
+    dropHere: "Drag & drop a CSV here, or",
+    clickToChoose: "click to choose a file",
+    importing: "Importing\u2026",
+    importingDontClose: "Importing\u2026 Do not close this window until the import finishes.",
+    rowsFailed: "{n} rows failed:",
+    done: "Done",
+    close: "Close",
+    openSubmittedLink: "Open the submitted link",
+  },
+  insight: {
+    back: "Back",
+    dropoffTitle: "Where learners stop",
+    dropoffSubtitle:
+      "Computed from the lesson completions already recorded to run the course. Of {total} enrolled learners, {belum} have not completed a single lesson.",
+    mostStopPrefix: "Most stop at",
+    mostStopSuffix: "\u2014 {n} learners stopped exactly here.",
+    scrollFunnel: "Lesson completion funnel, scrolls horizontally",
+    colLesson: "Lesson",
+    colDone: "Completed",
+    colStalled: "Stopped here",
+    dropoffNotReadyPrefix: "Drop-off analysis is not active yet: the function",
+    behaviorNotReadyPrefix: "Behaviour tracking is not active yet: the function",
+    notReadyMiddle: "does not exist in the database. Run",
+    notReadyEnd: "in the Supabase SQL Editor.",
+    strugglesTitle: "Where learners struggle",
+    strugglesSubtitle:
+      "Computed from the answers submitted so far, aggregated across learners. Questions never answered are not shown.",
+    scrollHardest: "Hardest questions, scrolls horizontally",
+    colQuestion: "Question",
+    colCorrect: "Correct",
+    ofAnswers: "{benar} of {total} answers",
+    effortTitle: "How demanding the quizzes are",
+    effortSubtitle:
+      "Attempts are unlimited, so these numbers show how many tries learners needed to understand \u2014 not how many they were allowed.",
+    scrollEffort: "Quiz effort, scrolls horizontally",
+    colPassed: "Passed",
+    colAttemptsToPass: "Attempts to pass",
+    colFirstScore: "First-attempt score",
+    colBestScore: "Best score",
+    passedOf: "{lulus} of {total}",
+    attemptsTotal: "{n} attempts in total",
+    nonePassed: "no one has passed yet",
+    average: "average",
+    behaviorTitle: "Study time",
+    consentPrefix: "Recorded only for learners who agreed to it:",
+    ofLearners: "of {total} learners",
+    declinedSuffix: "({n} declined)",
+    undecidedSuffix: ", {n} undecided",
+    consentTail: "The numbers below therefore describe that group only, not every learner.",
+    noConsentYet: "No learner has agreed to tracking yet, so there is nothing to show.",
+    noTimeYet: "No study time has been recorded yet.",
+    scrollStudyTime: "Study time per course, scrolls horizontally",
+    colLearnersHead: "Learners",
+    colTotal: "Total",
+    colAverage: "Average",
+    seconds: "{n} seconds",
+    minutes: "{n} minutes",
+    hoursMinutes: "{j} h {m} min",
+    moduleCompletion: "Module Completion",
+    tasksDoneLabel: "Tasks attempted",
+    submittedNote: "quizzes submitted, passed or not",
+    moduleHead: "Modules",
+    noLessons: "This course has no lessons yet.",
+    quizzesHead: "Quizzes",
+    noQuizzesHere: "This course has no quizzes.",
+    colScore: "Score",
+    colSubmitted: "Submitted",
+    badgeNotStarted: "Not started",
+    badgeInProgress: "In progress",
+    badgePendingReview: "Awaiting grading",
+    badgePassed: "Passed",
+    badgeNotPassed: "Not passed",
+    difficultyTitle: "Difficulty spots",
+    difficultyEmpty:
+      "No question has been answered incorrectly yet. Difficulty spots appear here once the learner takes quizzes.",
+    nUnmastered: "{n} questions",
+    unmasteredRest: "are still not mastered. Each row links to the lesson that teaches it.",
+    allMastered: "Every question once answered wrong was eventually answered correctly.",
+    wrongOf: "Wrong {salah} of {total} times",
+    finallyCorrect: "eventually answered correctly",
+    openLesson: "Open lesson: {judul}",
   },
   admin: {
     dashboard: "Dashboard",
