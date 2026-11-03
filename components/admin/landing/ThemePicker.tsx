@@ -16,6 +16,7 @@ import {
   type LandingTheme,
 } from "@/lib/landing-theme"
 import { cn } from "@/lib/utils"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 /**
  * Pemilih warna halaman depan.
@@ -28,15 +29,16 @@ import { cn } from "@/lib/utils"
  * tidak bisa membaca.
  */
 export function ThemePicker({ initialTheme }: { initialTheme: LandingTheme }) {
+  const { t } = useI18n()
   const [theme, setTheme] = useState(initialTheme)
   const [pending, startTransition] = useTransition()
 
   const check = checkTheme(theme)
 
   const ratios = [
-    { label: "Teks di atas latar", value: contrastRatio(theme.foreground, theme.surface) },
-    { label: "Teks putih di tombol", value: contrastRatio("#ffffff", theme.primary) },
-    { label: "Warna utama di atas putih", value: contrastRatio(theme.primary, "#ffffff") },
+    { label: t.superadmin.contrastTextOnSurface, value: contrastRatio(theme.foreground, theme.surface) },
+    { label: t.superadmin.contrastWhiteOnButton, value: contrastRatio("#ffffff", theme.primary) },
+    { label: t.superadmin.contrastPrimaryOnWhite, value: contrastRatio(theme.primary, "#ffffff") },
   ]
 
   function save() {
@@ -46,16 +48,15 @@ export function ThemePicker({ initialTheme }: { initialTheme: LandingTheme }) {
         toast.error(result.error)
         return
       }
-      toast.success("Warna tersimpan")
+      toast.success(t.superadmin.colorsSaved)
     })
   }
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
-      <div className="mb-1 text-sm font-bold">Warna Halaman Depan</div>
+      <div className="mb-1 text-sm font-bold">{t.superadmin.landingColors}</div>
       <p className="mb-4 text-xs text-muted-foreground">
-        Hanya memengaruhi halaman depan. Layar belajar dan layar pengelola tetap memakai palet
-        bawaan.
+        {t.superadmin.landingColorsDesc}
       </p>
 
       <div className="mb-5 flex flex-wrap gap-2">
@@ -92,9 +93,9 @@ export function ThemePicker({ initialTheme }: { initialTheme: LandingTheme }) {
       <div className="grid gap-4 sm:grid-cols-3">
         {(
           [
-            ["primary", "Warna utama"],
-            ["surface", "Latar lembut"],
-            ["foreground", "Warna teks"],
+            ["primary", t.superadmin.primaryColor],
+            ["surface", t.superadmin.softSurface],
+            ["foreground", t.superadmin.textColor],
           ] as const
         ).map(([key, label]) => (
           <div key={key} className="space-y-1.5">
@@ -105,7 +106,7 @@ export function ThemePicker({ initialTheme }: { initialTheme: LandingTheme }) {
                   warna merek. Keduanya menulis ke nilai yang sama. */}
               <input
                 type="color"
-                aria-label={`${label} (pemilih warna)`}
+                aria-label={t.superadmin.colorPickerAria.replace("{label}", label)}
                 value={theme[key]}
                 disabled={pending}
                 onChange={(e) => setTheme({ ...theme, [key]: e.target.value })}
@@ -131,7 +132,7 @@ export function ThemePicker({ initialTheme }: { initialTheme: LandingTheme }) {
               <dt className="text-xs text-muted-foreground">{label}</dt>
               <dd className={cn("text-sm font-bold", ok ? "text-success-foreground" : "text-destructive")}>
                 {value === null ? "—" : `${value.toFixed(2)}:1`}
-                <span className="ml-1 text-xs font-normal">{ok ? "lulus" : "minimal 4,5:1"}</span>
+                <span className="ml-1 text-xs font-normal">{ok ? t.superadmin.contrastPass : t.superadmin.contrastMin}</span>
               </dd>
             </div>
           )
@@ -149,9 +150,9 @@ export function ThemePicker({ initialTheme }: { initialTheme: LandingTheme }) {
         onClick={save}
         disabled={!check.ok}
         pending={pending}
-        pendingLabel="Menyimpan…"
+        pendingLabel={t.common.saving}
       >
-        Simpan Warna
+        {t.superadmin.saveColors}
       </Button>
     </div>
   )

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { StatusMessage } from "@/components/ui/status-message"
 import type { CertificateDefaults } from "@/lib/certificate-settings"
 import type { CourseCertificateSettings } from "@/lib/courses-admin"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 /**
  * Pratinjau sertifikat, dirender server sebagai PDF yang sama persis dengan
@@ -23,6 +24,7 @@ export function CertificatePreview({
   course?: Partial<CourseCertificateSettings> | null
   defaults: CertificateDefaults
 }) {
+  const { t } = useI18n()
   const [url, setUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -45,7 +47,7 @@ export function CertificatePreview({
         if (token !== latest.current) return
         if (!response.ok) {
           const data = await response.json().catch(() => null)
-          setError(data?.error ?? "Pratinjau gagal dibuat")
+          setError(data?.error ?? t.superadmin.certPreviewFailed)
           return
         }
         const blob = await response.blob()
@@ -56,7 +58,7 @@ export function CertificatePreview({
           return URL.createObjectURL(blob)
         })
       } catch {
-        if (token === latest.current) setError("Pratinjau gagal dibuat")
+        if (token === latest.current) setError(t.superadmin.certPreviewFailed)
       } finally {
         if (token === latest.current) setLoading(false)
       }
@@ -73,15 +75,14 @@ export function CertificatePreview({
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <div className="text-sm font-semibold">Pratinjau</div>
+          <div className="text-sm font-semibold">{t.superadmin.certPreviewHead}</div>
           <p className="text-xs text-muted-foreground">
-            Contoh hasil dengan data peserta sekadar contoh. Dirender memakai dokumen yang sama
-            dengan sertifikat yang benar-benar diterbitkan.
+            {t.superadmin.certPreviewDesc}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <span aria-live="polite" className="text-xs text-muted-foreground">
-            {loading ? "Memperbarui…" : ""}
+            {loading ? t.superadmin.updating : ""}
           </span>
           {url && (
             <Button
@@ -90,7 +91,7 @@ export function CertificatePreview({
               nativeButton={false}
               render={<a href={url} target="_blank" rel="noopener noreferrer" />}
             >
-              Buka di tab baru
+              {t.superadmin.openNewTab}
             </Button>
           )}
         </div>
@@ -100,10 +101,10 @@ export function CertificatePreview({
 
       <div className="overflow-hidden rounded-xl border border-border bg-muted/30">
         {url ? (
-          <iframe src={url} title="Pratinjau sertifikat" className="h-[420px] w-full" />
+          <iframe src={url} title={t.superadmin.certPreviewTitle} className="h-[420px] w-full" />
         ) : (
           <div className="flex h-[420px] items-center justify-center text-sm text-muted-foreground">
-            {error ? "Pratinjau tidak tersedia" : "Menyiapkan pratinjau…"}
+            {error ? t.superadmin.certPreviewUnavailable : t.superadmin.certPreviewPreparing}
           </div>
         )}
       </div>
@@ -113,8 +114,7 @@ export function CertificatePreview({
           dilihat, bukan hanya ketika kebetulan penampilnya tersedia. */}
       {url && (
         <p className="text-xs text-muted-foreground">
-          Bingkainya kosong? Browser Anda mungkin tidak menampilkan PDF di dalam halaman — pakai
-          &quot;Buka di tab baru&quot; untuk melihatnya.
+          {t.superadmin.certPreviewBlankHint}
         </p>
       )}
     </div>

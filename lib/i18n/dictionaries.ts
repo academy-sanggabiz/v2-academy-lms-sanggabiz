@@ -847,6 +847,137 @@ export type Dictionary = {
     enrolledToastOk: string
     enrollPending: string
   }
+  superadmin: {
+    mentorTitle: string
+    mentorSubtitle: string
+    mentorStat: string
+    publishedCourses: string
+    learnersReached: string
+    essaysPending: string
+    noBacklog: string
+    learnersWaiting: string
+    noMentors: string
+    noMentorsHint: string
+    scrollMentors: string
+    colMentor: string
+    colCompletion: string
+    colReviews: string
+    colPendingGrade: string
+    /** `{n}` kursus terbit. */
+    nPublished: string
+    /** `{n}` total kursus. */
+    ofNCourses: string
+    /** `{n}` pendaftaran. */
+    nEnrollments: string
+    noEnrollmentsYet: string
+    /** `{selesai}` dan `{total}`. */
+    completedOf: string
+    noReviewsYet: string
+    /** `{n}` ulasan. */
+    nReviews: string
+    /** `{nilai}` rata-rata, `{n}` jumlah ulasan. */
+    avgAllMentors: string
+    certDefaultsSaved: string
+    certDefaultsTitle: string
+    certDefaultsSubtitle: string
+    certDefaultsNotReady1: string
+    certDefaultsNotReady2: string
+    certDefaultsNotReady3: string
+    signatureImage: string
+    savePrefs: string
+    colorsSaved: string
+    landingColors: string
+    landingColorsDesc: string
+    primaryColor: string
+    softSurface: string
+    textColor: string
+    /** `{label}` nama warna. */
+    colorPickerAria: string
+    contrastTextOnSurface: string
+    contrastWhiteOnButton: string
+    contrastPrimaryOnWhite: string
+    contrastPass: string
+    contrastMin: string
+    saveColors: string
+    featuredCoursesAria: string
+    previewHead: string
+    deviceWidth: string
+    deviceDesktop: string
+    deviceTablet: string
+    devicePhone: string
+    reload: string
+    previewSavedNote: string
+    landingPreviewTitle: string
+    certPreviewFailed: string
+    certPreviewHead: string
+    certPreviewDesc: string
+    updating: string
+    openNewTab: string
+    certPreviewTitle: string
+    certPreviewUnavailable: string
+    certPreviewPreparing: string
+    certPreviewBlankHint: string
+    landingSaved: string
+    landingTitle: string
+    landingSubtitle: string
+    addSection: string
+    hiddenBadge: string
+    /** `{nama}` nama blok. */
+    moveUp: string
+    /** `{nama}` nama blok. */
+    moveDown: string
+    /** `{nama}` nama blok. */
+    showBlock: string
+    /** `{nama}` nama blok. */
+    hideBlock: string
+    noBlocks: string
+    blockHero: string
+    blockCourses: string
+    blockFeatures: string
+    blockTestimonials: string
+    blockFaq: string
+    blockCta: string
+    fieldHeading: string
+    fieldHighlight: string
+    fieldCtaText: string
+    fieldCtaHref: string
+    fieldSubheading: string
+    coursesEmptyNote: string
+    /** `{n}` jumlah ulasan. */
+    testimonialsNote: string
+    /** `{n}` jumlah keunggulan. */
+    featuresNote: string
+    /** `{n}` nomor. */
+    faqQuestionN: string
+    /** `{n}` nomor. */
+    faqAnswerN: string
+    addFaq: string
+    fieldPrimaryBtn: string
+    fieldPrimaryHref: string
+    fieldSecondaryBtn: string
+    fieldSecondaryHref: string
+    landingUpdated: string
+    heroSection: string
+    mainHeading: string
+    ctaButtonText: string
+    ctaButtonHref: string
+    featuresHead: string
+    addFeature: string
+    /** `{n}` nomor. */
+    featureN: string
+    /** `{n}` nomor. */
+    deleteFeatureN: string
+    iconLabel: string
+    iconGradCap: string
+    iconLayers: string
+    iconAward: string
+    descriptionLabel: string
+    /** `{n}` nomor. */
+    featureDescAria: string
+    featuredCoursesHead: string
+    featuredCoursesDesc: string
+    saveFailedFillMarked: string
+  }
   admin: {
     dashboard: string
     courses: string
@@ -1822,6 +1953,123 @@ const id: Dictionary = {
     needEnrollDesc: "Anda perlu mengikuti kursus ini sebelum mulai belajar.",
     enrolledToastOk: "Anda sudah terdaftar. Silakan mulai belajar.",
     enrollPending: "Mendaftarkan\u2026",
+  },
+  superadmin: {
+    mentorTitle: "Mentor",
+    mentorSubtitle: "Kinerja tiap mentor berdampingan. Angka ini untuk membantu mereka, bukan memeringkat.",
+    mentorStat: "Mentor",
+    publishedCourses: "Kursus Terbit",
+    learnersReached: "Peserta Dijangkau",
+    essaysPending: "Esai Menunggu Dinilai",
+    noBacklog: "Tidak ada tunggakan",
+    learnersWaiting: "Peserta sedang menunggu",
+    noMentors: "Belum ada mentor",
+    noMentorsHint:
+      "Seseorang menjadi mentor ketika perannya diubah menjadi mentor. Setelah itu ia dapat menyusun dan mengelola kursusnya sendiri.",
+    scrollMentors: "Kinerja mentor, dapat digulir mendatar",
+    colMentor: "Mentor",
+    colCompletion: "Penyelesaian",
+    colReviews: "Ulasan",
+    colPendingGrade: "Menunggu dinilai",
+    nPublished: "{n} terbit",
+    ofNCourses: "dari {n} kursus",
+    nEnrollments: "{n} pendaftaran",
+    noEnrollmentsYet: "belum ada pendaftaran",
+    completedOf: "{selesai} dari {total}",
+    noReviewsYet: "belum ada ulasan",
+    nReviews: "{n} ulasan",
+    avgAllMentors: "Rata-rata ulasan seluruh mentor: {nilai} dari {n} ulasan.",
+    certDefaultsSaved: "Pengaturan sertifikat tersimpan",
+    certDefaultsTitle: "Sertifikat",
+    certDefaultsSubtitle:
+      "Dipakai setiap kursus yang tidak mengatur sertifikatnya sendiri. Kursus hasil kerja sama dengan perusahaan lain cukup mengisi ruas yang memang berbeda; sisanya tetap mengikuti pengaturan di halaman ini.",
+    certDefaultsNotReady1: "Tabel",
+    certDefaultsNotReady2: "belum ada di basis data, jadi pengaturan di halaman ini belum bisa disimpan. Jalankan",
+    certDefaultsNotReady3:
+      "di SQL Editor Supabase lebih dulu. Sampai itu dijalankan, sertifikat tetap terbit memakai pengaturan masing-masing kursus seperti sebelumnya.",
+    signatureImage: "Gambar Tanda Tangan",
+    savePrefs: "Simpan Pengaturan",
+    colorsSaved: "Warna tersimpan",
+    landingColors: "Warna Halaman Depan",
+    landingColorsDesc: "Hanya memengaruhi halaman depan. Layar belajar dan layar pengelola tetap memakai palet bawaan.",
+    primaryColor: "Warna utama",
+    softSurface: "Latar lembut",
+    textColor: "Warna teks",
+    colorPickerAria: "{label} (pemilih warna)",
+    contrastTextOnSurface: "Teks di atas latar",
+    contrastWhiteOnButton: "Teks putih di tombol",
+    contrastPrimaryOnWhite: "Warna utama di atas putih",
+    contrastPass: "lulus",
+    contrastMin: "minimal 4,5:1",
+    saveColors: "Simpan Warna",
+    featuredCoursesAria: "Kursus unggulan",
+    previewHead: "Pratinjau",
+    deviceWidth: "Lebar perangkat",
+    deviceDesktop: "Desktop",
+    deviceTablet: "Tablet",
+    devicePhone: "Ponsel",
+    reload: "Muat ulang",
+    previewSavedNote: "Menampilkan halaman depan yang sudah tersimpan. Perubahan yang belum disimpan belum terlihat di sini.",
+    landingPreviewTitle: "Pratinjau halaman depan",
+    certPreviewFailed: "Pratinjau gagal dibuat",
+    certPreviewHead: "Pratinjau",
+    certPreviewDesc: "Contoh hasil dengan data peserta sekadar contoh. Dirender memakai dokumen yang sama dengan sertifikat yang benar-benar diterbitkan.",
+    updating: "Memperbarui\u2026",
+    openNewTab: "Buka di tab baru",
+    certPreviewTitle: "Pratinjau sertifikat",
+    certPreviewUnavailable: "Pratinjau tidak tersedia",
+    certPreviewPreparing: "Menyiapkan pratinjau\u2026",
+    certPreviewBlankHint: "Bingkainya kosong? Browser Anda mungkin tidak menampilkan PDF di dalam halaman \u2014 pakai \u201CBuka di tab baru\u201D untuk melihatnya.",
+    landingSaved: "Halaman depan tersimpan",
+    landingTitle: "Halaman Depan",
+    landingSubtitle: "Susun bagian halaman depan: tambah, sembunyikan, hapus, dan urutkan.",
+    addSection: "Tambah Bagian",
+    hiddenBadge: "Disembunyikan",
+    moveUp: "Pindahkan {nama} ke atas",
+    moveDown: "Pindahkan {nama} ke bawah",
+    showBlock: "Tampilkan {nama}",
+    hideBlock: "Sembunyikan {nama}",
+    noBlocks: "Belum ada bagian. Tambahkan setidaknya satu sebelum menyimpan.",
+    blockHero: "Bagian Utama",
+    blockCourses: "Kursus Pilihan",
+    blockFeatures: "Keunggulan",
+    blockTestimonials: "Testimoni Peserta",
+    blockFaq: "Pertanyaan Umum",
+    blockCta: "Ajakan Bertindak",
+    fieldHeading: "Judul",
+    fieldHighlight: "Kata sorotan",
+    fieldCtaText: "Teks tombol",
+    fieldCtaHref: "Tautan tombol",
+    fieldSubheading: "Subjudul",
+    coursesEmptyNote: "Dikosongkan berarti menampilkan empat kursus terbit terbaru.",
+    testimonialsNote: "Menampilkan {n} ulasan terbaru bernilai 4 ke atas. Hanya nama depan peserta yang ditampilkan.",
+    featuresNote: "{n} keunggulan. Isinya disunting di bagian Keunggulan pada halaman ini.",
+    faqQuestionN: "Pertanyaan {n}",
+    faqAnswerN: "Jawaban {n}",
+    addFaq: "Tambah pertanyaan",
+    fieldPrimaryBtn: "Tombol utama",
+    fieldPrimaryHref: "Tautan tombol utama",
+    fieldSecondaryBtn: "Tombol kedua",
+    fieldSecondaryHref: "Tautan tombol kedua",
+    landingUpdated: "Halaman depan diperbarui",
+    heroSection: "Bagian Utama",
+    mainHeading: "Judul utama",
+    ctaButtonText: "Teks tombol ajakan",
+    ctaButtonHref: "Tautan tombol ajakan",
+    featuresHead: "Keunggulan",
+    addFeature: "Tambah Keunggulan",
+    featureN: "Keunggulan {n}",
+    deleteFeatureN: "Hapus keunggulan {n}",
+    iconLabel: "Ikon",
+    iconGradCap: "Topi wisuda",
+    iconLayers: "Lapisan",
+    iconAward: "Penghargaan",
+    descriptionLabel: "Deskripsi",
+    featureDescAria: "Deskripsi keunggulan {n}",
+    featuredCoursesHead: "Kursus Unggulan",
+    featuredCoursesDesc:
+      "Pilih kursus terbit yang tampil di carousel \u201CKursus Unggulan\u201D pada halaman depan publik.",
+    saveFailedFillMarked: "Gagal menyimpan. Lengkapi isian yang ditandai, lalu coba lagi.",
   },
   admin: {
     dashboard: "Dashboard",
@@ -2807,6 +3055,123 @@ const en: Dictionary = {
     needEnrollDesc: "You need to join this course before you can start learning.",
     enrolledToastOk: "You are enrolled. Happy learning.",
     enrollPending: "Enrolling\u2026",
+  },
+  superadmin: {
+    mentorTitle: "Mentors",
+    mentorSubtitle: "Each mentor's performance side by side. These numbers are to help them, not to rank them.",
+    mentorStat: "Mentors",
+    publishedCourses: "Published Courses",
+    learnersReached: "Learners Reached",
+    essaysPending: "Essays Awaiting Grading",
+    noBacklog: "No backlog",
+    learnersWaiting: "Learners are waiting",
+    noMentors: "No mentors yet",
+    noMentorsHint:
+      "Someone becomes a mentor when their role is changed to mentor. They can then build and manage their own courses.",
+    scrollMentors: "Mentor performance, scrolls horizontally",
+    colMentor: "Mentor",
+    colCompletion: "Completion",
+    colReviews: "Reviews",
+    colPendingGrade: "Awaiting grading",
+    nPublished: "{n} published",
+    ofNCourses: "of {n} courses",
+    nEnrollments: "{n} enrollments",
+    noEnrollmentsYet: "no enrollments yet",
+    completedOf: "{selesai} of {total}",
+    noReviewsYet: "no reviews yet",
+    nReviews: "{n} reviews",
+    avgAllMentors: "Average rating across all mentors: {nilai} from {n} reviews.",
+    certDefaultsSaved: "Certificate settings saved",
+    certDefaultsTitle: "Certificates",
+    certDefaultsSubtitle:
+      "Used by every course that does not set its own certificate. A partner course only fills in the fields that actually differ; everything else keeps following this page.",
+    certDefaultsNotReady1: "The table",
+    certDefaultsNotReady2: "does not exist in the database yet, so this page cannot be saved. Run",
+    certDefaultsNotReady3:
+      "in the Supabase SQL Editor first. Until then, certificates are still issued using each course's own settings as before.",
+    signatureImage: "Signature Image",
+    savePrefs: "Save Settings",
+    colorsSaved: "Colours saved",
+    landingColors: "Landing Page Colours",
+    landingColorsDesc: "Only affects the landing page. Learning and admin screens keep the default palette.",
+    primaryColor: "Primary colour",
+    softSurface: "Soft surface",
+    textColor: "Text colour",
+    colorPickerAria: "{label} (colour picker)",
+    contrastTextOnSurface: "Text on surface",
+    contrastWhiteOnButton: "White text on button",
+    contrastPrimaryOnWhite: "Primary on white",
+    contrastPass: "passes",
+    contrastMin: "minimum 4.5:1",
+    saveColors: "Save Colours",
+    featuredCoursesAria: "Featured courses",
+    previewHead: "Preview",
+    deviceWidth: "Device width",
+    deviceDesktop: "Desktop",
+    deviceTablet: "Tablet",
+    devicePhone: "Phone",
+    reload: "Reload",
+    previewSavedNote: "Shows the saved landing page. Unsaved changes are not visible here yet.",
+    landingPreviewTitle: "Landing page preview",
+    certPreviewFailed: "Could not create the preview",
+    certPreviewHead: "Preview",
+    certPreviewDesc: "A sample result with placeholder learner data. Rendered with the same document as actually issued certificates.",
+    updating: "Updating\u2026",
+    openNewTab: "Open in a new tab",
+    certPreviewTitle: "Certificate preview",
+    certPreviewUnavailable: "Preview unavailable",
+    certPreviewPreparing: "Preparing the preview\u2026",
+    certPreviewBlankHint: "Blank frame? Your browser may not display PDFs inline \u2014 use \u201COpen in a new tab\u201D to see it.",
+    landingSaved: "Landing page saved",
+    landingTitle: "Landing Page",
+    landingSubtitle: "Arrange the landing page sections: add, hide, delete, and reorder.",
+    addSection: "Add Section",
+    hiddenBadge: "Hidden",
+    moveUp: "Move {nama} up",
+    moveDown: "Move {nama} down",
+    showBlock: "Show {nama}",
+    hideBlock: "Hide {nama}",
+    noBlocks: "No sections yet. Add at least one before saving.",
+    blockHero: "Hero",
+    blockCourses: "Featured Courses",
+    blockFeatures: "Highlights",
+    blockTestimonials: "Learner Testimonials",
+    blockFaq: "FAQ",
+    blockCta: "Call to Action",
+    fieldHeading: "Heading",
+    fieldHighlight: "Highlighted word",
+    fieldCtaText: "Button text",
+    fieldCtaHref: "Button link",
+    fieldSubheading: "Subheading",
+    coursesEmptyNote: "Leaving it empty shows the four most recent published courses.",
+    testimonialsNote: "Shows the {n} most recent reviews rated 4 or higher. Only learners' first names are shown.",
+    featuresNote: "{n} highlights. Their content is edited in the Highlights section on this page.",
+    faqQuestionN: "Question {n}",
+    faqAnswerN: "Answer {n}",
+    addFaq: "Add question",
+    fieldPrimaryBtn: "Primary button",
+    fieldPrimaryHref: "Primary button link",
+    fieldSecondaryBtn: "Secondary button",
+    fieldSecondaryHref: "Secondary button link",
+    landingUpdated: "Landing page updated",
+    heroSection: "Hero Section",
+    mainHeading: "Main heading",
+    ctaButtonText: "Call-to-action button text",
+    ctaButtonHref: "Call-to-action button link",
+    featuresHead: "Highlights",
+    addFeature: "Add Highlight",
+    featureN: "Highlight {n}",
+    deleteFeatureN: "Delete highlight {n}",
+    iconLabel: "Icon",
+    iconGradCap: "Graduation cap",
+    iconLayers: "Layers",
+    iconAward: "Award",
+    descriptionLabel: "Description",
+    featureDescAria: "Highlight {n} description",
+    featuredCoursesHead: "Featured Courses",
+    featuredCoursesDesc:
+      "Choose the published courses shown in the \u201CFeatured Courses\u201D carousel on the public landing page.",
+    saveFailedFillMarked: "Could not save. Complete the marked fields, then try again.",
   },
   admin: {
     dashboard: "Dashboard",

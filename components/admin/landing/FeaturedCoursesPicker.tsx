@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 export type PickableCourse = { id: string; title: string }
 
@@ -23,6 +24,7 @@ export function FeaturedCoursesPicker({
   onChange: (ids: string[]) => void
   availableCourses: PickableCourse[]
 }) {
+  const { t } = useI18n()
   const [pickerValue, setPickerValue] = useState<string>("")
 
   const selected = value
@@ -48,8 +50,8 @@ export function FeaturedCoursesPicker({
           value={pickerValue}
           onValueChange={(v) => v && setPickerValue(v)}
         >
-          <SelectTrigger aria-label="Kursus unggulan" className="flex-1">
-            <SelectValue placeholder="Pilih kursus" />
+          <SelectTrigger aria-label={t.superadmin.featuredCoursesAria} className="flex-1">
+            <SelectValue placeholder={t.editor.pickCourse} />
           </SelectTrigger>
           <SelectContent>
             {pickableCourses.map((course) => (
@@ -60,7 +62,7 @@ export function FeaturedCoursesPicker({
           </SelectContent>
         </Select>
         <Button type="button" variant="outline" onClick={handleAdd} disabled={!pickerValue}>
-          Tambah
+          {t.editor.add}
         </Button>
       </div>
 
@@ -84,7 +86,7 @@ export function FeaturedCoursesPicker({
                 size="icon-sm"
                 onClick={() => handleRemove(course.id)}
                 className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                aria-label={`Hapus ${course.title}`}
+                aria-label={t.editor.deleteNamed.replace("{nama}", course.title)}
               >
                 <X className="size-3.5" />
               </Button>

@@ -23,6 +23,7 @@ import { saveLandingContentAction } from "@/app/admin/landing/actions"
 
 import { FeaturedCoursesPicker, type PickableCourse } from "./FeaturedCoursesPicker"
 import { landingFormSchema, type LandingFormValues } from "./schema"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 /**
  * Apakah isi form masih sama dengan yang dikirim ke server? Dibandingkan
@@ -60,6 +61,7 @@ export function LandingForm({
   availableCourses: PickableCourse[]
 }) {
   const router = useRouter()
+  const { t } = useI18n()
   const [isPending, startTransition] = useTransition()
   const { setIsBlocked } = useNavigationBlocker()
 
@@ -108,7 +110,7 @@ export function LandingForm({
         toast.error(result.error)
         return
       }
-      toast.success("Halaman depan diperbarui")
+      toast.success(t.superadmin.landingUpdated)
 
       // `values` adalah potret saat tombol ditekan. Mengembalikan form ke
       // potret itu akan menghapus apa pun yang diketik selama penyimpanan
@@ -123,7 +125,7 @@ export function LandingForm({
   }
 
   function onInvalid() {
-    toast.error("Gagal menyimpan. Lengkapi isian yang ditandai, lalu coba lagi.")
+    toast.error(t.superadmin.saveFailedFillMarked)
   }
 
   return (
@@ -134,28 +136,28 @@ export function LandingForm({
      * penyimpanan menggeser indeks baris yang saat itu sedang dalam perjalanan
      * ke server (STANDAR-UMPAN-BALIK-UI.md R14, R17).
      */
-    <BusyGuardProvider busy={isPending} reason="Menyimpan…">
+    <BusyGuardProvider busy={isPending} reason={t.common.saving}>
     <form
       onSubmit={form.handleSubmit(onSubmit, onInvalid)}
       className="mx-auto max-w-[900px] space-y-6"
     >
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Halaman Depan</h1>
+        <h1 className="text-xl font-bold">{t.superadmin.landingTitle}</h1>
         <Button
           type="submit"
           pending={isPending}
-          pendingLabel="Menyimpan…"
+          pendingLabel={t.common.saving}
           className="bg-brand-gradient text-white hover:brightness-105"
         >
-          Simpan
+          {t.common.save}
         </Button>
       </div>
 
       <div className="space-y-4 rounded-2xl border border-border bg-card p-6">
-        <h2 className="text-lg font-semibold">Bagian Utama</h2>
+        <h2 className="text-lg font-semibold">{t.superadmin.heroSection}</h2>
 
         <div className="space-y-1.5">
-          <Label htmlFor="heading">Judul utama</Label>
+          <Label htmlFor="heading">{t.superadmin.mainHeading}</Label>
           <Input
             id="heading"
             aria-invalid={!!errors.heading}
@@ -168,7 +170,7 @@ export function LandingForm({
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="highlightWord">Kata sorotan</Label>
+          <Label htmlFor="highlightWord">{t.superadmin.fieldHighlight}</Label>
           <Input
             id="highlightWord"
             aria-invalid={!!errors.highlightWord}
@@ -181,12 +183,12 @@ export function LandingForm({
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="subheading">Subjudul</Label>
+          <Label htmlFor="subheading">{t.superadmin.fieldSubheading}</Label>
           <Controller
             control={form.control}
             name="subheading"
             render={({ field }) => (
-              <RichTextEditor ariaLabel="Subjudul" value={field.value} onChange={field.onChange} />
+              <RichTextEditor ariaLabel={t.superadmin.fieldSubheading} value={field.value} onChange={field.onChange} />
             )}
           />
           <StatusMessage className="text-xs">{errors.subheading?.message}</StatusMessage>
@@ -194,7 +196,7 @@ export function LandingForm({
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="primaryCtaText">Teks tombol ajakan</Label>
+            <Label htmlFor="primaryCtaText">{t.superadmin.ctaButtonText}</Label>
             <Input
               id="primaryCtaText"
               aria-invalid={!!errors.primaryCtaText}
@@ -206,7 +208,7 @@ export function LandingForm({
             </StatusMessage>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="primaryCtaHref">Tautan tombol ajakan</Label>
+            <Label htmlFor="primaryCtaHref">{t.superadmin.ctaButtonHref}</Label>
             <Input
               id="primaryCtaHref"
               aria-invalid={!!errors.primaryCtaHref}
@@ -222,7 +224,7 @@ export function LandingForm({
 
       <div className="space-y-4 rounded-2xl border border-border bg-card p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Keunggulan</h2>
+          <h2 className="text-lg font-semibold">{t.superadmin.featuresHead}</h2>
           <Button
             type="button"
             variant="outline"
@@ -230,7 +232,7 @@ export function LandingForm({
             onClick={() => append({ icon: "graduation-cap", title: "", description: "" })}
           >
             <Plus className="size-4" />
-            Tambah Keunggulan
+            {t.superadmin.addFeature}
           </Button>
         </div>
 
@@ -238,7 +240,7 @@ export function LandingForm({
           <div key={field.id} className="space-y-3 rounded-xl border border-border p-4">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-muted-foreground">
-                Keunggulan {index + 1}
+                {t.superadmin.featureN.replace("{n}", String(index + 1))}
               </span>
               <Button
                 type="button"
@@ -246,14 +248,14 @@ export function LandingForm({
                 size="sm"
                 disabled={fields.length <= 1}
                 onClick={() => remove(index)}
-                aria-label={`Hapus keunggulan ${index + 1}`}
+                aria-label={t.superadmin.deleteFeatureN.replace("{n}", String(index + 1))}
               >
                 <Trash2 className="size-4" aria-hidden />
               </Button>
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor={`features.${index}.icon`}>Ikon</Label>
+              <Label htmlFor={`features.${index}.icon`}>{t.superadmin.iconLabel}</Label>
               <select
                 id={`features.${index}.icon`}
                 className="flex h-8 w-fit items-center rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring"
@@ -261,14 +263,14 @@ export function LandingForm({
               >
                 {LANDING_ICON_OPTIONS.map((icon) => (
                   <option key={icon} value={icon}>
-                    {{ "graduation-cap": "Topi wisuda", layers: "Lapisan", award: "Penghargaan" }[icon] ?? icon}
+                    {{ "graduation-cap": t.superadmin.iconGradCap, layers: t.superadmin.iconLayers, award: t.superadmin.iconAward }[icon] ?? icon}
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor={`features.${index}.title`}>Judul</Label>
+              <Label htmlFor={`features.${index}.title`}>{t.superadmin.fieldHeading}</Label>
               <Input
                 id={`features.${index}.title`}
                 aria-invalid={!!errors.features?.[index]?.title}
@@ -281,13 +283,13 @@ export function LandingForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor={`features.${index}.description`}>Deskripsi</Label>
+              <Label htmlFor={`features.${index}.description`}>{t.superadmin.descriptionLabel}</Label>
               <Controller
                 control={form.control}
                 name={`features.${index}.description` as const}
                 render={({ field }) => (
                   <RichTextEditor
-                    ariaLabel={`Deskripsi keunggulan ${index + 1}`}
+                    ariaLabel={t.superadmin.featureDescAria.replace("{n}", String(index + 1))}
                     value={field.value}
                     onChange={field.onChange}
                   />
@@ -302,10 +304,9 @@ export function LandingForm({
       </div>
 
       <div className="space-y-4 rounded-2xl border border-border bg-card p-6">
-        <h2 className="text-lg font-semibold">Kursus Unggulan</h2>
+        <h2 className="text-lg font-semibold">{t.superadmin.featuredCoursesHead}</h2>
         <p className="text-sm text-muted-foreground">
-          Pilih kursus terbit yang tampil di carousel &quot;Kursus Unggulan&quot; pada halaman
-          depan publik.
+          {t.superadmin.featuredCoursesDesc}
         </p>
         <Controller
           control={form.control}

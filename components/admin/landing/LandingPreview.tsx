@@ -5,6 +5,7 @@ import { Monitor, RefreshCw, Smartphone, Tablet } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 /**
  * Pratinjau halaman depan di sebelah penyusunnya.
@@ -23,12 +24,18 @@ import { cn } from "@/lib/utils"
  * bekerja, sehingga yang terlihat memang tata letak di lebar itu.
  */
 const DEVICES = [
-  { key: "desktop", label: "Desktop", width: "100%", icon: Monitor },
-  { key: "tablet", label: "Tablet", width: "768px", icon: Tablet },
-  { key: "mobile", label: "Ponsel", width: "390px", icon: Smartphone },
+  { key: "desktop", width: "100%", icon: Monitor },
+  { key: "tablet", width: "768px", icon: Tablet },
+  { key: "mobile", width: "390px", icon: Smartphone },
 ] as const
 
 export function LandingPreview({ reloadToken }: { reloadToken: number }) {
+  const { t } = useI18n()
+  const DEVICE_LABELS: Record<(typeof DEVICES)[number]["key"], string> = {
+    desktop: t.superadmin.deviceDesktop,
+    tablet: t.superadmin.deviceTablet,
+    mobile: t.superadmin.devicePhone,
+  }
   const [device, setDevice] = useState<(typeof DEVICES)[number]["key"]>("desktop")
   const [nonce, setNonce] = useState(0)
   const frameRef = useRef<HTMLIFrameElement>(null)
@@ -47,9 +54,9 @@ export function LandingPreview({ reloadToken }: { reloadToken: number }) {
   return (
     <div className="rounded-2xl border border-border bg-muted/30 p-4">
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="text-sm font-bold">Pratinjau</span>
-        <div role="group" aria-label="Lebar perangkat" className="flex gap-1">
-          {DEVICES.map(({ key, label, icon: Icon }) => (
+        <span className="text-sm font-bold">{t.superadmin.previewHead}</span>
+        <div role="group" aria-label={t.superadmin.deviceWidth} className="flex gap-1">
+          {DEVICES.map(({ key, icon: Icon }) => (
             <button
               key={key}
               type="button"
@@ -64,20 +71,19 @@ export function LandingPreview({ reloadToken }: { reloadToken: number }) {
               )}
             >
               <Icon className="size-3.5" aria-hidden />
-              {label}
+              {DEVICE_LABELS[key]}
             </button>
           ))}
         </div>
         <div className="flex-1" />
         <Button size="sm" variant="outline" onClick={() => setNonce((n) => n + 1)}>
           <RefreshCw className="size-4" aria-hidden />
-          Muat ulang
+          {t.superadmin.reload}
         </Button>
       </div>
 
       <p className="mb-3 text-xs text-muted-foreground">
-        Menampilkan halaman depan yang sudah tersimpan. Perubahan yang belum disimpan belum
-        terlihat di sini.
+        {t.superadmin.previewSavedNote}
       </p>
 
       <div className="flex justify-center overflow-x-auto">
@@ -85,7 +91,7 @@ export function LandingPreview({ reloadToken }: { reloadToken: number }) {
           ref={frameRef}
           key={nonce}
           src={`/?pratinjau=${nonce}`}
-          title="Pratinjau halaman depan"
+          title={t.superadmin.landingPreviewTitle}
           className="h-[600px] shrink-0 rounded-xl border border-border bg-card"
           style={{ width: active.width, maxWidth: "100%" }}
         />

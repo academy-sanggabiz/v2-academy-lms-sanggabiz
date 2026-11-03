@@ -16,7 +16,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  BLOCK_LABELS,
   LANDING_BLOCK_TYPES,
   SINGLETON_BLOCKS,
   createBlock,
@@ -24,6 +23,8 @@ import {
   type LandingBlockType,
 } from "@/lib/landing-blocks"
 import { cn } from "@/lib/utils"
+import { useI18n } from "@/components/i18n/LocaleProvider"
+import type { Dictionary } from "@/lib/i18n/dictionaries"
 
 /**
  * Penyusun halaman depan.
@@ -38,7 +39,20 @@ import { cn } from "@/lib/utils"
  * Blok yang disembunyikan tetap tersimpan isinya -- menyembunyikan bukan
  * menghapus, dan itu dua maksud yang berbeda.
  */
+function blockLabels(t: Dictionary): Record<LandingBlockType, string> {
+  return {
+    hero: t.superadmin.blockHero,
+    courses: t.superadmin.blockCourses,
+    features: t.superadmin.blockFeatures,
+    testimonials: t.superadmin.blockTestimonials,
+    faq: t.superadmin.blockFaq,
+    cta: t.superadmin.blockCta,
+  }
+}
+
 export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }) {
+  const { t } = useI18n()
+  const LABELS = blockLabels(t)
   const [blocks, setBlocks] = useState(initialBlocks)
   const [pending, startTransition] = useTransition()
   // Naik setiap kali penyimpanan berhasil; pratinjau memakainya sebagai aba-aba
@@ -72,7 +86,7 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
         return
       }
       setSavedAt(Date.now())
-      toast.success("Halaman depan tersimpan")
+      toast.success(t.superadmin.landingSaved)
     })
   }
 
@@ -80,9 +94,9 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
     <div>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold">Halaman Depan</h1>
+          <h1 className="text-3xl font-bold">{t.superadmin.landingTitle}</h1>
           <p className="text-sm text-muted-foreground">
-            Susun bagian halaman depan: tambah, sembunyikan, hapus, dan urutkan.
+            {t.superadmin.landingSubtitle}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -91,7 +105,7 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
               render={
                 <Button variant="outline" disabled={pending}>
                   <Plus className="size-4" aria-hidden />
-                  Tambah Bagian
+                  {t.superadmin.addSection}
                 </Button>
               }
             />
@@ -101,7 +115,7 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
                   key={type}
                   onClick={() => setBlocks((current) => [...current, createBlock(type)])}
                 >
-                  {BLOCK_LABELS[type]}
+                  {LABELS[type]}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -109,10 +123,10 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
           <Button
             onClick={save}
             pending={pending}
-            pendingLabel="Menyimpan…"
+            pendingLabel={t.common.saving}
             className="bg-brand-gradient text-white hover:brightness-105"
           >
-            Simpan
+            {t.common.save}
           </Button>
         </div>
       </div>
@@ -131,17 +145,17 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
             )}
           >
             <div className="mb-4 flex flex-wrap items-center gap-2">
-              <span className="text-sm font-bold">{BLOCK_LABELS[block.type]}</span>
+              <span className="text-sm font-bold">{LABELS[block.type]}</span>
               {block.hidden && (
                 <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                  Disembunyikan
+                  {t.superadmin.hiddenBadge}
                 </span>
               )}
               <div className="flex-1" />
               <Button
                 size="sm"
                 variant="ghost"
-                aria-label={`Pindahkan ${BLOCK_LABELS[block.type]} ke atas`}
+                aria-label={t.superadmin.moveUp.replace("{nama}", LABELS[block.type])}
                 disabled={index === 0 || pending}
                 onClick={() => move(index, -1)}
               >
@@ -150,7 +164,7 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
               <Button
                 size="sm"
                 variant="ghost"
-                aria-label={`Pindahkan ${BLOCK_LABELS[block.type]} ke bawah`}
+                aria-label={t.superadmin.moveDown.replace("{nama}", LABELS[block.type])}
                 disabled={index === blocks.length - 1 || pending}
                 onClick={() => move(index, 1)}
               >
@@ -159,11 +173,10 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
               <Button
                 size="sm"
                 variant="ghost"
-                aria-label={
-                  block.hidden
-                    ? `Tampilkan ${BLOCK_LABELS[block.type]}`
-                    : `Sembunyikan ${BLOCK_LABELS[block.type]}`
-                }
+                aria-label={(block.hidden ? t.superadmin.showBlock : t.superadmin.hideBlock).replace(
+                  "{nama}",
+                  LABELS[block.type]
+                )}
                 aria-pressed={!!block.hidden}
                 disabled={pending}
                 onClick={() => patch(block.id, { hidden: !block.hidden } as Partial<LandingBlock>)}
@@ -173,7 +186,7 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
               <Button
                 size="sm"
                 variant="ghost"
-                aria-label={`Hapus ${BLOCK_LABELS[block.type]}`}
+                aria-label={t.editor.deleteNamed.replace("{nama}", LABELS[block.type])}
                 disabled={pending}
                 onClick={() => setBlocks((current) => current.filter((b) => b.id !== block.id))}
                 className="text-destructive hover:text-destructive"
@@ -189,7 +202,7 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
 
       {blocks.length === 0 && (
         <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-          Belum ada bagian. Tambahkan setidaknya satu sebelum menyimpan.
+          {t.superadmin.noBlocks}
         </p>
       )}
     </div>
@@ -228,18 +241,19 @@ function BlockFields({
   onPatch: (changes: Partial<LandingBlock>) => void
   disabled: boolean
 }) {
+  const { t } = useI18n()
   switch (block.type) {
     case "hero":
       return (
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
-            label="Judul"
+            label={t.superadmin.fieldHeading}
             value={block.hero.heading}
             disabled={disabled}
             onChange={(heading) => onPatch({ hero: { ...block.hero, heading } } as Partial<LandingBlock>)}
           />
           <Field
-            label="Kata sorotan"
+            label={t.superadmin.fieldHighlight}
             value={block.hero.highlightWord}
             disabled={disabled}
             onChange={(highlightWord) =>
@@ -247,7 +261,7 @@ function BlockFields({
             }
           />
           <Field
-            label="Teks tombol"
+            label={t.superadmin.fieldCtaText}
             value={block.hero.primaryCtaText}
             disabled={disabled}
             onChange={(primaryCtaText) =>
@@ -255,7 +269,7 @@ function BlockFields({
             }
           />
           <Field
-            label="Tautan tombol"
+            label={t.superadmin.fieldCtaHref}
             value={block.hero.primaryCtaHref}
             disabled={disabled}
             onChange={(primaryCtaHref) =>
@@ -270,25 +284,24 @@ function BlockFields({
       return (
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
-            label="Judul"
+            label={t.superadmin.fieldHeading}
             value={block.heading}
             disabled={disabled}
             onChange={(heading) => onPatch({ heading } as Partial<LandingBlock>)}
           />
           <Field
-            label="Subjudul"
+            label={t.superadmin.fieldSubheading}
             value={block.subheading}
             disabled={disabled}
             onChange={(subheading) => onPatch({ subheading } as Partial<LandingBlock>)}
           />
           {block.type === "courses" ? (
             <p className="text-xs text-muted-foreground sm:col-span-2">
-              Dikosongkan berarti menampilkan empat kursus terbit terbaru.
+              {t.superadmin.coursesEmptyNote}
             </p>
           ) : (
             <p className="text-xs text-muted-foreground sm:col-span-2">
-              Menampilkan {block.limit} ulasan terbaru bernilai 4 ke atas. Hanya nama depan peserta
-              yang ditampilkan.
+              {t.superadmin.testimonialsNote.replace("{n}", String(block.limit))}
             </p>
           )}
         </div>
@@ -298,13 +311,13 @@ function BlockFields({
       return (
         <div className="space-y-4">
           <Field
-            label="Judul"
+            label={t.superadmin.fieldHeading}
             value={block.heading}
             disabled={disabled}
             onChange={(heading) => onPatch({ heading } as Partial<LandingBlock>)}
           />
           <p className="text-xs text-muted-foreground">
-            {block.features.length} keunggulan. Isinya disunting di bagian Keunggulan pada halaman ini.
+            {t.superadmin.featuresNote.replace("{n}", String(block.features.length))}
           </p>
         </div>
       )
@@ -313,7 +326,7 @@ function BlockFields({
       return (
         <div className="space-y-4">
           <Field
-            label="Judul"
+            label={t.superadmin.fieldHeading}
             value={block.heading}
             disabled={disabled}
             onChange={(heading) => onPatch({ heading } as Partial<LandingBlock>)}
@@ -321,7 +334,7 @@ function BlockFields({
           {block.items.map((item, i) => (
             <div key={i} className="grid gap-3 rounded-xl border border-border p-4 sm:grid-cols-2">
               <Field
-                label={`Pertanyaan ${i + 1}`}
+                label={t.superadmin.faqQuestionN.replace("{n}", String(i + 1))}
                 value={item.question}
                 disabled={disabled}
                 onChange={(question) => {
@@ -331,7 +344,7 @@ function BlockFields({
                 }}
               />
               <Field
-                label={`Jawaban ${i + 1}`}
+                label={t.superadmin.faqAnswerN.replace("{n}", String(i + 1))}
                 value={item.answer}
                 disabled={disabled}
                 onChange={(answer) => {
@@ -349,7 +362,7 @@ function BlockFields({
             onClick={() => onPatch({ items: [...block.items, { question: "", answer: "" }] } as Partial<LandingBlock>)}
           >
             <Plus className="size-4" aria-hidden />
-            Tambah pertanyaan
+            {t.superadmin.addFaq}
           </Button>
         </div>
       )
@@ -358,37 +371,37 @@ function BlockFields({
       return (
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
-            label="Judul"
+            label={t.superadmin.fieldHeading}
             value={block.heading}
             disabled={disabled}
             onChange={(heading) => onPatch({ heading } as Partial<LandingBlock>)}
           />
           <Field
-            label="Subjudul"
+            label={t.superadmin.fieldSubheading}
             value={block.subheading}
             disabled={disabled}
             onChange={(subheading) => onPatch({ subheading } as Partial<LandingBlock>)}
           />
           <Field
-            label="Tombol utama"
+            label={t.superadmin.fieldPrimaryBtn}
             value={block.primaryText}
             disabled={disabled}
             onChange={(primaryText) => onPatch({ primaryText } as Partial<LandingBlock>)}
           />
           <Field
-            label="Tautan tombol utama"
+            label={t.superadmin.fieldPrimaryHref}
             value={block.primaryHref}
             disabled={disabled}
             onChange={(primaryHref) => onPatch({ primaryHref } as Partial<LandingBlock>)}
           />
           <Field
-            label="Tombol kedua"
+            label={t.superadmin.fieldSecondaryBtn}
             value={block.secondaryText}
             disabled={disabled}
             onChange={(secondaryText) => onPatch({ secondaryText } as Partial<LandingBlock>)}
           />
           <Field
-            label="Tautan tombol kedua"
+            label={t.superadmin.fieldSecondaryHref}
             value={block.secondaryHref}
             disabled={disabled}
             onChange={(secondaryHref) => onPatch({ secondaryHref } as Partial<LandingBlock>)}

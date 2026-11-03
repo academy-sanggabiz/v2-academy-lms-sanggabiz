@@ -18,6 +18,7 @@ import type { CertificateLayout } from "@/components/certificates/CertificateDoc
 import type { CertificateDefaults } from "@/lib/certificate-settings"
 import type { CertificateType } from "@/lib/courses-admin"
 import { cn } from "@/lib/utils"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 /**
  * Pengaturan sertifikat untuk seluruh perusahaan.
@@ -34,7 +35,19 @@ export function CertificateDefaultsForm({
   initial: CertificateDefaults
   ready: boolean
 }) {
+  const { t } = useI18n()
   const [value, setValue] = useState(initial)
+  const labelJenis: Record<string, { label: string; description: string }> = {
+    completion: { label: t.editor.certTypeCompletion, description: t.editor.certTypeCompletionDesc },
+    participation: { label: t.editor.certTypeParticipation, description: t.editor.certTypeParticipationDesc },
+    achievement: { label: t.editor.certTypeAchievement, description: t.editor.certTypeAchievementDesc },
+    custom: { label: t.editor.certTypeCustom, description: t.editor.certTypeCustomDesc },
+  }
+  const labelTataLetak: Record<string, { label: string; description: string }> = {
+    klasik: { label: t.editor.certLayoutKlasik, description: t.editor.certLayoutKlasikDesc },
+    modern: { label: t.editor.certLayoutModern, description: t.editor.certLayoutModernDesc },
+    formal: { label: t.editor.certLayoutFormal, description: t.editor.certLayoutFormalDesc },
+  }
   const [pending, startTransition] = useTransition()
 
   function set<K extends keyof CertificateDefaults>(key: K, next: CertificateDefaults[K]) {
@@ -48,36 +61,33 @@ export function CertificateDefaultsForm({
         toast.error(result.error)
         return
       }
-      toast.success("Pengaturan sertifikat tersimpan")
+      toast.success(t.superadmin.certDefaultsSaved)
     })
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold">Sertifikat</h1>
+        <h1 className="text-xl font-bold">{t.superadmin.certDefaultsTitle}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Dipakai setiap kursus yang tidak mengatur sertifikatnya sendiri. Kursus hasil kerja sama
-          dengan perusahaan lain cukup mengisi ruas yang memang berbeda; sisanya tetap mengikuti
-          pengaturan di halaman ini.
+          {t.superadmin.certDefaultsSubtitle}
         </p>
       </div>
 
       {!ready && (
         <StatusMessage variant="error">
-          Tabel <code>certificate_defaults</code> belum ada di basis data, jadi pengaturan di
-          halaman ini belum bisa disimpan. Jalankan{" "}
-          <code>supabase/migrations/20261101120000_certificate_defaults.sql</code> di SQL Editor
-          Supabase lebih dulu. Sampai itu dijalankan, sertifikat tetap terbit memakai pengaturan
-          masing-masing kursus seperti sebelumnya.
+          {t.superadmin.certDefaultsNotReady1} <code>certificate_defaults</code>{" "}
+          {t.superadmin.certDefaultsNotReady2}{" "}
+          <code>supabase/migrations/20261101120000_certificate_defaults.sql</code>{" "}
+          {t.superadmin.certDefaultsNotReady3}
         </StatusMessage>
       )}
 
       <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
         <div className="space-y-2.5">
-          <div className="text-xs font-semibold">Tata Letak</div>
+          <div className="text-xs font-semibold">{t.editor.layoutHead}</div>
           <div className="flex flex-wrap gap-2">
-            {CERTIFICATE_LAYOUT_OPTIONS.map((l) => (
+            {CERTIFICATE_LAYOUT_OPTIONS.map((o) => ({ ...o, ...labelTataLetak[o.value] })).map((l) => (
               <button
                 key={l.value}
                 type="button"
@@ -96,24 +106,24 @@ export function CertificateDefaultsForm({
         </div>
 
         <div className="space-y-2.5">
-          <div className="text-xs font-semibold">Jenis Sertifikat</div>
-          {CERTIFICATE_TYPE_OPTIONS.map((t) => (
+          <div className="text-xs font-semibold">{t.editor.certTypeHead}</div>
+          {CERTIFICATE_TYPE_OPTIONS.map((o) => ({ ...o, ...labelJenis[o.value] })).map((opt) => (
             <button
-              key={t.value}
+              key={opt.value}
               type="button"
-              onClick={() => set("certificate_type", t.value as CertificateType)}
+              onClick={() => set("certificate_type", opt.value as CertificateType)}
               className="flex w-full gap-2.5 text-left"
-              aria-pressed={value.certificate_type === t.value}
+              aria-pressed={value.certificate_type === opt.value}
             >
               <div
                 className={cn(
                   "mt-0.5 size-4 shrink-0 rounded-full border-2",
-                  value.certificate_type === t.value ? "border-primary bg-primary/20" : "border-border"
+                  value.certificate_type === opt.value ? "border-primary bg-primary/20" : "border-border"
                 )}
               />
               <div>
-                <div className="text-sm font-medium">{t.label}</div>
-                <div className="text-xs text-muted-foreground">{t.description}</div>
+                <div className="text-sm font-medium">{opt.label}</div>
+                <div className="text-xs text-muted-foreground">{opt.description}</div>
               </div>
             </button>
           ))}
@@ -121,10 +131,10 @@ export function CertificateDefaultsForm({
 
         {value.certificate_type === "custom" && (
           <div className="max-w-sm space-y-1.5">
-            <Label htmlFor="def-custom-title">Judul Sertifikat Khusus</Label>
+            <Label htmlFor="def-custom-title">{t.editor.customTitleLabel}</Label>
             <Input
               id="def-custom-title"
-              placeholder="misal: Sertifikat Keahlian"
+              placeholder={t.editor.customTitlePh}
               value={value.custom_title ?? ""}
               onChange={(e) => set("custom_title", e.target.value || null)}
             />
@@ -132,17 +142,17 @@ export function CertificateDefaultsForm({
         )}
 
         <div className="space-y-1.5">
-          <Label htmlFor="def-description">Deskripsi Sertifikat</Label>
+          <Label htmlFor="def-description">{t.editor.certDescLabel}</Label>
           <Textarea
             id="def-description"
             maxLength={150}
             rows={3}
-            placeholder="misal: Dengan ini menyatakan bahwa [Nama Peserta] telah menyelesaikan [Nama Kursus]."
+            placeholder={t.editor.certDescPh}
             value={value.description ?? ""}
             onChange={(e) => set("description", e.target.value || null)}
           />
           <p className="text-xs text-muted-foreground">
-            Penanda yang didukung: [Nama Peserta], [Nama Kursus]
+            {t.editor.tokensSupported}
           </p>
         </div>
 
@@ -150,25 +160,25 @@ export function CertificateDefaultsForm({
           value={value.signature_url}
           onChange={(url) => set("signature_url", url || null)}
           uploadFn={uploadSignatureImage}
-          label="Gambar Tanda Tangan"
-          hint="PNG atau JPEG, maks. 1MB"
+          label={t.superadmin.signatureImage}
+          hint={t.editor.signatureHint}
         />
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="def-signer-name">Nama Penanda Tangan</Label>
+            <Label htmlFor="def-signer-name">{t.editor.signerNameLabel}</Label>
             <Input
               id="def-signer-name"
-              placeholder="misal: Budi Santoso"
+              placeholder={t.editor.signerNamePh}
               value={value.signer_name ?? ""}
               onChange={(e) => set("signer_name", e.target.value || null)}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="def-signer-title">Jabatan Penanda Tangan</Label>
+            <Label htmlFor="def-signer-title">{t.editor.signerTitleLabel}</Label>
             <Input
               id="def-signer-title"
-              placeholder="misal: Direktur Pendidikan"
+              placeholder={t.editor.signerTitlePh}
               value={value.signer_title ?? ""}
               onChange={(e) => set("signer_title", e.target.value || null)}
             />
@@ -179,12 +189,12 @@ export function CertificateDefaultsForm({
           value={value.template_url}
           onChange={(url) => set("template_url", url || null)}
           uploadFn={uploadCertificateTemplate}
-          label="Templat Sertifikat (Opsional)"
-          hint="Orientasi lanskap, PNG/JPEG, maks. 5MB"
+          label={t.editor.certTemplate}
+          hint={t.editor.certTemplateHint}
         />
 
         <div className="space-y-1.5">
-          <Label htmlFor="def-additional">Teks Tambahan (Opsional)</Label>
+          <Label htmlFor="def-additional">{t.editor.additionalTextLabel}</Label>
           <Textarea
             id="def-additional"
             maxLength={150}
@@ -197,7 +207,7 @@ export function CertificateDefaultsForm({
         <CertificatePreview defaults={value} />
 
         <Button type="button" onClick={save} disabled={pending || !ready}>
-          {pending ? "Menyimpan…" : "Simpan Pengaturan"}
+          {pending ? t.common.saving : t.superadmin.savePrefs}
         </Button>
       </section>
     </div>
