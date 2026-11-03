@@ -106,7 +106,56 @@ Satu halaman, dua isi, karena pertanyaan yang dibawa tiap peran berbeda:
 - **Superadmin** bertanya *"bagaimana platform ini?"* — angka seluruh
   platform, ditambah ringkasan per mentor dari §4.
 
-## 6. Yang tidak diubah
+## 6. Bagaimana seseorang menjadi mentor
+
+**Superadmin mengangkat peserta yang sudah ada.** Tidak ada pendaftaran
+mandiri sebagai mentor, dan itu disengaja: mentor melihat data peserta dan
+membuat kursus. Posisi kepercayaan tidak pantas diambil dengan mengisi
+formulir; kalaupun dibuat, ia tetap memerlukan antrean persetujuan — kerja
+lebih banyak untuk hasil yang sama.
+
+Tombolnya ada di layar detail peserta (`/admin/learners/<id>`), hanya tampil
+untuk superadmin. Jalurnya dua arah: peserta → mentor → superadmin, dan
+sebaliknya.
+
+### Kenapa lewat fungsi basis data, bukan policy
+
+Kolom `profiles.role` **tidak bisa ditulis pengguna biasa**. Sudah diuji:
+peserta yang mencoba menaikkan perannya sendiri lewat REST ditolak `42501`,
+sementara mengubah namanya sendiri tetap berhasil. Melonggarkan itu dengan
+policy UPDATE akan membuka celah naik-peran yang sekarang tertutup rapat.
+
+Karena itu perubahan peran lewat satu fungsi `security definer`,
+`set_user_role()`, yang memeriksa kewenangan di dalamnya. Kolomnya tetap tidak
+bisa disentuh lewat jalur lain mana pun.
+
+Empat penjaga di dalamnya, dan masing-masing menutup kegagalan yang nyata:
+
+| Penjaga | Kalau tidak ada |
+|---|---|
+| Hanya superadmin | Siapa pun bisa mengangkat dirinya sendiri |
+| Tidak boleh mengubah peran sendiri | Satu salah klik mengunci superadmin keluar dari sistemnya |
+| Superadmin terakhir tidak bisa diturunkan | Sistem tanpa superadmin hanya bisa dipulihkan lewat akses basis data langsung |
+| Setiap perubahan dicatat di `role_changes` | Tidak ada cara menjawab "siapa mengangkat orang ini, kapan" |
+
+Tabel `role_changes` **hanya bertambah** — tidak ada policy INSERT, UPDATE,
+maupun DELETE untuk siapa pun; barisnya ditulis fungsi itu sendiri. Jejak yang
+bisa disunting bukan jejak.
+
+Terbukti: peserta biasa yang memanggil fungsi itu ditolak, superadmin berhasil
+mengangkat dan jejaknya tercatat, dan superadmin yang mencoba mengubah
+perannya sendiri ditolak dengan pesan yang menyebutkan alasannya. Penjaga
+"superadmin terakhir" belum diuji dengan sengaja — mengujinya menuntut
+menurunkan satu-satunya superadmin sungguhan.
+
+### Satu jebakan yang ikut diperbaiki
+
+`getAdminLearnerDetail()` dulu menyaring `role = 'learner'`. Akibatnya halaman
+detail berubah menjadi 404 **tepat setelah** seseorang diangkat menjadi
+mentor — sehingga tidak ada jalan untuk menurunkannya kembali. Penyaring itu
+dicabut.
+
+## 7. Yang tidak diubah
 
 Rute tetap `/admin/**` untuk mentor maupun superadmin. Itu satu area kerja yang
 sama dengan isi berbeda, dan mengganti awalan rute hanya memindahkan tautan
@@ -114,7 +163,7 @@ tanpa mengubah kewenangan apa pun. Fungsi `public.is_admin()` juga tetap
 namanya: artinya "mentor atau superadmin", dan ia dipakai di puluhan policy
 yang tidak perlu ikut goyah demi penamaan.
 
-## 7. Sumber
+## 8. Sumber
 
 - Moodle, *Managing Your Class* — peran bawaan Manager, Teacher, Non-editing
   Teacher, Student; administrator punya akses penuh ke seluruh situs.

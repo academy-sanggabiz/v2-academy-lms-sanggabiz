@@ -29,6 +29,7 @@ export type AdminLearnerDetail = {
   name: string
   email: string
   initial: string
+  role: "learner" | "mentor" | "superadmin"
 }
 
 export type AdminLearnerCourseProgress = {
@@ -145,11 +146,13 @@ export async function getLearnerEnrolledCourseIds(learnerId: string): Promise<st
 export async function getAdminLearnerDetail(learnerId: string): Promise<AdminLearnerDetail | null> {
   const supabase = await createClient()
 
+  // Sengaja TIDAK disaring `role = 'learner'`. Dulu disaring, dan akibatnya
+  // halaman ini berubah menjadi 404 tepat setelah seseorang diangkat menjadi
+  // mentor -- sehingga tidak ada jalan untuk menurunkannya kembali.
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, full_name, email")
+    .select("id, full_name, email, role")
     .eq("id", learnerId)
-    .eq("role", "learner")
     .maybeSingle()
 
   if (error || !data) {
@@ -163,6 +166,7 @@ export async function getAdminLearnerDetail(learnerId: string): Promise<AdminLea
     name,
     email: data.email ?? "",
     initial: initialOf(name),
+    role: (data.role ?? "learner") as AdminLearnerDetail["role"],
   }
 }
 

@@ -9,6 +9,10 @@ import {
   getAdminLearnerQuizScores,
 } from "@/lib/learners-admin"
 import { LearnerDetailTabs } from "@/components/admin/learners/LearnerDetailTabs"
+import { RoleControl } from "@/components/admin/learners/RoleControl"
+import { resolveSuperAdminProfile } from "@/lib/auth/require-admin"
+
+const LABEL_PERAN = { learner: "Peserta", mentor: "Mentor", superadmin: "Superadmin" } as const
 
 export default async function AdminLearnerDetailPage({
   params,
@@ -24,6 +28,10 @@ export default async function AdminLearnerDetailPage({
   ])
 
   if (!learner) notFound()
+
+  // Mengubah peran hanya milik superadmin. Mentor tetap boleh membuka halaman
+  // ini untuk melihat kemajuan peserta di kursusnya.
+  const superadmin = (await resolveSuperAdminProfile()).status === "ok"
 
   const enrolledCount = courseProgress.length
   const completedCount = courseProgress.filter((c) => c.completed).length
@@ -50,7 +58,7 @@ export default async function AdminLearnerDetailPage({
           <div className="mb-1 flex items-center gap-2.5">
             <span className="text-2xl font-bold">{learner.name}</span>
             <span className="rounded-full border border-ring/30 bg-secondary px-3 py-1 text-xs font-semibold text-ring">
-              Peserta
+              {LABEL_PERAN[learner.role]}
             </span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -58,6 +66,11 @@ export default async function AdminLearnerDetailPage({
             {learner.email}
           </div>
         </div>
+        {superadmin && (
+          <div className="ms-auto">
+            <RoleControl userId={learner.id} nama={learner.name} peran={learner.role} />
+          </div>
+        )}
       </div>
 
       <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
