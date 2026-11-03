@@ -75,7 +75,7 @@ jenis bukti**, dan satu saja tidak pernah cukup —
 | C1 | Umpan balik menjawab **tiga hal**: tindakan tercatat, kenapa hasilnya begitu, apa langkah berikutnya. "Bagus!" saja bukan umpan balik | Kerjakan satu kuis sampai salah, baca tanggapannya | ✅ ada penjelasan per soal dan tautan ke materi |
 | C2 | Setiap tindakan mendapat tanggapan terlihat **dalam sekitar satu detik**; kalau lebih lama, tampilkan bahwa sesuatu sedang berjalan | Klik Simpan pada koneksi lambat | ✅ tombol punya status menunggu |
 | C3 | Tampilan kemajuan berdasar **sesuatu yang nyata** dan **diberi label** ("3 dari 8"), bukan angka telanjang | Lihat sidebar dan kartu kursus | ✅ "N dari M selesai" |
-| C4 | Untuk kursus panjang, tampilkan **tujuan kecil lebih dulu** (modul pertama) selain keseluruhan | Buka kursus 60 pelajaran, lihat apa yang ditampilkan | ⚠️ kursus PBO 64 pelajaran hanya menampilkan total |
+| C4 | Untuk kursus panjang, tampilkan **tujuan kecil lebih dulu** (modul pertama) selain keseluruhan | Buka kursus 60 pelajaran, lihat apa yang ditampilkan | ✅ detail kursus >10 pelajaran menampilkan "Mulai kecil: <modul> — N pelajaran, ±menit" sebelum mulai, dan "Tujuan terdekat: <modul> — x dari N selesai" setelah mulai; dibuktikan di kursus PBO 64 pelajaran |
 | C5 | Umpan balik diberikan **di tempat yang berarti** (tugas selesai, kesalahan, tonggak); selebihnya diam. Terlalu banyak = beban | Hitung notifikasi dalam satu sesi belajar | belum diperiksa |
 
 ## D. Motivasi dan gamifikasi
@@ -107,9 +107,9 @@ jenis bukti**, dan satu saja tidak pernah cukup —
 
 | | Aturan | Cara periksa | Status |
 |---|---|---|---|
-| F1 | Kalimat pendek (satu gagasan), kata sehari-hari, hal terpenting di depan | Baca ulang 5 layar; adakah kalimat >25 kata? | belum diperiksa |
-| F2 | Tiap singkatan dijelaskan saat pertama muncul | Cari singkatan di antarmuka | belum diperiksa |
-| F3 | **Pesan galat menyebut apa yang salah DAN apa yang harus dilakukan** | Picu 5 galat berbeda, baca pesannya | ⚠️ sebagian — pesan simpan kursus sudah menyebut ruasnya, pesan lain belum ditinjau |
+| F1 | Kalimat pendek (satu gagasan), kata sehari-hari, hal terpenting di depan | `npm run cek:bahasa` (kamus + string + teks JSX); teks rakitan runtime tetap perlu baca manual | ✅ 0 kalimat >25 kata |
+| F2 | Tiap singkatan dijelaskan saat pertama muncul | `npm run cek:bahasa` membandingkan singkatan kamus dengan daftar yang sudah dijelaskan | ✅ |
+| F3 | **Pesan galat menyebut apa yang salah DAN apa yang harus dilakukan** | Picu 5 galat berbeda, baca pesannya | ✅ pemetaan auth/db terpusat dan semua pesan "Gagal …" kini menyertakan tindakan; pesan simpan kursus menyebut ruasnya |
 | F4 | **Jangan jawab platform yang membingungkan dengan pusat bantuan.** Intuitif berarti bisa dipahami tanpa penjelasan | Saat tergoda menambah tooltip, perbaiki labelnya dulu | — aturan kerja |
 
 ## G. Mobile

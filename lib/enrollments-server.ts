@@ -139,11 +139,11 @@ export async function getLearnerCourseGrade(courseId: string): Promise<CourseGra
  */
 export async function getEnrollmentProgress(
   courseId: string
-): Promise<{ enrolled: boolean; started: boolean }> {
+): Promise<{ enrolled: boolean; started: boolean; completedLessonIds: string[] }> {
   const supabase = await createClient()
   const { data: claimsData } = await supabase.auth.getClaims()
   const userId = claimsData?.claims?.sub
-  if (!userId) return { enrolled: false, started: false }
+  if (!userId) return { enrolled: false, started: false, completedLessonIds: [] }
 
   const { data: enrollment, error: enrollmentError } = await supabase
     .from("enrollments")
@@ -154,22 +154,27 @@ export async function getEnrollmentProgress(
 
   if (enrollmentError) {
     console.error("getEnrollmentProgress enrollment lookup failed:", enrollmentError.message)
-    return { enrolled: false, started: false }
+    return { enrolled: false, started: false, completedLessonIds: [] }
   }
-  if (!enrollment) return { enrolled: false, started: false }
+  if (!enrollment) return { enrolled: false, started: false, completedLessonIds: [] }
 
-  const { count, error: progressError } = await supabase
+  // Id-nya dibawa, bukan hanya jumlahnya: halaman detail kursus memakainya
+  // untuk menunjuk modul yang sedang berjalan sebagai tujuan terdekat
+  // (STANDAR-PLATFORM-DIGITAL-LEARNING butir C4) -- kursus 64 pelajaran yang
+  // hanya menyodorkan totalnya mengintimidasi sebelum dimulai.
+  const { data: progressRows, error: progressError } = await supabase
     .from("lesson_progress")
-    .select("id", { count: "exact", head: true })
+    .select("lesson_id")
     .eq("enrollment_id", enrollment.id)
     .eq("completed", true)
 
   if (progressError) {
     console.error("getEnrollmentProgress progress lookup failed:", progressError.message)
-    return { enrolled: true, started: false }
+    return { enrolled: true, started: false, completedLessonIds: [] }
   }
 
-  return { enrolled: true, started: (count ?? 0) > 0 }
+  const completedLessonIds = (progressRows ?? []).map((r) => r.lesson_id as string)
+  return { enrolled: true, started: completedLessonIds.length > 0, completedLessonIds }
 }
 
 /** Course ids the learner has completed at least one lesson in, for the catalog grid. */

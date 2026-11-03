@@ -12,6 +12,14 @@ import { getCourseDetail } from "@/lib/courses-server"
 import { getEnrollmentProgress, getLearnerCourseGrade } from "@/lib/enrollments-server"
 import { formatCourseAccess } from "@/lib/courses"
 import { getCourseNotes } from "@/lib/notes-server"
+import { getTranslations } from "@/lib/i18n/server"
+
+/**
+ * Batas "kursus panjang" (STANDAR-PLATFORM-DIGITAL-LEARNING butir C4): di atas
+ * jumlah ini, total pelajaran saja mengintimidasi, jadi kami tunjukkan juga
+ * tujuan terdekat seukuran satu modul.
+ */
+const BATAS_KURSUS_PANJANG = 10
 
 export default async function CourseDetailPage({
   params,
@@ -25,11 +33,37 @@ export default async function CourseDetailPage({
   const course = await getCourseDetail(id)
   if (!course) notFound()
 
-  const { enrolled, started } = await getEnrollmentProgress(course.id)
+  const { enrolled, started, completedLessonIds } = await getEnrollmentProgress(course.id)
+  const { t } = await getTranslations()
   const courseGrade = enrolled ? await getLearnerCourseGrade(course.id) : null
   const notes = enrolled ? await getCourseNotes(course.id) : null
   const price = formatCourseAccess(course)
   const initialOpen = enrollParam === "required"
+
+  // Butir C4: kursus 64 pelajaran yang hanya menyodorkan totalnya membuat orang
+  // mundur sebelum mulai. Tawarkan tujuan sebesar satu modul saja.
+  let tujuanTerdekat: string | null = null
+  if (course.lesson_count > BATAS_KURSUS_PANJANG) {
+    const selesai = new Set(completedLessonIds)
+    if (!started) {
+      const modul = course.sections.find((s) => s.lessons.length > 0)
+      if (modul) {
+        const totalDetik = modul.lessons.reduce((a, l) => a + (l.duration_seconds ?? 0), 0)
+        tujuanTerdekat = (totalDetik > 0 ? t.nearGoal.start : t.nearGoal.startNoTime)
+          .replace("{modul}", modul.title)
+          .replace("{n}", String(modul.lessons.length))
+          .replace("{menit}", String(Math.max(1, Math.round(totalDetik / 60))))
+      }
+    } else {
+      const modul = course.sections.find((s) => s.lessons.some((l) => !selesai.has(l.id)))
+      if (modul) {
+        tujuanTerdekat = t.nearGoal.resume
+          .replace("{modul}", modul.title)
+          .replace("{selesai}", String(modul.lessons.filter((l) => selesai.has(l.id)).length))
+          .replace("{n}", String(modul.lessons.length))
+      }
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -57,6 +91,9 @@ export default async function CourseDetailPage({
                 <span>·</span>
                 <span>{course.duration_hours} jam</span>
               </div>
+              {tujuanTerdekat && (
+                <p className="mt-2 text-sm font-medium">{tujuanTerdekat}</p>
+              )}
             </CardContent>
           </Card>
 

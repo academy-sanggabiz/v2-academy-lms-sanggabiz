@@ -30,15 +30,15 @@ export function LearnerManagementClient({
     <div className="rounded-2xl border border-border bg-card p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-bold">{t.admin.allLearners}</h2>
-        <ListToolbar placeholder="Cari nama atau email...">
+        <ListToolbar placeholder={t.admin.searchNameEmail}>
           <ListFilterSelect
             paramKey="filter"
             defaultValue="all"
             placeholder="Filter"
             options={[
-              { value: "all", label: "Semua Peserta" },
-              { value: "enrolled", label: "Terdaftar" },
-              { value: "completed", label: "Selesai" },
+              { value: "all", label: t.admin.allLearners },
+              { value: "enrolled", label: t.admin.filterEnrolled },
+              { value: "completed", label: t.admin.filterCompleted },
             ]}
           />
         </ListToolbar>

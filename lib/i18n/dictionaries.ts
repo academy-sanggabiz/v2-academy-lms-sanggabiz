@@ -171,6 +171,14 @@ export type Dictionary = {
     startLearning: string
     enrolledStartLearning: string
   }
+  nearGoal: {
+    /** `{modul}` nama modul, `{n}` jumlah pelajaran, `{menit}` perkiraan menit. */
+    start: string
+    /** Seperti `start`, dipakai saat data durasi modul kosong. */
+    startNoTime: string
+    /** `{modul}`, `{selesai}`, `{n}`. */
+    resume: string
+  }
   kpi: {
     title: string
     noTarget: string
@@ -261,6 +269,15 @@ export type Dictionary = {
     colLearner: string
     colCourse: string
     noLearnerMatches: string
+    filterAllStatuses: string
+    filterDraft: string
+    filterAllPrices: string
+    filterPublic: string
+    filterPaid: string
+    filterEnrolled: string
+    filterCompleted: string
+    searchCourseTitle: string
+    searchNameEmail: string
     learnersHeading: string
     colModule: string
     colTask: string
@@ -534,6 +551,11 @@ const id: Dictionary = {
     startLearning: "Mulai belajar",
     enrolledStartLearning: "Terdaftar ✓ Mulai belajar",
   },
+  nearGoal: {
+    start: "Mulai kecil: {modul} \u2014 {n} pelajaran, \u00B1{menit} menit",
+    startNoTime: "Mulai kecil: {modul} \u2014 {n} pelajaran",
+    resume: "Tujuan terdekat: {modul} \u2014 {selesai} dari {n} pelajaran selesai",
+  },
   kpi: {
     title: "Apa persisnya yang dihitung",
     noTarget:
@@ -643,6 +665,15 @@ const id: Dictionary = {
     colLearner: "Peserta",
     colCourse: "Kursus",
     noLearnerMatches: "Tidak ada peserta yang cocok dengan pencarian Anda.",
+    filterAllStatuses: "Semua status",
+    filterDraft: "Draf",
+    filterAllPrices: "Semua harga",
+    filterPublic: "Publik",
+    filterPaid: "Berbayar",
+    filterEnrolled: "Terdaftar",
+    filterCompleted: "Selesai",
+    searchCourseTitle: "Cari judul kursus...",
+    searchNameEmail: "Cari nama atau email...",
     learnersHeading: "Peserta",
     colModule: "Modul",
     colTask: "Tugas",
@@ -924,6 +955,11 @@ const en: Dictionary = {
     startLearning: "Start learning",
     enrolledStartLearning: "Enrolled ✓ Start learning",
   },
+  nearGoal: {
+    start: "Start small: {modul} \u2014 {n} lessons, about {menit} minutes",
+    startNoTime: "Start small: {modul} \u2014 {n} lessons",
+    resume: "Nearest goal: {modul} \u2014 {selesai} of {n} lessons done",
+  },
   kpi: {
     title: "What exactly is counted",
     noTarget:
@@ -1034,6 +1070,15 @@ const en: Dictionary = {
     colLearner: "Learner",
     colCourse: "Course",
     noLearnerMatches: "No learner matches your search.",
+    filterAllStatuses: "All statuses",
+    filterDraft: "Draft",
+    filterAllPrices: "All prices",
+    filterPublic: "Public",
+    filterPaid: "Paid",
+    filterEnrolled: "Enrolled",
+    filterCompleted: "Completed",
+    searchCourseTitle: "Search course title...",
+    searchNameEmail: "Search name or email...",
     learnersHeading: "Learners",
     colModule: "Module",
     colTask: "Task",
