@@ -33,29 +33,35 @@ import { addBankItemsAction } from "@/app/admin/courses/bank-actions"
 import { useCourseDraft } from "../CourseDraftContext"
 import { useQuestionQuizIssue } from "../QuizIssuesContext"
 import { dndAnnouncements } from "@/lib/dnd-announcements"
+import { useI18n } from "@/components/i18n/LocaleProvider"
+import type { Dictionary } from "@/lib/i18n/dictionaries"
 
 // Only auto-gradable types are offered for a normal quiz. Essay/file_upload
 // only exist inside a study case (see "Add Study Case" below) -- a normal
 // quiz must always resolve to an immediate score, never `pending_review`.
 /** Both map to Essay in the UI; the stored `type` is what selects the answer widget. */
-const ANSWER_FORMATS: { value: "essay" | "file_upload"; label: string; hint: string }[] = [
-  {
-    value: "essay",
-    label: "Jawaban tertulis",
-    hint: "Peserta mengetik jawaban di kotak teks.",
-  },
-  {
-    value: "file_upload",
-    label: "Unggah berkas atau tautan",
-    hint: "Peserta mengirim tautan ke berkasnya (misal Google Drive), bukan mengetik.",
-  },
-]
+function answerFormats(t: Dictionary): { value: "essay" | "file_upload"; label: string; hint: string }[] {
+  return [
+    { value: "essay", label: t.editor.answerWritten, hint: t.editor.answerWrittenHint },
+    { value: "file_upload", label: t.editor.answerUpload, hint: t.editor.answerUploadHint },
+  ]
+}
+
+/** Label jenis soal mengikuti bahasa; nilai tersimpannya tetap. */
+function questionTypeLabels(t: Dictionary): Record<string, string> {
+  return {
+    multiple_choice: t.editor.qtMultipleChoice,
+    true_false: t.editor.qtTrueFalse,
+    short_answer: t.editor.qtShortAnswer,
+  }
+}
 
 function isEssayQuestion(type: AuthorableQuestionType): type is "essay" | "file_upload" {
   return type === "essay" || type === "file_upload"
 }
 
 export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz | null }) {
+  const { t } = useI18n()
   const [bankOpen, setBankOpen] = useState(false)
   const [savingToBank, startSavingToBank] = useTransition()
   const { dispatch } = useCourseDraft()
@@ -98,7 +104,7 @@ export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQu
   function saveAllToBank() {
     const siap = questions.filter((q) => q.prompt.trim())
     if (siap.length === 0) {
-      toast.error("Belum ada soal yang teksnya terisi")
+      toast.error(t.editor.noPromptsFilled)
       return
     }
     startSavingToBank(async () => {
@@ -120,9 +126,9 @@ export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQu
       }
       const dilewati = questions.length - siap.length
       toast.success(
-        dilewati > 0
-          ? `${result.data.added} soal disimpan ke bank, ${dilewati} dilewati karena masih kosong`
-          : `${result.data.added} soal disimpan ke bank`
+        (dilewati > 0 ? t.editor.savedToBankSkipped : t.editor.savedToBank)
+          .replace("{n}", String(result.data.added))
+          .replace("{lewat}", String(dilewati))
       )
     })
   }
@@ -133,7 +139,7 @@ export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQu
 
       {questions.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
-          Belum ada soal. Tambahkan soal, atau jadikan pelajaran ini studi kasus.
+          {t.editor.noQuestions}
         </p>
       ) : (
         /*
@@ -143,7 +149,7 @@ export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQu
         */
         <DndContext
           sensors={sensors}
-          accessibility={dndAnnouncements("Soal")}
+          accessibility={dndAnnouncements(t.editor.questionNoun, t)}
           collisionDetection={closestCenter}
           onDragEnd={(event) => {
             const { active, over } = event
@@ -170,11 +176,11 @@ export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQu
         <div className="mt-3 flex flex-wrap gap-2">
           <Button type="button" variant="outline" size="sm" onClick={openPicker}>
             <Plus className="size-3.5" />
-            Tambah Soal
+            {t.editor.addQuestion}
           </Button>
           <Button type="button" variant="outline" size="sm" onClick={() => setBankOpen(true)}>
             <Library className="size-3.5" />
-            Ambil dari Bank
+            {t.editor.fromBank}
           </Button>
           {questions.length > 0 && (
             <Button
@@ -182,16 +188,16 @@ export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQu
               variant="ghost"
               size="sm"
               pending={savingToBank}
-              pendingLabel="Menyimpan…"
+              pendingLabel={t.common.saving}
               onClick={saveAllToBank}
             >
-              Simpan {questions.length} soal ke Bank
+              {t.editor.saveNToBank.replace("{n}", String(questions.length))}
             </Button>
           )}
           {questions.length === 0 && (
             <Button type="button" variant="outline" size="sm" onClick={handleAddStudyCase}>
               <Plus className="size-3.5" />
-              Tambah Studi Kasus
+              {t.editor.addStudyCase}
             </Button>
           )}
         </div>
@@ -206,29 +212,29 @@ export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQu
       <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
         <DialogContent className="max-w-[420px]">
           <DialogHeader>
-            <DialogTitle>Tambah Soal</DialogTitle>
-            <DialogDescription>Pilih jenis soal. Jenis ini tidak dapat diubah nanti.</DialogDescription>
+            <DialogTitle>{t.editor.addQuestion}</DialogTitle>
+            <DialogDescription>{t.editor.pickTypeDesc}</DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
-            <Label>Jenis</Label>
+            <Label>{t.editor.typeLabel}</Label>
             <RadioGroup
               value={selectedType}
               onValueChange={(value) => setSelectedType(value as AuthorableQuestionType)}
             >
-              {QUESTION_TYPES.map((t) => (
-                <label key={t.value} className="flex items-center gap-2.5 text-sm">
-                  <RadioGroupItem value={t.value} />
-                  {t.label}
+              {QUESTION_TYPES.map((jenis) => (
+                <label key={jenis.value} className="flex items-center gap-2.5 text-sm">
+                  <RadioGroupItem value={jenis.value} />
+                  {questionTypeLabels(t)[jenis.value] ?? jenis.label}
                 </label>
               ))}
             </RadioGroup>
           </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setPickerOpen(false)}>
-              Batal
+              {t.common.cancel}
             </Button>
             <Button type="button" variant="outline" onClick={() => handleAddQuestion(selectedType)}>
-              Tambah Soal
+              {t.editor.addQuestion}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -239,6 +245,7 @@ export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQu
 
 function QuizSettings({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz }) {
   const { dispatch } = useCourseDraft()
+  const { t } = useI18n()
   const [passScore, setPassScore] = useState(String(quiz.pass_score))
   const [maxAttempts, setMaxAttempts] = useState(quiz.max_attempts ? String(quiz.max_attempts) : "")
   const [drawCount, setDrawCount] = useState(quiz.draw_count ? String(quiz.draw_count) : "")
@@ -274,7 +281,7 @@ function QuizSettings({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz })
   return (
     <div className="mb-3 flex flex-wrap items-end gap-4 rounded-lg border border-border bg-muted/30 p-3">
       <div className="w-32 space-y-1.5">
-        <Label htmlFor={`pass-score-${quiz.id}`}>Nilai Lulus (%)</Label>
+        <Label htmlFor={`pass-score-${quiz.id}`}>{t.editor.passScoreLabel}</Label>
         <Input
           id={`pass-score-${quiz.id}`}
           type="number"
@@ -286,32 +293,32 @@ function QuizSettings({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz })
         />
       </div>
       <div className="w-32 space-y-1.5">
-        <Label htmlFor={`max-attempts-${quiz.id}`}>Maks. Percobaan</Label>
+        <Label htmlFor={`max-attempts-${quiz.id}`}>{t.editor.maxAttemptsLabel}</Label>
         {quiz.is_assessment ? (
           <Input
             id={`max-attempts-${quiz.id}`}
             type="number"
             min={0}
-            placeholder="Tidak terbatas"
+            placeholder={t.editor.unlimitedPh}
             value={maxAttempts}
             onChange={(e) => setMaxAttempts(e.target.value)}
             onBlur={() => save({ max_attempts: maxAttempts.trim() ? Number(maxAttempts) : null })}
           />
         ) : (
           <p className="flex h-9 items-center text-sm text-muted-foreground">
-            Tanpa batas
+            {t.editor.unlimited}
           </p>
         )}
       </div>
       {!quiz.is_assessment && (
         <div className="w-44 space-y-1.5">
-          <Label htmlFor={`draw-count-${quiz.id}`}>Soal per Percobaan</Label>
+          <Label htmlFor={`draw-count-${quiz.id}`}>{t.editor.drawCountLabel}</Label>
           <Input
             id={`draw-count-${quiz.id}`}
             type="number"
             min={1}
             max={total}
-            placeholder={`Semua (${total})`}
+            placeholder={t.editor.allN.replace("{n}", String(total))}
             value={drawCount}
             onChange={(e) => setDrawCount(e.target.value)}
             onBlur={simpanPenarikan}
@@ -324,14 +331,13 @@ function QuizSettings({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz })
           checked={quiz.shuffle}
           onCheckedChange={(checked) => save({ shuffle: checked })}
         />
-        <Label htmlFor={`shuffle-${quiz.id}`}>Acak Soal</Label>
+        <Label htmlFor={`shuffle-${quiz.id}`}>{t.editor.shuffleLabel}</Label>
       </div>
       {quiz.draw_count !== null && quiz.draw_count < total && (
         <p className="w-full text-xs text-muted-foreground">
-          Tiap peserta menghadapi {quiz.draw_count} soal acak dari {total}. Soalnya dipilih saat
-          percobaan dimulai dan tetap sama sampai percobaan itu selesai. Karena kumpulan soalnya
-          berbeda-beda, nilai antarpeserta tidak lagi langsung sebanding — pastikan seluruh soal
-          setara tingkat kesulitannya.
+          {t.editor.drawNote
+            .replace("{n}", String(quiz.draw_count))
+            .replace("{total}", String(total))}
         </p>
       )}
       <div className="flex w-full items-start gap-2 border-t border-border pt-3">
@@ -343,13 +349,13 @@ function QuizSettings({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz })
               : "bg-muted text-muted-foreground"
           )}
         >
-          {quiz.is_assessment ? "Studi Kasus" : "Kuis Biasa"}
+          {quiz.is_assessment ? t.editor.studyCase : t.editor.normalQuiz}
         </span>
         <p className="text-xs text-muted-foreground">
           {quiz.is_assessment
-            ? `Tanpa tombol mulai atau batas waktu; peserta menyimpan draf dan mengirim jika sudah selesai. Nilai secara manual di Admin › Penilaian. Bobotnya ${ASSESSMENT_GRADE_WEIGHT}× kuis biasa dalam nilai akhir kursus.`
-            : "Dinilai otomatis dan langsung mendapat skor saat dikirim."}{" "}
-          Untuk mengganti mode, hapus dulu semua soal di kuis ini.
+            ? t.editor.assessmentNote.replace("{w}", String(ASSESSMENT_GRADE_WEIGHT))
+            : t.editor.normalQuizNote}{" "}
+          {t.editor.changeModeNote}
         </p>
       </div>
     </div>
@@ -358,6 +364,7 @@ function QuizSettings({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz })
 
 function QuestionCard({ question, index }: { question: DraftQuestion; index: number }) {
   const { dispatch } = useCourseDraft()
+  const { t } = useI18n()
   const [expanded, setExpanded] = useState(false)
   const [prompt, setPrompt] = useState(question.prompt)
   const points = QUESTION_TYPE_POINTS[question.type]
@@ -372,8 +379,8 @@ function QuestionCard({ question, index }: { question: DraftQuestion; index: num
 
   // file_upload has no QUESTION_TYPES entry any more -- it reads as "Essay".
   const typeLabel = isEssayQuestion(question.type)
-    ? "Esai"
-    : (QUESTION_TYPES.find((t) => t.value === question.type)?.label ?? question.type)
+    ? t.editor.qtEssay
+    : (questionTypeLabels(t)[question.type] ?? question.type)
 
   const issue = useQuestionQuizIssue(question.id)
   // Render-time adjustment rather than an effect: a failed Save must open the
@@ -401,23 +408,23 @@ function QuestionCard({ question, index }: { question: DraftQuestion; index: num
           type="button"
           {...attributes}
           {...listeners}
-          aria-label={`Pindahkan soal ${index + 1}: tekan Spasi untuk mengambil, tombol panah untuk memindahkan, Spasi untuk melepas`}
+          aria-label={t.editor.moveQuestionAria.replace("{n}", String(index + 1))}
           className="-m-1 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded active:cursor-grabbing"
         >
           <GripVertical className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
         </button>
-        <span className="text-sm font-semibold whitespace-nowrap">Soal {index + 1}</span>
+        <span className="text-sm font-semibold whitespace-nowrap">{t.editor.questionN.replace("{n}", String(index + 1))}</span>
         <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold text-secondary-foreground">
           {typeLabel}
         </span>
         <span className="text-xs text-muted-foreground">
-          {points} poin
+          {t.editor.nPoints.replace("{n}", String(points))}
         </span>
         <div className="flex-1" />
-        <Button type="button" variant="ghost" size="icon-sm" onClick={handleDelete} aria-label={`Hapus soal ${index + 1}`}>
+        <Button type="button" variant="ghost" size="icon-sm" onClick={handleDelete} aria-label={t.editor.deleteQuestionAria.replace("{n}", String(index + 1))}>
           <Trash2 className="size-3.5 text-destructive" />
         </Button>
-        <Button type="button" variant="ghost" size="icon-sm" onClick={() => setExpanded((v) => !v)} aria-label={`Buka/tutup soal ${index + 1}`} aria-expanded={expanded}>
+        <Button type="button" variant="ghost" size="icon-sm" onClick={() => setExpanded((v) => !v)} aria-label={t.editor.toggleQuestionAria.replace("{n}", String(index + 1))} aria-expanded={expanded}>
           <ChevronDown className={cn("size-3.5 transition-transform", expanded && "rotate-180")} />
         </Button>
       </div>
@@ -430,9 +437,9 @@ function QuestionCard({ question, index }: { question: DraftQuestion; index: num
             </p>
           )}
           <div className="space-y-1.5">
-            <Label>Pertanyaan</Label>
+            <Label>{t.editor.promptLabel}</Label>
             <RichTextEditor
-              ariaLabel={`Pertanyaan soal ${index + 1}`}
+              ariaLabel={t.editor.promptAria.replace("{n}", String(index + 1))}
               value={prompt}
               onChange={(html) => {
                 const next = html.replace(/<[^>]*>/g, "").trim() ? html : ""
@@ -449,7 +456,7 @@ function QuestionCard({ question, index }: { question: DraftQuestion; index: num
                   checked={question.allow_multiple}
                   onCheckedChange={(checked) => save({ allow_multiple: checked })}
                 />
-                <Label htmlFor={`allow-multiple-${question.id}`}>Izinkan lebih dari satu jawaban benar</Label>
+                <Label htmlFor={`allow-multiple-${question.id}`}>{t.editor.allowMultiple}</Label>
               </div>
               <OptionsEditor
                 questionId={question.id}
@@ -469,12 +476,12 @@ function QuestionCard({ question, index }: { question: DraftQuestion; index: num
                   checked={question.case_sensitive}
                   onCheckedChange={(checked) => save({ case_sensitive: checked })}
                 />
-                <Label htmlFor={`case-sensitive-${question.id}`}>Huruf besar/kecil berpengaruh</Label>
+                <Label htmlFor={`case-sensitive-${question.id}`}>{t.editor.caseSensitive}</Label>
               </div>
               <OptionsEditor questionId={question.id} options={question.options} variant="keyword" />
               {question.options.every((o) => !o.is_correct) && (
                 <p className="text-xs text-destructive">
-                  Tambahkan minimal satu jawaban yang diterima. Kuis biasa harus dapat dinilai otomatis.
+                  {t.editor.needAcceptedAnswer}
                 </p>
               )}
             </>
@@ -482,10 +489,9 @@ function QuestionCard({ question, index }: { question: DraftQuestion; index: num
 
           {!isEssayQuestion(question.type) && (
             <div className="space-y-1.5">
-              <Label htmlFor={`explanation-${question.id}`}>Penjelasan (opsional)</Label>
+              <Label htmlFor={`explanation-${question.id}`}>{t.editor.explanationLabel}</Label>
               <p id={`explanation-help-${question.id}`} className="text-xs text-muted-foreground">
-                Ditampilkan kepada peserta setelah mengirim jawaban: mengapa jawaban itu benar, dan materi apa yang
-                perlu dipelajari ulang jika salah. Cukup satu atau dua kalimat sederhana.
+                {t.editor.explanationHelp}
               </p>
               <Textarea
                 id={`explanation-${question.id}`}
@@ -493,7 +499,7 @@ function QuestionCard({ question, index }: { question: DraftQuestion; index: num
                 value={question.explanation ?? ""}
                 maxLength={5000}
                 onChange={(e) => save({ explanation: e.target.value })}
-                placeholder="misal: Mengingat kembali lebih efektif daripada membaca ulang. Pelajari lagi pelajaran 2."
+                placeholder={t.editor.explanationPh}
                 className="min-h-[72px]"
               />
             </div>
@@ -501,12 +507,12 @@ function QuestionCard({ question, index }: { question: DraftQuestion; index: num
 
           {isEssayQuestion(question.type) && (
             <div className="space-y-2">
-              <Label>Format jawaban</Label>
+              <Label>{t.editor.answerFormat}</Label>
               <RadioGroup
                 value={question.type}
                 onValueChange={(value) => save({ type: value as AuthorableQuestionType })}
               >
-                {ANSWER_FORMATS.map((f) => (
+                {answerFormats(t).map((f) => (
                   <label key={f.value} className="flex items-start gap-2.5 text-sm">
                     <RadioGroupItem value={f.value} className="mt-0.5" />
                     <span>
@@ -516,7 +522,7 @@ function QuestionCard({ question, index }: { question: DraftQuestion; index: num
                   </label>
                 ))}
               </RadioGroup>
-              <p className="text-xs text-muted-foreground">Jawaban jenis ini tidak dinilai otomatis.</p>
+              <p className="text-xs text-muted-foreground">{t.editor.notAutoGraded}</p>
             </div>
           )}
         </div>
@@ -527,6 +533,7 @@ function QuestionCard({ question, index }: { question: DraftQuestion; index: num
 
 function TrueFalseEditor({ questionId, options }: { questionId: string; options: DraftOption[] }) {
   const { dispatch } = useCourseDraft()
+  const { t } = useI18n()
 
   function handleSetCorrect(optionId: string) {
     dispatch({ type: "setCorrectOption", questionId, optionId })
@@ -534,7 +541,7 @@ function TrueFalseEditor({ questionId, options }: { questionId: string; options:
 
   return (
     <div className="space-y-2">
-      <Label>Jawaban Benar</Label>
+      <Label>{t.editor.correctAnswer}</Label>
       <div className="flex gap-2.5">
         {options.map((option) => (
           <button
@@ -570,6 +577,7 @@ function OptionsEditor({
   variant: "single" | "multi" | "keyword"
 }) {
   const { dispatch } = useCourseDraft()
+  const { t } = useI18n()
 
   function handleAddOption() {
     dispatch({ type: "addOption", questionId, option: { is_correct: variant === "keyword" } })
@@ -589,7 +597,7 @@ function OptionsEditor({
 
   return (
     <div className="space-y-2">
-      <Label>{variant === "keyword" ? "Jawaban yang Diterima" : "Pilihan"}</Label>
+      <Label>{variant === "keyword" ? t.editor.acceptedAnswers : t.editor.choices}</Label>
       {options.map((option) => (
         <OptionRow
           key={option.id}
@@ -602,7 +610,7 @@ function OptionsEditor({
       ))}
       <Button type="button" variant="outline" size="sm" onClick={handleAddOption}>
         <Plus className="size-3.5" />
-        {variant === "keyword" ? "Tambah Jawaban" : "Tambah Pilihan"}
+        {variant === "keyword" ? t.editor.addAnswer : t.editor.addChoice}
       </Button>
     </div>
   )
@@ -622,6 +630,7 @@ function OptionRow({
   onRemove: () => void
 }) {
   const { dispatch } = useCourseDraft()
+  const { t } = useI18n()
   const [text, setText] = useState(option.text)
 
   function save() {
@@ -633,7 +642,8 @@ function OptionRow({
       {variant === "single" && (
         <button
           type="button"
-          title="Tandai sebagai jawaban benar"
+          title={t.editor.markCorrect}
+          aria-label={t.editor.markCorrect}
           onClick={onSetCorrect}
           className={cn(
             "size-4 shrink-0 rounded-full border-2",
@@ -644,7 +654,8 @@ function OptionRow({
       {variant === "multi" && (
         <button
           type="button"
-          title="Tandai sebagai jawaban benar"
+          title={t.editor.markCorrect}
+          aria-label={t.editor.markCorrect}
           onClick={() => onToggleCorrect(!option.is_correct)}
           className={cn(
             "size-4 shrink-0 rounded-sm border-2",
@@ -652,8 +663,8 @@ function OptionRow({
           )}
         />
       )}
-      <Input value={text} onChange={(e) => setText(e.target.value)} onBlur={save} className="flex-1" aria-label={variant === "keyword" ? "Jawaban yang diterima" : "Teks pilihan"} />
-      <Button type="button" variant="ghost" size="icon-sm" onClick={onRemove} aria-label="Hapus pilihan">
+      <Input value={text} onChange={(e) => setText(e.target.value)} onBlur={save} className="flex-1" aria-label={variant === "keyword" ? t.editor.acceptedAnswerAria : t.editor.choiceTextAria} />
+      <Button type="button" variant="ghost" size="icon-sm" onClick={onRemove} aria-label={t.editor.removeChoice}>
         <X className="size-3.5 text-destructive" />
       </Button>
     </div>

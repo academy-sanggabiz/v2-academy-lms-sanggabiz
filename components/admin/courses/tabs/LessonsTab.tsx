@@ -74,13 +74,17 @@ import { QuizEditor } from "./QuizEditor"
 import { RichTextEditor } from "../RichTextEditor"
 import { LessonWritingGuide } from "../LessonWritingGuide"
 import { dndAnnouncements } from "@/lib/dnd-announcements"
+import { useI18n } from "@/components/i18n/LocaleProvider"
+import type { Dictionary } from "@/lib/i18n/dictionaries"
 
-const LESSON_TYPES: { value: LessonContentType; label: string; description: string }[] = [
-  { value: "video", label: "Pelajaran Video", description: "Konten pelajaran berupa video" },
-  { value: "text", label: "Pelajaran Teks", description: "Konten pelajaran berupa teks" },
-  { value: "ppt", label: "Pelajaran Slide", description: "Konten pelajaran berupa presentasi Google Slides" },
-  { value: "quiz", label: "Pelajaran Kuis", description: "Pelajaran berupa kuis untuk menguji materi sebelumnya" },
-]
+function lessonTypes(t: Dictionary): { value: LessonContentType; label: string; description: string }[] {
+  return [
+    { value: "video", label: t.editor.lessonTypeVideo, description: t.editor.lessonTypeVideoDesc },
+    { value: "text", label: t.editor.lessonTypeText, description: t.editor.lessonTypeTextDesc },
+    { value: "ppt", label: t.editor.lessonTypePpt, description: t.editor.lessonTypePptDesc },
+    { value: "quiz", label: t.editor.lessonTypeQuiz, description: t.editor.lessonTypeQuizDesc },
+  ]
+}
 
 const TYPE_ICON: Record<LessonContentType, React.ComponentType<{ className?: string }>> = {
   video: Video,
@@ -96,10 +100,12 @@ const TYPE_ICON: Record<LessonContentType, React.ComponentType<{ className?: str
  * layar. Teksnya menyebut judul pelajaran, bukan id, karena id tidak berarti
  * apa pun bagi yang mendengarkan.
  */
-const dndAccessibility = dndAnnouncements("Pelajaran")
+
 
 export function LessonsTab({ quizIssues = [] }: { quizIssues?: QuizIssue[] }) {
   const { draft, dispatch } = useCourseDraft()
+  const { t } = useI18n()
+  const dndAccessibility = dndAnnouncements(t.editor.lessonNoun, t)
   const sections = draft.sections
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [expandedSectionId, setExpandedSectionId] = useState<string | null>(sections[0]?.id ?? null)
@@ -180,16 +186,16 @@ export function LessonsTab({ quizIssues = [] }: { quizIssues?: QuizIssue[] }) {
   return (
     <QuizIssuesProvider issues={quizIssues}>
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-xl font-bold">Pelajaran Kursus</h3>
+        <h3 className="text-xl font-bold">{t.editor.courseLessons}</h3>
         <Button onClick={handleAddSection} className="bg-brand-gradient text-white hover:brightness-105">
           <Plus className="size-3.5" />
-          Tambah Modul
+          {t.editor.addModule}
         </Button>
       </div>
 
       {sections.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
-          Belum ada modul. Klik Tambah Modul untuk mulai menyusun kursus.
+          {t.editor.noModules}
         </p>
       ) : (
         <DndContext
@@ -221,8 +227,8 @@ export function LessonsTab({ quizIssues = [] }: { quizIssues?: QuizIssue[] }) {
             {(activeSection || activeLesson) && (
               <div className="rounded-xl border border-ring bg-card px-3.5 py-3 text-sm font-bold shadow-lg">
                 {activeSection
-                  ? activeSection.title || "Modul Tanpa Nama"
-                  : activeLesson?.title || "Pelajaran Tanpa Judul"}
+                  ? activeSection.title || t.editor.unnamedModule
+                  : activeLesson?.title || t.editor.untitledLesson}
               </div>
             )}
           </DragOverlay>
@@ -248,6 +254,7 @@ const SectionCard = memo(function SectionCard({
   onToggleLessonExpand: (id: string) => void
 }) {
   const { dispatch } = useCourseDraft()
+  const { t } = useI18n()
   const [editingTitle, setEditingTitle] = useState(false)
   const [title, setTitle] = useState(section.title)
 
@@ -285,7 +292,7 @@ const SectionCard = memo(function SectionCard({
           type="button"
           {...attributes}
           {...listeners}
-          aria-label={`Pindahkan modul ${section.title}: tekan Spasi untuk mengambil, tombol panah untuk memindahkan, Spasi untuk melepas`}
+          aria-label={t.editor.moveModuleAria.replace("{judul}", section.title)}
           className="-m-1 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded active:cursor-grabbing"
         >
           <GripVertical className="size-4 shrink-0 text-muted-foreground" aria-hidden />
@@ -304,41 +311,40 @@ const SectionCard = memo(function SectionCard({
             type="button"
             onClick={() => setEditingTitle(true)}
             className="min-h-6 min-w-0 flex-1 truncate text-left text-sm font-bold hover:underline"
-            title="Klik untuk mengganti nama"
+            title={t.editor.clickToRename}
           >
             {section.title}
           </button>
         )}
         <span className="shrink-0 text-xs text-muted-foreground">
-          {section.lessons.length} pelajaran
+          {t.editor.nLessons.replace("{n}", String(section.lessons.length))}
         </span>
         <div className="flex-1" />
         <AlertDialog>
           <AlertDialogTrigger
-            render={<Button type="button" variant="ghost" size="icon-sm" title="Hapus modul" />}
+            render={<Button type="button" variant="ghost" size="icon-sm" title={t.editor.deleteModuleAttr} aria-label={t.editor.deleteModuleAttr} />}
           >
             <Trash2 className="size-3.5 text-destructive" />
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Hapus &quot;{section.title}&quot;?</AlertDialogTitle>
+              <AlertDialogTitle>{t.editor.deleteTitled.replace("{judul}", section.title)}</AlertDialogTitle>
               <AlertDialogDescription>
-                Modul ini beserta {section.lessons.length} pelajarannya (termasuk sumber belajar dan
-                kuisnya) akan dihapus dari draf. Tidak ada yang dihapus dari database sampai Anda menekan Simpan.
+                {t.editor.deleteSectionDesc.replace("{n}", String(section.lessons.length))}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-destructive/10 text-destructive hover:bg-destructive/20"
                 onClick={handleDelete}
               >
-                Hapus
+                {t.editor.deleteWord}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <Button type="button" variant="ghost" size="icon-sm" title="Buka/tutup" onClick={onToggleExpand}>
+        <Button type="button" variant="ghost" size="icon-sm" title={t.editor.toggleOpen} aria-label={t.editor.toggleOpen} onClick={onToggleExpand}>
           <ChevronDown className={cn("size-3.5 transition-transform", expanded && "rotate-180")} />
         </Button>
       </div>
@@ -347,7 +353,7 @@ const SectionCard = memo(function SectionCard({
         <div className="flex flex-col gap-3 border-t border-border p-4">
           {section.lessons.length === 0 ? (
             <p className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
-              Belum ada pelajaran di modul ini.
+              {t.editor.noLessonsInModule}
             </p>
           ) : (
             <SortableContext
@@ -367,7 +373,7 @@ const SectionCard = memo(function SectionCard({
           )}
           <Button type="button" variant="outline" size="sm" onClick={onAddLesson} className="self-start">
             <Plus className="size-3.5" />
-            Tambah Pelajaran
+            {t.editor.addLesson}
           </Button>
         </div>
       )}
@@ -387,6 +393,7 @@ const LessonCard = memo(function LessonCard({
   onToggleExpand: () => void
 }) {
   const { dispatch } = useCourseDraft()
+  const { t } = useI18n()
 
   const [title, setTitle] = useState(lesson.title)
   const [videoUrl, setVideoUrl] = useState(lesson.video_url ?? "")
@@ -463,7 +470,7 @@ const LessonCard = memo(function LessonCard({
           type="button"
           {...attributes}
           {...listeners}
-          aria-label={`Pindahkan ${title.trim() || `pelajaran ${index + 1}`}: tekan Spasi untuk mengambil, tombol panah untuk memindahkan, Spasi untuk melepas`}
+          aria-label={t.editor.moveLessonAria.replace("{judul}", title.trim() || t.editor.lessonN.replace("{n}", String(index + 1)))}
           /* shrink-0 wajib: tanpa itu baris flex ini memerasnya jadi 16 px di
              layar 390 px, di bawah batas sasaran 24x24 px WCAG 2.5.8 --
              padahal pegangan geser justru paling butuh sasaran yang lapang. */
@@ -475,7 +482,7 @@ const LessonCard = memo(function LessonCard({
           <Icon className="size-3.5" />
         </span>
         <span className="min-w-0 flex-1 truncate text-sm font-bold">
-          {title.trim() || `Pelajaran ${index + 1}`}
+          {title.trim() || t.editor.lessonN.replace("{n}", String(index + 1))}
         </span>
         <span
           className={cn(
@@ -483,48 +490,47 @@ const LessonCard = memo(function LessonCard({
             isComplete ? "bg-success text-success-foreground" : "bg-amber-100 text-amber-700"
           )}
         >
-          {isComplete ? "Lengkap" : "Belum lengkap"}
+          {isComplete ? t.editor.complete : t.editor.incomplete}
         </span>
         {issues.length > 0 && (
           <span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-destructive">
-            {issues.length} masalah kuis
+            {t.editor.nQuizIssues.replace("{n}", String(issues.length))}
           </span>
         )}
         {durationMin && (
           <span className="flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
             <Clock className="size-3" />
-            {durationMin} menit
+            {t.editor.nMinutes.replace("{n}", durationMin)}
           </span>
         )}
-        <Button type="button" variant="ghost" size="icon-sm" title="Duplikat pelajaran" onClick={handleDuplicate}>
+        <Button type="button" variant="ghost" size="icon-sm" title={t.editor.duplicateLesson} aria-label={t.editor.duplicateLesson} onClick={handleDuplicate}>
           <Copy className="size-3.5" />
         </Button>
         <AlertDialog>
           <AlertDialogTrigger
-            render={<Button type="button" variant="ghost" size="icon-sm" title="Hapus pelajaran" />}
+            render={<Button type="button" variant="ghost" size="icon-sm" title={t.editor.deleteLessonAttr} aria-label={t.editor.deleteLessonAttr} />}
           >
             <Trash2 className="size-3.5 text-destructive" />
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Hapus &quot;{lesson.title}&quot;?</AlertDialogTitle>
+              <AlertDialogTitle>{t.editor.deleteTitled.replace("{judul}", lesson.title)}</AlertDialogTitle>
               <AlertDialogDescription>
-                Pelajaran ini beserta seluruh sumber belajarnya akan dihapus dari draf. Tidak ada yang
-                dihapus dari database sampai Anda menekan Simpan.
+                {t.editor.deleteLessonDesc}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-destructive/10 text-destructive hover:bg-destructive/20"
                 onClick={handleDelete}
               >
-                Hapus
+                {t.editor.deleteWord}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <Button type="button" variant="ghost" size="icon-sm" title="Buka/tutup" onClick={onToggleExpand}>
+        <Button type="button" variant="ghost" size="icon-sm" title={t.editor.toggleOpen} aria-label={t.editor.toggleOpen} onClick={onToggleExpand}>
           <ChevronDown className={cn("size-3.5 transition-transform", expanded && "rotate-180")} />
         </Button>
       </div>
@@ -532,7 +538,7 @@ const LessonCard = memo(function LessonCard({
       {expanded && (
         <div className="border-t border-border p-4">
           <div className="mb-4 space-y-1.5">
-            <Label htmlFor={`lesson-title-${lesson.id}`}>Judul Pelajaran</Label>
+            <Label htmlFor={`lesson-title-${lesson.id}`}>{t.editor.lessonTitleLabel}</Label>
             <Input
               id={`lesson-title-${lesson.id}`}
               value={title}
@@ -542,9 +548,9 @@ const LessonCard = memo(function LessonCard({
           </div>
 
           <div className="mb-4 space-y-3">
-            <span className="text-sm font-semibold">Jenis Pelajaran</span>
+            <span className="text-sm font-semibold">{t.editor.lessonTypeHead}</span>
             <div className="flex flex-col gap-3">
-              {LESSON_TYPES.map((type) => (
+              {lessonTypes(t).map((type) => (
                 <div
                   key={type.value}
                   className="flex cursor-pointer gap-2.5"
@@ -566,7 +572,7 @@ const LessonCard = memo(function LessonCard({
           </div>
 
           <div className="mb-2 max-w-[220px] space-y-1.5">
-            <Label htmlFor={`lesson-duration-${lesson.id}`}>Perkiraan Durasi (menit)</Label>
+            <Label htmlFor={`lesson-duration-${lesson.id}`}>{t.editor.durationLabel}</Label>
             <Input
               id={`lesson-duration-${lesson.id}`}
               type="number"
@@ -579,15 +585,15 @@ const LessonCard = memo(function LessonCard({
               aria-describedby={`lesson-duration-help-${lesson.id}`}
             />
             <p id={`lesson-duration-help-${lesson.id}`} className="text-xs text-muted-foreground">
-              Ditampilkan kepada peserta. Usahakan 5–7 menit per pelajaran.
+              {t.editor.durationHelp}
             </p>
           </div>
 
           {contentType !== "quiz" && (
-          <SubSection title="Konten" open={contentOpen} onToggle={() => setContentOpen((v) => !v)}>
+          <SubSection title={t.editor.contentHead} open={contentOpen} onToggle={() => setContentOpen((v) => !v)}>
             {contentType === "video" && (
               <div className="space-y-1.5">
-                <Label htmlFor={`lesson-video-${lesson.id}`}>URL Video YouTube</Label>
+                <Label htmlFor={`lesson-video-${lesson.id}`}>{t.editor.youtubeUrl}</Label>
                 <Input
                   id={`lesson-video-${lesson.id}`}
                   placeholder="https://www.youtube.com/watch?v=..."
@@ -596,48 +602,42 @@ const LessonCard = memo(function LessonCard({
                   onBlur={() => save({ video_url: videoUrl.trim() || null })}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Tempel tautan YouTube lengkap untuk video pelajaran ini
+                  {t.editor.youtubeHelp}
                 </p>
                 <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
                   <div className="mb-1.5 font-semibold text-foreground">
-                    Memilih video untuk pelajaran ini
+                    {t.editor.videoGuideTitle}
                   </div>
                   <ul className="list-disc space-y-0.5 pl-4">
-                    <li>Satu tujuan belajar per pelajaran; 5–7 menit lebih mudah diselesaikan daripada satu video panjang.</li>
-                    <li>
-                      Utamakan video yang sudah bertakarir. Kalau belum, isi Transkrip di bawah — tanpa salah
-                      satunya, peserta tuli tidak bisa mengikuti pelajaran ini.
-                    </li>
-                    <li>Sebutkan di awal apa yang akan mampu dilakukan peserta setelah menonton.</li>
-                    <li>Akhiri modul dengan pelajaran kuis agar peserta mengingat kembali isinya.</li>
+                    <li>{t.editor.videoGuide1}</li>
+                    <li>{t.editor.videoGuide2}</li>
+                    <li>{t.editor.videoGuide3}</li>
+                    <li>{t.editor.videoGuide4}</li>
                   </ul>
                 </div>
               </div>
             )}
             {(contentType === "video" || contentType === "ppt") && (
               <div className="mt-4 space-y-1.5">
-                <Label htmlFor={`lesson-transcript-${lesson.id}`}>Transkrip</Label>
+                <Label htmlFor={`lesson-transcript-${lesson.id}`}>{t.editor.transcriptLabel}</Label>
                 <Textarea
                   id={`lesson-transcript-${lesson.id}`}
                   value={transcript}
                   onChange={(e) => setTranscript(e.target.value)}
                   onBlur={() => save({ transcript: transcript.trim() || null })}
-                  placeholder="Tempel teks lengkap yang diucapkan di video ini."
+                  placeholder={t.editor.transcriptPh}
                   className="min-h-[140px]"
                   aria-describedby={`lesson-transcript-help-${lesson.id}`}
                 />
                 <p id={`lesson-transcript-help-${lesson.id}`} className="text-xs text-muted-foreground">
-                  Wajib bila videonya tidak bertakarir. Tanpa ini, peserta yang tuli atau
-                  yang menonton tanpa suara tidak bisa mengikuti pelajaran sama sekali
-                  (WCAG 1.2.2). Transkrip juga membantu peserta mencari kembali satu
-                  bagian tanpa memutar ulang seluruh video.
+                  {t.editor.transcriptHelp}
                 </p>
               </div>
             )}
             {contentType === "text" && (
               <>
                 <RichTextEditor
-                  ariaLabel="Konten pelajaran"
+                  ariaLabel={t.editor.lessonContentAria}
                   value={content}
                   onChange={(html) => {
                     setContent(html)
@@ -655,7 +655,7 @@ const LessonCard = memo(function LessonCard({
             )}
             {contentType === "ppt" && (
               <div className="space-y-1.5">
-                <Label htmlFor={`lesson-slides-${lesson.id}`}>Tautan Google Slides</Label>
+                <Label htmlFor={`lesson-slides-${lesson.id}`}>{t.editor.slidesLabel}</Label>
                 <Input
                   id={`lesson-slides-${lesson.id}`}
                   placeholder="https://docs.google.com/presentation/d/.../edit"
@@ -664,7 +664,7 @@ const LessonCard = memo(function LessonCard({
                   onBlur={() => save({ video_url: videoUrl.trim() || null })}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Tempel tautan berbagi Google Slides atau tautan &quot;Publikasikan ke web&quot;
+                  {t.editor.slidesHelp}
                 </p>
               </div>
             )}
@@ -672,7 +672,7 @@ const LessonCard = memo(function LessonCard({
           )}
 
           <SubSection
-            title={`Sumber Belajar (${lesson.resources.length})`}
+            title={t.editor.resourcesHead.replace("{n}", String(lesson.resources.length))}
             open={resourcesOpen}
             onToggle={() => setResourcesOpen((v) => !v)}
           >
@@ -681,7 +681,7 @@ const LessonCard = memo(function LessonCard({
 
           {contentType === "quiz" && (
           <SubSection
-            title={`Kuis (${lesson.quiz?.questions.length ?? 0} soal)`}
+            title={t.editor.quizHead.replace("{n}", String(lesson.quiz?.questions.length ?? 0))}
             open={quizOpen}
             onToggle={() => setQuizOpen((v) => !v)}
           >
@@ -689,15 +689,15 @@ const LessonCard = memo(function LessonCard({
           </SubSection>
           )}
 
-          <SubSection title="Pengaturan" open={settingsOpen} onToggle={() => setSettingsOpen((v) => !v)}>
+          <SubSection title={t.editor.settingsHead} open={settingsOpen} onToggle={() => setSettingsOpen((v) => !v)}>
             <div className="flex items-center justify-between gap-4 opacity-60">
               <div>
-                <div className="text-sm font-medium">Wajib untuk Melanjutkan</div>
+                <div className="text-sm font-medium">{t.editor.requiredToContinue}</div>
                 <div className="text-xs text-muted-foreground">
-                  Segera hadir. Memerlukan skema data baru.
+                  {t.editor.comingSoon}
                 </div>
               </div>
-              <Switch checked={false} disabled aria-label="Wajib untuk melanjutkan" />
+              <Switch checked={false} disabled aria-label={t.editor.requiredToContinue} />
             </div>
           </SubSection>
         </div>
@@ -734,6 +734,7 @@ function SubSection({
 
 function ResourcesEditor({ lessonId, resources }: { lessonId: string; resources: DraftResource[] }) {
   const { dispatch } = useCourseDraft()
+  const { t } = useI18n()
   const [dialogType, setDialogType] = useState<"link" | "file" | null>(null)
   const [resTitle, setResTitle] = useState("")
   const [resUrl, setResUrl] = useState("")
@@ -759,19 +760,19 @@ function ResourcesEditor({ lessonId, resources }: { lessonId: string; resources:
     <div>
       <div className="mb-4 flex items-start justify-between gap-3.5">
         <div>
-          <div className="text-sm font-bold">Sumber Belajar</div>
+          <div className="text-sm font-bold">{t.editor.resourcesTitle}</div>
           <div className="text-xs text-muted-foreground">
-            Tambahkan berkas, dokumen, atau tautan untuk melengkapi konten pelajaran
+            {t.editor.resourcesDesc}
           </div>
         </div>
         <div className="flex shrink-0 gap-2">
           <Dialog open={dialogType === "link"} onOpenChange={(open) => setDialogType(open ? "link" : null)}>
             <DialogTrigger render={<Button type="button" variant="outline" size="sm" />}>
               <Link2 className="size-3.5" />
-              Tambah Tautan
+              {t.editor.addLink}
             </DialogTrigger>
             <ResourceDialogContent
-              title="Tambah Tautan"
+              title={t.editor.addLink}
               resTitle={resTitle}
               resUrl={resUrl}
               onTitleChange={setResTitle}
@@ -782,11 +783,11 @@ function ResourcesEditor({ lessonId, resources }: { lessonId: string; resources:
           <Dialog open={dialogType === "file"} onOpenChange={(open) => setDialogType(open ? "file" : null)}>
             <DialogTrigger render={<Button type="button" variant="outline" size="sm" />}>
               <FileText className="size-3.5" />
-              Tambah Berkas
+              {t.editor.addFile}
             </DialogTrigger>
             <ResourceDialogContent
-              title="Tambah Berkas"
-              urlLabel="URL Berkas"
+              title={t.editor.addFile}
+              urlLabel={t.editor.fileUrl}
               resTitle={resTitle}
               resUrl={resUrl}
               onTitleChange={setResTitle}
@@ -829,6 +830,7 @@ function ResourceDialogContent({
   onUrlChange: (v: string) => void
   onSave: () => void
 }) {
+  const { t } = useI18n()
   return (
     <DialogContent>
       <DialogHeader>
@@ -836,7 +838,7 @@ function ResourceDialogContent({
       </DialogHeader>
       <div className="space-y-3">
         <div className="space-y-1.5">
-          <Label htmlFor="resource-title">Judul Sumber Belajar</Label>
+          <Label htmlFor="resource-title">{t.editor.resourceTitleLabel}</Label>
           <Input id="resource-title" value={resTitle} onChange={(e) => onTitleChange(e.target.value)} />
         </div>
         <div className="space-y-1.5">
@@ -851,7 +853,7 @@ function ResourceDialogContent({
       </div>
       <DialogFooter>
         <Button onClick={onSave} disabled={!resTitle.trim() || !resUrl.trim()}>
-          Tambah
+          {t.editor.add}
         </Button>
       </DialogFooter>
     </DialogContent>
@@ -870,6 +872,7 @@ function ResourceRow({
   onRemove: () => void
 }) {
   const { dispatch } = useCourseDraft()
+  const { t } = useI18n()
   const [title, setTitle] = useState(resource.title)
   const [url, setUrl] = useState(resource.file_url)
   const Icon = resource.type === "file" ? FileText : Link2
@@ -884,19 +887,19 @@ function ResourceRow({
         <Icon className="size-3.5 shrink-0 text-primary" />
         <span className="min-w-0 flex-1 truncate text-sm font-semibold">{resource.title}</span>
         <span className="shrink-0 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold text-secondary-foreground">
-          {resource.type === "file" ? "Berkas" : "Tautan"}
+          {resource.type === "file" ? t.editor.fileBadge : t.editor.linkBadge}
         </span>
-        <Button type="button" variant="ghost" size="icon-sm" onClick={onRemove} aria-label={`Hapus ${resource.title}`}>
+        <Button type="button" variant="ghost" size="icon-sm" onClick={onRemove} aria-label={t.editor.deleteNamed.replace("{nama}", resource.title)}>
           <X className="size-3.5 text-destructive" />
         </Button>
-        <Button type="button" variant="ghost" size="icon-sm" onClick={onToggle} aria-label={`Ubah ${resource.title}`} aria-expanded={open}>
+        <Button type="button" variant="ghost" size="icon-sm" onClick={onToggle} aria-label={t.editor.editNamed.replace("{nama}", resource.title)} aria-expanded={open}>
           <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} />
         </Button>
       </div>
       {open && (
         <div className="space-y-3 bg-card p-3.5">
           <div className="space-y-1.5">
-            <Label>Judul Sumber Belajar</Label>
+            <Label>{t.editor.resourceTitleLabel}</Label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}

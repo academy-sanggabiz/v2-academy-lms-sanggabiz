@@ -560,6 +560,160 @@ export type Dictionary = {
     reviewsHint: string
     untitledCourse: string
     noDescription: string
+    lessonTypeVideo: string
+    lessonTypeVideoDesc: string
+    lessonTypeText: string
+    lessonTypeTextDesc: string
+    lessonTypePpt: string
+    lessonTypePptDesc: string
+    lessonTypeQuiz: string
+    lessonTypeQuizDesc: string
+    courseLessons: string
+    addModule: string
+    noModules: string
+    unnamedModule: string
+    untitledLesson: string
+    /** `{n}` nomor urut. */
+    lessonN: string
+    /** `{judul}` nama modul. */
+    moveModuleAria: string
+    /** `{judul}` judul pelajaran. */
+    moveLessonAria: string
+    clickToRename: string
+    deleteModuleAttr: string
+    /** `{judul}` yang dihapus. */
+    deleteTitled: string
+    /** `{n}` jumlah pelajaran di modul. */
+    deleteSectionDesc: string
+    toggleOpen: string
+    noLessonsInModule: string
+    addLesson: string
+    complete: string
+    incomplete: string
+    /** `{n}` jumlah masalah. */
+    nQuizIssues: string
+    /** `{n}` menit. */
+    nMinutes: string
+    duplicateLesson: string
+    deleteLessonAttr: string
+    deleteLessonDesc: string
+    lessonTitleLabel: string
+    lessonTypeHead: string
+    durationLabel: string
+    durationHelp: string
+    contentHead: string
+    youtubeUrl: string
+    youtubeHelp: string
+    videoGuideTitle: string
+    videoGuide1: string
+    videoGuide2: string
+    videoGuide3: string
+    videoGuide4: string
+    transcriptLabel: string
+    transcriptPh: string
+    transcriptHelp: string
+    lessonContentAria: string
+    slidesLabel: string
+    slidesHelp: string
+    /** `{n}` jumlah sumber. */
+    resourcesHead: string
+    /** `{n}` jumlah soal. */
+    quizHead: string
+    settingsHead: string
+    requiredToContinue: string
+    comingSoon: string
+    resourcesTitle: string
+    resourcesDesc: string
+    addLink: string
+    addFile: string
+    fileUrl: string
+    resourceTitleLabel: string
+    fileBadge: string
+    linkBadge: string
+    /** `{nama}` judul sumber. */
+    editNamed: string
+    lessonNoun: string
+    questionNoun: string
+    /** `{noun}` dan `{judul}`. */
+    dndStart: string
+    /** `{noun}`, `{judul}`, `{tujuan}`. */
+    dndOver: string
+    dndNewPosition: string
+    /** `{noun}` dan `{judul}`. */
+    dndEndReturn: string
+    /** `{noun}`, `{judul}`, `{tujuan}`. */
+    dndEnd: string
+    /** `{noun}` dan `{judul}`. */
+    dndCancel: string
+    /** `{noun}`. */
+    dndInstructions: string
+    answerWritten: string
+    answerWrittenHint: string
+    answerUpload: string
+    answerUploadHint: string
+    noPromptsFilled: string
+    /** `{n}` tersimpan, `{lewat}` dilewati. */
+    savedToBankSkipped: string
+    /** `{n}` tersimpan. */
+    savedToBank: string
+    noQuestions: string
+    addQuestion: string
+    fromBank: string
+    /** `{n}` jumlah soal. */
+    saveNToBank: string
+    addStudyCase: string
+    pickTypeDesc: string
+    typeLabel: string
+    qtMultipleChoice: string
+    qtTrueFalse: string
+    qtShortAnswer: string
+    qtEssay: string
+    passScoreLabel: string
+    maxAttemptsLabel: string
+    unlimitedPh: string
+    unlimited: string
+    drawCountLabel: string
+    /** `{n}` total soal. */
+    allN: string
+    shuffleLabel: string
+    /** `{n}` soal ditarik, `{total}` seluruh soal. */
+    drawNote: string
+    studyCase: string
+    normalQuiz: string
+    /** `{w}` bobot studi kasus. */
+    assessmentNote: string
+    normalQuizNote: string
+    changeModeNote: string
+    /** `{n}` nomor soal. */
+    moveQuestionAria: string
+    /** `{n}` nomor soal. */
+    questionN: string
+    /** `{n}` poin. */
+    nPoints: string
+    /** `{n}` nomor soal. */
+    deleteQuestionAria: string
+    /** `{n}` nomor soal. */
+    toggleQuestionAria: string
+    promptLabel: string
+    /** `{n}` nomor soal. */
+    promptAria: string
+    allowMultiple: string
+    caseSensitive: string
+    needAcceptedAnswer: string
+    explanationLabel: string
+    explanationHelp: string
+    explanationPh: string
+    answerFormat: string
+    notAutoGraded: string
+    correctAnswer: string
+    acceptedAnswers: string
+    choices: string
+    addAnswer: string
+    addChoice: string
+    markCorrect: string
+    acceptedAnswerAria: string
+    choiceTextAria: string
+    removeChoice: string
   }
   admin: {
     dashboard: string
@@ -1270,6 +1424,146 @@ const id: Dictionary = {
     reviewsHint: "Peserta diminta menilai kursus setelah menyelesaikannya.",
     untitledCourse: "Kursus tanpa judul",
     noDescription: "Belum ada deskripsi.",
+    lessonTypeVideo: "Pelajaran Video",
+    lessonTypeVideoDesc: "Konten pelajaran berupa video",
+    lessonTypeText: "Pelajaran Teks",
+    lessonTypeTextDesc: "Konten pelajaran berupa teks",
+    lessonTypePpt: "Pelajaran Slide",
+    lessonTypePptDesc: "Konten pelajaran berupa presentasi Google Slides",
+    lessonTypeQuiz: "Pelajaran Kuis",
+    lessonTypeQuizDesc: "Pelajaran berupa kuis untuk menguji materi sebelumnya",
+    courseLessons: "Pelajaran Kursus",
+    addModule: "Tambah Modul",
+    noModules: "Belum ada modul. Klik Tambah Modul untuk mulai menyusun kursus.",
+    unnamedModule: "Modul Tanpa Nama",
+    untitledLesson: "Pelajaran Tanpa Judul",
+    lessonN: "Pelajaran {n}",
+    moveModuleAria:
+      "Pindahkan modul {judul}: tekan Spasi untuk mengambil, tombol panah untuk memindahkan, Spasi untuk melepas",
+    moveLessonAria:
+      "Pindahkan {judul}: tekan Spasi untuk mengambil, tombol panah untuk memindahkan, Spasi untuk melepas",
+    clickToRename: "Klik untuk mengganti nama",
+    deleteModuleAttr: "Hapus modul",
+    deleteTitled: "Hapus \u201C{judul}\u201D?",
+    deleteSectionDesc:
+      "Modul ini beserta {n} pelajarannya (termasuk sumber belajar dan kuisnya) akan dihapus dari draf. Tidak ada yang dihapus dari database sampai Anda menekan Simpan.",
+    toggleOpen: "Buka/tutup",
+    noLessonsInModule: "Belum ada pelajaran di modul ini.",
+    addLesson: "Tambah Pelajaran",
+    complete: "Lengkap",
+    incomplete: "Belum lengkap",
+    nQuizIssues: "{n} masalah kuis",
+    nMinutes: "{n} menit",
+    duplicateLesson: "Duplikat pelajaran",
+    deleteLessonAttr: "Hapus pelajaran",
+    deleteLessonDesc:
+      "Pelajaran ini beserta seluruh sumber belajarnya akan dihapus dari draf. Tidak ada yang dihapus dari database sampai Anda menekan Simpan.",
+    lessonTitleLabel: "Judul Pelajaran",
+    lessonTypeHead: "Jenis Pelajaran",
+    durationLabel: "Perkiraan Durasi (menit)",
+    durationHelp: "Ditampilkan kepada peserta. Usahakan 5\u20137 menit per pelajaran.",
+    contentHead: "Konten",
+    youtubeUrl: "URL Video YouTube",
+    youtubeHelp: "Tempel tautan YouTube lengkap untuk video pelajaran ini",
+    videoGuideTitle: "Memilih video untuk pelajaran ini",
+    videoGuide1:
+      "Satu tujuan belajar per pelajaran; 5\u20137 menit lebih mudah diselesaikan daripada satu video panjang.",
+    videoGuide2:
+      "Utamakan video yang sudah bertakarir. Kalau belum, isi Transkrip di bawah \u2014 tanpa salah satunya, peserta tuli tidak bisa mengikuti pelajaran ini.",
+    videoGuide3: "Sebutkan di awal apa yang akan mampu dilakukan peserta setelah menonton.",
+    videoGuide4: "Akhiri modul dengan pelajaran kuis agar peserta mengingat kembali isinya.",
+    transcriptLabel: "Transkrip",
+    transcriptPh: "Tempel teks lengkap yang diucapkan di video ini.",
+    transcriptHelp:
+      "Wajib bila videonya tidak bertakarir. Tanpa ini, peserta yang tuli atau yang menonton tanpa suara tidak bisa mengikuti pelajaran sama sekali (WCAG 1.2.2). Transkrip juga membantu peserta mencari kembali satu bagian tanpa memutar ulang seluruh video.",
+    lessonContentAria: "Konten pelajaran",
+    slidesLabel: "Tautan Google Slides",
+    slidesHelp: "Tempel tautan berbagi Google Slides atau tautan \u201CPublikasikan ke web\u201D",
+    resourcesHead: "Sumber Belajar ({n})",
+    quizHead: "Kuis ({n} soal)",
+    settingsHead: "Pengaturan",
+    requiredToContinue: "Wajib untuk Melanjutkan",
+    comingSoon: "Segera hadir. Memerlukan skema data baru.",
+    resourcesTitle: "Sumber Belajar",
+    resourcesDesc: "Tambahkan berkas, dokumen, atau tautan untuk melengkapi konten pelajaran",
+    addLink: "Tambah Tautan",
+    addFile: "Tambah Berkas",
+    fileUrl: "URL Berkas",
+    resourceTitleLabel: "Judul Sumber Belajar",
+    fileBadge: "Berkas",
+    linkBadge: "Tautan",
+    editNamed: "Ubah {nama}",
+    lessonNoun: "Pelajaran",
+    questionNoun: "Soal",
+    dndStart:
+      "Mengangkat {noun} {judul}. Pakai panah atas dan bawah untuk memindahkan, spasi untuk menjatuhkan, Escape untuk membatalkan.",
+    dndOver: "{noun} {judul} berada di atas {tujuan}.",
+    dndNewPosition: "posisi baru",
+    dndEndReturn: "{noun} {judul} dikembalikan ke posisi semula.",
+    dndEnd: "{noun} {judul} dijatuhkan di {tujuan}.",
+    dndCancel: "Pemindahan dibatalkan. {noun} {judul} kembali ke posisi semula.",
+    dndInstructions:
+      "Tekan spasi atau Enter untuk mulai memindahkan {noun} ini. Lalu pakai panah atas dan bawah untuk memilih posisi, spasi untuk menjatuhkan, dan Escape untuk membatalkan.",
+    answerWritten: "Jawaban tertulis",
+    answerWrittenHint: "Peserta mengetik jawaban di kotak teks.",
+    answerUpload: "Unggah berkas atau tautan",
+    answerUploadHint: "Peserta mengirim tautan ke berkasnya (misal Google Drive), bukan mengetik.",
+    noPromptsFilled: "Belum ada soal yang teksnya terisi",
+    savedToBankSkipped: "{n} soal disimpan ke bank, {lewat} dilewati karena masih kosong",
+    savedToBank: "{n} soal disimpan ke bank",
+    noQuestions: "Belum ada soal. Tambahkan soal, atau jadikan pelajaran ini studi kasus.",
+    addQuestion: "Tambah Soal",
+    fromBank: "Ambil dari Bank",
+    saveNToBank: "Simpan {n} soal ke Bank",
+    addStudyCase: "Tambah Studi Kasus",
+    pickTypeDesc: "Pilih jenis soal. Jenis ini tidak dapat diubah nanti.",
+    typeLabel: "Jenis",
+    qtMultipleChoice: "Pilihan Ganda",
+    qtTrueFalse: "Benar / Salah",
+    qtShortAnswer: "Isian Singkat",
+    qtEssay: "Esai",
+    passScoreLabel: "Nilai Lulus (%)",
+    maxAttemptsLabel: "Maks. Percobaan",
+    unlimitedPh: "Tidak terbatas",
+    unlimited: "Tanpa batas",
+    drawCountLabel: "Soal per Percobaan",
+    allN: "Semua ({n})",
+    shuffleLabel: "Acak Soal",
+    drawNote:
+      "Tiap peserta menghadapi {n} soal acak dari {total}. Soalnya dipilih saat percobaan dimulai dan tetap sama sampai percobaan itu selesai. Karena kumpulan soalnya berbeda-beda, nilai antarpeserta tidak lagi langsung sebanding \u2014 pastikan seluruh soal setara tingkat kesulitannya.",
+    studyCase: "Studi Kasus",
+    normalQuiz: "Kuis Biasa",
+    assessmentNote:
+      "Tanpa tombol mulai atau batas waktu; peserta menyimpan draf dan mengirim jika sudah selesai. Nilai secara manual di Admin \u203A Penilaian. Bobotnya {w}\u00D7 kuis biasa dalam nilai akhir kursus.",
+    normalQuizNote: "Dinilai otomatis dan langsung mendapat skor saat dikirim.",
+    changeModeNote: "Untuk mengganti mode, hapus dulu semua soal di kuis ini.",
+    moveQuestionAria:
+      "Pindahkan soal {n}: tekan Spasi untuk mengambil, tombol panah untuk memindahkan, Spasi untuk melepas",
+    questionN: "Soal {n}",
+    nPoints: "{n} poin",
+    deleteQuestionAria: "Hapus soal {n}",
+    toggleQuestionAria: "Buka/tutup soal {n}",
+    promptLabel: "Pertanyaan",
+    promptAria: "Pertanyaan soal {n}",
+    allowMultiple: "Izinkan lebih dari satu jawaban benar",
+    caseSensitive: "Huruf besar/kecil berpengaruh",
+    needAcceptedAnswer:
+      "Tambahkan minimal satu jawaban yang diterima. Kuis biasa harus dapat dinilai otomatis.",
+    explanationLabel: "Penjelasan (opsional)",
+    explanationHelp:
+      "Ditampilkan kepada peserta setelah mengirim jawaban: mengapa jawaban itu benar, dan materi apa yang perlu dipelajari ulang jika salah. Cukup satu atau dua kalimat sederhana.",
+    explanationPh: "misal: Mengingat kembali lebih efektif daripada membaca ulang. Pelajari lagi pelajaran 2.",
+    answerFormat: "Format jawaban",
+    notAutoGraded: "Jawaban jenis ini tidak dinilai otomatis.",
+    correctAnswer: "Jawaban Benar",
+    acceptedAnswers: "Jawaban yang Diterima",
+    choices: "Pilihan",
+    addAnswer: "Tambah Jawaban",
+    addChoice: "Tambah Pilihan",
+    markCorrect: "Tandai sebagai jawaban benar",
+    acceptedAnswerAria: "Jawaban yang diterima",
+    choiceTextAria: "Teks pilihan",
+    removeChoice: "Hapus pilihan",
   },
   admin: {
     dashboard: "Dashboard",
@@ -1991,6 +2285,144 @@ const en: Dictionary = {
     reviewsHint: "Learners are asked to rate the course after completing it.",
     untitledCourse: "Untitled course",
     noDescription: "No description yet.",
+    lessonTypeVideo: "Video Lesson",
+    lessonTypeVideoDesc: "Lesson content as a video",
+    lessonTypeText: "Text Lesson",
+    lessonTypeTextDesc: "Lesson content as text",
+    lessonTypePpt: "Slides Lesson",
+    lessonTypePptDesc: "Lesson content as a Google Slides presentation",
+    lessonTypeQuiz: "Quiz Lesson",
+    lessonTypeQuizDesc: "A quiz lesson to test the preceding material",
+    courseLessons: "Course Lessons",
+    addModule: "Add Module",
+    noModules: "No modules yet. Click Add Module to start building the course.",
+    unnamedModule: "Unnamed Module",
+    untitledLesson: "Untitled Lesson",
+    lessonN: "Lesson {n}",
+    moveModuleAria:
+      "Move module {judul}: press Space to pick up, arrow keys to move, Space to drop",
+    moveLessonAria:
+      "Move {judul}: press Space to pick up, arrow keys to move, Space to drop",
+    clickToRename: "Click to rename",
+    deleteModuleAttr: "Delete module",
+    deleteTitled: "Delete \u201C{judul}\u201D?",
+    deleteSectionDesc:
+      "This module and its {n} lessons (including resources and quizzes) will be removed from the draft. Nothing is deleted from the database until you press Save.",
+    toggleOpen: "Expand/collapse",
+    noLessonsInModule: "No lessons in this module yet.",
+    addLesson: "Add Lesson",
+    complete: "Complete",
+    incomplete: "Incomplete",
+    nQuizIssues: "{n} quiz issues",
+    nMinutes: "{n} min",
+    duplicateLesson: "Duplicate lesson",
+    deleteLessonAttr: "Delete lesson",
+    deleteLessonDesc:
+      "This lesson and all of its resources will be removed from the draft. Nothing is deleted from the database until you press Save.",
+    lessonTitleLabel: "Lesson Title",
+    lessonTypeHead: "Lesson Type",
+    durationLabel: "Estimated Duration (minutes)",
+    durationHelp: "Shown to learners. Aim for 5\u20137 minutes per lesson.",
+    contentHead: "Content",
+    youtubeUrl: "YouTube Video URL",
+    youtubeHelp: "Paste the full YouTube link for this lesson's video",
+    videoGuideTitle: "Choosing a video for this lesson",
+    videoGuide1:
+      "One learning goal per lesson; 5\u20137 minutes is easier to finish than one long video.",
+    videoGuide2:
+      "Prefer videos that are already captioned. If not, fill in the Transcript below \u2014 without either, deaf learners cannot follow this lesson.",
+    videoGuide3: "State up front what learners will be able to do after watching.",
+    videoGuide4: "End each module with a quiz lesson so learners recall the material.",
+    transcriptLabel: "Transcript",
+    transcriptPh: "Paste the full text spoken in this video.",
+    transcriptHelp:
+      "Required when the video has no captions. Without it, learners who are deaf or watching without sound cannot follow the lesson at all (WCAG 1.2.2). A transcript also helps learners find one part again without replaying the whole video.",
+    lessonContentAria: "Lesson content",
+    slidesLabel: "Google Slides Link",
+    slidesHelp: "Paste a Google Slides share link or a \u201CPublish to web\u201D link",
+    resourcesHead: "Resources ({n})",
+    quizHead: "Quiz ({n} questions)",
+    settingsHead: "Settings",
+    requiredToContinue: "Required to Continue",
+    comingSoon: "Coming soon. Needs a new data schema.",
+    resourcesTitle: "Resources",
+    resourcesDesc: "Add files, documents, or links to complement the lesson content",
+    addLink: "Add Link",
+    addFile: "Add File",
+    fileUrl: "File URL",
+    resourceTitleLabel: "Resource Title",
+    fileBadge: "File",
+    linkBadge: "Link",
+    editNamed: "Edit {nama}",
+    lessonNoun: "Lesson",
+    questionNoun: "Question",
+    dndStart:
+      "Picked up {noun} {judul}. Use the up and down arrows to move, Space to drop, Escape to cancel.",
+    dndOver: "{noun} {judul} is over {tujuan}.",
+    dndNewPosition: "a new position",
+    dndEndReturn: "{noun} {judul} was returned to its original position.",
+    dndEnd: "{noun} {judul} was dropped at {tujuan}.",
+    dndCancel: "Move cancelled. {noun} {judul} is back at its original position.",
+    dndInstructions:
+      "Press Space or Enter to start moving this {noun}. Then use the up and down arrows to pick a position, Space to drop, and Escape to cancel.",
+    answerWritten: "Written answer",
+    answerWrittenHint: "Learners type their answer in a text box.",
+    answerUpload: "Upload a file or link",
+    answerUploadHint: "Learners submit a link to their file (e.g. Google Drive) instead of typing.",
+    noPromptsFilled: "No question has its text filled in yet",
+    savedToBankSkipped: "{n} questions saved to the bank, {lewat} skipped because they are still empty",
+    savedToBank: "{n} questions saved to the bank",
+    noQuestions: "No questions yet. Add a question, or turn this lesson into a study case.",
+    addQuestion: "Add Question",
+    fromBank: "Pick from Bank",
+    saveNToBank: "Save {n} questions to Bank",
+    addStudyCase: "Add Study Case",
+    pickTypeDesc: "Choose a question type. It cannot be changed later.",
+    typeLabel: "Type",
+    qtMultipleChoice: "Multiple Choice",
+    qtTrueFalse: "True / False",
+    qtShortAnswer: "Short Answer",
+    qtEssay: "Essay",
+    passScoreLabel: "Passing Score (%)",
+    maxAttemptsLabel: "Max Attempts",
+    unlimitedPh: "Unlimited",
+    unlimited: "Unlimited",
+    drawCountLabel: "Questions per Attempt",
+    allN: "All ({n})",
+    shuffleLabel: "Shuffle Questions",
+    drawNote:
+      "Each learner faces {n} random questions out of {total}. They are drawn when the attempt starts and stay the same until it ends. Because the sets differ, scores are no longer directly comparable between learners \u2014 make sure every question is of equal difficulty.",
+    studyCase: "Study Case",
+    normalQuiz: "Normal Quiz",
+    assessmentNote:
+      "No start button or time limit; learners save a draft and submit when done. Grade it manually in Admin \u203A Grading. It weighs {w}\u00D7 a normal quiz in the final course grade.",
+    normalQuizNote: "Auto-graded with an immediate score on submit.",
+    changeModeNote: "To switch modes, first delete every question in this quiz.",
+    moveQuestionAria: "Move question {n}: press Space to pick up, arrow keys to move, Space to drop",
+    questionN: "Question {n}",
+    nPoints: "{n} points",
+    deleteQuestionAria: "Delete question {n}",
+    toggleQuestionAria: "Expand/collapse question {n}",
+    promptLabel: "Question",
+    promptAria: "Question {n} prompt",
+    allowMultiple: "Allow more than one correct answer",
+    caseSensitive: "Case sensitive",
+    needAcceptedAnswer: "Add at least one accepted answer. A normal quiz must be auto-gradable.",
+    explanationLabel: "Explanation (optional)",
+    explanationHelp:
+      "Shown to learners after they submit: why that answer is correct, and what to review if they got it wrong. One or two simple sentences is enough.",
+    explanationPh: "e.g. Recalling is more effective than rereading. Review lesson 2.",
+    answerFormat: "Answer format",
+    notAutoGraded: "Answers of this type are not auto-graded.",
+    correctAnswer: "Correct Answer",
+    acceptedAnswers: "Accepted Answers",
+    choices: "Choices",
+    addAnswer: "Add Answer",
+    addChoice: "Add Choice",
+    markCorrect: "Mark as the correct answer",
+    acceptedAnswerAria: "Accepted answer",
+    choiceTextAria: "Choice text",
+    removeChoice: "Remove choice",
   },
   admin: {
     dashboard: "Dashboard",

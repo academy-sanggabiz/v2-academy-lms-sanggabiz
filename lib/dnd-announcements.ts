@@ -10,31 +10,35 @@
  * tanpa itu pengumumannya hanya berisi id yang tidak berarti apa pun bagi
  * yang mendengarkan.
  */
+import type { Dictionary } from "@/lib/i18n/dictionaries"
+
 type Entity = { id: string | number; data: { current?: { title?: string } } }
 
-export function dndAnnouncements(noun: string) {
+export function dndAnnouncements(noun: string, t: Dictionary) {
   const name = (item: { data: { current?: { title?: string } } } | null) =>
     item?.data.current?.title ?? ""
+  const isi = (kalimat: string, judul: string, tujuan = "") =>
+    kalimat.replace("{noun}", noun).replace("{judul}", judul).replace("{tujuan}", tujuan)
 
   return {
     announcements: {
       onDragStart({ active }: { active: Entity }) {
-        return `Mengangkat ${noun} ${name(active)}. Pakai panah atas dan bawah untuk memindahkan, spasi untuk menjatuhkan, Escape untuk membatalkan.`
+        return isi(t.editor.dndStart, name(active))
       },
       onDragOver({ active, over }: { active: Entity; over: Entity | null }) {
         if (!over) return undefined
-        return `${noun} ${name(active)} berada di atas ${name(over) || "posisi baru"}.`
+        return isi(t.editor.dndOver, name(active), name(over) || t.editor.dndNewPosition)
       },
       onDragEnd({ active, over }: { active: Entity; over: Entity | null }) {
-        if (!over) return `${noun} ${name(active)} dikembalikan ke posisi semula.`
-        return `${noun} ${name(active)} dijatuhkan di ${name(over) || "posisi baru"}.`
+        if (!over) return isi(t.editor.dndEndReturn, name(active))
+        return isi(t.editor.dndEnd, name(active), name(over) || t.editor.dndNewPosition)
       },
       onDragCancel({ active }: { active: Entity }) {
-        return `Pemindahan dibatalkan. ${noun} ${name(active)} kembali ke posisi semula.`
+        return isi(t.editor.dndCancel, name(active))
       },
     },
     screenReaderInstructions: {
-      draggable: `Tekan spasi atau Enter untuk mulai memindahkan ${noun} ini. Lalu pakai panah atas dan bawah untuk memilih posisi, spasi untuk menjatuhkan, dan Escape untuk membatalkan.`,
+      draggable: isi(t.editor.dndInstructions, ""),
     },
   }
 }
