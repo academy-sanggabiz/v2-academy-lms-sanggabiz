@@ -2,6 +2,7 @@
 
 import { Switch } from "@/components/ui/switch"
 import { useCourseDraft } from "../CourseDraftContext"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 /**
  * Urutan belajar: bebas atau berurutan.
@@ -17,20 +18,20 @@ import { useCourseDraft } from "../CourseDraftContext"
  */
 export function SequenceSettings() {
   const { draft, dispatch } = useCourseDraft()
+  const { t } = useI18n()
 
   return (
     <section className="space-y-3">
-      <h3 className="text-xl font-bold">Urutan Belajar</h3>
+      <h3 className="text-xl font-bold">{t.editor.seqTitle}</h3>
       <div className="flex items-start justify-between gap-5">
         <div>
-          <div className="text-sm font-medium">Harus berurutan</div>
+          <div className="text-sm font-medium">{t.editor.seqLabel}</div>
           <div className="text-xs text-muted-foreground">
-            Pelajaran berikutnya baru terbuka setelah yang sebelumnya tuntas. Dimatikan berarti
-            peserta bebas memilih pelajaran mana pun, seperti kebanyakan kursus daring.
+            {t.editor.seqDesc}
           </div>
         </div>
         <Switch
-          aria-label="Harus berurutan"
+          aria-label={t.editor.seqLabel}
           checked={draft.sequential}
           onCheckedChange={(checked) => dispatch({ type: "setField", patch: { sequential: checked } })}
         />
@@ -38,9 +39,8 @@ export function SequenceSettings() {
 
       {draft.sequential && (
         <p className="rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
-          Pelajaran kuis baru dianggap tuntas setelah peserta <strong>lulus</strong>, bukan sekadar
-          mencentangnya. Peserta yang sedang berjalan di kursus ini akan ikut terkunci pada
-          pelajaran yang belum mereka tuntaskan.
+          {t.editor.seqNotePrefix} <strong>{t.editor.seqNoteStrong}</strong>
+          {t.editor.seqNoteSuffix}
         </p>
       )}
     </section>

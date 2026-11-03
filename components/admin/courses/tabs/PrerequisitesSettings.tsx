@@ -14,9 +14,11 @@ import {
 import { Switch } from "@/components/ui/switch"
 import type { CoursePrerequisite } from "@/lib/courses-admin"
 import { useCourseDraft } from "../CourseDraftContext"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 export function PrerequisitesSettings({ availableCourses }: { availableCourses: CoursePrerequisite[] }) {
   const { draft, dispatch } = useCourseDraft()
+  const { t } = useI18n()
   const [pickerValue, setPickerValue] = useState<string>("")
 
   const titleById = new Map(availableCourses.map((c) => [c.id, c.title]))
@@ -42,29 +44,29 @@ export function PrerequisitesSettings({ availableCourses }: { availableCourses: 
 
   return (
     <section className="space-y-3">
-      <h3 className="text-xl font-bold">Pengaturan Prasyarat</h3>
+      <h3 className="text-xl font-bold">{t.editor.prereqTitle}</h3>
       <div className="flex items-start justify-between gap-5">
         <div>
-          <div className="text-sm font-medium">Wajibkan Prasyarat</div>
+          <div className="text-sm font-medium">{t.editor.requirePrereq}</div>
           <div className="text-xs text-muted-foreground">
-            Peserta harus menyelesaikan kursus lain sebelum mendaftar ke kursus ini
+            {t.editor.requirePrereqDesc}
           </div>
         </div>
-        <Switch aria-label="Wajibkan prasyarat" checked={draft.requirePrerequisites} onCheckedChange={handleToggle} />
+        <Switch aria-label={t.editor.requirePrereq} checked={draft.requirePrerequisites} onCheckedChange={handleToggle} />
       </div>
 
       {draft.requirePrerequisites && (
         <div className="space-y-3 border-t border-border pt-3.5">
           <div>
-            <div className="mb-2.5 text-xs font-semibold">Kursus Prasyarat</div>
+            <div className="mb-2.5 text-xs font-semibold">{t.editor.prereqCourses}</div>
             <div className="flex gap-2.5">
               <Select
                 items={pickableCourses.map((c) => ({ value: c.id, label: c.title }))}
                 value={pickerValue}
                 onValueChange={(v) => v && setPickerValue(v)}
               >
-                <SelectTrigger aria-label="Kursus prasyarat" className="flex-1">
-                  <SelectValue placeholder="Pilih kursus" />
+                <SelectTrigger aria-label={t.editor.prereqCourses} className="flex-1">
+                  <SelectValue placeholder={t.editor.pickCourse} />
                 </SelectTrigger>
                 <SelectContent>
                   {pickableCourses.map((course) => (
@@ -75,11 +77,11 @@ export function PrerequisitesSettings({ availableCourses }: { availableCourses: 
                 </SelectContent>
               </Select>
               <Button type="button" onClick={handleAdd} disabled={!pickerValue}>
-                Tambah
+                {t.editor.add}
               </Button>
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              Pilih kursus yang harus diselesaikan peserta sebelum dapat mendaftar ke kursus ini
+              {t.editor.prereqHelp}
             </p>
           </div>
 
@@ -95,7 +97,7 @@ export function PrerequisitesSettings({ availableCourses }: { availableCourses: 
                     type="button"
                     onClick={() => handleRemove(course.id)}
                     className="shrink-0 text-destructive"
-                    aria-label={`Hapus prasyarat ${course.title}`}
+                    aria-label={t.editor.removePrereq.replace("{judul}", course.title)}
                   >
                     <X className="size-3.5" />
                   </button>

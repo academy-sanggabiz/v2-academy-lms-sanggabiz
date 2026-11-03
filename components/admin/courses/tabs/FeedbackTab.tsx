@@ -6,16 +6,18 @@ import { relativeTime } from "@/lib/notification-format"
 import { StarRating } from "@/components/learner/StarRating"
 import { ListPagination } from "@/components/admin/ListPagination"
 import { ListToolbar } from "@/components/admin/ListToolbar"
+import { getTranslations } from "@/lib/i18n/server"
 
 const FEEDBACK_PREFIX = "feedback"
 
-export function FeedbackTab({
+export async function FeedbackTab({
   summary,
   feedback,
 }: {
   summary: CourseFeedbackSummary
   feedback: Paginated<CourseFeedbackEntry>
 }) {
+  const { t } = await getTranslations()
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-6 rounded-xl border border-border p-4">
@@ -24,7 +26,7 @@ export function FeedbackTab({
           {summary.average !== null && <StarRating value={Math.round(summary.average)} readOnly size="sm" />}
         </div>
         <div className="text-sm text-muted-foreground">
-          {summary.count} ulasan
+          {t.editor.reviewsCount.replace("{n}", String(summary.count))}
         </div>
         <div className="flex flex-1 min-w-[180px] flex-col gap-1">
           {([5, 4, 3, 2, 1] as const).map((n) => {
@@ -43,17 +45,17 @@ export function FeedbackTab({
         </div>
       </div>
 
-      {feedback.total > 0 && <ListToolbar placeholder="Cari nama atau email peserta..." prefix={FEEDBACK_PREFIX} />}
+      {feedback.total > 0 && <ListToolbar placeholder={t.editor.searchFeedback} prefix={FEEDBACK_PREFIX} />}
 
       {feedback.rows.length === 0 ? (
         <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
           <MessageSquare className="size-6 text-muted-foreground" />
           <p className="text-sm font-medium">
-            {feedback.total === 0 ? "Belum ada ulasan" : "Tidak ada ulasan yang cocok dengan pencarian Anda"}
+            {feedback.total === 0 ? t.editor.noReviews : t.editor.noReviewMatches}
           </p>
           {feedback.total === 0 && (
             <p className="max-w-[320px] text-xs text-muted-foreground">
-              Peserta diminta menilai kursus setelah menyelesaikannya.
+              {t.editor.reviewsHint}
             </p>
           )}
         </div>

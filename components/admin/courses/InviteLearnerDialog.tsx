@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import type { LearnerSearchResult } from "@/lib/learners-admin"
 import { enrollLearnerAction, searchLearnersAction } from "@/app/admin/courses/roster-actions"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 const MIN_QUERY_LENGTH = 2
 
@@ -35,6 +36,7 @@ export function InviteLearnerDialog({
   // Transisinya dipegang di sini, bukan di dalam isi dialog, supaya penutupan
   // dialog bisa ditolak selama pendaftaran masih ditulis ke server.
   const [isPending, startTransition] = useTransition()
+  const { t } = useI18n()
 
   return (
     <Dialog
@@ -49,7 +51,7 @@ export function InviteLearnerDialog({
     >
       <DialogContent className="max-w-[460px]">
         {/* "Selesai" ikut menolak klik selama proses. */}
-        <BusyGuardProvider busy={isPending} reason="Mendaftarkan…">
+        <BusyGuardProvider busy={isPending} reason={t.editor.enrollingBusy}>
           {/* Remount per open so the query/results don't persist between sessions */}
           {open && (
             <InviteLearnerDialogContent
@@ -79,6 +81,7 @@ function InviteLearnerDialogContent({
   isPending: boolean
   startTransition: TransitionStartFunction
 }) {
+  const { t } = useI18n()
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<LearnerSearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
@@ -131,7 +134,7 @@ function InviteLearnerDialogContent({
         return
       }
       setJustEnrolled((prev) => new Set(prev).add(learner.id))
-      toast.success(`${learner.name} didaftarkan`)
+      toast.success(t.editor.enrolledToast.replace("{nama}", learner.name))
       onEnrolled()
     })
   }
@@ -141,9 +144,9 @@ function InviteLearnerDialogContent({
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Undang peserta</DialogTitle>
+        <DialogTitle>{t.editor.inviteLearner}</DialogTitle>
         <DialogDescription>
-          Cari peserta berdasarkan nama atau email, lalu daftarkan ke kursus ini.
+          {t.editor.inviteDesc}
         </DialogDescription>
       </DialogHeader>
 
@@ -154,8 +157,8 @@ function InviteLearnerDialogContent({
           autoFocus
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Nama atau email…"
-          aria-label="Cari peserta berdasarkan nama atau email"
+          placeholder={t.editor.searchPh}
+          aria-label={t.editor.searchByNameEmail}
           className="bg-card pl-9"
         />
       </div>
@@ -163,7 +166,7 @@ function InviteLearnerDialogContent({
       <div className="flex max-h-[50vh] min-h-[120px] flex-col gap-2 overflow-auto">
         {trimmed.length < MIN_QUERY_LENGTH ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            Ketik minimal {MIN_QUERY_LENGTH} karakter untuk mencari.
+            {t.editor.typeMinChars.replace("{n}", String(MIN_QUERY_LENGTH))}
           </p>
         ) : isSearching ? (
           <p
@@ -173,13 +176,11 @@ function InviteLearnerDialogContent({
             className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground"
           >
             <Spinner className="size-4" />
-            Mencari…
+            {t.editor.searching}
           </p>
         ) : selectable.length === 0 ? (
           <p role="status" aria-live="polite" className="py-8 text-center text-sm text-muted-foreground">
-            {hasSearched && results.length > 0
-              ? "Semua peserta yang cocok sudah terdaftar."
-              : "Peserta tidak ditemukan."}
+            {hasSearched && results.length > 0 ? t.editor.allMatchedEnrolled : t.editor.learnerNotFound}
           </p>
         ) : (
           selectable.map((learner) => {
@@ -202,7 +203,7 @@ function InviteLearnerDialogContent({
                 </span>
                 <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-semibold whitespace-nowrap">
                   {busy && <Spinner className="size-3" />}
-                  {busy ? "Mendaftarkan…" : "Daftarkan"}
+                  {busy ? t.editor.enrolling : t.editor.enrollVerb}
                 </span>
               </button>
             )
@@ -211,7 +212,7 @@ function InviteLearnerDialogContent({
       </div>
 
       <DialogFooter>
-        <Button onClick={onClose}>Selesai</Button>
+        <Button onClick={onClose}>{t.editor.done}</Button>
       </DialogFooter>
     </>
   )

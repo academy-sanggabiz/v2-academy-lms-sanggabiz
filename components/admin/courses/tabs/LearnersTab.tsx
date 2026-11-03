@@ -28,11 +28,13 @@ import { ListToolbar } from "@/components/admin/ListToolbar"
 
 import { InviteLearnerDialog } from "../InviteLearnerDialog"
 import { useCourseDraft } from "../CourseDraftContext"
+import { useI18n } from "@/components/i18n/LocaleProvider"
+import type { Locale } from "@/lib/i18n/config"
 
 const ROSTER_PREFIX = "roster"
 
-function formatEnrolledAt(iso: string): string {
-  return new Date(iso).toLocaleDateString("id-ID", {
+function formatEnrolledAt(iso: string, locale: Locale): string {
+  return new Date(iso).toLocaleDateString(locale === "en" ? "en-US" : "id-ID", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -50,6 +52,7 @@ export function LearnersTab({
   // private/public copy below tracks the *unsaved* toggle so it matches what
   // the admin is currently looking at on the Settings tab.
   const { draft } = useCourseDraft()
+  const { locale, t } = useI18n()
   const isPrivate = draft.isPrivate
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -66,7 +69,7 @@ export function LearnersTab({
         return
       }
       setConfirmFor(null)
-      toast.success(`${entry.name} dikeluarkan`)
+      toast.success(t.editor.unenrolledToast.replace("{nama}", entry.name))
       router.refresh()
     })
   }
@@ -76,17 +79,17 @@ export function LearnersTab({
       <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="text-xl font-bold">
-            Peserta Terdaftar {roster.total > 0 && `(${roster.total})`}
+            {roster.total > 0
+              ? t.editor.enrolledLearnersCount.replace("{n}", String(roster.total))
+              : t.editor.enrolledLearners}
           </h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {isPrivate
-              ? "Kursus ini privat, jadi peserta hanya dapat masuk jika didaftarkan di sini."
-              : "Kursus ini publik, jadi peserta juga dapat mendaftar sendiri."}
+            {isPrivate ? t.editor.privateRosterNote : t.editor.publicRosterNote}
           </p>
         </div>
         <Button variant="outline" onClick={() => setInviteOpen(true)}>
           <UserPlus className="size-4" />
-          Undang peserta
+          {t.editor.inviteLearner}
         </Button>
       </div>
 
@@ -99,11 +102,11 @@ export function LearnersTab({
          */
         <BusyRegion
           busy={isPending}
-          label="Mengeluarkan peserta…"
+          label={t.editor.removingLearner}
           showOverlay={false}
           className={cn(isPending && "opacity-60")}
         >
-          <ListToolbar placeholder="Cari peserta terdaftar..." prefix={ROSTER_PREFIX} />
+          <ListToolbar placeholder={t.editor.searchEnrolled} prefix={ROSTER_PREFIX} />
         </BusyRegion>
       )}
 
@@ -111,12 +114,12 @@ export function LearnersTab({
         <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-border py-12 text-center">
           <Lock className="size-6 text-muted-foreground" />
           <p className="text-sm font-medium">
-            {roster.total === 0 ? "Belum ada peserta terdaftar" : "Tidak ada peserta yang cocok dengan pencarian Anda"}
+            {roster.total === 0 ? t.editor.noEnrolledYet : t.editor.noRosterMatches}
           </p>
           {roster.total === 0 && (
             <p className="max-w-[320px] text-xs text-muted-foreground">
-              Gunakan <span className="font-medium">Undang peserta</span> untuk mencari peserta yang
-              sudah terdaftar di platform dan mendaftarkannya ke kursus ini.
+              {t.editor.inviteHintPrefix} <span className="font-medium">{t.editor.inviteLearner}</span>{" "}
+              {t.editor.inviteHintSuffix}
             </p>
           )}
         </div>
@@ -143,10 +146,10 @@ export function LearnersTab({
                       : "border-pill-border bg-muted text-muted-foreground"
                   }
                 >
-                  {entry.status === "completed" ? "Selesai" : "Aktif"}
+                  {entry.status === "completed" ? t.editor.statusDone : t.editor.statusActive}
                 </Badge>
                 <span className="hidden shrink-0 text-xs text-muted-foreground sm:block">
-                  {formatEnrolledAt(entry.enrolledAt)}
+                  {formatEnrolledAt(entry.enrolledAt, locale)}
                 </span>
                 <AlertDialog
                   open={confirmFor === entry.learnerId}
@@ -160,7 +163,7 @@ export function LearnersTab({
                       <Button
                         variant="ghost"
                         size="sm"
-                        aria-label={`Keluarkan ${entry.name}`}
+                        aria-label={t.editor.unenrollNamed.replace("{nama}", entry.name)}
                       />
                     }
                   >
@@ -168,21 +171,20 @@ export function LearnersTab({
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Keluarkan {entry.name}?</AlertDialogTitle>
+                      <AlertDialogTitle>{t.editor.unenrollTitle.replace("{nama}", entry.name)}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Pendaftaran peserta ini beserta progres belajarnya di kursus ini akan
-                        dihapus. Tindakan ini tidak dapat dibatalkan.
+                        {t.editor.unenrollDesc}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
                       <AlertDialogAction
                         className="bg-destructive/10 text-destructive hover:bg-destructive/20"
                         pending={isPending}
-                        pendingLabel="Mengeluarkan…"
+                        pendingLabel={t.editor.unenrolling}
                         onClick={() => handleUnenroll(entry)}
                       >
-                        Keluarkan
+                        {t.editor.unenroll}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>

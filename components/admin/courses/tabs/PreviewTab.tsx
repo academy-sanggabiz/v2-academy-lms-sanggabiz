@@ -28,21 +28,21 @@ export function PreviewTab() {
     <div>
       <CourseThumb
         src={draft.thumbnail_url}
-        title={draft.title || "Kursus tanpa judul"}
+        title={draft.title || t.editor.untitledCourse}
         seed={draft.title || "draf"}
         className="mb-5 h-[280px] rounded-xl"
       />
 
-      <h2 className="mb-3 text-2xl leading-snug font-bold">{draft.title || "Kursus tanpa judul"}</h2>
+      <h2 className="mb-3 text-2xl leading-snug font-bold">{draft.title || t.editor.untitledCourse}</h2>
 
       <div className="mb-3.5 flex flex-wrap gap-4.5 text-sm text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <BookOpen className="size-3.5" />
-          {lessonCount} pelajaran
+          {lessonCount} {t.courses.lessons}
         </span>
         <span className="flex items-center gap-1.5">
           <Clock className="size-3.5" />
-          {durationHours} jam
+          {durationHours} {t.courses.hours}
         </span>
         <span className="flex items-center gap-1.5">
           <Tag className="size-3.5" />
@@ -51,7 +51,7 @@ export function PreviewTab() {
       </div>
 
       <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
-        {draft.description || "Belum ada deskripsi."}
+        {draft.description || t.editor.noDescription}
       </p>
     </div>
   )

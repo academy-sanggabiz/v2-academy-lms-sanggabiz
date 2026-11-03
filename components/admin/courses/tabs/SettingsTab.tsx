@@ -21,14 +21,9 @@ import { SequenceSettings } from "./SequenceSettings"
 import { CertificateSettings } from "./CertificateSettings"
 import type { CertificateDefaults } from "@/lib/certificate-settings"
 import { useCourseDraft } from "../CourseDraftContext"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
-const LEVELS = ["beginner", "intermediate", "advanced"]
-
-const LEVEL_LABEL: Record<string, string> = {
-  beginner: "Pemula",
-  intermediate: "Menengah",
-  advanced: "Lanjutan",
-}
+const LEVELS = ["beginner", "intermediate", "advanced"] as const
 
 export function SettingsTab({
   status,
@@ -47,6 +42,13 @@ export function SettingsTab({
   certificateDefaultsReady: boolean
 }) {
   const { draft, dispatch } = useCourseDraft()
+  const { t } = useI18n()
+
+  const LEVEL_LABEL: Record<string, string> = {
+    beginner: t.editor.levelBeginner,
+    intermediate: t.editor.levelIntermediate,
+    advanced: t.editor.levelAdvanced,
+  }
 
   function setField<K extends "level" | "isPrivate" | "enrollmentMode" | "price">(
     key: K,
@@ -58,16 +60,16 @@ export function SettingsTab({
   return (
     <div className="space-y-8">
       <section className="space-y-3">
-        <h3 className="text-xl font-bold">Pengaturan Dasar</h3>
+        <h3 className="text-xl font-bold">{t.editor.basicSettings}</h3>
         <div className="space-y-1.5">
-          <Label htmlFor="level">Tingkat</Label>
+          <Label htmlFor="level">{t.editor.level}</Label>
           <Select
             items={LEVELS.map((level) => ({ value: level, label: LEVEL_LABEL[level] ?? level }))}
             value={draft.level || undefined}
             onValueChange={(value) => setField("level", value ?? "")}
           >
             <SelectTrigger id="level" className="w-full">
-              <SelectValue placeholder="Pilih tingkat" />
+              <SelectValue placeholder={t.editor.pickLevel} />
             </SelectTrigger>
             <SelectContent>
               {LEVELS.map((level) => (
@@ -81,15 +83,14 @@ export function SettingsTab({
       </section>
 
       <section className="space-y-3">
-        <h3 className="text-xl font-bold">Pengaturan Pendaftaran</h3>
+        <h3 className="text-xl font-bold">{t.editor.enrollmentSettings}</h3>
         <div className="flex items-start justify-between gap-4 rounded-lg border border-border p-3">
           <div>
             <Label htmlFor="isPrivate" className="text-sm font-medium">
-              Kursus privat
+              {t.editor.privateCourse}
             </Label>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Hanya peserta yang Anda daftarkan yang dapat menemukan atau membuka kursus ini. Kursus
-              tidak tampil di katalog publik. Tambahkan peserta dari tab Peserta.
+              {t.editor.privateDesc}
             </p>
           </div>
           <Switch
@@ -102,16 +103,13 @@ export function SettingsTab({
           <div className="flex items-start gap-2 rounded-lg border border-pill-border bg-draft-background p-3 text-xs">
             <TriangleAlert className="mt-px size-4 shrink-0 text-destructive" />
             <p>
-              <span className="font-medium">Kursus ini masih berupa draf.</span> Peserta yang diundang
-              belum dapat membukanya sampai Anda menekan Terbitkan. Pengaturan privat hanya mengatur siapa
-              yang dapat menemukannya, bukan apakah kursus sudah tayang.
+              <span className="font-medium">{t.editor.draftWarnTitle}</span> {t.editor.draftWarnRest}
             </p>
           </div>
         )}
         {draft.isPrivate && (
           <p className="text-xs text-muted-foreground">
-            Peserta tidak dapat mendaftar sendiri ke kursus privat, jadi opsi harga di bawah hanya
-            berlaku jika nanti kursus dijadikan publik.
+            {t.editor.privateNote}
           </p>
         )}
         <RadioGroup
@@ -122,25 +120,25 @@ export function SettingsTab({
           <label className="flex items-start gap-2.5 rounded-lg border border-border p-3">
             <RadioGroupItem value="free" className="mt-0.5" />
             <span>
-              <span className="block text-sm font-medium">Publik</span>
+              <span className="block text-sm font-medium">{t.admin.filterPublic}</span>
               <span className="block text-xs text-muted-foreground">
-                Siapa pun dapat mendaftar tanpa biaya.
+                {t.editor.publicDesc}
               </span>
             </span>
           </label>
           <label className="flex items-start gap-2.5 rounded-lg border border-border p-3">
             <RadioGroupItem value="paid" className="mt-0.5" />
             <span>
-              <span className="block text-sm font-medium">Berbayar</span>
+              <span className="block text-sm font-medium">{t.admin.filterPaid}</span>
               <span className="block text-xs text-muted-foreground">
-                Peserta membayar harga tetap untuk mendaftar.
+                {t.editor.paidDesc}
               </span>
             </span>
           </label>
         </RadioGroup>
         {draft.enrollmentMode === "paid" && (
           <div className="space-y-1.5">
-            <Label htmlFor="price">Harga</Label>
+            <Label htmlFor="price">{t.editor.priceLabel}</Label>
             <Input
               id="price"
               type="number"
@@ -148,7 +146,7 @@ export function SettingsTab({
               step={1000}
               value={draft.price}
               onChange={(e) => setField("price", Number(e.target.value) || 0)}
-              placeholder="Rp 150.000"
+              placeholder={t.editor.pricePh}
             />
           </div>
         )}
@@ -161,7 +159,7 @@ export function SettingsTab({
       <CertificateSettings defaults={certificateDefaults} ready={certificateDefaultsReady} />
 
       <section className="space-y-3">
-        <h3 className="text-xl font-bold">Pengaturan Instruktur</h3>
+        <h3 className="text-xl font-bold">{t.editor.instructorSettings}</h3>
         <InstructorPicker instructors={instructors} />
       </section>
     </div>

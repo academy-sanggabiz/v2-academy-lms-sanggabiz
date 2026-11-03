@@ -47,6 +47,7 @@ import { SettingsTab } from "./tabs/SettingsTab"
 import { describeDraftIssue, describeDraftIssues } from "@/lib/course-draft-issues"
 import { CourseMarkdownDialog } from "@/components/admin/courses/markdown/CourseMarkdownDialog"
 import type { CertificateDefaults } from "@/lib/certificate-settings"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 type ShellProps = {
   course: AdminCourseDetail
@@ -85,6 +86,7 @@ function CourseFormShellInner({
   openImport = false,
 }: ShellProps) {
   const router = useRouter()
+  const { t } = useI18n()
   const [isPending, startTransition] = useTransition()
   const [showLeaveDialog, setShowLeaveDialog] = useState(false)
   const [basicInfoErrors, setBasicInfoErrors] = useState<Record<string, string>>({})
@@ -113,14 +115,12 @@ function CourseFormShellInner({
     // penyimpanannya akan mendarat. Pergi sekarang hanya membuat admin tidak
     // pernah melihat hasilnya (R16).
     setIsBlocked(isDirty || isPending)
-    setBlockMessage(
-      isPending ? "Penyimpanan sedang berjalan. Tinggalkan halaman tanpa menunggu hasilnya?" : null
-    )
+    setBlockMessage(isPending ? t.editor.savingBlockMessage : null)
     return () => {
       setIsBlocked(false)
       setBlockMessage(null)
     }
-  }, [isDirty, isPending, setIsBlocked, setBlockMessage])
+  }, [isDirty, isPending, setIsBlocked, setBlockMessage, t])
 
   useEffect(() => {
     if (!isDirty) return
@@ -156,7 +156,7 @@ function CourseFormShellInner({
       // Simpan draf sudah dikonfirmasi oleh penanda "Tersimpan pukul …" di
       // sebelah tombolnya, jadi toast tambahan menjadi pesan kedua untuk satu
       // aksi (R6). Terbit tetap pakai toast: itu aksi berdampak luas (R8).
-      if (status === "published") toast.success("Kursus diterbitkan")
+      if (status === "published") toast.success(t.editor.publishedToast)
       setLastSavedAt(new Date())
       dispatch({ type: "commitSaved", saved: data, from })
       router.refresh()
@@ -185,8 +185,8 @@ function CourseFormShellInner({
         first
           ? issues.length === 1
             ? describeDraftIssue(first)
-            : `${describeDraftIssue(first)} (+${issues.length - 1} lainnya)`
-          : "Data kursus tidak valid"
+            : `${describeDraftIssue(first)} ${t.editor.plusOthers.replace("{n}", String(issues.length - 1))}`
+          : t.editor.invalidData
       )
       return
     }
@@ -202,7 +202,7 @@ function CourseFormShellInner({
       toast.error(
         issues.length === 1
           ? describeQuizIssue(issues[0])
-          : `${describeQuizIssue(issues[0])} (+${issues.length - 1} lainnya)`
+          : `${describeQuizIssue(issues[0])} ${t.editor.plusOthers.replace("{n}", String(issues.length - 1))}`
       )
       return
     }
@@ -219,7 +219,7 @@ function CourseFormShellInner({
       const lessonCount = parsed.data.sections.reduce((n, section) => n + section.lessons.length, 0)
       if (lessonCount === 0) {
         setTab("lessons")
-        toast.error("Kursus belum punya pelajaran. Tambahkan setidaknya satu sebelum menerbitkan.")
+        toast.error(t.editor.noLessonsPublish)
         return
       }
 
@@ -229,7 +229,7 @@ function CourseFormShellInner({
         toast.error(
           incomplete.length === 1
             ? describeIncompleteLesson(incomplete[0])
-            : `${describeIncompleteLesson(incomplete[0])} (+${incomplete.length - 1} pelajaran lain)`
+            : `${describeIncompleteLesson(incomplete[0])} ${t.editor.plusOtherLessons.replace("{n}", String(incomplete.length - 1))}`
         )
         return
       }
@@ -252,7 +252,7 @@ function CourseFormShellInner({
      * sedang ikut terkirim, menghasilkan dua tulisan untuk data yang sama
      * (STANDAR-UMPAN-BALIK-UI.md R14, R17).
      */
-    <BusyGuardProvider busy={isPending} reason="Menyimpan…">
+    <BusyGuardProvider busy={isPending} reason={t.common.saving}>
     <div className="mx-auto max-w-[900px]">
       {autosave.pendingRestore && (
         <RestoreDraftDialog
@@ -265,27 +265,26 @@ function CourseFormShellInner({
       <AlertDialog open={pendingSave !== null} onOpenChange={(open) => !open && setPendingSave(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Penyimpanan ini menghapus konten</AlertDialogTitle>
+            <AlertDialogTitle>{t.editor.destructiveTitle}</AlertDialogTitle>
             <AlertDialogDescription>
               {pendingSave && (
                 <>
-                  Menyimpan akan menghapus permanen{" "}
+                  {t.editor.destructivePrefix}{" "}
                   {[
                     pendingSave.destructive.lessons > 0 &&
-                      `${pendingSave.destructive.lessons} pelajaran`,
+                      t.editor.nLessons.replace("{n}", String(pendingSave.destructive.lessons)),
                     pendingSave.destructive.questions > 0 &&
-                      `${pendingSave.destructive.questions} soal`,
+                      t.editor.nQuestions.replace("{n}", String(pendingSave.destructive.questions)),
                   ]
                     .filter(Boolean)
-                    .join(" dan ")}
-                  , termasuk progres peserta atau percobaan kuis yang terkait. Tindakan ini tidak
-                  dapat dibatalkan.
+                    .join(` ${t.editor.andWord} `)}
+                  {t.editor.destructiveSuffix}
                 </>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive/10 text-destructive hover:bg-destructive/20"
               onClick={() => {
@@ -294,7 +293,7 @@ function CourseFormShellInner({
                 setPendingSave(null)
               }}
             >
-              Tetap simpan
+              {t.editor.keepSaving}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -302,26 +301,26 @@ function CourseFormShellInner({
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <Button variant="ghost" size="sm" onClick={handleBack}>
           <ArrowLeft className="size-4" />
-          Kembali
+          {t.insight.back}
         </Button>
         <AlertDialog open={showLeaveDialog} onOpenChange={setShowLeaveDialog}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Perubahan belum disimpan</AlertDialogTitle>
+              <AlertDialogTitle>{t.editor.leaveTitle}</AlertDialogTitle>
               <AlertDialogDescription>
-                Ada perubahan yang belum disimpan. Tinggalkan tanpa menyimpan?
+                {t.editor.leaveDesc}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
               <AlertDialogAction onClick={() => router.push("/admin/courses")}>
-                Tinggalkan
+                {t.editor.leave}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="mr-3 text-xl font-bold">{isNew ? "Kursus Baru" : "Ubah Kursus"}</h1>
+          <h1 className="mr-3 text-xl font-bold">{isNew ? t.editor.newCourse : t.editor.editCourse}</h1>
           {/*
            * Mengetik di tab mana pun hanya mengubah draf di browser; tidak ada
            * yang sampai ke database sebelum tombol di sebelah ditekan. Tanpa
@@ -341,24 +340,24 @@ function CourseFormShellInner({
           <SaveStatus
             state={saveState}
             savedAt={lastSavedAt}
-            unsavedLabel="Perubahan belum disimpan"
+            unsavedLabel={t.editor.unsavedChanges}
             className="mr-1"
           />
           <Button
             variant="outline"
             pending={isPending}
-            pendingLabel="Menyimpan…"
+            pendingLabel={t.common.saving}
             onClick={() => onSubmit("draft")}
           >
-            Simpan Draf
+            {t.editor.saveDraft}
           </Button>
           <Button
             pending={isPending}
-            pendingLabel="Menyimpan…"
+            pendingLabel={t.common.saving}
             className="bg-brand-gradient text-white hover:brightness-105"
             onClick={() => onSubmit("published")}
           >
-            {course.status === "published" ? "Simpan" : "Terbitkan"}
+            {course.status === "published" ? t.common.save : t.editor.publish}
           </Button>
         </div>
       </div>
@@ -367,11 +366,11 @@ function CourseFormShellInner({
         <Tabs value={tab} onValueChange={setTab}>
           {/* Scrolls inside its own box on a phone instead of widening the page (WCAG 1.4.10). */}
           <TabsList className="mb-6 max-w-full justify-start overflow-x-auto">
-            <TabsTrigger value="basic">Info Dasar</TabsTrigger>
-            <TabsTrigger value="lessons">Pelajaran</TabsTrigger>
-            <TabsTrigger value="settings">Pengaturan</TabsTrigger>
-            <TabsTrigger value="learners">Peserta</TabsTrigger>
-            <TabsTrigger value="preview">Pratinjau</TabsTrigger>
+            <TabsTrigger value="basic">{t.editor.tabBasic}</TabsTrigger>
+            <TabsTrigger value="lessons">{t.editor.tabLessons}</TabsTrigger>
+            <TabsTrigger value="settings">{t.editor.tabSettings}</TabsTrigger>
+            <TabsTrigger value="learners">{t.editor.tabLearners}</TabsTrigger>
+            <TabsTrigger value="preview">{t.editor.tabPreview}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="basic">
@@ -383,7 +382,7 @@ function CourseFormShellInner({
           </TabsContent>
 
           <TabsContent value="settings">
-            <Suspense fallback={<TabLoadingSkeleton label="Memuat pengaturan…" />}>
+            <Suspense fallback={<TabLoadingSkeleton label={t.editor.loadingSettings} />}>
               <SettingsTabStreamed
                 status={course.status}
                 instructorsPromise={instructorsPromise}
@@ -395,7 +394,7 @@ function CourseFormShellInner({
           </TabsContent>
 
           <TabsContent value="learners">
-            <Suspense fallback={<TabLoadingSkeleton label="Memuat peserta…" />}>
+            <Suspense fallback={<TabLoadingSkeleton label={t.editor.loadingLearners} />}>
               <LearnersTabStreamed courseId={course.id} rosterPromise={rosterPromise} />
             </Suspense>
           </TabsContent>

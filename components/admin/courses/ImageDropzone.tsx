@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 export function ImageDropzone({
   value,
@@ -21,6 +22,7 @@ export function ImageDropzone({
   label: string
   hint: string
 }) {
+  const { t } = useI18n()
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -65,7 +67,7 @@ export function ImageDropzone({
             className="flex flex-col items-center gap-1.5 text-muted-foreground"
           >
             <Spinner className="size-5" />
-            <span className="text-xs">Mengunggah…</span>
+            <span className="text-xs">{t.editor.uploading}</span>
           </span>
         ) : value ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -73,7 +75,7 @@ export function ImageDropzone({
         ) : (
           <div className="flex flex-col items-center gap-1.5 text-muted-foreground">
             <Upload className="size-4" />
-            <span className="text-xs">Klik untuk mengunggah gambar</span>
+            <span className="text-xs">{t.editor.clickToUpload}</span>
           </div>
         )}
 
@@ -85,7 +87,7 @@ export function ImageDropzone({
               onChange("")
             }}
             className="absolute top-1.5 right-1.5 flex size-6 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm hover:bg-background"
-            aria-label={`Hapus ${label.toLowerCase()}`}
+            aria-label={t.editor.removeImage.replace("{label}", label.toLowerCase())}
           >
             <X className="size-3.5" />
           </button>

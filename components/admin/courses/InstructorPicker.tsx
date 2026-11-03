@@ -31,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea"
 import type { Instructor } from "@/lib/courses"
 import { createInstructorAction, deleteInstructorAction } from "@/app/admin/courses/actions"
 import { useCourseDraft } from "./CourseDraftContext"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 // instructors is a global directory (is_admin()-gated, not owns_course()) --
 // multiple admins' courses can reference the same instructor -- so create
@@ -38,6 +39,7 @@ import { useCourseDraft } from "./CourseDraftContext"
 // assignment itself is drafted.
 export function InstructorPicker({ instructors: initialInstructors }: { instructors: Instructor[] }) {
   const { draft, dispatch } = useCourseDraft()
+  const { t } = useI18n()
   const [instructors, setInstructors] = useState(initialInstructors)
   const [isPending, startTransition] = useTransition()
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -64,7 +66,7 @@ export function InstructorPicker({ instructors: initialInstructors }: { instruct
         { id: result.data.id, name: name.trim(), title: null, bio: bio.trim() || null, avatar_url: null },
       ])
       dispatch({ type: "setField", patch: { instructorId: result.data.id } })
-      toast.success("Instruktur dibuat dan ditetapkan")
+      toast.success(t.editor.instructorCreated)
       setName("")
       setBio("")
       setDialogOpen(false)
@@ -82,7 +84,7 @@ export function InstructorPicker({ instructors: initialInstructors }: { instruct
       if (draft.instructorId === instructorId) {
         dispatch({ type: "setField", patch: { instructorId: null } })
       }
-      toast.success("Instruktur dihapus")
+      toast.success(t.editor.instructorDeleted)
     })
   }
 
@@ -93,11 +95,11 @@ export function InstructorPicker({ instructors: initialInstructors }: { instruct
      * `disabled` yang membuat tombol keluar dari urutan tab di tengah aksi
      * (STANDAR-UMPAN-BALIK-UI.md R11, R14).
      */
-    <BusyGuardProvider busy={isPending} reason="Menyimpan…">
+    <BusyGuardProvider busy={isPending} reason={t.common.saving}>
     <div className="space-y-3">
       {instructors.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
-          Belum ada instruktur. Buat instruktur untuk memulai.
+          {t.editor.noInstructors}
         </p>
       ) : (
         <div className="space-y-2">
@@ -121,7 +123,7 @@ export function InstructorPicker({ instructors: initialInstructors }: { instruct
                       <span className="block truncate text-xs text-muted-foreground">{instructor.bio}</span>
                     )}
                   </span>
-                  {selected && <span className="text-xs font-semibold text-primary">Terpilih ✓</span>}
+                  {selected && <span className="text-xs font-semibold text-primary">{t.editor.selectedMark}</span>}
                 </button>
                 <AlertDialog>
                   <AlertDialogTrigger
@@ -130,7 +132,7 @@ export function InstructorPicker({ instructors: initialInstructors }: { instruct
                         type="button"
                         variant="ghost"
                         size="icon"
-                        aria-label={`Hapus ${instructor.name}`}
+                        aria-label={t.editor.deleteNamed.replace("{nama}", instructor.name)}
                         className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
                       />
                     }
@@ -139,21 +141,20 @@ export function InstructorPicker({ instructors: initialInstructors }: { instruct
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Hapus &quot;{instructor.name}&quot;?</AlertDialogTitle>
+                      <AlertDialogTitle>{t.editor.deleteInstructorTitle.replace("{nama}", instructor.name)}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Instruktur ini akan dilepas dari semua kursus yang sedang ditanganinya. Tindakan ini
-                        tidak dapat dibatalkan.
+                        {t.editor.deleteInstructorDesc}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
                       <AlertDialogAction
                         className="bg-destructive/10 text-destructive hover:bg-destructive/20"
                         onClick={() => handleDelete(instructor.id)}
                         pending={isPending}
-                        pendingLabel="Menghapus…"
+                        pendingLabel={t.editor.deleting}
                       >
-                        Hapus
+                        {t.editor.deleteWord}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -167,19 +168,19 @@ export function InstructorPicker({ instructors: initialInstructors }: { instruct
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger render={<Button variant="outline" size="sm" />}>
           <Plus className="size-3.5" />
-          Tambah Instruktur
+          {t.editor.addInstructor}
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Tambah Instruktur</DialogTitle>
+            <DialogTitle>{t.editor.addInstructor}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="instructor-name">Nama</Label>
+              <Label htmlFor="instructor-name">{t.editor.nameLabel}</Label>
               <Input id="instructor-name" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="instructor-bio">Biodata</Label>
+              <Label htmlFor="instructor-bio">{t.editor.bioLabel}</Label>
               <Textarea id="instructor-bio" value={bio} onChange={(e) => setBio(e.target.value)} rows={3} />
             </div>
           </div>
@@ -188,9 +189,9 @@ export function InstructorPicker({ instructors: initialInstructors }: { instruct
               onClick={handleCreate}
               disabled={!name.trim()}
               pending={isPending}
-              pendingLabel="Membuat…"
+              pendingLabel={t.editor.creating}
             >
-              Buat
+              {t.editor.create}
             </Button>
           </DialogFooter>
         </DialogContent>

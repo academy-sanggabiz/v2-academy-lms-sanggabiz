@@ -363,6 +363,204 @@ export type Dictionary = {
     /** `{judul}` judul pelajaran. */
     openLesson: string
   }
+  editor: {
+    destructiveTitle: string
+    destructivePrefix: string
+    /** `{n}` jumlah. */
+    nLessons: string
+    /** `{n}` jumlah. */
+    nQuestions: string
+    andWord: string
+    destructiveSuffix: string
+    keepSaving: string
+    newCourse: string
+    editCourse: string
+    publishedToast: string
+    invalidData: string
+    noLessonsPublish: string
+    /** `{n}` jumlah masalah lain. */
+    plusOthers: string
+    /** `{n}` jumlah pelajaran lain. */
+    plusOtherLessons: string
+    leaveTitle: string
+    leaveDesc: string
+    leave: string
+    savingBlockMessage: string
+    saveDraft: string
+    publish: string
+    unsavedChanges: string
+    tabBasic: string
+    tabLessons: string
+    tabSettings: string
+    tabLearners: string
+    tabPreview: string
+    loadingSettings: string
+    loadingLearners: string
+    statusSavedAt: string
+    statusSaved: string
+    statusUnsaved: string
+    statusError: string
+    restoreTitle: string
+    /** `{waktu}` keterangan waktu relatif. */
+    restoreDesc: string
+    restoreStale: string
+    discard: string
+    restore: string
+    justNow: string
+    minutesAgo: string
+    hoursAgo: string
+    daysAgo: string
+    labelTitle: string
+    phTitle: string
+    labelDescription: string
+    phDescription: string
+    labelRequirements: string
+    phRequirements: string
+    labelAudience: string
+    phAudience: string
+    labelThumb: string
+    hintThumb: string
+    basicSettings: string
+    level: string
+    pickLevel: string
+    levelBeginner: string
+    levelIntermediate: string
+    levelAdvanced: string
+    enrollmentSettings: string
+    privateCourse: string
+    privateDesc: string
+    draftWarnTitle: string
+    draftWarnRest: string
+    privateNote: string
+    publicDesc: string
+    paidDesc: string
+    priceLabel: string
+    pricePh: string
+    instructorSettings: string
+    seqTitle: string
+    seqLabel: string
+    seqDesc: string
+    seqNotePrefix: string
+    seqNoteStrong: string
+    seqNoteSuffix: string
+    prereqTitle: string
+    requirePrereq: string
+    requirePrereqDesc: string
+    prereqCourses: string
+    pickCourse: string
+    add: string
+    prereqHelp: string
+    /** `{judul}` judul kursus. */
+    removePrereq: string
+    uploading: string
+    clickToUpload: string
+    /** `{label}` nama gambar. */
+    removeImage: string
+    certTitle: string
+    enableCert: string
+    enableCertDesc: string
+    passingGradeLabel: string
+    passingGradeDesc: string
+    certTemplate: string
+    certTemplateHint: string
+    layoutHead: string
+    inheritMain: string
+    certTypeHead: string
+    customTitleLabel: string
+    customTitlePh: string
+    certDescLabel: string
+    /** `{n}` jumlah karakter terpakai. */
+    charCount: string
+    certDescPh: string
+    tokensSupported: string
+    signatureLabel: string
+    signatureHint: string
+    signatureInheritHas: string
+    signatureInheritNone: string
+    signerNameLabel: string
+    signerNamePh: string
+    signerTitleLabel: string
+    signerTitlePh: string
+    additionalTextLabel: string
+    additionalTextPh: string
+    inheritedHintPrefix: string
+    inheritedEmpty: string
+    certTypeCompletion: string
+    certTypeCompletionDesc: string
+    certTypeParticipation: string
+    certTypeParticipationDesc: string
+    certTypeAchievement: string
+    certTypeAchievementDesc: string
+    certTypeCustom: string
+    certTypeCustomDesc: string
+    certLayoutKlasik: string
+    certLayoutKlasikDesc: string
+    certLayoutModern: string
+    certLayoutModernDesc: string
+    certLayoutFormal: string
+    certLayoutFormalDesc: string
+    noInstructors: string
+    selectedMark: string
+    /** `{nama}` nama instruktur. */
+    deleteNamed: string
+    /** `{nama}` nama instruktur. */
+    deleteInstructorTitle: string
+    deleteInstructorDesc: string
+    deleting: string
+    deleteWord: string
+    addInstructor: string
+    nameLabel: string
+    bioLabel: string
+    creating: string
+    create: string
+    instructorCreated: string
+    instructorDeleted: string
+    /** `{n}` total peserta terdaftar. */
+    enrolledLearnersCount: string
+    enrolledLearners: string
+    privateRosterNote: string
+    publicRosterNote: string
+    inviteLearner: string
+    removingLearner: string
+    searchEnrolled: string
+    noEnrolledYet: string
+    noRosterMatches: string
+    inviteHintPrefix: string
+    inviteHintSuffix: string
+    statusDone: string
+    statusActive: string
+    /** `{nama}` nama peserta. */
+    unenrollNamed: string
+    /** `{nama}` nama peserta. */
+    unenrollTitle: string
+    unenrollDesc: string
+    unenrolling: string
+    unenroll: string
+    /** `{nama}` nama peserta. */
+    unenrolledToast: string
+    enrollingBusy: string
+    inviteDesc: string
+    searchByNameEmail: string
+    searchPh: string
+    /** `{n}` jumlah karakter minimum. */
+    typeMinChars: string
+    searching: string
+    allMatchedEnrolled: string
+    learnerNotFound: string
+    enrolling: string
+    enrollVerb: string
+    /** `{nama}` nama peserta. */
+    enrolledToast: string
+    done: string
+    /** `{n}` jumlah ulasan. */
+    reviewsCount: string
+    searchFeedback: string
+    noReviews: string
+    noReviewMatches: string
+    reviewsHint: string
+    untitledCourse: string
+    noDescription: string
+  }
   admin: {
     dashboard: string
     courses: string
@@ -879,6 +1077,199 @@ const id: Dictionary = {
     wrongOf: "Salah {salah} dari {total} kali",
     finallyCorrect: "akhirnya dijawab benar",
     openLesson: "Buka pelajaran: {judul}",
+  },
+  editor: {
+    destructiveTitle: "Penyimpanan ini menghapus konten",
+    destructivePrefix: "Menyimpan akan menghapus permanen",
+    nLessons: "{n} pelajaran",
+    nQuestions: "{n} soal",
+    andWord: "dan",
+    destructiveSuffix:
+      ", termasuk progres peserta atau percobaan kuis yang terkait. Tindakan ini tidak dapat dibatalkan.",
+    keepSaving: "Tetap simpan",
+    newCourse: "Kursus Baru",
+    editCourse: "Ubah Kursus",
+    publishedToast: "Kursus diterbitkan",
+    invalidData: "Data kursus tidak valid",
+    noLessonsPublish: "Kursus belum punya pelajaran. Tambahkan setidaknya satu sebelum menerbitkan.",
+    plusOthers: "(+{n} lainnya)",
+    plusOtherLessons: "(+{n} pelajaran lain)",
+    leaveTitle: "Perubahan belum disimpan",
+    leaveDesc: "Ada perubahan yang belum disimpan. Tinggalkan tanpa menyimpan?",
+    leave: "Tinggalkan",
+    savingBlockMessage: "Penyimpanan sedang berjalan. Tinggalkan halaman tanpa menunggu hasilnya?",
+    saveDraft: "Simpan Draf",
+    publish: "Terbitkan",
+    unsavedChanges: "Perubahan belum disimpan",
+    tabBasic: "Info Dasar",
+    tabLessons: "Pelajaran",
+    tabSettings: "Pengaturan",
+    tabLearners: "Peserta",
+    tabPreview: "Pratinjau",
+    loadingSettings: "Memuat pengaturan\u2026",
+    loadingLearners: "Memuat peserta\u2026",
+    statusSavedAt: "Tersimpan pukul {waktu}",
+    statusSaved: "Tersimpan",
+    statusUnsaved: "Belum disimpan",
+    statusError: "Gagal menyimpan",
+    restoreTitle: "Ditemukan perubahan yang belum disimpan",
+    restoreDesc:
+      "Ada perubahan dari {waktu} yang belum pernah disimpan. Pulihkan perubahan tersebut, atau buang dan gunakan versi tersimpan?",
+    restoreStale:
+      "Kursus ini juga sudah berubah di server sejak saat itu. Jika dipulihkan, perubahan di server akan tertimpa saat Anda menyimpan.",
+    discard: "Buang",
+    restore: "Pulihkan",
+    justNow: "baru saja",
+    minutesAgo: "{n} menit lalu",
+    hoursAgo: "{n} jam lalu",
+    daysAgo: "{n} hari lalu",
+    labelTitle: "Judul Kursus",
+    phTitle: "misal: Pengantar Pengembangan Web",
+    labelDescription: "Deskripsi Kursus",
+    phDescription: "Apa yang akan peserta dapatkan dari kursus ini?",
+    labelRequirements: "Persyaratan",
+    phRequirements: "Satu persyaratan per baris",
+    labelAudience: "Untuk siapa kursus ini",
+    phAudience: "Satu sasaran peserta per baris",
+    labelThumb: "Gambar Kursus",
+    hintThumb: "PNG atau JPEG, maks. 5MB",
+    basicSettings: "Pengaturan Dasar",
+    level: "Tingkat",
+    pickLevel: "Pilih tingkat",
+    levelBeginner: "Pemula",
+    levelIntermediate: "Menengah",
+    levelAdvanced: "Lanjutan",
+    enrollmentSettings: "Pengaturan Pendaftaran",
+    privateCourse: "Kursus privat",
+    privateDesc:
+      "Hanya peserta yang Anda daftarkan yang dapat menemukan atau membuka kursus ini. Kursus tidak tampil di katalog publik. Tambahkan peserta dari tab Peserta.",
+    draftWarnTitle: "Kursus ini masih berupa draf.",
+    draftWarnRest:
+      "Peserta yang diundang belum dapat membukanya sampai Anda menekan Terbitkan. Pengaturan privat hanya mengatur siapa yang dapat menemukannya, bukan apakah kursus sudah tayang.",
+    privateNote:
+      "Peserta tidak dapat mendaftar sendiri ke kursus privat, jadi opsi harga di bawah hanya berlaku jika nanti kursus dijadikan publik.",
+    publicDesc: "Siapa pun dapat mendaftar tanpa biaya.",
+    paidDesc: "Peserta membayar harga tetap untuk mendaftar.",
+    priceLabel: "Harga",
+    pricePh: "Rp 150.000",
+    instructorSettings: "Pengaturan Instruktur",
+    seqTitle: "Urutan Belajar",
+    seqLabel: "Harus berurutan",
+    seqDesc:
+      "Pelajaran berikutnya baru terbuka setelah yang sebelumnya tuntas. Dimatikan berarti peserta bebas memilih pelajaran mana pun, seperti kebanyakan kursus daring.",
+    seqNotePrefix: "Pelajaran kuis baru dianggap tuntas setelah peserta",
+    seqNoteStrong: "lulus",
+    seqNoteSuffix:
+      ", bukan sekadar mencentangnya. Peserta yang sedang berjalan di kursus ini akan ikut terkunci pada pelajaran yang belum mereka tuntaskan.",
+    prereqTitle: "Pengaturan Prasyarat",
+    requirePrereq: "Wajibkan Prasyarat",
+    requirePrereqDesc: "Peserta harus menyelesaikan kursus lain sebelum mendaftar ke kursus ini",
+    prereqCourses: "Kursus Prasyarat",
+    pickCourse: "Pilih kursus",
+    add: "Tambah",
+    prereqHelp: "Pilih kursus yang harus diselesaikan peserta sebelum dapat mendaftar ke kursus ini",
+    removePrereq: "Hapus prasyarat {judul}",
+    uploading: "Mengunggah\u2026",
+    clickToUpload: "Klik untuk mengunggah gambar",
+    removeImage: "Hapus {label}",
+    certTitle: "Pengaturan Sertifikat",
+    enableCert: "Aktifkan Sertifikat",
+    enableCertDesc: "Terbitkan sertifikat untuk peserta yang menyelesaikan kursus",
+    passingGradeLabel: "Nilai Kelulusan (%)",
+    passingGradeDesc:
+      "Nilai kursus berbobot minimum yang harus dicapai peserta, selain lulus setiap kuis, sebelum kursus dinyatakan selesai dan sertifikat diterbitkan.",
+    certTemplate: "Templat Sertifikat (Opsional)",
+    certTemplateHint: "Orientasi lanskap, PNG/JPEG, maks. 5MB",
+    layoutHead: "Tata Letak",
+    inheritMain: "Ikut Pengaturan Utama",
+    certTypeHead: "Jenis Sertifikat",
+    customTitleLabel: "Judul Sertifikat Khusus",
+    customTitlePh: "misal: Sertifikat Keahlian",
+    certDescLabel: "Deskripsi Sertifikat",
+    charCount: "{n}/150 karakter",
+    certDescPh: "misal: Dengan ini menyatakan bahwa [Nama Peserta] telah menyelesaikan [Nama Kursus].",
+    tokensSupported: "Penanda yang didukung: [Nama Peserta], [Nama Kursus]",
+    signatureLabel: "Unggah Gambar Tanda Tangan",
+    signatureHint: "PNG atau JPEG, maks. 1MB",
+    signatureInheritHas: "Dikosongkan berarti memakai tanda tangan dari pengaturan utama.",
+    signatureInheritNone: "Pengaturan utama juga belum punya gambar tanda tangan.",
+    signerNameLabel: "Nama Penanda Tangan",
+    signerNamePh: "misal: Budi Santoso",
+    signerTitleLabel: "Jabatan Penanda Tangan",
+    signerTitlePh: "misal: Instruktur Kursus, Direktur Pendidikan",
+    additionalTextLabel: "Teks Tambahan (Opsional)",
+    additionalTextPh: "Teks tambahan yang tampil di sertifikat...",
+    inheritedHintPrefix: "Ikut pengaturan utama",
+    inheritedEmpty: "(belum diisi superadmin)",
+    certTypeCompletion: "Kelulusan",
+    certTypeCompletionDesc: "\"Sertifikat Kelulusan\" - \"telah berhasil menyelesaikan\"",
+    certTypeParticipation: "Partisipasi",
+    certTypeParticipationDesc: "\"Sertifikat Partisipasi\" - \"telah berpartisipasi dalam\"",
+    certTypeAchievement: "Prestasi",
+    certTypeAchievementDesc: "\"Sertifikat Prestasi\" - \"telah berhasil meraih\"",
+    certTypeCustom: "Judul Khusus (Opsional)",
+    certTypeCustomDesc: "Masukkan judul sertifikat sendiri",
+    certLayoutKlasik: "Klasik",
+    certLayoutKlasikDesc: "Bingkai ganda, semua rata tengah",
+    certLayoutModern: "Modern",
+    certLayoutModernDesc: "Pita warna di tepi kiri, teks rata kiri",
+    certLayoutFormal: "Formal",
+    certLayoutFormalDesc: "Garis tipis, penanda tangan di tengah bawah",
+    noInstructors: "Belum ada instruktur. Buat instruktur untuk memulai.",
+    selectedMark: "Terpilih \u2713",
+    deleteNamed: "Hapus {nama}",
+    deleteInstructorTitle: "Hapus \u201C{nama}\u201D?",
+    deleteInstructorDesc:
+      "Instruktur ini akan dilepas dari semua kursus yang sedang ditanganinya. Tindakan ini tidak dapat dibatalkan.",
+    deleting: "Menghapus\u2026",
+    deleteWord: "Hapus",
+    addInstructor: "Tambah Instruktur",
+    nameLabel: "Nama",
+    bioLabel: "Biodata",
+    creating: "Membuat\u2026",
+    create: "Buat",
+    instructorCreated: "Instruktur dibuat dan ditetapkan",
+    instructorDeleted: "Instruktur dihapus",
+    enrolledLearnersCount: "Peserta Terdaftar ({n})",
+    enrolledLearners: "Peserta Terdaftar",
+    privateRosterNote: "Kursus ini privat, jadi peserta hanya dapat masuk jika didaftarkan di sini.",
+    publicRosterNote: "Kursus ini publik, jadi peserta juga dapat mendaftar sendiri.",
+    inviteLearner: "Undang peserta",
+    removingLearner: "Mengeluarkan peserta\u2026",
+    searchEnrolled: "Cari peserta terdaftar...",
+    noEnrolledYet: "Belum ada peserta terdaftar",
+    noRosterMatches: "Tidak ada peserta yang cocok dengan pencarian Anda",
+    inviteHintPrefix: "Gunakan",
+    inviteHintSuffix:
+      "untuk mencari peserta yang sudah terdaftar di platform dan mendaftarkannya ke kursus ini.",
+    statusDone: "Selesai",
+    statusActive: "Aktif",
+    unenrollNamed: "Keluarkan {nama}",
+    unenrollTitle: "Keluarkan {nama}?",
+    unenrollDesc:
+      "Pendaftaran peserta ini beserta progres belajarnya di kursus ini akan dihapus. Tindakan ini tidak dapat dibatalkan.",
+    unenrolling: "Mengeluarkan\u2026",
+    unenroll: "Keluarkan",
+    unenrolledToast: "{nama} dikeluarkan",
+    enrollingBusy: "Mendaftarkan\u2026",
+    inviteDesc: "Cari peserta berdasarkan nama atau email, lalu daftarkan ke kursus ini.",
+    searchByNameEmail: "Cari peserta berdasarkan nama atau email",
+    searchPh: "Nama atau email\u2026",
+    typeMinChars: "Ketik minimal {n} karakter untuk mencari.",
+    searching: "Mencari\u2026",
+    allMatchedEnrolled: "Semua peserta yang cocok sudah terdaftar.",
+    learnerNotFound: "Peserta tidak ditemukan.",
+    enrolling: "Mendaftarkan\u2026",
+    enrollVerb: "Daftarkan",
+    enrolledToast: "{nama} didaftarkan",
+    done: "Selesai",
+    reviewsCount: "{n} ulasan",
+    searchFeedback: "Cari nama atau email peserta...",
+    noReviews: "Belum ada ulasan",
+    noReviewMatches: "Tidak ada ulasan yang cocok dengan pencarian Anda",
+    reviewsHint: "Peserta diminta menilai kursus setelah menyelesaikannya.",
+    untitledCourse: "Kursus tanpa judul",
+    noDescription: "Belum ada deskripsi.",
   },
   admin: {
     dashboard: "Dashboard",
@@ -1407,6 +1798,199 @@ const en: Dictionary = {
     wrongOf: "Wrong {salah} of {total} times",
     finallyCorrect: "eventually answered correctly",
     openLesson: "Open lesson: {judul}",
+  },
+  editor: {
+    destructiveTitle: "This save deletes content",
+    destructivePrefix: "Saving will permanently delete",
+    nLessons: "{n} lessons",
+    nQuestions: "{n} questions",
+    andWord: "and",
+    destructiveSuffix:
+      ", including any related learner progress or quiz attempts. This cannot be undone.",
+    keepSaving: "Save anyway",
+    newCourse: "New Course",
+    editCourse: "Edit Course",
+    publishedToast: "Course published",
+    invalidData: "Course data is not valid",
+    noLessonsPublish: "The course has no lessons yet. Add at least one before publishing.",
+    plusOthers: "(+{n} more)",
+    plusOtherLessons: "(+{n} other lessons)",
+    leaveTitle: "Unsaved changes",
+    leaveDesc: "There are unsaved changes. Leave without saving?",
+    leave: "Leave",
+    savingBlockMessage: "A save is in progress. Leave the page without waiting for the result?",
+    saveDraft: "Save Draft",
+    publish: "Publish",
+    unsavedChanges: "Unsaved changes",
+    tabBasic: "Basic Info",
+    tabLessons: "Lessons",
+    tabSettings: "Settings",
+    tabLearners: "Learners",
+    tabPreview: "Preview",
+    loadingSettings: "Loading settings\u2026",
+    loadingLearners: "Loading learners\u2026",
+    statusSavedAt: "Saved at {waktu}",
+    statusSaved: "Saved",
+    statusUnsaved: "Not saved yet",
+    statusError: "Save failed",
+    restoreTitle: "Unsaved changes found",
+    restoreDesc:
+      "There are changes from {waktu} that were never saved. Restore them, or discard them and use the saved version?",
+    restoreStale:
+      "This course has also changed on the server since then. If restored, the server changes will be overwritten when you save.",
+    discard: "Discard",
+    restore: "Restore",
+    justNow: "just now",
+    minutesAgo: "{n} minutes ago",
+    hoursAgo: "{n} hours ago",
+    daysAgo: "{n} days ago",
+    labelTitle: "Course Title",
+    phTitle: "e.g. Introduction to Web Development",
+    labelDescription: "Course Description",
+    phDescription: "What will learners get from this course?",
+    labelRequirements: "Requirements",
+    phRequirements: "One requirement per line",
+    labelAudience: "Who this course is for",
+    phAudience: "One target learner per line",
+    labelThumb: "Course Image",
+    hintThumb: "PNG or JPEG, max 5MB",
+    basicSettings: "Basic Settings",
+    level: "Level",
+    pickLevel: "Choose a level",
+    levelBeginner: "Beginner",
+    levelIntermediate: "Intermediate",
+    levelAdvanced: "Advanced",
+    enrollmentSettings: "Enrollment Settings",
+    privateCourse: "Private course",
+    privateDesc:
+      "Only learners you enroll can find or open this course. It does not appear in the public catalogue. Add learners from the Learners tab.",
+    draftWarnTitle: "This course is still a draft.",
+    draftWarnRest:
+      "Invited learners cannot open it until you press Publish. The private setting only controls who can find it, not whether it is live.",
+    privateNote:
+      "Learners cannot enroll themselves in a private course, so the pricing options below only apply if the course is later made public.",
+    publicDesc: "Anyone can enroll at no cost.",
+    paidDesc: "Learners pay a fixed price to enroll.",
+    priceLabel: "Price",
+    pricePh: "Rp 150.000",
+    instructorSettings: "Instructor Settings",
+    seqTitle: "Learning Order",
+    seqLabel: "Must be sequential",
+    seqDesc:
+      "The next lesson only unlocks once the previous one is finished. Off means learners can pick any lesson, like most online courses.",
+    seqNotePrefix: "A quiz lesson only counts as finished once the learner",
+    seqNoteStrong: "passes",
+    seqNoteSuffix:
+      ", not merely ticks it. Learners already partway through this course will also be locked at lessons they have not finished.",
+    prereqTitle: "Prerequisite Settings",
+    requirePrereq: "Require Prerequisites",
+    requirePrereqDesc: "Learners must complete another course before enrolling in this one",
+    prereqCourses: "Prerequisite Courses",
+    pickCourse: "Choose a course",
+    add: "Add",
+    prereqHelp: "Choose the courses a learner must complete before they can enroll in this course",
+    removePrereq: "Remove prerequisite {judul}",
+    uploading: "Uploading\u2026",
+    clickToUpload: "Click to upload an image",
+    removeImage: "Remove {label}",
+    certTitle: "Certificate Settings",
+    enableCert: "Enable Certificate",
+    enableCertDesc: "Issue a certificate to learners who complete the course",
+    passingGradeLabel: "Passing Grade (%)",
+    passingGradeDesc:
+      "The minimum weighted course grade a learner must reach, besides passing every quiz, before the course counts as completed and the certificate is issued.",
+    certTemplate: "Certificate Template (Optional)",
+    certTemplateHint: "Landscape orientation, PNG/JPEG, max 5MB",
+    layoutHead: "Layout",
+    inheritMain: "Follow Main Settings",
+    certTypeHead: "Certificate Type",
+    customTitleLabel: "Custom Certificate Title",
+    customTitlePh: "e.g. Certificate of Expertise",
+    certDescLabel: "Certificate Description",
+    charCount: "{n}/150 characters",
+    certDescPh: "e.g. This certifies that [Nama Peserta] has completed [Nama Kursus].",
+    tokensSupported: "Supported tokens: [Nama Peserta], [Nama Kursus]",
+    signatureLabel: "Upload Signature Image",
+    signatureHint: "PNG or JPEG, max 1MB",
+    signatureInheritHas: "Leaving this empty uses the signature from the main settings.",
+    signatureInheritNone: "The main settings have no signature image either.",
+    signerNameLabel: "Signer Name",
+    signerNamePh: "e.g. Budi Santoso",
+    signerTitleLabel: "Signer Title",
+    signerTitlePh: "e.g. Course Instructor, Director of Education",
+    additionalTextLabel: "Additional Text (Optional)",
+    additionalTextPh: "Additional text shown on the certificate...",
+    inheritedHintPrefix: "Following main settings",
+    inheritedEmpty: "(not yet filled by the superadmin)",
+    certTypeCompletion: "Completion",
+    certTypeCompletionDesc: "\"Certificate of Completion\" - \"has successfully completed\"",
+    certTypeParticipation: "Participation",
+    certTypeParticipationDesc: "\"Certificate of Participation\" - \"has participated in\"",
+    certTypeAchievement: "Achievement",
+    certTypeAchievementDesc: "\"Certificate of Achievement\" - \"has successfully achieved\"",
+    certTypeCustom: "Custom Title (Optional)",
+    certTypeCustomDesc: "Enter your own certificate title",
+    certLayoutKlasik: "Classic",
+    certLayoutKlasikDesc: "Double frame, everything centred",
+    certLayoutModern: "Modern",
+    certLayoutModernDesc: "Colour band on the left edge, left-aligned text",
+    certLayoutFormal: "Formal",
+    certLayoutFormalDesc: "Thin rules, signer centred at the bottom",
+    noInstructors: "No instructors yet. Create one to get started.",
+    selectedMark: "Selected \u2713",
+    deleteNamed: "Delete {nama}",
+    deleteInstructorTitle: "Delete \u201C{nama}\u201D?",
+    deleteInstructorDesc:
+      "This instructor will be detached from every course they are assigned to. This cannot be undone.",
+    deleting: "Deleting\u2026",
+    deleteWord: "Delete",
+    addInstructor: "Add Instructor",
+    nameLabel: "Name",
+    bioLabel: "Bio",
+    creating: "Creating\u2026",
+    create: "Create",
+    instructorCreated: "Instructor created and assigned",
+    instructorDeleted: "Instructor deleted",
+    enrolledLearnersCount: "Enrolled Learners ({n})",
+    enrolledLearners: "Enrolled Learners",
+    privateRosterNote: "This course is private, so learners can only get in if enrolled here.",
+    publicRosterNote: "This course is public, so learners can also enroll themselves.",
+    inviteLearner: "Invite learner",
+    removingLearner: "Removing learner\u2026",
+    searchEnrolled: "Search enrolled learners...",
+    noEnrolledYet: "No learners enrolled yet",
+    noRosterMatches: "No learner matches your search",
+    inviteHintPrefix: "Use",
+    inviteHintSuffix:
+      "to find learners already registered on the platform and enroll them in this course.",
+    statusDone: "Completed",
+    statusActive: "Active",
+    unenrollNamed: "Remove {nama}",
+    unenrollTitle: "Remove {nama}?",
+    unenrollDesc:
+      "This learner's enrollment and their progress in this course will be deleted. This cannot be undone.",
+    unenrolling: "Removing\u2026",
+    unenroll: "Remove",
+    unenrolledToast: "{nama} removed",
+    enrollingBusy: "Enrolling\u2026",
+    inviteDesc: "Search learners by name or email, then enroll them in this course.",
+    searchByNameEmail: "Search learners by name or email",
+    searchPh: "Name or email\u2026",
+    typeMinChars: "Type at least {n} characters to search.",
+    searching: "Searching\u2026",
+    allMatchedEnrolled: "Every matching learner is already enrolled.",
+    learnerNotFound: "No learner found.",
+    enrolling: "Enrolling\u2026",
+    enrollVerb: "Enroll",
+    enrolledToast: "{nama} enrolled",
+    done: "Done",
+    reviewsCount: "{n} reviews",
+    searchFeedback: "Search learner name or email...",
+    noReviews: "No reviews yet",
+    noReviewMatches: "No review matches your search",
+    reviewsHint: "Learners are asked to rate the course after completing it.",
+    untitledCourse: "Untitled course",
+    noDescription: "No description yet.",
   },
   admin: {
     dashboard: "Dashboard",

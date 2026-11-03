@@ -4,6 +4,7 @@ import { AlertCircle, Check } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Spinner } from "@/components/ui/spinner"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 type SaveState = "idle" | "unsaved" | "saving" | "saved" | "error"
 
@@ -16,7 +17,7 @@ type SaveState = "idle" | "unsaved" | "saving" | "saved" | "error"
 function SaveStatus({
   state,
   savedAt,
-  unsavedLabel = "Belum disimpan",
+  unsavedLabel,
   className,
 }: {
   state: SaveState
@@ -24,6 +25,7 @@ function SaveStatus({
   unsavedLabel?: string
   className?: string
 }) {
+  const { locale, t } = useI18n()
   return (
     <p
       role="status"
@@ -33,7 +35,7 @@ function SaveStatus({
       {state === "saving" && (
         <>
           <Spinner className="size-3.5" />
-          <span className="text-muted-foreground">Menyimpan…</span>
+          <span className="text-muted-foreground">{t.common.saving}</span>
         </>
       )}
 
@@ -42,21 +44,24 @@ function SaveStatus({
           <Check className="size-3.5 shrink-0" aria-hidden="true" />
           <span className="text-success-foreground">
             {savedAt
-              ? `Tersimpan pukul ${savedAt.toLocaleTimeString("id-ID", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}`
-              : "Tersimpan"}
+              ? t.editor.statusSavedAt.replace(
+                  "{waktu}",
+                  savedAt.toLocaleTimeString(locale === "en" ? "en-US" : "id-ID", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                )
+              : t.editor.statusSaved}
           </span>
         </>
       )}
 
-      {state === "unsaved" && <span className="text-muted-foreground">{unsavedLabel}</span>}
+      {state === "unsaved" && <span className="text-muted-foreground">{unsavedLabel ?? t.editor.statusUnsaved}</span>}
 
       {state === "error" && (
         <>
           <AlertCircle className="size-3.5 shrink-0" aria-hidden="true" />
-          <span className="text-destructive">Gagal menyimpan</span>
+          <span className="text-destructive">{t.editor.statusError}</span>
         </>
       )}
     </p>
