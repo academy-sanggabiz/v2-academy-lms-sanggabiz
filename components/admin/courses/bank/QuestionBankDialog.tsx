@@ -19,6 +19,7 @@ import { listBankItemsAction } from "@/app/admin/courses/bank-actions"
 import type { BankItem } from "@/lib/question-bank-server"
 import type { DraftQuestion } from "@/lib/course-draft"
 import { QUESTION_TYPES } from "@/lib/question-types"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 /** Membuang tag HTML supaya teks soal aman ditampilkan sebagai teks biasa. */
 function plainText(html: string): string {
@@ -54,6 +55,7 @@ export function QuestionBankDialog({
   onOpenChange: (open: boolean) => void
   onPick: (questions: DraftQuestion[]) => void
 }) {
+  const { t } = useI18n()
   const [search, setSearch] = useState("")
   const [items, setItems] = useState<BankItem[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -102,32 +104,29 @@ export function QuestionBankDialog({
   function insert() {
     const picked = items.filter((i) => selected.has(i.id)).map(toDraftQuestion)
     if (picked.length === 0) {
-      toast.error("Belum ada soal yang dipilih")
+      toast.error(t.editor.bankNonePicked)
       return
     }
     onPick(picked)
     onOpenChange(false)
-    toast.success(
-      picked.length === 1 ? "1 soal disalin dari bank" : `${picked.length} soal disalin dari bank`
-    )
+    toast.success(t.editor.bankCopied.replace("{n}", String(picked.length)))
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[640px]">
         <DialogHeader>
-          <DialogTitle>Ambil dari Bank Soal</DialogTitle>
+          <DialogTitle>{t.editor.bankTitle}</DialogTitle>
           <DialogDescription>
-            Soal yang dipilih <strong>disalin</strong> ke kuis ini. Menyuntingnya di sini tidak
-            mengubah soal di bank.
+            {t.editor.bankCopyNote1} <strong>{t.editor.bankCopiedWord}</strong> {t.editor.bankCopyNote2}
           </DialogDescription>
         </DialogHeader>
 
         {notReady && (
           <StatusMessage variant="error">
-            Bank soal belum aktif: tabel <code>question_bank_items</code> belum ada di basis data.
-            Jalankan <code>supabase/migrations/20261101140000_question_bank.sql</code> di SQL Editor
-            Supabase.
+            {t.editor.bankNotReadyPrefix} <code>question_bank_items</code>{" "}
+            {t.insight.notReadyMiddle} <code>supabase/migrations/20261101140000_question_bank.sql</code>{" "}
+            {t.insight.notReadyEnd}
           </StatusMessage>
         )}
         {error && <StatusMessage variant="error">{error}</StatusMessage>}
@@ -136,26 +135,34 @@ export function QuestionBankDialog({
           <Input
           inputSize="sm"
             type="search"
-            placeholder="Cari teks soal atau label…"
+            placeholder={t.editor.bankSearchPh}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            aria-label="Cari soal di bank"
+            aria-label={t.editor.bankSearchAria}
           />
           <p aria-live="polite" className="text-xs text-muted-foreground">
             {loading
-              ? "Memuat…"
+              ? t.editor.loadingShort
               : items.length === 0
                 ? notReady
                   ? ""
-                  : "Belum ada soal di bank. Simpan soal ke bank dari editor kuis lebih dulu."
-                : `${items.length} soal, ${selected.size} dipilih`}
+                  : t.editor.bankEmpty
+                : t.editor.bankCount
+                    .replace("{n}", String(items.length))
+                    .replace("{dipilih}", String(selected.size))}
           </p>
         </div>
 
         <div className="max-h-[320px] space-y-1.5 overflow-y-auto">
           {items.map((item) => {
             const typeLabel =
-              QUESTION_TYPES.find((t) => t.value === item.type)?.label ?? item.type
+              {
+                multiple_choice: t.editor.qtMultipleChoice,
+                true_false: t.editor.qtTrueFalse,
+                short_answer: t.editor.qtShortAnswer,
+              }[item.type as string] ??
+              QUESTION_TYPES.find((j) => j.value === item.type)?.label ??
+              item.type
             return (
               <label
                 key={item.id}
@@ -164,7 +171,7 @@ export function QuestionBankDialog({
                 <Checkbox
                   checked={selected.has(item.id)}
                   onCheckedChange={() => toggle(item.id)}
-                  aria-label={`Pilih soal: ${plainText(item.prompt).slice(0, 80)}`}
+                  aria-label={t.editor.bankPickAria.replace("{soal}", plainText(item.prompt).slice(0, 80))}
                 />
                 <div className="min-w-0">
                   <div className="line-clamp-2 text-sm">{plainText(item.prompt)}</div>
@@ -180,10 +187,10 @@ export function QuestionBankDialog({
 
         <DialogFooter>
           <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-            Batal
+            {t.common.cancel}
           </Button>
           <Button type="button" variant="outline" onClick={insert} disabled={selected.size === 0}>
-            Salin ke Kuis
+            {t.editor.bankCopyToQuiz}
           </Button>
         </DialogFooter>
       </DialogContent>

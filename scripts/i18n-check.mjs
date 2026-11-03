@@ -46,7 +46,7 @@ const SUDAH_SELESAI = new Set([
 ])
 
 /** Layar dinamis yang juga sudah selesai -- dicocokkan dengan awalan jalur. */
-const AWALAN_SELESAI = ["/admin/grading/course/", "/admin/tracking/"]
+const AWALAN_SELESAI = ["/admin/grading/course/", "/admin/tracking/", "/admin/courses/", "/learner/courses/"]
 function sudahSelesai(path) {
   return SUDAH_SELESAI.has(path) || AWALAN_SELESAI.some((a) => path.startsWith(a))
 }
@@ -84,7 +84,7 @@ async function ambilIsi() {
     return r.ok ? r.json() : []
   }
   const [kursus, pelajaran, modul, notif, soal] = await Promise.all([
-    ambil("courses?select=title,description"),
+    ambil("courses?select=title,description,who_for,requirements"),
     ambil("lessons?select=title&limit=1000"),
     ambil("course_sections?select=title&limit=500"),
     ambil("notifications?select=title,body&limit=500"),
@@ -93,7 +93,7 @@ async function ambilIsi() {
     ambil("questions?select=prompt&limit=1000"),
   ])
   return [
-    ...kursus.flatMap((x) => [x.title, x.description]),
+    ...kursus.flatMap((x) => [x.title, x.description, ...(x.who_for ?? []), ...(x.requirements ?? [])]),
     ...pelajaran.map((x) => x.title),
     ...modul.map((x) => x.title),
     ...notif.flatMap((x) => [x.title, x.body]),
@@ -141,6 +141,15 @@ try {
   if (learner) {
     for (const p of ["/learner/dashboard", "/learner/courses", "/learner/profile", "/learner/settings", "/learner/notifications"])
       await periksa(learner, p)
+    // Detail kursus (dinamis): kursus pertama yang diikuti akun audit.
+    if (env.SUPABASE_SERVICE_ROLE_KEY) {
+      const h = { apikey: env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` }
+      const profil = await fetch(`${env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/profiles?select=id&email=eq.${encodeURIComponent(env.AUDIT_LEARNER_EMAIL)}`, { headers: h }).then((r) => (r.ok ? r.json() : []))
+      if (profil[0]) {
+        const e = await fetch(`${env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/enrollments?select=course_id&learner_id=eq.${profil[0].id}&limit=1`, { headers: h }).then((r) => (r.ok ? r.json() : []))
+        if (e[0]) await periksa(learner, `/learner/courses/${e[0].course_id}`)
+      }
+    }
   } else console.log("lewat layar peserta: gagal masuk")
 
   const adminEmail = env.AUDIT_ADMIN_EMAIL || env.DEMO_ADMIN_EMAIL
@@ -169,6 +178,8 @@ try {
         if (pendaftaran) {
           await periksa(admin, `/admin/grading/course/${pendaftaran.course_id}`)
           await periksa(admin, `/admin/tracking/${pendaftaran.id}`)
+          await periksa(admin, `/admin/courses/${pendaftaran.course_id}/edit`)
+          await periksa(admin, `/admin/courses/preview/${pendaftaran.course_id}`)
         } else console.log("lewat matriks penilaian/pelacakan: admin demo belum punya kursus berpendaftaran")
       }
     } else console.log("lewat layar dinamis: SUPABASE_SERVICE_ROLE_KEY tidak ada")

@@ -43,6 +43,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { uploadLessonImage } from "@/lib/storage"
+import { useI18n } from "@/components/i18n/LocaleProvider"
+import type { Dictionary } from "@/lib/i18n/dictionaries"
 
 const TEXT_COLORS = [
   "#14252a",
@@ -68,19 +70,23 @@ const HIGHLIGHT_COLORS = ["#fef3c7", "#dcfce7", "#dbeafe", "#fce7f3", "#fee2e2"]
  * Pilihannya sedikit dan sengaja: daftar ukuran yang panjang menghasilkan
  * halaman dengan delapan ukuran berbeda dan tidak ada yang lebih mudah dibaca.
  */
-const SIZE_OPTIONS = [
-  { label: "Kecil", value: "0.875em" },
-  { label: "Normal", value: "" },
-  { label: "Besar", value: "1.25em" },
-  { label: "Lebih besar", value: "1.5em" },
-]
+function sizeOptions(t: Dictionary) {
+  return [
+    { label: t.editor.rtSizeSmall, value: "0.875em" },
+    { label: t.editor.rtSizeNormal, value: "" },
+    { label: t.editor.rtSizeLarge, value: "1.25em" },
+    { label: t.editor.rtSizeLarger, value: "1.5em" },
+  ]
+}
 
-const HEADING_OPTIONS = [
-  { label: "Paragraf", level: 0 as const },
-  { label: "Judul 1", level: 1 as const },
-  { label: "Judul 2", level: 2 as const },
-  { label: "Judul 3", level: 3 as const },
-]
+function headingOptions(t: Dictionary) {
+  return [
+    { label: t.editor.rtParagraph, level: 0 as const },
+    { label: t.editor.rtHeadingN.replace("{n}", "1"), level: 1 as const },
+    { label: t.editor.rtHeadingN.replace("{n}", "2"), level: 2 as const },
+    { label: t.editor.rtHeadingN.replace("{n}", "3"), level: 3 as const },
+  ]
+}
 
 // Google Docs pastes wrap most runs in `<span style="color:#000000">`, which our
 // Color extension would otherwise apply literally, clashing with the editor's own
@@ -99,12 +105,8 @@ function stripPastedColor(html: string): string {
  * Ask the author for an image's text alternative (WCAG 1.1.1). Empty means
  * decorative (alt=""), which screen readers skip; Cancel keeps `current`.
  */
-function askAltText(current = ""): string | null {
-  const answer = window.prompt(
-    "Jelaskan gambar ini untuk peserta yang tidak dapat melihatnya (apa isinya dan mengapa penting).\n" +
-      "Kosongkan jika gambar hanya hiasan.",
-    current
-  )
+function askAltText(promptText: string, current = ""): string | null {
+  const answer = window.prompt(promptText, current)
   return answer === null ? null : answer.trim()
 }
 
@@ -117,24 +119,25 @@ async function uploadAndInsert(
   view: EditorView,
   file: File,
   pos: number | undefined,
-  setUploading: (uploading: boolean) => void
+  setUploading: (uploading: boolean) => void,
+  altPrompt: string
 ) {
   setUploading(true)
   try {
-    await insertUploadedImage(view, file, pos)
+    await insertUploadedImage(view, file, pos, altPrompt)
   } finally {
     setUploading(false)
   }
 }
 
-async function insertUploadedImage(view: EditorView, file: File, pos?: number) {
+async function insertUploadedImage(view: EditorView, file: File, pos: number | undefined, altPrompt: string) {
   const result = await uploadLessonImage(file)
 
   if ("error" in result) {
     toast.error(result.error)
     return
   }
-  const alt = askAltText() ?? ""
+  const alt = askAltText(altPrompt) ?? ""
   const node = view.state.schema.nodes.image.create({ src: result.url, alt })
   const tr = pos == null ? view.state.tr.replaceSelectionWith(node) : view.state.tr.insert(pos, node)
   view.dispatch(tr)
@@ -148,7 +151,7 @@ const UPDATE_DEBOUNCE_MS = 400
 export function RichTextEditor({
   value,
   onChange,
-  ariaLabel = "Editor konten",
+  ariaLabel,
 }: {
   value: string
   onChange: (html: string) => void
@@ -158,6 +161,7 @@ export function RichTextEditor({
   // Keadaan unggah hidup di sini, bukan di Toolbar: handler tempel dan
   // seret-lepas dipasang pada editor di komponen ini, dan keduanya harus
   // menyalakan penanda sibuk yang sama dengan tombol gambar di toolbar.
+  const { t } = useI18n()
   const [isUploading, setIsUploading] = useState(false)
   const onChangeRef = useRef(onChange)
   useEffect(() => {
@@ -207,7 +211,7 @@ export function RichTextEditor({
     content: value,
     editorProps: {
       attributes: {
-        "aria-label": ariaLabel,
+        "aria-label": ariaLabel ?? t.editor.rtEditorAria,
         "aria-multiline": "true",
         class: "lesson-prose min-h-[160px] rounded-b-lg border border-t-0 border-border bg-card px-3.5 py-3 focus:outline-none",
       },
@@ -216,7 +220,7 @@ export function RichTextEditor({
         const image = Array.from(event.clipboardData?.files ?? []).find((f) => f.type.startsWith("image/"))
         if (!image) return false
         event.preventDefault()
-        void uploadAndInsert(view, image, undefined, setIsUploading)
+        void uploadAndInsert(view, image, undefined, setIsUploading, t.editor.rtAltPrompt)
         return true
       },
       handleDrop: (view, event) => {
@@ -224,7 +228,7 @@ export function RichTextEditor({
         if (!image) return false
         event.preventDefault()
         const coords = view.posAtCoords({ left: event.clientX, top: event.clientY })
-        void uploadAndInsert(view, image, coords?.pos, setIsUploading)
+        void uploadAndInsert(view, image, coords?.pos, setIsUploading, t.editor.rtAltPrompt)
         return true
       },
     },
@@ -261,6 +265,7 @@ function Toolbar({
   isUploading: boolean
   setIsUploading: (uploading: boolean) => void
 }) {
+  const { t } = useI18n()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -276,16 +281,18 @@ function Toolbar({
       toast.error(result.error)
       return
     }
-    const alt = askAltText() ?? ""
+    const alt = askAltText(t.editor.rtAltPrompt) ?? ""
     editor.chain().focus().setImage({ src: result.url, alt }).run()
   }
 
   function handleEditAlt() {
     const current = (editor.getAttributes("image").alt as string | undefined) ?? ""
-    const next = askAltText(current)
+    const next = askAltText(t.editor.rtAltPrompt, current)
     if (next !== null) editor.chain().focus().updateAttributes("image", { alt: next }).run()
   }
 
+  const HEADING_OPTIONS = headingOptions(t)
+  const SIZE_OPTIONS = sizeOptions(t)
   const activeHeading =
     HEADING_OPTIONS.find((h) => h.level > 0 && editor.isActive("heading", { level: h.level })) ??
     HEADING_OPTIONS[0]
@@ -319,10 +326,10 @@ function Toolbar({
 
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={<Button type="button" variant="ghost" size="sm" className="gap-1" title="Ukuran teks" />}
+          render={<Button type="button" variant="ghost" size="sm" className="gap-1" title={t.editor.rtTextSize} aria-label={t.editor.rtTextSize} />}
         >
           {SIZE_OPTIONS.find((o) => o.value && editor.isActive("textStyle", { fontSize: o.value }))?.label ??
-            "Normal"}
+            t.editor.rtSizeNormal}
           <ChevronDown className="size-3.5" />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -345,7 +352,7 @@ function Toolbar({
 
       <Popover>
         <PopoverTrigger
-          render={<Button type="button" variant="ghost" size="icon-sm" title="Warna teks" />}
+          render={<Button type="button" variant="ghost" size="icon-sm" title={t.editor.rtTextColor} aria-label={t.editor.rtTextColor} />}
         >
           <Palette className="size-3.5" />
         </PopoverTrigger>
@@ -367,7 +374,7 @@ function Toolbar({
 
       <Popover>
         <PopoverTrigger
-          render={<Button type="button" variant="ghost" size="icon-sm" title="Sorot" />}
+          render={<Button type="button" variant="ghost" size="icon-sm" title={t.editor.rtHighlight} aria-label={t.editor.rtHighlight} />}
         >
           <Highlighter className="size-3.5" />
         </PopoverTrigger>
@@ -390,28 +397,28 @@ function Toolbar({
       <ToolbarDivider />
 
       <ToolbarToggle
-        title="Tebal"
+        title={t.editor.rtBold}
         active={editor.isActive("bold")}
         onClick={() => editor.chain().focus().toggleBold().run()}
       >
         <Bold className="size-3.5" />
       </ToolbarToggle>
       <ToolbarToggle
-        title="Miring"
+        title={t.editor.rtItalic}
         active={editor.isActive("italic")}
         onClick={() => editor.chain().focus().toggleItalic().run()}
       >
         <Italic className="size-3.5" />
       </ToolbarToggle>
       <ToolbarToggle
-        title="Garis bawah"
+        title={t.editor.rtUnderline}
         active={editor.isActive("underline")}
         onClick={() => editor.chain().focus().toggleUnderline().run()}
       >
         <Underline className="size-3.5" />
       </ToolbarToggle>
       <ToolbarToggle
-        title="Coret"
+        title={t.editor.rtStrike}
         active={editor.isActive("strike")}
         onClick={() => editor.chain().focus().toggleStrike().run()}
       >
@@ -424,8 +431,8 @@ function Toolbar({
         type="button"
         variant="ghost"
         size="icon-sm"
-        title={isUploading ? "Mengunggah gambar…" : "Sisipkan gambar"}
-        aria-label={isUploading ? "Mengunggah gambar…" : "Sisipkan gambar"}
+        title={isUploading ? t.editor.rtUploadingImage : t.editor.rtInsertImage}
+        aria-label={isUploading ? t.editor.rtUploadingImage : t.editor.rtInsertImage}
         aria-busy={isUploading || undefined}
         disabled={isUploading}
         focusableWhenDisabled={isUploading}
@@ -441,14 +448,14 @@ function Toolbar({
       )}
 
       <ToolbarToggle
-        title="Kutipan"
+        title={t.editor.rtQuote}
         active={editor.isActive("blockquote")}
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
       >
         <Quote className="size-3.5" />
       </ToolbarToggle>
       <ToolbarToggle
-        title="Blok kode"
+        title={t.editor.rtCodeBlock}
         active={editor.isActive("codeBlock")}
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
       >
@@ -461,7 +468,7 @@ function Toolbar({
         type="button"
         variant="ghost"
         size="icon-sm"
-        title="Sisipkan tabel"
+        title={t.editor.rtInsertTable} aria-label={t.editor.rtInsertTable}
         onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
       >
         <TableIcon className="size-3.5" />
@@ -470,32 +477,32 @@ function Toolbar({
       {editor.isActive("table") && (
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button type="button" variant="ghost" size="sm" className="gap-1" />}>
-            Tabel
+            {t.editor.rtTable}
             <ChevronDown className="size-3.5" />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => editor.chain().focus().addRowAfter().run()}>
               <Rows3 className="size-3.5" />
-              Tambah baris di bawah
+              {t.editor.rtAddRowBelow}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => editor.chain().focus().addColumnAfter().run()}>
               <Columns3 className="size-3.5" />
-              Tambah kolom di kanan
+              {t.editor.rtAddColRight}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => editor.chain().focus().deleteRow().run()}>
               <Rows3 className="size-3.5" />
-              Hapus baris
+              {t.editor.rtDeleteRow}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => editor.chain().focus().deleteColumn().run()}>
               <Columns3 className="size-3.5" />
-              Hapus kolom
+              {t.editor.rtDeleteCol}
             </DropdownMenuItem>
             <DropdownMenuItem
               variant="destructive"
               onClick={() => editor.chain().focus().deleteTable().run()}
             >
               <Trash2 className="size-3.5" />
-              Hapus tabel
+              {t.editor.rtDeleteTable}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -505,35 +512,35 @@ function Toolbar({
 
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={<Button type="button" variant="ghost" size="icon-sm" title="Perataan teks" />}
+          render={<Button type="button" variant="ghost" size="icon-sm" title={t.editor.rtAlign} aria-label={t.editor.rtAlign} />}
         >
           <AlignLeft className="size-3.5" />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem onClick={() => editor.chain().focus().setTextAlign("left").run()}>
             <AlignLeft className="size-3.5" />
-            Kiri
+            {t.editor.rtAlignLeft}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => editor.chain().focus().setTextAlign("center").run()}>
             <AlignCenter className="size-3.5" />
-            Tengah
+            {t.editor.rtAlignCenter}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => editor.chain().focus().setTextAlign("right").run()}>
             <AlignRight className="size-3.5" />
-            Kanan
+            {t.editor.rtAlignRight}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <ToolbarToggle
-        title="Daftar berbutir"
+        title={t.editor.rtBulletList}
         active={editor.isActive("bulletList")}
         onClick={() => editor.chain().focus().toggleBulletList().run()}
       >
         <List className="size-3.5" />
       </ToolbarToggle>
       <ToolbarToggle
-        title="Daftar bernomor"
+        title={t.editor.rtOrderedList}
         active={editor.isActive("orderedList")}
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
       >

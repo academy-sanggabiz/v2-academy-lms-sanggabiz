@@ -714,6 +714,138 @@ export type Dictionary = {
     acceptedAnswerAria: string
     choiceTextAria: string
     removeChoice: string
+    rtSizeSmall: string
+    rtSizeNormal: string
+    rtSizeLarge: string
+    rtSizeLarger: string
+    rtParagraph: string
+    /** `{n}` tingkat judul. */
+    rtHeadingN: string
+    rtAltPrompt: string
+    rtEditorAria: string
+    rtTextSize: string
+    rtTextColor: string
+    rtHighlight: string
+    rtBold: string
+    rtItalic: string
+    rtUnderline: string
+    rtStrike: string
+    rtUploadingImage: string
+    rtInsertImage: string
+    rtQuote: string
+    rtCodeBlock: string
+    rtInsertTable: string
+    rtTable: string
+    rtAddRowBelow: string
+    rtAddColRight: string
+    rtDeleteRow: string
+    rtDeleteCol: string
+    rtDeleteTable: string
+    rtAlign: string
+    rtAlignLeft: string
+    rtAlignCenter: string
+    rtAlignRight: string
+    rtBulletList: string
+    rtOrderedList: string
+    /** `{kata}` jumlah kata, `{menit}` menit baca. */
+    guideWordCount: string
+    guideTooLong: string
+    guideTarget: string
+    /** `{n}` menit. */
+    guideUseDuration: string
+    guideTip1: string
+    guideTip2: string
+    guideTip3: string
+    guideTip4: string
+    guideTip5: string
+    blankCourse: string
+    blankCourseDesc: string
+    importMd: string
+    importMdDesc: string
+    creatingCourse: string
+    courseDeleted: string
+    deleteCourseAria: string
+    deleteCourseDesc: string
+    movingToDraft: string
+    publishing: string
+    publishedBadge: string
+    draftBadge: string
+    movedToDraft: string
+    publishedShort: string
+    publishedClickDraft: string
+    draftClickPublish: string
+    /** `{judul}` judul kursus. */
+    moveToDraftTitle: string
+    moveToDraftDesc: string
+    moveToDraft: string
+    previewCourse: string
+    editCourseAria: string
+    noCourses: string
+    noCourseFilterMatches: string
+    mdPickFile: string
+    mdFileRead: string
+    mdImportExport: string
+    mdTitle: string
+    mdDesc: string
+    mdStep1: string
+    mdStep1Desc: string
+    mdStep2: string
+    mdStep2Desc1: string
+    mdStep2Desc2: string
+    mdStep3: string
+    mdReading: string
+    mdPickFileBtn: string
+    /** `{n}` jumlah pendaftaran. */
+    mdLockedByLearners: string
+    /** `{modul}`, `{pelajaran}`, `{soal}`. */
+    mdReport: string
+    mdWarningsIntro: string
+    mdNoWarnings: string
+    mdResultNote: string
+    mdExportThis: string
+    bankNonePicked: string
+    /** `{n}` jumlah soal. */
+    bankCopied: string
+    bankTitle: string
+    bankCopyNote1: string
+    bankCopyNote2: string
+    bankNotReadyPrefix: string
+    bankSearchPh: string
+    bankSearchAria: string
+    loadingShort: string
+    bankEmpty: string
+    /** `{n}` jumlah soal, `{dipilih}` yang dipilih. */
+    bankCount: string
+    /** `{soal}` cuplikan teks soal. */
+    bankPickAria: string
+    bankCopyToQuiz: string
+    bankCopiedWord: string
+  }
+  courseDetail: {
+    summary: string
+    contents: string
+    whoFor: string
+    requirements: string
+    instructorRole: string
+    reviews: string
+    backToCourses: string
+    backToEditor: string
+    /** `{n}` jumlah sumber belajar. */
+    nResources: string
+    /** `{n}` jumlah peserta. */
+    nEnrolled: string
+    courseGrade: string
+    /** `{n}` jumlah studi kasus. */
+    pendingGradeNote: string
+    notesPrivate: string
+    notesEmpty: string
+    /** `{waktu}` tanggal-jam. */
+    notesUpdated: string
+    openLessonLink: string
+    needEnrollTitle: string
+    needEnrollDesc: string
+    enrolledToastOk: string
+    enrollPending: string
   }
   admin: {
     dashboard: string
@@ -1564,6 +1696,132 @@ const id: Dictionary = {
     acceptedAnswerAria: "Jawaban yang diterima",
     choiceTextAria: "Teks pilihan",
     removeChoice: "Hapus pilihan",
+    rtSizeSmall: "Kecil",
+    rtSizeNormal: "Normal",
+    rtSizeLarge: "Besar",
+    rtSizeLarger: "Lebih besar",
+    rtParagraph: "Paragraf",
+    rtHeadingN: "Judul {n}",
+    rtAltPrompt:
+      "Jelaskan gambar ini untuk peserta yang tidak dapat melihatnya (apa isinya dan mengapa penting).\nKosongkan jika gambar hanya hiasan.",
+    rtEditorAria: "Editor konten",
+    rtTextSize: "Ukuran teks",
+    rtTextColor: "Warna teks",
+    rtHighlight: "Sorot",
+    rtBold: "Tebal",
+    rtItalic: "Miring",
+    rtUnderline: "Garis bawah",
+    rtStrike: "Coret",
+    rtUploadingImage: "Mengunggah gambar\u2026",
+    rtInsertImage: "Sisipkan gambar",
+    rtQuote: "Kutipan",
+    rtCodeBlock: "Blok kode",
+    rtInsertTable: "Sisipkan tabel",
+    rtTable: "Tabel",
+    rtAddRowBelow: "Tambah baris di bawah",
+    rtAddColRight: "Tambah kolom di kanan",
+    rtDeleteRow: "Hapus baris",
+    rtDeleteCol: "Hapus kolom",
+    rtDeleteTable: "Hapus tabel",
+    rtAlign: "Perataan teks",
+    rtAlignLeft: "Kiri",
+    rtAlignCenter: "Tengah",
+    rtAlignRight: "Kanan",
+    rtBulletList: "Daftar berbutir",
+    rtOrderedList: "Daftar bernomor",
+    guideWordCount: "{kata} kata \u00B7 sekitar {menit} menit membaca",
+    guideTooLong:
+      "Lebih dari 10 menit: pertimbangkan membaginya menjadi dua pelajaran dengan satu tujuan masing-masing.",
+    guideTarget: "Usahakan 5\u20137 menit dan satu tujuan belajar per pelajaran.",
+    guideUseDuration: "Gunakan {n} menit sebagai durasi",
+    guideTip1: "Awali dengan satu kalimat tentang apa yang akan mampu dilakukan peserta.",
+    guideTip2: "Gunakan subjudul dan paragraf pendek: kebanyakan pembaca memindai sebelum membaca.",
+    guideTip3: "Jelaskan setiap istilah teknis saat pertama kali muncul.",
+    guideTip4: "Berikan contoh dari pekerjaan nyata sebelum aturannya.",
+    guideTip5: "Akhiri dengan latihan singkat (pelajaran kuis) agar peserta mengingat kembali isi bacaan.",
+    blankCourse: "Kursus kosong",
+    blankCourseDesc: "Isi sendiri dari awal",
+    importMd: "Impor dari berkas .md",
+    importMdDesc: "Hasil dari asisten AI Anda",
+    creatingCourse: "Membuat\u2026",
+    courseDeleted: "Kursus dihapus",
+    deleteCourseAria: "Hapus kursus",
+    deleteCourseDesc:
+      "Kursus beserta seluruh modul, pelajaran, dan sumber belajarnya akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.",
+    movingToDraft: "Memindahkan\u2026",
+    publishing: "Menerbitkan\u2026",
+    publishedBadge: "Terbit",
+    draftBadge: "Draf",
+    movedToDraft: "Dipindahkan ke draf",
+    publishedShort: "Diterbitkan",
+    publishedClickDraft: "Terbit. Klik untuk memindahkan ke draf",
+    draftClickPublish: "Draf. Klik untuk menerbitkan",
+    moveToDraftTitle: "Pindahkan \u201C{judul}\u201D ke draf?",
+    moveToDraftDesc:
+      "Kursus akan hilang dari katalog dan peserta yang sedang mengikutinya tidak bisa lagi membukanya. Progres mereka tetap tersimpan, dan Anda bisa menerbitkannya kembali kapan saja.",
+    moveToDraft: "Pindahkan ke draf",
+    previewCourse: "Pratinjau kursus",
+    editCourseAria: "Ubah kursus",
+    noCourses: "Belum ada kursus. Klik Buat Kursus untuk menambahkan kursus pertama Anda.",
+    noCourseFilterMatches: "Tidak ada kursus yang cocok dengan filter Anda.",
+    mdPickFile: "Pilih berkas .md",
+    mdFileRead: "Berkas terbaca. Periksa hasilnya, lalu simpan.",
+    mdImportExport: "Impor / ekspor",
+    mdTitle: "Susun kursus dengan bantuan AI",
+    mdDesc:
+      "Sanggabiz tidak memanggil AI. Anda memakai asisten AI yang sudah Anda punya, lalu mengimpor hasilnya ke sini.",
+    mdStep1: "Unduh panduan penulisan",
+    mdStep1Desc: "Berisi format berkas dan aturan menulis pelajaran yang baik.",
+    mdStep2: "Bawa ke asisten AI Anda",
+    mdStep2Desc1: "Buka ChatGPT, Claude, atau yang lain. Berikan panduan itu bersama materi dan SOP Anda, lalu minta satu berkas",
+    mdStep2Desc2: "sebagai keluarannya.",
+    mdStep3: "Unggah hasilnya",
+    mdReading: "Membaca\u2026",
+    mdPickFileBtn: "Pilih berkas .md",
+    mdLockedByLearners:
+      "Kursus ini sudah punya {n} pendaftaran, jadi isinya tidak bisa diganti lewat impor. Ekspor di bawah tetap bisa dipakai.",
+    mdReport: "Terbaca: {modul} modul, {pelajaran} pelajaran, {soal} soal",
+    mdWarningsIntro: "Beberapa bagian dilewati atau dibetulkan sendiri:",
+    mdNoWarnings: "Tidak ada yang terlewat.",
+    mdResultNote: "Hasilnya sudah masuk ke editor sebagai draf. Periksa dulu, lalu tekan Simpan.",
+    mdExportThis: "Ekspor kursus ini",
+    bankNonePicked: "Belum ada soal yang dipilih",
+    bankCopied: "{n} soal disalin dari bank",
+    bankTitle: "Ambil dari Bank Soal",
+    bankCopyNote1: "Soal yang dipilih",
+    bankCopyNote2: "ke kuis ini. Menyuntingnya di sini tidak mengubah soal di bank.",
+    bankNotReadyPrefix: "Bank soal belum aktif: tabel",
+    bankSearchPh: "Cari teks soal atau label\u2026",
+    bankSearchAria: "Cari soal di bank",
+    loadingShort: "Memuat\u2026",
+    bankEmpty: "Belum ada soal di bank. Simpan soal ke bank dari editor kuis lebih dulu.",
+    bankCount: "{n} soal, {dipilih} dipilih",
+    bankPickAria: "Pilih soal: {soal}",
+    bankCopyToQuiz: "Salin ke Kuis",
+    bankCopiedWord: "disalin",
+  },
+  courseDetail: {
+    summary: "Ringkasan Kursus",
+    contents: "Isi kursus",
+    whoFor: "Untuk Siapa Kursus Ini",
+    requirements: "Persyaratan",
+    instructorRole: "Instruktur Kursus",
+    reviews: "Ulasan",
+    backToCourses: "Kembali ke daftar kursus",
+    backToEditor: "Kembali ke editor kursus",
+    nResources: "{n} sumber belajar",
+    nEnrolled: "{n} peserta terdaftar",
+    courseGrade: "Nilai Kursus",
+    pendingGradeNote: "{n} studi kasus menunggu penilaian instruktur. Nilai masih dapat naik.",
+    notesPrivate: "Hanya Anda yang dapat melihat catatan ini.",
+    notesEmpty:
+      "Anda belum menulis catatan di kursus ini. Tulis catatan di bawah materi pelajaran, dan catatan itu akan muncul di sini.",
+    notesUpdated: "Diperbarui {waktu}",
+    openLessonLink: "Buka pelajaran",
+    needEnrollTitle: "Perlu mendaftar",
+    needEnrollDesc: "Anda perlu mengikuti kursus ini sebelum mulai belajar.",
+    enrolledToastOk: "Anda sudah terdaftar. Silakan mulai belajar.",
+    enrollPending: "Mendaftarkan\u2026",
   },
   admin: {
     dashboard: "Dashboard",
@@ -2423,6 +2681,132 @@ const en: Dictionary = {
     acceptedAnswerAria: "Accepted answer",
     choiceTextAria: "Choice text",
     removeChoice: "Remove choice",
+    rtSizeSmall: "Small",
+    rtSizeNormal: "Normal",
+    rtSizeLarge: "Large",
+    rtSizeLarger: "Larger",
+    rtParagraph: "Paragraph",
+    rtHeadingN: "Heading {n}",
+    rtAltPrompt:
+      "Describe this image for learners who cannot see it (what it shows and why it matters).\nLeave empty if the image is decorative.",
+    rtEditorAria: "Content editor",
+    rtTextSize: "Text size",
+    rtTextColor: "Text colour",
+    rtHighlight: "Highlight",
+    rtBold: "Bold",
+    rtItalic: "Italic",
+    rtUnderline: "Underline",
+    rtStrike: "Strikethrough",
+    rtUploadingImage: "Uploading image\u2026",
+    rtInsertImage: "Insert image",
+    rtQuote: "Quote",
+    rtCodeBlock: "Code block",
+    rtInsertTable: "Insert table",
+    rtTable: "Table",
+    rtAddRowBelow: "Add row below",
+    rtAddColRight: "Add column right",
+    rtDeleteRow: "Delete row",
+    rtDeleteCol: "Delete column",
+    rtDeleteTable: "Delete table",
+    rtAlign: "Text alignment",
+    rtAlignLeft: "Left",
+    rtAlignCenter: "Centre",
+    rtAlignRight: "Right",
+    rtBulletList: "Bulleted list",
+    rtOrderedList: "Numbered list",
+    guideWordCount: "{kata} words \u00B7 about {menit} min read",
+    guideTooLong:
+      "Over 10 minutes: consider splitting it into two lessons with one goal each.",
+    guideTarget: "Aim for 5\u20137 minutes and one learning goal per lesson.",
+    guideUseDuration: "Use {n} minutes as the duration",
+    guideTip1: "Start with one sentence about what learners will be able to do.",
+    guideTip2: "Use subheadings and short paragraphs: most readers scan before reading.",
+    guideTip3: "Explain every technical term the first time it appears.",
+    guideTip4: "Give an example from real work before the rule.",
+    guideTip5: "End with a short exercise (a quiz lesson) so learners recall what they read.",
+    blankCourse: "Blank course",
+    blankCourseDesc: "Fill it in yourself from scratch",
+    importMd: "Import from a .md file",
+    importMdDesc: "Output from your AI assistant",
+    creatingCourse: "Creating\u2026",
+    courseDeleted: "Course deleted",
+    deleteCourseAria: "Delete course",
+    deleteCourseDesc:
+      "The course and all of its modules, lessons, and resources will be permanently deleted. This cannot be undone.",
+    movingToDraft: "Unpublishing\u2026",
+    publishing: "Publishing\u2026",
+    publishedBadge: "Published",
+    draftBadge: "Draft",
+    movedToDraft: "Moved to draft",
+    publishedShort: "Published",
+    publishedClickDraft: "Published. Click to move to draft",
+    draftClickPublish: "Draft. Click to publish",
+    moveToDraftTitle: "Move \u201C{judul}\u201D to draft?",
+    moveToDraftDesc:
+      "The course will disappear from the catalogue and enrolled learners can no longer open it. Their progress is kept, and you can republish any time.",
+    moveToDraft: "Move to draft",
+    previewCourse: "Preview course",
+    editCourseAria: "Edit course",
+    noCourses: "No courses yet. Click Create Course to add your first course.",
+    noCourseFilterMatches: "No course matches your filters.",
+    mdPickFile: "Choose a .md file",
+    mdFileRead: "File read. Review the result, then save.",
+    mdImportExport: "Import / export",
+    mdTitle: "Build the course with AI help",
+    mdDesc:
+      "Sanggabiz does not call any AI. You use the AI assistant you already have, then import the result here.",
+    mdStep1: "Download the writing guide",
+    mdStep1Desc: "Contains the file format and the rules for writing good lessons.",
+    mdStep2: "Take it to your AI assistant",
+    mdStep2Desc1: "Open ChatGPT, Claude, or another. Give it the guide along with your material and SOPs, then ask for one",
+    mdStep2Desc2: "file as the output.",
+    mdStep3: "Upload the result",
+    mdReading: "Reading\u2026",
+    mdPickFileBtn: "Choose a .md file",
+    mdLockedByLearners:
+      "This course already has {n} enrollments, so its content cannot be replaced by import. The export below still works.",
+    mdReport: "Read: {modul} modules, {pelajaran} lessons, {soal} questions",
+    mdWarningsIntro: "Some parts were skipped or fixed automatically:",
+    mdNoWarnings: "Nothing was missed.",
+    mdResultNote: "The result is now in the editor as a draft. Review it first, then press Save.",
+    mdExportThis: "Export this course",
+    bankNonePicked: "No question selected yet",
+    bankCopied: "{n} questions copied from the bank",
+    bankTitle: "Pick from the Question Bank",
+    bankCopyNote1: "Selected questions are",
+    bankCopyNote2: "into this quiz. Editing them here does not change the bank.",
+    bankNotReadyPrefix: "The question bank is not active yet: the table",
+    bankSearchPh: "Search question text or tags\u2026",
+    bankSearchAria: "Search questions in the bank",
+    loadingShort: "Loading\u2026",
+    bankEmpty: "No questions in the bank yet. Save questions to the bank from the quiz editor first.",
+    bankCount: "{n} questions, {dipilih} selected",
+    bankPickAria: "Select question: {soal}",
+    bankCopyToQuiz: "Copy to Quiz",
+    bankCopiedWord: "copied",
+  },
+  courseDetail: {
+    summary: "Course Summary",
+    contents: "Course contents",
+    whoFor: "Who This Course Is For",
+    requirements: "Requirements",
+    instructorRole: "Course Instructor",
+    reviews: "Reviews",
+    backToCourses: "Back to course list",
+    backToEditor: "Back to course editor",
+    nResources: "{n} learning resources",
+    nEnrolled: "{n} learners enrolled",
+    courseGrade: "Course Grade",
+    pendingGradeNote: "{n} study cases await instructor grading. The grade can still go up.",
+    notesPrivate: "Only you can see these notes.",
+    notesEmpty:
+      "You have not written any notes in this course. Write notes under the lesson material and they will appear here.",
+    notesUpdated: "Updated {waktu}",
+    openLessonLink: "Open lesson",
+    needEnrollTitle: "Enrollment needed",
+    needEnrollDesc: "You need to join this course before you can start learning.",
+    enrolledToastOk: "You are enrolled. Happy learning.",
+    enrollPending: "Enrolling\u2026",
   },
   admin: {
     dashboard: "Dashboard",

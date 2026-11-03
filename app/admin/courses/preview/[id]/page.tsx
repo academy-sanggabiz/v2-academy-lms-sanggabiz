@@ -45,7 +45,7 @@ export default async function AdminCoursePreviewPage({
         <Button
           variant="outline"
           size="icon"
-          aria-label="Kembali ke editor kursus"
+          aria-label={t.courseDetail.backToEditor}
           render={<Link href={`/admin/courses/${course.id}/edit`} />}
           nativeButton={false}
         >
@@ -60,7 +60,7 @@ export default async function AdminCoursePreviewPage({
               : "border-pill-border bg-draft-background text-destructive"
           }
         >
-          {course.status === "published" ? "Terbit" : "Draf"}
+          {course.status === "published" ? t.editor.publishedBadge : t.editor.draftBadge}
         </Badge>
       </div>
 
@@ -68,19 +68,19 @@ export default async function AdminCoursePreviewPage({
         <div className="flex min-w-0 flex-col gap-6">
           <Card>
             <CardContent>
-              <div className="mb-3.5 text-lg font-bold">Ringkasan Kursus</div>
+              <div className="mb-3.5 text-lg font-bold">{t.courseDetail.summary}</div>
               <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">{course.description}</p>
               <div className="mt-4 flex gap-2 border-t border-muted pt-4 text-sm text-muted-foreground">
                 <span>{course.lesson_count} {t.courses.lessons}</span>
                 <span>·</span>
-                <span>{course.duration_hours} jam</span>
+                <span>{course.duration_hours} {t.courses.hours}</span>
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent>
-              <div className="mb-2 text-lg font-bold">Isi kursus</div>
+              <div className="mb-2 text-lg font-bold">{t.courseDetail.contents}</div>
               <CourseCurriculum sections={course.sections} courseId={course.id} basePath="/admin-preview" />
             </CardContent>
           </Card>
@@ -88,7 +88,7 @@ export default async function AdminCoursePreviewPage({
           {course.who_for.length > 0 && (
             <Card>
               <CardContent>
-                <div className="mb-3.5 text-lg font-bold">Untuk Siapa Kursus Ini</div>
+                <div className="mb-3.5 text-lg font-bold">{t.courseDetail.whoFor}</div>
                 <div className="flex flex-col gap-3.5 text-sm leading-relaxed text-muted-foreground">
                   {course.who_for.map((line, i) => (
                     <div key={i}>{line}</div>
@@ -101,7 +101,7 @@ export default async function AdminCoursePreviewPage({
           {course.requirements.length > 0 && (
             <Card>
               <CardContent>
-                <div className="mb-3.5 text-lg font-bold">Persyaratan</div>
+                <div className="mb-3.5 text-lg font-bold">{t.courseDetail.requirements}</div>
                 <div className="flex flex-col gap-3.5 text-sm leading-relaxed text-muted-foreground">
                   {course.requirements.map((line, i) => (
                     <div key={i}>{line}</div>
@@ -116,14 +116,14 @@ export default async function AdminCoursePreviewPage({
               <div className="course-thumb-placeholder size-16 shrink-0 rounded-full" />
               <div>
                 <div className="text-xl font-bold">{course.instructor?.name ?? "Tim Sanggabiz"}</div>
-                <div className="mt-0.5 text-sm text-muted-foreground">Instruktur Kursus</div>
+                <div className="mt-0.5 text-sm text-muted-foreground">{t.courseDetail.instructorRole}</div>
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent>
-              <div className="mb-3.5 text-lg font-bold">Ulasan</div>
+              <div className="mb-3.5 text-lg font-bold">{t.courseDetail.reviews}</div>
               <FeedbackTab summary={feedbackSummary} feedback={feedback} />
             </CardContent>
           </Card>
@@ -147,13 +147,13 @@ export default async function AdminCoursePreviewPage({
             render={<Link href={`/admin/courses/${course.id}/edit`} />}
             nativeButton={false}
           >
-            Ubah Kursus
+            {t.editor.editCourse}
           </Button>
 
           <div className="mt-4 flex flex-col gap-3 text-sm text-muted-foreground">
             <div className="flex items-center gap-2.5">
               <FileText className="size-4" />
-              {course.resource_count} sumber belajar
+              {t.courseDetail.nResources.replace("{n}", String(course.resource_count))}
             </div>
             <div className="flex items-center gap-2.5">
               <Globe className="size-4" />
@@ -161,7 +161,7 @@ export default async function AdminCoursePreviewPage({
             </div>
             <div className="flex items-center gap-2.5">
               <Users className="size-4" />
-              {course.enrolled_count} peserta terdaftar
+              {t.courseDetail.nEnrolled.replace("{n}", String(course.enrolled_count))}
             </div>
           </div>
         </div>

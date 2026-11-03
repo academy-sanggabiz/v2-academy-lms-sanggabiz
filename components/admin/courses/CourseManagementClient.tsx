@@ -3,20 +3,20 @@
 import type { Course } from "@/lib/courses"
 import type { Paginated } from "@/lib/pagination"
 import { ListPagination } from "@/components/admin/ListPagination"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 import { CourseListCard } from "./CourseListCard"
 import { CourseListToolbar } from "./CourseListToolbar"
 
 export function CourseManagementClient({ page }: { page: Paginated<Course> }) {
+  const { t } = useI18n()
   return (
     <div>
       <CourseListToolbar />
 
       {page.rows.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
-          {page.total === 0
-            ? "Belum ada kursus. Klik Buat Kursus untuk menambahkan kursus pertama Anda."
-            : "Tidak ada kursus yang cocok dengan filter Anda."}
+          {page.total === 0 ? t.editor.noCourses : t.editor.noCourseFilterMatches}
         </div>
       ) : (
         <>

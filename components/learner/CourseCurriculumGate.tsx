@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { EnrollButton } from "@/components/learner/EnrollButton"
 import type { CourseSection } from "@/lib/courses"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 export function CourseCurriculumGate({
   sections,
@@ -29,6 +30,7 @@ export function CourseCurriculumGate({
   initialOpen: boolean
 }) {
   const router = useRouter()
+  const { t } = useI18n()
   const [open, setOpen] = useState(initialOpen)
 
   useEffect(() => {
@@ -49,13 +51,13 @@ export function CourseCurriculumGate({
       <Dialog open={open && !enrolled} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Perlu mendaftar</DialogTitle>
+            <DialogTitle>{t.courseDetail.needEnrollTitle}</DialogTitle>
             <DialogDescription>
-              Anda perlu mengikuti kursus ini sebelum mulai belajar.
+              {t.courseDetail.needEnrollDesc}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <DialogClose render={<Button variant="outline" />}>Batal</DialogClose>
+            <DialogClose render={<Button variant="outline" />}>{t.common.cancel}</DialogClose>
             <EnrollButton courseId={courseId} state="not_enrolled" onEnrolled={() => setOpen(false)} />
           </DialogFooter>
         </DialogContent>

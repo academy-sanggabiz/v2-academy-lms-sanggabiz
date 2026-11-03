@@ -59,7 +59,7 @@ export function EnrollButton({
     startTransition(async () => {
       const result = await enroll(courseId)
       if (result.ok) {
-        toast.success("Anda sudah terdaftar. Silakan mulai belajar.")
+        toast.success(t.courseDetail.enrolledToastOk)
         onEnrolled?.()
       } else {
         toast.error(result.error)
@@ -73,7 +73,7 @@ export function EnrollButton({
       className={cn("bg-brand-gradient text-white hover:brightness-105", className)}
       onClick={handleEnroll}
       pending={pending}
-      pendingLabel="Mendaftarkan…"
+      pendingLabel={t.courseDetail.enrollPending}
     >
       {t.enroll.join}
     </Button>

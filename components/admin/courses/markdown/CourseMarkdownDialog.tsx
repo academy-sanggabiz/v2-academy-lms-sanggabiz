@@ -19,6 +19,7 @@ import { StatusMessage } from "@/components/ui/status-message"
 import { courseToMarkdown, type ParseReport } from "@/lib/course-markdown"
 import type { CourseDraft } from "@/lib/course-draft"
 import { cn } from "@/lib/utils"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 
 /**
  * Jembatan ke AI yang sudah dipakai penyusun kursus, tanpa LMS ini memanggil
@@ -49,6 +50,7 @@ export function CourseMarkdownDialog({
   openOnMount?: boolean
   onImported: (parsed: Pick<CourseDraft, "title" | "description" | "requirementsText" | "audienceText" | "level" | "passingGrade" | "sections">) => void
 }) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(openOnMount)
   const [pending, startTransition] = useTransition()
   const [report, setReport] = useState<ParseReport | null>(null)
@@ -67,7 +69,7 @@ export function CourseMarkdownDialog({
 
   function readFile(file: File) {
     if (!file.name.toLowerCase().endsWith(".md") && !file.type.startsWith("text/")) {
-      toast.error("Pilih berkas .md")
+      toast.error(t.editor.mdPickFile)
       return
     }
     setFileName(file.name)
@@ -82,7 +84,7 @@ export function CourseMarkdownDialog({
       }
       setReport(result.data.report)
       onImported(result.data.draft)
-      toast.success("Berkas terbaca. Periksa hasilnya, lalu simpan.")
+      toast.success(t.editor.mdFileRead)
     })
   }
 
@@ -92,23 +94,22 @@ export function CourseMarkdownDialog({
         render={
           <Button variant="outline" disabled={pending}>
             <Sparkles className="size-4" aria-hidden />
-            Impor / ekspor
+            {t.editor.mdImportExport}
           </Button>
         }
       />
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Susun kursus dengan bantuan AI</DialogTitle>
+          <DialogTitle>{t.editor.mdTitle}</DialogTitle>
           <DialogDescription>
-            Sanggabiz tidak memanggil AI. Anda memakai asisten AI yang sudah Anda punya, lalu
-            mengimpor hasilnya ke sini.
+            {t.editor.mdDesc}
           </DialogDescription>
         </DialogHeader>
 
         <ol className="space-y-5">
-          <Step number={1} title="Unduh panduan penulisan">
+          <Step number={1} title={t.editor.mdStep1}>
             <p className="mb-2.5 text-sm text-muted-foreground">
-              Berisi format berkas dan aturan menulis pelajaran yang baik.
+              {t.editor.mdStep1Desc}
             </p>
             <Button
               variant="outline"
@@ -121,15 +122,14 @@ export function CourseMarkdownDialog({
             </Button>
           </Step>
 
-          <Step number={2} title="Bawa ke asisten AI Anda">
+          <Step number={2} title={t.editor.mdStep2}>
             <p className="text-sm text-muted-foreground">
-              Buka ChatGPT, Claude, atau yang lain. Berikan panduan itu bersama materi dan SOP
-              Anda, lalu minta satu berkas <code className="text-xs">.md</code> sebagai
-              keluarannya.
+              {t.editor.mdStep2Desc1} <code className="text-xs">.md</code>{" "}
+              {t.editor.mdStep2Desc2}
             </p>
           </Step>
 
-          <Step number={3} title="Unggah hasilnya">
+          <Step number={3} title={t.editor.mdStep3}>
             {canImport ? (
               /*
                 Label yang membungkus input berkas, bukan tombol yang mengklik
@@ -148,7 +148,7 @@ export function CourseMarkdownDialog({
                 )}
               >
                 <Upload className="size-4" aria-hidden />
-                {pending ? "Membaca…" : (fileName ?? "Pilih berkas .md")}
+                {pending ? t.editor.mdReading : (fileName ?? t.editor.mdPickFileBtn)}
                 <input
                   type="file"
                   accept=".md,text/markdown,text/plain"
@@ -166,7 +166,7 @@ export function CourseMarkdownDialog({
                  seluruh isi kursus yang sedang diikuti orang membuat kemajuan
                  belajar mereka menunjuk pelajaran yang sudah tidak ada. */
               <StatusMessage className="rounded-lg bg-muted px-3 py-2">
-                {`Kursus ini sudah punya ${learnerCount} pendaftaran, jadi isinya tidak bisa diganti lewat impor. Ekspor di bawah tetap bisa dipakai.`}
+                {t.editor.mdLockedByLearners.replace("{n}", String(learnerCount))}
               </StatusMessage>
             )}
           </Step>
@@ -175,12 +175,15 @@ export function CourseMarkdownDialog({
         {report && (
           <div className="rounded-xl border border-border bg-muted/40 p-4">
             <p className="text-sm font-semibold">
-              Terbaca: {report.sections} modul, {report.lessons} pelajaran, {report.questions} soal
+              {t.editor.mdReport
+                .replace("{modul}", String(report.sections))
+                .replace("{pelajaran}", String(report.lessons))
+                .replace("{soal}", String(report.questions))}
             </p>
             {report.warnings.length > 0 ? (
               <>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Beberapa bagian dilewati atau dibetulkan sendiri:
+                  {t.editor.mdWarningsIntro}
                 </p>
                 <ul className="mt-1.5 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
                   {report.warnings.map((warning) => (
@@ -189,10 +192,10 @@ export function CourseMarkdownDialog({
                 </ul>
               </>
             ) : (
-              <p className="mt-1 text-sm text-muted-foreground">Tidak ada yang terlewat.</p>
+              <p className="mt-1 text-sm text-muted-foreground">{t.editor.mdNoWarnings}</p>
             )}
             <p className="mt-3 text-sm">
-              Hasilnya sudah masuk ke editor sebagai draf. Periksa dulu, lalu tekan Simpan.
+              {t.editor.mdResultNote}
             </p>
           </div>
         )}
@@ -200,13 +203,13 @@ export function CourseMarkdownDialog({
         <DialogFooter className="sm:justify-between">
           <Button variant="ghost" onClick={exportFile} disabled={pending}>
             <FileText className="size-4" aria-hidden />
-            Ekspor kursus ini
+            {t.editor.mdExportThis}
           </Button>
           {/* "Selesai", bukan "Tutup": dialog ini sudah punya tombol silang
               bawaan yang bernama "Tutup", dan dua kontrol bernama sama di satu
               dialog membuat pembaca layar menyebut keduanya persis sama. */}
           <Button variant="outline" onClick={() => setOpen(false)} disabled={pending}>
-            Selesai
+            {t.editor.done}
           </Button>
         </DialogFooter>
       </DialogContent>

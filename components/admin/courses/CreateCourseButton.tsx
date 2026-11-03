@@ -30,7 +30,7 @@ export function CreateCourseButton() {
    * yang paling menakutkan, dan itu momen paling tepat menawarkan bantuan.
    */
   function handleCreate(withImport: boolean) {
-    setBusy(true, "Membuat kursus…")
+    setBusy(true, t.editor.creatingCourse)
 
     startTransition(async () => {
       const result = await createDraftCourseAction()
@@ -56,7 +56,7 @@ export function CreateCourseButton() {
           <Button
             type="button"
             pending={pending}
-            pendingLabel="Membuat…"
+            pendingLabel={t.editor.creating}
             className="bg-brand-gradient text-white hover:brightness-105"
           >
             <Plus className="size-4" aria-hidden />
@@ -69,15 +69,15 @@ export function CreateCourseButton() {
         <DropdownMenuItem onClick={() => handleCreate(false)}>
           <FileText className="size-4" aria-hidden />
           <div>
-            <div>Kursus kosong</div>
-            <div className="text-xs text-muted-foreground">Isi sendiri dari awal</div>
+            <div>{t.editor.blankCourse}</div>
+            <div className="text-xs text-muted-foreground">{t.editor.blankCourseDesc}</div>
           </div>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleCreate(true)}>
           <Sparkles className="size-4" aria-hidden />
           <div>
-            <div>Impor dari berkas .md</div>
-            <div className="text-xs text-muted-foreground">Hasil dari asisten AI Anda</div>
+            <div>{t.editor.importMd}</div>
+            <div className="text-xs text-muted-foreground">{t.editor.importMdDesc}</div>
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>

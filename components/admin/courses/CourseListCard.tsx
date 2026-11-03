@@ -29,6 +29,7 @@ import { DeleteCourseDialog } from "./DeleteCourseDialog"
 
 /** Lencana status yang merangkap tombol: saat bekerja ia berganti kata, bukan sekadar meredup (R4). */
 function StatusBadge({ isPublished, pending }: { isPublished: boolean; pending: boolean }) {
+  const { t } = useI18n()
   return (
     <Badge
       variant={isPublished ? "default" : "outline"}
@@ -41,12 +42,12 @@ function StatusBadge({ isPublished, pending }: { isPublished: boolean; pending: 
       {pending ? (
         <>
           <Spinner className="size-3" />
-          {isPublished ? "Memindahkan…" : "Menerbitkan…"}
+          {isPublished ? t.editor.movingToDraft : t.editor.publishing}
         </>
       ) : isPublished ? (
-        "Terbit"
+        t.editor.publishedBadge
       ) : (
-        "Draf"
+        t.editor.draftBadge
       )}
     </Badge>
   )
@@ -65,7 +66,7 @@ export function CourseListCard({ course }: { course: Course }) {
         toast.error(result.error)
         return
       }
-      toast.success(isPublished ? "Dipindahkan ke draf" : "Diterbitkan")
+      toast.success(isPublished ? t.editor.movedToDraft : t.editor.publishedShort)
     })
   }
 
@@ -77,7 +78,7 @@ export function CourseListCard({ course }: { course: Course }) {
      * memunculkan toast galat untuk kursus yang sudah tidak ada
      * (STANDAR-UMPAN-BALIK-UI.md R14).
      */
-    <BusyGuardProvider busy={isPending} reason={isPublished ? "Memindahkan…" : "Menerbitkan…"}>
+    <BusyGuardProvider busy={isPending} reason={isPublished ? t.editor.movingToDraft : t.editor.publishing}>
     <div className="flex h-full flex-col rounded-xl border border-border bg-card p-5 transition-shadow hover:shadow-float">
       <CourseThumb
         src={course.thumbnail_url}
@@ -95,27 +96,25 @@ export function CourseListCard({ course }: { course: Course }) {
              */
             <AlertDialog>
               <AlertDialogTrigger
-                render={<button type="button" aria-label="Terbit. Klik untuk memindahkan ke draf" />}
+                render={<button type="button" aria-label={t.editor.publishedClickDraft} />}
               >
                 <StatusBadge isPublished pending={isPending} />
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Pindahkan &quot;{course.title}&quot; ke draf?</AlertDialogTitle>
+                  <AlertDialogTitle>{t.editor.moveToDraftTitle.replace("{judul}", course.title)}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Kursus akan hilang dari katalog dan peserta yang sedang mengikutinya tidak bisa
-                    lagi membukanya. Progres mereka tetap tersimpan, dan Anda bisa menerbitkannya
-                    kembali kapan saja.
+                    {t.editor.moveToDraftDesc}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                  <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleToggleStatus}
                     pending={isPending}
-                    pendingLabel="Memindahkan…"
+                    pendingLabel={t.editor.movingToDraft}
                   >
-                    Pindahkan ke draf
+                    {t.editor.moveToDraft}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -126,7 +125,7 @@ export function CourseListCard({ course }: { course: Course }) {
               onClick={handleToggleStatus}
               disabled={isPending}
               aria-busy={isPending || undefined}
-              aria-label="Draf. Klik untuk menerbitkan"
+              aria-label={t.editor.draftClickPublish}
             >
               <StatusBadge isPublished={false} pending={isPending} />
             </button>
@@ -148,7 +147,7 @@ export function CourseListCard({ course }: { course: Course }) {
         </span>
         <span className="flex items-center gap-1.5">
           <Clock className="size-3.5" />
-          {course.duration_hours} jam
+          {course.duration_hours} {t.courses.hours}
         </span>
         <span className="flex items-center gap-1.5">
           <Tag className="size-3.5" />
@@ -170,7 +169,7 @@ export function CourseListCard({ course }: { course: Course }) {
         <Button
           variant="outline"
           className="h-9 flex-1"
-          aria-label="Pratinjau kursus"
+          aria-label={t.editor.previewCourse}
           ignoreBusyGuard
           render={<Link href={`/admin/courses/preview/${course.id}`} />}
           nativeButton={false}
@@ -180,7 +179,7 @@ export function CourseListCard({ course }: { course: Course }) {
         <Button
           variant="outline"
           className="h-9 flex-1"
-          aria-label="Ubah kursus"
+          aria-label={t.editor.editCourseAria}
           ignoreBusyGuard
           render={<Link href={`/admin/courses/${course.id}/edit`} />}
           nativeButton={false}

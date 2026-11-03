@@ -21,14 +21,13 @@ export async function CourseNotes({ courseId, notes }: { courseId: string; notes
         <h2 id="course-notes-heading" className="mb-1 text-lg font-bold">
           {t.player.myNotes}
         </h2>
-        <p className="mb-4 text-sm text-muted-foreground">Hanya Anda yang dapat melihat catatan ini.</p>
+        <p className="mb-4 text-sm text-muted-foreground">{t.courseDetail.notesPrivate}</p>
 
         {notes.length === 0 ? (
           <div className="flex items-start gap-3 rounded-lg border border-dashed border-input p-4 text-sm text-muted-foreground">
             <NotebookPen className="mt-0.5 size-5 shrink-0" aria-hidden />
             <p>
-              Anda belum menulis catatan di kursus ini. Tulis catatan di bawah materi pelajaran, dan catatan itu
-              akan muncul di sini.
+              {t.courseDetail.notesEmpty}
             </p>
           </div>
         ) : (
@@ -42,13 +41,13 @@ export async function CourseNotes({ courseId, notes }: { courseId: string; notes
                 <p className="text-sm leading-relaxed break-words text-muted-foreground">{noteExcerpt(note.content)}</p>
                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                   <span className="text-xs text-muted-foreground">
-                    Diperbarui {formatNoteDateTime(note.updatedAt)}
+                    {t.courseDetail.notesUpdated.replace("{waktu}", formatNoteDateTime(note.updatedAt))}
                   </span>
                   <Link
                     href={`/learn/${courseId}?lesson=${note.lessonId}`}
                     className="inline-flex min-h-6 items-center gap-1 text-sm font-semibold text-primary underline underline-offset-4 hover:no-underline"
                   >
-                    Buka pelajaran<span className="sr-only">: {note.lessonTitle}</span>
+                    {t.courseDetail.openLessonLink}<span className="sr-only">: {note.lessonTitle}</span>
                     <ArrowRight className="size-3.5" aria-hidden />
                   </Link>
                 </div>
