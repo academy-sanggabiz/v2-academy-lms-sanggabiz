@@ -17,7 +17,7 @@ export function CourseGridCard({
   started: boolean
 }) {
   const { t } = useI18n()
-  const price = formatCourseAccess(course)
+  const price = formatCourseAccess(course, t.courses)
 
   return (
     <div className="@container flex h-full flex-col rounded-xl border border-border bg-card p-5 transition-shadow hover:shadow-float">

@@ -29,7 +29,7 @@ const DEVICES = [
   { key: "mobile", width: "390px", icon: Smartphone },
 ] as const
 
-export function LandingPreview({ reloadToken }: { reloadToken: number }) {
+export function LandingPreview({ reloadToken, locale = "id" }: { reloadToken: number; locale?: string }) {
   const { t } = useI18n()
   const DEVICE_LABELS: Record<(typeof DEVICES)[number]["key"], string> = {
     desktop: t.superadmin.deviceDesktop,
@@ -90,7 +90,7 @@ export function LandingPreview({ reloadToken }: { reloadToken: number }) {
         <iframe
           ref={frameRef}
           key={nonce}
-          src={`/?pratinjau=${nonce}`}
+          src={`/?pratinjau=${nonce}&bahasa=${locale}`}
           title={t.superadmin.landingPreviewTitle}
           className="h-[600px] shrink-0 rounded-xl border border-border bg-card"
           style={{ width: active.width, maxWidth: "100%" }}

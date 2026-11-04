@@ -1758,6 +1758,12 @@ create table public.landing_content (
   primary_cta_href text not null,
   features jsonb not null default '[]',
   featured_course_ids uuid[] not null default '{}',
+  -- Susunan blok (20261101090000), tema warna (20261101100000), dan versi
+  -- Inggris susunan bloknya (20261104010000). blocks_en NULL berarti belum
+  -- diterjemahkan: pengunjung EN mendapat versi Indonesia, bukan halaman kosong.
+  blocks jsonb,
+  blocks_en jsonb,
+  theme jsonb,
   updated_at timestamptz not null default now()
 );
 

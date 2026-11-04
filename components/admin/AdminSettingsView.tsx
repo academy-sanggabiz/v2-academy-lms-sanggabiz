@@ -22,14 +22,14 @@ import { Switch } from "@/components/ui/switch"
 import { PasswordInput } from "@/components/auth/PasswordInput"
 import { useNavigationBlocker } from "@/components/admin/NavigationBlockerContext"
 import { changePassword, deleteAccount, updateNotificationPref } from "@/app/admin/settings/actions"
-
-const DELETING_LABEL = "Menghapus akun… Jangan ubah pengaturan atau tinggalkan halaman ini."
+import { LanguageSettingCard } from "@/components/i18n/LanguageSettingCard"
 
 export function AdminSettingsView({
   notificationEmailEnabled,
 }: {
   notificationEmailEnabled: boolean
 }) {
+  const { t } = useI18n()
   // Penghapusan akun tidak dapat dibatalkan dan menyentuh seluruh akun, bukan
   // satu kolom -- kelas (d) pada tabel lingkup penguncian. Selama ia berjalan,
   // mengubah kata sandi atau preferensi notifikasi berarti menulis ke akun yang
@@ -40,22 +40,23 @@ export function AdminSettingsView({
   useEffect(() => {
     if (!isDeleting) return
 
-    setBlockMessage("Penghapusan akun sedang berjalan. Tetap tinggalkan halaman ini?")
+    setBlockMessage(t.settings.deletingBlockMessage)
     setIsBlocked(true)
     return () => {
       setIsBlocked(false)
       setBlockMessage(null)
     }
-  }, [isDeleting, setIsBlocked, setBlockMessage])
+  }, [isDeleting, setIsBlocked, setBlockMessage, t])
 
   return (
     <div>
-      <div className="mb-6 text-3xl font-bold">Pengaturan</div>
+      <div className="mb-6 text-3xl font-bold">{t.settings.title}</div>
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
         {/* Kartu pemicunya sendiri ada di kolom kanan, di luar wilayah inert
             ini, supaya fokus keyboard tidak terlempar ke body (R18). */}
-        <BusyRegion busy={isDeleting} label={DELETING_LABEL}>
+        <BusyRegion busy={isDeleting} label={t.settings.deletingAccount}>
           <div className="flex flex-col gap-6">
+            <LanguageSettingCard />
             <NotificationsCard initialEnabled={notificationEmailEnabled} />
             <SecurityCard />
           </div>
@@ -78,11 +79,11 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
     <div className="rounded-2xl border border-border bg-card p-7">
       <div className="mb-5 flex items-center gap-2.5 text-lg font-bold">
         <Bell className="size-[18px]" />
-        Notifikasi
+        {t.settings.notifications}
       </div>
       <div className="flex items-center justify-between gap-5">
         <div>
-          <div className="text-sm font-semibold">Notifikasi Email</div>
+          <div className="text-sm font-semibold">{t.settings.emailNotifications}</div>
           <div className="mt-0.5 text-sm text-muted-foreground">
             {/* Lihat catatan di components/learner/SettingsView.tsx:
                 pengiriman email belum ada, jadi jangan menjanjikannya. */}
@@ -90,7 +91,7 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
           </div>
         </div>
         <Switch
-          aria-label="Notifikasi email"
+          aria-label={t.settings.emailNotifications}
           aria-busy={isPending || undefined}
           checked={enabled}
           disabled={isPending}
@@ -104,7 +105,7 @@ function NotificationsCard({ initialEnabled }: { initialEnabled: boolean }) {
                 setStatus({ type: "error", message: result.error })
                 return
               }
-              setStatus({ type: "success", message: "Tersimpan" })
+              setStatus({ type: "success", message: t.editor.statusSaved })
             })
           }}
         />
@@ -127,7 +128,7 @@ function SecurityCard() {
     <div className="rounded-2xl border border-border bg-card p-7">
       <div className="mb-5 flex items-center gap-2.5 text-lg font-bold">
         <Shield className="size-[18px]" />
-        Keamanan
+        {t.settings.security}
       </div>
       <div className="mb-2.5 text-sm font-semibold">{t.settings.changePassword}</div>
       <form
@@ -138,7 +139,7 @@ function SecurityCard() {
             if (result?.error) {
               setStatus({ type: "error", message: result.error })
             } else {
-              setStatus({ type: "success", message: "Kata sandi diperbarui" })
+              setStatus({ type: "success", message: t.settings.passwordSaved })
               ;(document.getElementById("admin-password-form") as HTMLFormElement)?.reset()
             }
           })
@@ -148,15 +149,15 @@ function SecurityCard() {
       >
         <PasswordInput
           name="password"
-          placeholder="Masukkan kata sandi baru"
-          aria-label="Kata sandi baru"
+          placeholder={t.settings.newPasswordPlaceholder}
+          aria-label={t.settings.newPasswordPlaceholder}
           className="flex-1"
           required
         />
         <Button
           type="submit"
           pending={isPending}
-          pendingLabel="Menyimpan…"
+          pendingLabel={t.common.saving}
           className="bg-brand-gradient text-white hover:brightness-105"
         >
           {t.common.save}

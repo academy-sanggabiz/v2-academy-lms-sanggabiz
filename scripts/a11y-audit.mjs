@@ -372,28 +372,42 @@ try {
 
       // Dialog bank soal: isinya daftar bisa dicentang di dalam dialog, pola
       // yang paling sering kehilangan nama pada kotak centangnya.
-      await page.goto(BASE + editHref)
+      // Dicari lintas kursus, bukan hanya kursus pertama: akun audit yang
+      // berbeda memiliki kursus yang berbeda, dan kursus pertama belum tentu
+      // punya pelajaran kuis. Sebelumnya pemeriksaan ini diam-diam dilewati
+      // begitu akun auditnya diganti -- cakupan yang hilang tanpa ada yang
+      // gagal.
+      await page.goto(BASE + "/admin/courses")
       await settle(page)
-      await page.click('[role=tab]:has-text("Pelajaran")', { timeout: 90000 })
-      await page.waitForTimeout(500)
-      const toggles = page.locator('button[title="Buka/tutup"]')
-      const toggleCount = await toggles.count()
+      const semuaEdit = await page
+        .locator('a[href$="/edit"]')
+        .evaluateAll((ns) => [...new Set(ns.map((n) => n.getAttribute("href")).filter(Boolean))])
+
       let bankOpened = false
-      for (let i = 1; i < toggleCount && !bankOpened; i++) {
-        await toggles.nth(i).click()
+      for (const href of semuaEdit) {
+        if (bankOpened) break
+        await page.goto(BASE + href)
+        await settle(page)
+        await page.click('[role=tab]:has-text("Pelajaran")', { timeout: 90000 })
         await page.waitForTimeout(500)
-        const bankButton = page.getByRole("button", { name: "Ambil dari Bank" })
-        if (await bankButton.count()) {
-          await bankButton.first().click()
-          await page.waitForTimeout(900)
-          await audit(page, `${editHref} [dialog bank soal]`)
-          bankOpened = true
-        } else {
+        const toggles = page.locator('button[title="Buka/tutup"]')
+        const toggleCount = await toggles.count()
+        for (let i = 1; i < toggleCount && !bankOpened; i++) {
           await toggles.nth(i).click()
-          await page.waitForTimeout(300)
+          await page.waitForTimeout(500)
+          const bankButton = page.getByRole("button", { name: "Ambil dari Bank" })
+          if (await bankButton.count()) {
+            await bankButton.first().click()
+            await page.waitForTimeout(900)
+            await audit(page, `${href} [dialog bank soal]`)
+            bankOpened = true
+          } else {
+            await toggles.nth(i).click()
+            await page.waitForTimeout(300)
+          }
         }
       }
-      if (!bankOpened) console.log("lewat dialog bank soal: tidak ada pelajaran kuis di kursus ini")
+      if (!bankOpened) console.log("lewat dialog bank soal: tidak ada satu pun kursus berpelajaran kuis")
     }
     }
   } else {

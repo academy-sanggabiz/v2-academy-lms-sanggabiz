@@ -11,6 +11,7 @@ import {
   type Feature,
   type LandingContent,
 } from "@/lib/landing"
+import type { Locale } from "@/lib/i18n/config"
 
 type LandingContentRow = {
   blocks: unknown
@@ -51,36 +52,6 @@ export async function getLandingContent(): Promise<LandingContent> {
   }
 }
 
-export async function saveLandingContent(
-  input: LandingContent
-): Promise<{ ok: true } | { error: string }> {
-  const supabase = await createClient()
-  const { error } = await supabase.from("landing_content").upsert(
-    {
-      id: true,
-      heading: input.hero.heading,
-      highlight_word: input.hero.highlightWord,
-      // Subjudul dan deskripsi keunggulan dirender dengan
-      // dangerouslySetInnerHTML di halaman depan publik, jadi keduanya
-      // dibersihkan di titik simpan seperti isi pelajaran (C-09).
-      subheading: sanitizeRichText(input.hero.subheading),
-      primary_cta_text: input.hero.primaryCtaText,
-      primary_cta_href: input.hero.primaryCtaHref,
-      features: input.features.map((feature) => ({
-        ...feature,
-        description: sanitizeRichText(feature.description),
-      })),
-      featured_course_ids: input.featuredCourseIds,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "id" }
-  )
-
-  if (error) return { error: dbErrorMessage(error.message, "Gagal menyimpan halaman depan. Coba lagi.") }
-  return { ok: true }
-}
-
-
 /**
  * Blok halaman depan, berurutan.
  *
@@ -89,18 +60,48 @@ export async function saveLandingContent(
  * halaman depan tidak pernah kosong, dan mengosongkan `blocks` mengembalikan
  * tampilan lamanya.
  */
-export async function getLandingBlocks(): Promise<LandingBlock[]> {
+export async function getLandingBlocks(locale: Locale = "id"): Promise<LandingBlock[]> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("landing_content")
-    .select("blocks")
+    .select("blocks, blocks_en")
     .eq("id", true)
-    .maybeSingle<{ blocks: unknown }>()
+    .maybeSingle<{ blocks: unknown; blocks_en: unknown }>()
+
+  // Versi Inggris dipakai utuh bila ada; bila belum pernah disimpan,
+  // pengunjung EN mendapat versi Indonesia -- halaman depan tidak boleh
+  // kosong hanya karena terjemahannya belum ditulis.
+  if (locale === "en") {
+    const en = parseBlocks(data?.blocks_en)
+    if (en) return en
+  }
 
   const parsed = parseBlocks(data?.blocks)
   if (parsed) return parsed
 
   return defaultBlocks(await getLandingContent())
+}
+
+/** Apakah versi Inggris halaman depan sudah pernah disimpan. */
+export async function hasEnglishLandingBlocks(): Promise<boolean> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("landing_content")
+    .select("blocks_en")
+    .eq("id", true)
+    .maybeSingle<{ blocks_en: unknown }>()
+  return parseBlocks(data?.blocks_en) !== null
+}
+
+/** Susunan blok versi Inggris apa adanya (null bila belum diterjemahkan). */
+export async function getEnglishLandingBlocks(): Promise<LandingBlock[] | null> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("landing_content")
+    .select("blocks_en")
+    .eq("id", true)
+    .maybeSingle<{ blocks_en: unknown }>()
+  return parseBlocks(data?.blocks_en)
 }
 
 /**
@@ -110,7 +111,8 @@ export async function getLandingBlocks(): Promise<LandingBlock[]> {
  * pun yang lolos ke sini berjalan di peramban setiap pengunjung.
  */
 export async function saveLandingBlocks(
-  blocks: LandingBlock[]
+  blocks: LandingBlock[],
+  locale: Locale = "id"
 ): Promise<{ ok: true } | { error: string }> {
   const clean: LandingBlock[] = blocks.map((block) => {
     switch (block.type) {
@@ -132,9 +134,14 @@ export async function saveLandingBlocks(
   })
 
   const supabase = await createClient()
+  const kolom = locale === "en" ? { blocks_en: clean } : { blocks: clean }
+  // UPDATE, bukan upsert: baris tunggalnya sudah disemai migrasi, dan jalur
+  // INSERT pada upsert memeriksa NOT NULL kolom lain (heading dkk.) SEBELUM
+  // resolusi konflik -- jadi upsert tanpa kolom-kolom itu selalu gagal.
   const { error } = await supabase
     .from("landing_content")
-    .upsert({ id: true, blocks: clean, updated_at: new Date().toISOString() })
+    .update({ ...kolom, updated_at: new Date().toISOString() })
+    .eq("id", true)
 
   if (error) {
     console.error("saveLandingBlocks failed:", error.message)
@@ -213,10 +220,12 @@ export async function saveLandingTheme(
   const check = checkTheme(theme)
   if (!check.ok) return { error: check.problems.join(". ") }
 
+  // UPDATE, bukan upsert -- lihat catatan di saveLandingBlocks.
   const supabase = await createClient()
   const { error } = await supabase
     .from("landing_content")
-    .upsert({ id: true, theme, updated_at: new Date().toISOString() })
+    .update({ theme, updated_at: new Date().toISOString() })
+    .eq("id", true)
 
   if (error) {
     console.error("saveLandingTheme failed:", error.message)

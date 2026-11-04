@@ -136,6 +136,36 @@ Dua temuan yang layak dicatat:
   memakai nama yang salah dan melaporkan seluruh layar "belum diterjemahkan" —
   yang salah alat ukurnya.
 
+**Pembaruan (4 Nov 2026) — halaman depan.** Yang dilaporkan pemilik: "dwibahasa di
+halaman depan tidak bekerja". Benar, dan sebabnya bukan terjemahan yang
+tertinggal: isi halaman depan **dikarang superadmin** dan tersimpan sebagai satu
+susunan blok, jadi ia tidak mungkin ikut berganti lewat kamus. Yang ditambahkan:
+kolom `blocks_en` (nullable — kosong berarti pengunjung Inggris melihat versi
+Indonesia, bukan halaman kosong), tab bahasa di `/admin/landing`, dan tombol
+"mulai dari salinan versi Indonesia" supaya menerjemahkan tidak berarti menyusun
+ulang dari nol.
+
+Dua cacat lama ikut ketahuan saat mengerjakannya:
+
+- **Formulir halaman depan yang tidak mengubah apa pun.** Formulir panjang di
+  bawah `/admin/landing` menulis ke kolom `heading`, `features`, dan
+  `featured_course_ids` — kolom yang hanya dipakai sebagai nilai bawaan ketika
+  `blocks` masih kosong. Karena `blocks` sudah terisi sejak 1 Nov, setiap
+  suntingan di sana tidak pernah tampil di halaman depan. Inilah yang paling
+  mungkin membuat pemiliknya menyimpulkan "dwibahasanya tidak bekerja".
+  Formulirnya dihapus; satu-satunya kendali hidup di dalamnya (pemilih kursus
+  unggulan) dipindahkan ke blok "Kursus Pilihan", tempat `courseIds` memang
+  dirender. Sebelum ini `courseIds` sama sekali tidak punya antarmuka.
+- **Blok Keunggulan tidak bisa disunting dari penyusun blok** — hanya
+  menampilkan catatan "isinya disunting di bagian Keunggulan", yang menunjuk
+  formulir mati di atas. Kini bisa disunting penuh, per bahasa.
+
+Pemeriksa i18n sekarang juga membuka halaman depan publik dan tiga layar
+superadmin: **21/21 layar, 0 baris tersisa**. Gerbang a11y ikut naik dari 83
+menjadi 92 halaman karena akun audit kini benar-benar superadmin — dan langsung
+menemukan satu pelanggaran reflow 320px di `/admin/landing` yang selama ini tidak
+pernah terukur karena halamannya selalu dilewati.
+
 **Pembaruan (3 Nov 2026):** sisanya sudah selesai. Editor kursus lengkap (tab
 Pelajaran, editor kuis, pengaturan + sertifikat, dialog impor .md dan bank
 soal, editor teks kaya beserta pengumuman seret-lepas untuk pembaca layar),

@@ -8,6 +8,9 @@ import { saveLandingBlocksAction } from "@/app/admin/landing/actions"
 import { LandingPreview } from "@/components/admin/landing/LandingPreview"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { RichTextEditor } from "@/components/admin/courses/RichTextEditor"
+import { LANDING_ICON_OPTIONS, type LandingIcon } from "@/lib/landing"
+import { FeaturedCoursesPicker, type PickableCourse } from "./FeaturedCoursesPicker"
 import { Label } from "@/components/ui/label"
 import {
   DropdownMenu,
@@ -19,9 +22,11 @@ import {
   LANDING_BLOCK_TYPES,
   SINGLETON_BLOCKS,
   createBlock,
+  newBlockId,
   type LandingBlock,
   type LandingBlockType,
 } from "@/lib/landing-blocks"
+import { LOCALE_LABELS, type Locale } from "@/lib/i18n/config"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/components/i18n/LocaleProvider"
 import type { Dictionary } from "@/lib/i18n/dictionaries"
@@ -50,10 +55,28 @@ function blockLabels(t: Dictionary): Record<LandingBlockType, string> {
   }
 }
 
-export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }) {
+export function BlockEditor({
+  initialBlocks,
+  initialBlocksEn,
+  availableCourses,
+}: {
+  initialBlocks: LandingBlock[]
+  /** null: versi Inggris belum pernah disimpan; pengunjung EN mendapat versi ID. */
+  initialBlocksEn: LandingBlock[] | null
+  availableCourses: PickableCourse[]
+}) {
   const { t } = useI18n()
   const LABELS = blockLabels(t)
-  const [blocks, setBlocks] = useState(initialBlocks)
+  // Dua bahasa, dua susunan blok yang tersimpan terpisah. Tab bahasa memilih
+  // susunan mana yang sedang disunting; Simpan hanya menulis kolom bahasa itu.
+  const [lang, setLang] = useState<Locale>("id")
+  const [blocksId, setBlocksId] = useState(initialBlocks)
+  const [blocksEn, setBlocksEn] = useState<LandingBlock[] | null>(initialBlocksEn)
+  const blocks = lang === "en" ? (blocksEn ?? []) : blocksId
+  const setBlocks = (updater: (current: LandingBlock[]) => LandingBlock[]) => {
+    if (lang === "en") setBlocksEn((current) => updater(current ?? []))
+    else setBlocksId(updater)
+  }
   const [pending, startTransition] = useTransition()
   // Naik setiap kali penyimpanan berhasil; pratinjau memakainya sebagai aba-aba
   // memuat ulang, supaya ia tidak memuat ulang pada setiap ketikan.
@@ -67,9 +90,11 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
   function move(index: number, delta: number) {
     const target = index + delta
     if (target < 0 || target >= blocks.length) return
-    const next = [...blocks]
-    ;[next[index], next[target]] = [next[target], next[index]]
-    setBlocks(next)
+    setBlocks((current) => {
+      const next = [...current]
+      ;[next[index], next[target]] = [next[target], next[index]]
+      return next
+    })
   }
 
   function patch(id: string, changes: Partial<LandingBlock>) {
@@ -78,15 +103,21 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
     )
   }
 
+  /** Salinan dalam versi ID sebagai titik awal terjemahan, dengan id baru
+   *  supaya kedua versi benar-benar lepas satu sama lain. */
+  function startEnglishFromCopy() {
+    setBlocksEn(blocksId.map((b) => ({ ...structuredClone(b), id: newBlockId() })))
+  }
+
   function save() {
     startTransition(async () => {
-      const result = await saveLandingBlocksAction(blocks)
+      const result = await saveLandingBlocksAction(blocks, lang)
       if (!result.ok) {
         toast.error(result.error)
         return
       }
       setSavedAt(Date.now())
-      toast.success(t.superadmin.landingSaved)
+      toast.success(lang === "en" ? t.superadmin.landingSavedEn : t.superadmin.landingSaved)
     })
   }
 
@@ -99,7 +130,31 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
             {t.superadmin.landingSubtitle}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        {/*
+          flex-wrap, bukan satu baris: di 320px -- lebar yang disyaratkan WCAG
+          1.4.10 Reflow -- dua tab bahasa bersama "Tambah Bagian" dan "Simpan"
+          melebar sampai 453px dan memaksa seluruh halaman digulir menyamping.
+        */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div role="group" aria-label={t.superadmin.langTabsAria} className="flex gap-1">
+            {(["id", "en"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                lang={value}
+                aria-pressed={lang === value}
+                disabled={pending}
+                onClick={() => setLang(value)}
+                className={
+                  lang === value
+                    ? "flex min-h-9 items-center rounded-lg border border-ring bg-secondary px-3 text-xs font-semibold text-primary"
+                    : "flex min-h-9 items-center rounded-lg border border-input px-3 text-xs font-semibold text-muted-foreground hover:bg-muted"
+                }
+              >
+                {LOCALE_LABELS[value]}
+              </button>
+            ))}
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
@@ -131,10 +186,23 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
         </div>
       </div>
 
+      <p className="mb-4 text-xs text-muted-foreground">
+        {lang === "en" ? t.superadmin.enFallbackNote : t.superadmin.idVersionNote}
+      </p>
+
       <div className="mb-6">
-        <LandingPreview reloadToken={savedAt} />
+        <LandingPreview reloadToken={savedAt} locale={lang} />
       </div>
 
+      {lang === "en" && blocksEn === null ? (
+        <div className="rounded-2xl border border-dashed border-border p-10 text-center">
+          <p className="text-sm font-semibold">{t.superadmin.enEmptyTitle}</p>
+          <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">{t.superadmin.enEmptyDesc}</p>
+          <Button className="mt-4" variant="outline" onClick={startEnglishFromCopy}>
+            {t.superadmin.copyFromId}
+          </Button>
+        </div>
+      ) : (
       <ol className="space-y-4">
         {blocks.map((block, index) => (
           <li
@@ -195,12 +263,19 @@ export function BlockEditor({ initialBlocks }: { initialBlocks: LandingBlock[] }
               </Button>
             </div>
 
-            <BlockFields block={block} onPatch={(changes) => patch(block.id, changes)} disabled={pending} />
+            <BlockFields
+              block={block}
+              onPatch={(changes) => patch(block.id, changes)}
+              disabled={pending}
+              availableCourses={availableCourses}
+            />
           </li>
         ))}
       </ol>
 
-      {blocks.length === 0 && (
+      )}
+
+      {!(lang === "en" && blocksEn === null) && blocks.length === 0 && (
         <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
           {t.superadmin.noBlocks}
         </p>
@@ -236,10 +311,12 @@ function BlockFields({
   block,
   onPatch,
   disabled,
+  availableCourses,
 }: {
   block: LandingBlock
   onPatch: (changes: Partial<LandingBlock>) => void
   disabled: boolean
+  availableCourses: PickableCourse[]
 }) {
   const { t } = useI18n()
   switch (block.type) {
@@ -296,9 +373,21 @@ function BlockFields({
             onChange={(subheading) => onPatch({ subheading } as Partial<LandingBlock>)}
           />
           {block.type === "courses" ? (
-            <p className="text-xs text-muted-foreground sm:col-span-2">
-              {t.superadmin.coursesEmptyNote}
-            </p>
+            <div className="sm:col-span-2">
+              {/*
+                Pemilih kursusnya ada DI SINI, bukan di formulir terpisah:
+                yang dirender halaman depan adalah `block.courseIds`, dan
+                sebelumnya satu-satunya pemilih kursus di layar ini menulis ke
+                kolom lain yang tidak pernah dibaca -- kontrol yang terlihat
+                bekerja tetapi tidak mengubah apa pun.
+              */}
+              <p className="mb-2 text-xs text-muted-foreground">{t.superadmin.coursesEmptyNote}</p>
+              <FeaturedCoursesPicker
+                value={block.courseIds}
+                onChange={(courseIds) => onPatch({ courseIds } as Partial<LandingBlock>)}
+                availableCourses={availableCourses}
+              />
+            </div>
           ) : (
             <p className="text-xs text-muted-foreground sm:col-span-2">
               {t.superadmin.testimonialsNote.replace("{n}", String(block.limit))}
@@ -316,9 +405,89 @@ function BlockFields({
             disabled={disabled}
             onChange={(heading) => onPatch({ heading } as Partial<LandingBlock>)}
           />
-          <p className="text-xs text-muted-foreground">
-            {t.superadmin.featuresNote.replace("{n}", String(block.features.length))}
-          </p>
+          {/*
+            Dulu hanya catatan "isinya disunting di bagian Keunggulan" -- yang
+            menunjuk formulir lama yang menulis ke kolom berbeda dari yang
+            dirender. Begitu halaman depan punya versi Inggris, keunggulan
+            versi itu harus bisa disunting DI SINI, pada blok yang memang
+            menjadi sumber tampilannya.
+          */}
+          {block.features.map((feature, i) => (
+            <div key={i} className="space-y-3 rounded-xl border border-border p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">
+                  {t.superadmin.featureN.replace("{n}", String(i + 1))}
+                </span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={disabled || block.features.length <= 1}
+                  aria-label={t.superadmin.deleteFeatureN.replace("{n}", String(i + 1))}
+                  onClick={() =>
+                    onPatch({ features: block.features.filter((_, j) => j !== i) } as Partial<LandingBlock>)
+                  }
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="size-4" aria-hidden />
+                </Button>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor={`feature-icon-${block.id}-${i}`}>{t.superadmin.iconLabel}</Label>
+                <select
+                  id={`feature-icon-${block.id}-${i}`}
+                  value={feature.icon}
+                  disabled={disabled}
+                  onChange={(e) => {
+                    const features = [...block.features]
+                    features[i] = { ...features[i], icon: e.target.value as LandingIcon }
+                    onPatch({ features } as Partial<LandingBlock>)
+                  }}
+                  className="flex h-8 w-fit items-center rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring"
+                >
+                  {LANDING_ICON_OPTIONS.map((icon) => (
+                    <option key={icon} value={icon}>
+                      {{ "graduation-cap": t.superadmin.iconGradCap, layers: t.superadmin.iconLayers, award: t.superadmin.iconAward }[icon] ?? icon}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <Field
+                label={t.superadmin.fieldHeading}
+                value={feature.title}
+                disabled={disabled}
+                onChange={(title) => {
+                  const features = [...block.features]
+                  features[i] = { ...features[i], title }
+                  onPatch({ features } as Partial<LandingBlock>)
+                }}
+              />
+              <div className="space-y-1.5">
+                <Label>{t.superadmin.descriptionLabel}</Label>
+                <RichTextEditor
+                  ariaLabel={t.superadmin.featureDescAria.replace("{n}", String(i + 1))}
+                  value={feature.description}
+                  onChange={(description) => {
+                    const features = [...block.features]
+                    features[i] = { ...features[i], description }
+                    onPatch({ features } as Partial<LandingBlock>)
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={disabled}
+            onClick={() =>
+              onPatch({
+                features: [...block.features, { icon: "graduation-cap", title: "", description: "" }],
+              } as Partial<LandingBlock>)
+            }
+          >
+            <Plus className="size-4" aria-hidden />
+            {t.superadmin.addFeature}
+          </Button>
         </div>
       )
 

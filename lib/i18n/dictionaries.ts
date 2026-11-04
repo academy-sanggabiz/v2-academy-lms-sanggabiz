@@ -60,6 +60,10 @@ export type Dictionary = {
     deleteAccountHint: string
     deleteAccountWarning: string
     deletingAccount: string
+    languageTitle: string
+    languageHint: string
+    languageSaved: string
+    deletingBlockMessage: string
   }
   signup: {
     title: string
@@ -116,6 +120,8 @@ export type Dictionary = {
     lessonsProgress: string
   }
   courses: {
+    accessPrivate: string
+    accessPublic: string
     searchPlaceholder: string
     searchLabel: string
     sort: string
@@ -849,6 +855,11 @@ export type Dictionary = {
   }
   superadmin: {
     mentorTitle: string
+    seeMentorEvaluation: string
+    /** `{mentor}`, `{kursus}`, `{peserta}` diganti angka. */
+    mentorSummary: string
+    /** `{n}` esai menunggu. */
+    mentorPendingSuffix: string
     mentorSubtitle: string
     mentorStat: string
     publishedCourses: string
@@ -977,6 +988,13 @@ export type Dictionary = {
     featuredCoursesHead: string
     featuredCoursesDesc: string
     saveFailedFillMarked: string
+    langTabsAria: string
+    enFallbackNote: string
+    idVersionNote: string
+    enEmptyTitle: string
+    enEmptyDesc: string
+    copyFromId: string
+    landingSavedEn: string
   }
   admin: {
     dashboard: string
@@ -1198,6 +1216,11 @@ const id: Dictionary = {
     deleteAccount: "Hapus Akun",
     deleteAccountHint: "Hapus akun Anda secara permanen",
     deleteAccountWarning: "Akun yang sudah dihapus tidak dapat dipulihkan",
+    languageTitle: "Bahasa",
+    languageHint:
+      "Bahasa antarmuka LMS untuk akun Anda. Berlaku langsung, dan ikut tersimpan di profil sehingga sama di perangkat lain.",
+    languageSaved: "Bahasa disimpan",
+    deletingBlockMessage: "Penghapusan akun sedang berjalan. Tetap tinggalkan halaman ini?",
     deletingAccount: "Menghapus akun…",
   },
   signup: {
@@ -1255,6 +1278,8 @@ const id: Dictionary = {
     lessonsProgress: "pelajaran selesai",
   },
   courses: {
+    accessPrivate: "Privat",
+    accessPublic: "Publik",
     searchPlaceholder: "Cari kursus...",
     searchLabel: "Cari kursus",
     sort: "Urutkan",
@@ -1956,6 +1981,9 @@ const id: Dictionary = {
   },
   superadmin: {
     mentorTitle: "Mentor",
+    seeMentorEvaluation: "Lihat evaluasi mentor",
+    mentorSummary: "{mentor} mentor mengelola {kursus} kursus terbit untuk {peserta} peserta.",
+    mentorPendingSuffix: "{n} esai menunggu dinilai.",
     mentorSubtitle: "Kinerja tiap mentor berdampingan. Angka ini untuk membantu mereka, bukan memeringkat.",
     mentorStat: "Mentor",
     publishedCourses: "Kursus Terbit",
@@ -2070,6 +2098,15 @@ const id: Dictionary = {
     featuredCoursesDesc:
       "Pilih kursus terbit yang tampil di carousel \u201CKursus Unggulan\u201D pada halaman depan publik.",
     saveFailedFillMarked: "Gagal menyimpan. Lengkapi isian yang ditandai, lalu coba lagi.",
+    langTabsAria: "Bahasa konten halaman depan",
+    enFallbackNote:
+      "Pengunjung berbahasa Inggris melihat versi ini. Sebelum versi Inggris pernah disimpan, mereka melihat versi Indonesia.",
+    idVersionNote: "Versi yang dilihat pengunjung berbahasa Indonesia (bahasa bawaan).",
+    enEmptyTitle: "Versi Inggris belum ada",
+    enEmptyDesc:
+      "Mulai dari salinan versi Indonesia, lalu terjemahkan teksnya. Susunan dan isi kedua versi tersimpan terpisah \u2014 mengubah satu tidak mengubah yang lain.",
+    copyFromId: "Mulai dari salinan versi Indonesia",
+    landingSavedEn: "Versi Inggris halaman depan tersimpan",
   },
   admin: {
     dashboard: "Dashboard",
@@ -2302,6 +2339,11 @@ const en: Dictionary = {
     deleteAccount: "Delete account",
     deleteAccountHint: "Permanently delete your account",
     deleteAccountWarning: "A deleted account cannot be restored",
+    languageTitle: "Language",
+    languageHint:
+      "The LMS interface language for your account. Takes effect immediately, and is saved to your profile so it follows you across devices.",
+    languageSaved: "Language saved",
+    deletingBlockMessage: "Account deletion is in progress. Leave this page anyway?",
     deletingAccount: "Deleting account…",
   },
   signup: {
@@ -2359,6 +2401,8 @@ const en: Dictionary = {
     lessonsProgress: "lessons done",
   },
   courses: {
+    accessPrivate: "Private",
+    accessPublic: "Public",
     searchPlaceholder: "Search courses...",
     searchLabel: "Search courses",
     sort: "Sort",
@@ -2709,7 +2753,7 @@ const en: Dictionary = {
     certDescLabel: "Certificate Description",
     charCount: "{n}/150 characters",
     certDescPh: "e.g. This certifies that [Nama Peserta] has completed [Nama Kursus].",
-    tokensSupported: "Supported tokens: [Nama Peserta], [Nama Kursus]",
+    tokensSupported: "Supported tokens: [Student Name], [Course Name]",
     signatureLabel: "Upload Signature Image",
     signatureHint: "PNG or JPEG, max 1MB",
     signatureInheritHas: "Leaving this empty uses the signature from the main settings.",
@@ -3058,6 +3102,9 @@ const en: Dictionary = {
   },
   superadmin: {
     mentorTitle: "Mentors",
+    seeMentorEvaluation: "See mentor evaluation",
+    mentorSummary: "{mentor} mentors manage {kursus} published courses for {peserta} learners.",
+    mentorPendingSuffix: "{n} essays await grading.",
     mentorSubtitle: "Each mentor's performance side by side. These numbers are to help them, not to rank them.",
     mentorStat: "Mentors",
     publishedCourses: "Published Courses",
@@ -3172,6 +3219,15 @@ const en: Dictionary = {
     featuredCoursesDesc:
       "Choose the published courses shown in the \u201CFeatured Courses\u201D carousel on the public landing page.",
     saveFailedFillMarked: "Could not save. Complete the marked fields, then try again.",
+    langTabsAria: "Landing page content language",
+    enFallbackNote:
+      "English-speaking visitors see this version. Until an English version has been saved, they see the Indonesian one.",
+    idVersionNote: "The version Indonesian-speaking visitors see (the default language).",
+    enEmptyTitle: "No English version yet",
+    enEmptyDesc:
+      "Start from a copy of the Indonesian version, then translate the text. The two versions are stored separately \u2014 changing one does not change the other.",
+    copyFromId: "Start from a copy of the Indonesian version",
+    landingSavedEn: "English landing page saved",
   },
   admin: {
     dashboard: "Dashboard",

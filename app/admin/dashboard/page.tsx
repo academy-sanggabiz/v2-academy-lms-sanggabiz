@@ -145,21 +145,25 @@ export default async function AdminDashboardPage({
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-sm font-semibold">
               <UserCog className="size-[18px]" aria-hidden />
-              Mentor
+              {t.superadmin.mentorTitle}
             </div>
             <Link
               href="/admin/mentor"
               className="rounded-md text-sm font-semibold text-ring underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
             >
-              Lihat evaluasi mentor
+              {t.superadmin.seeMentorEvaluation}
             </Link>
           </div>
           <p className="text-sm text-muted-foreground">
-            {mentors.length} mentor mengelola{" "}
-            {mentors.reduce((n, m) => n + m.coursesPublished, 0)} kursus terbit untuk{" "}
-            {mentors.reduce((n, m) => n + m.learners, 0)} peserta.
+            {t.superadmin.mentorSummary
+              .replace("{mentor}", String(mentors.length))
+              .replace("{kursus}", String(mentors.reduce((n, m) => n + m.coursesPublished, 0)))
+              .replace("{peserta}", String(mentors.reduce((n, m) => n + m.learners, 0)))}
             {mentors.reduce((n, m) => n + m.pendingReviews, 0) > 0 &&
-              ` ${mentors.reduce((n, m) => n + m.pendingReviews, 0)} esai menunggu dinilai.`}
+              ` ${t.superadmin.mentorPendingSuffix.replace(
+                "{n}",
+                String(mentors.reduce((n, m) => n + m.pendingReviews, 0))
+              )}`}
           </p>
         </div>
       )}

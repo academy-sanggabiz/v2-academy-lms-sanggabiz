@@ -14,6 +14,7 @@
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "audit:a11y": "node scripts/a11y-audit.mjs",
     "cek:bahasa": "node scripts/cek-bahasa.mjs",
+    "i18n:check": "node scripts/i18n-check.mjs",
     "test:rls": "node scripts/redirect-check.mjs && node scripts/rls-check.mjs"
   },
   "dependencies": {

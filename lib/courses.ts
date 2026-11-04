@@ -46,9 +46,12 @@ export function formatPrice(price: number): string {
  * Course-facing access label: invite-only reads "Privat", an open zero-price
  * course reads "Publik", anything else shows the price.
  */
-export function formatCourseAccess(course: Pick<Course, "price" | "is_private">): string {
-  if (course.is_private) return "Privat"
-  if (course.price <= 0) return "Publik"
+export function formatCourseAccess(
+  course: Pick<Course, "price" | "is_private">,
+  labels?: { accessPrivate: string; accessPublic: string }
+): string {
+  if (course.is_private) return labels?.accessPrivate ?? "Privat"
+  if (course.price <= 0) return labels?.accessPublic ?? "Publik"
   return formatPrice(course.price)
 }
 

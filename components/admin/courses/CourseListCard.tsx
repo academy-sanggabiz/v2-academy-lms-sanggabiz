@@ -56,7 +56,7 @@ function StatusBadge({ isPublished, pending }: { isPublished: boolean; pending: 
 export function CourseListCard({ course }: { course: Course }) {
   const { t } = useI18n()
   const [isPending, startTransition] = useTransition()
-  const price = formatCourseAccess(course)
+  const price = formatCourseAccess(course, t.courses)
   const isPublished = course.status === "published"
 
   function handleToggleStatus() {

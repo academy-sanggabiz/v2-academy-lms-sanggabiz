@@ -28,7 +28,7 @@ export function CourseCard({
         className="mb-4 h-[180px] rounded-md"
       >
         <span className="absolute top-3 right-3 rounded-full bg-ring px-3 py-1 text-xs font-semibold text-white">
-          {formatCourseAccess(course)}
+          {formatCourseAccess(course, t.courses)}
         </span>
       </CourseThumb>
       <div className="mb-2.5 min-h-[46px] text-base leading-snug font-bold">

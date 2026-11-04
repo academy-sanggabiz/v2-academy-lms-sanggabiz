@@ -37,7 +37,7 @@ export default async function AdminCoursePreviewPage({
   ])
   if (!course) notFound()
 
-  const price = formatCourseAccess(course)
+  const price = formatCourseAccess(course, t.courses)
 
   return (
     <div className="space-y-6">

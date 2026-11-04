@@ -31,6 +31,7 @@ const KATA_ID =
 
 /** Layar yang sudah dinyatakan dwibahasa; sisa di sini dianggap kegagalan. */
 const SUDAH_SELESAI = new Set([
+  "/",
   "/learner/dashboard",
   "/learner/courses",
   "/learner/profile",
@@ -43,10 +44,13 @@ const SUDAH_SELESAI = new Set([
   "/admin/tracking",
   "/admin/settings",
   "/admin/profile",
+  "/admin/mentor",
+  "/admin/landing",
+  "/admin/certificates",
 ])
 
 /** Layar dinamis yang juga sudah selesai -- dicocokkan dengan awalan jalur. */
-const AWALAN_SELESAI = ["/admin/grading/course/", "/admin/tracking/", "/admin/courses/", "/learner/courses/"]
+const AWALAN_SELESAI = ["/admin/grading/course/", "/admin/tracking/", "/admin/courses/", "/learner/courses/", "/admin/mentor", "/admin/landing", "/admin/certificates"]
 function sudahSelesai(path) {
   return SUDAH_SELESAI.has(path) || AWALAN_SELESAI.some((a) => path.startsWith(a))
 }
@@ -75,6 +79,14 @@ async function masuk(browser, path, email, sandi) {
  * antarmuka. Tanpa pengecualian ini angkanya tidak akan pernah nol, dan
  * alat ukur yang tidak bisa mencapai nol berhenti dipakai orang.
  */
+/** Semua nilai string di dalam pohon blok halaman depan, rekursif. */
+function ambilTeksBlok(simpul) {
+  if (typeof simpul === "string") return [simpul]
+  if (Array.isArray(simpul)) return simpul.flatMap(ambilTeksBlok)
+  if (simpul && typeof simpul === "object") return Object.values(simpul).flatMap(ambilTeksBlok)
+  return []
+}
+
 async function ambilIsi() {
   const h = { apikey: env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` }
   const U = env.NEXT_PUBLIC_SUPABASE_URL
@@ -83,7 +95,7 @@ async function ambilIsi() {
     const r = await fetch(`${U}/rest/v1/${p}`, { headers: h })
     return r.ok ? r.json() : []
   }
-  const [kursus, pelajaran, modul, notif, soal] = await Promise.all([
+  const [kursus, pelajaran, modul, notif, soal, halamanDepan] = await Promise.all([
     ambil("courses?select=title,description,who_for,requirements"),
     ambil("lessons?select=title&limit=1000"),
     ambil("course_sections?select=title&limit=500"),
@@ -91,6 +103,10 @@ async function ambilIsi() {
     // Teks soal adalah ISI juga: layar kesulitan peserta dan matriks
     // penilaian menampilkannya. Tag HTML dibuang karena yang dirender teksnya.
     ambil("questions?select=prompt&limit=1000"),
+    // Isi halaman depan yang dikarang superadmin (hero, keunggulan, FAQ, CTA)
+    // adalah ISI: penyunting /admin/landing menampilkannya apa adanya, dan
+    // versi Indonesianya memang harus tetap Indonesia di tab Indonesia.
+    ambil("landing_content?select=blocks,blocks_en"),
   ])
   return [
     ...kursus.flatMap((x) => [x.title, x.description, ...(x.who_for ?? []), ...(x.requirements ?? [])]),
@@ -98,6 +114,11 @@ async function ambilIsi() {
     ...modul.map((x) => x.title),
     ...notif.flatMap((x) => [x.title, x.body]),
     ...soal.map((x) => String(x.prompt ?? "").replace(/<[^>]*>/g, " ")),
+    ...halamanDepan.flatMap((row) =>
+      [row.blocks, row.blocks_en].flatMap((blok) =>
+        ambilTeksBlok(blok).map((teks) => teks.replace(/<[^>]*>/g, " "))
+      )
+    ),
   ].filter((x) => typeof x === "string" && x.trim().length > 3)
 }
 
@@ -137,6 +158,16 @@ async function periksa(page, path) {
 
 const browser = await chromium.launch()
 try {
+  // Halaman depan publik: tanpa login, cookie bahasa en. Inilah layar pertama
+  // yang dilihat pengunjung, jadi ia diperiksa paling dulu.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 } })
+    await ctx.addCookies([{ name: "bahasa", value: "en", url: BASE }])
+    const anon = await ctx.newPage()
+    await periksa(anon, "/")
+    await ctx.close()
+  }
+
   const learner = await masuk(browser, "/auth/learner/login", env.AUDIT_LEARNER_EMAIL, env.AUDIT_LEARNER_PASSWORD)
   if (learner) {
     for (const p of ["/learner/dashboard", "/learner/courses", "/learner/profile", "/learner/settings", "/learner/notifications"])
@@ -157,7 +188,7 @@ try {
   let admin = await masuk(browser, "/auth/admin/login", adminEmail, adminSandi)
   if (!admin && env.DEMO_ADMIN_EMAIL) admin = await masuk(browser, "/auth/admin/login", env.DEMO_ADMIN_EMAIL, env.DEMO_ADMIN_PASSWORD)
   if (admin) {
-    for (const p of ["/admin/dashboard", "/admin/courses", "/admin/learners", "/admin/grading", "/admin/tracking", "/admin/settings", "/admin/profile"])
+    for (const p of ["/admin/dashboard", "/admin/courses", "/admin/learners", "/admin/grading", "/admin/tracking", "/admin/settings", "/admin/profile", "/admin/mentor", "/admin/landing", "/admin/certificates"])
       await periksa(admin, p)
 
     // Layar dinamis: matriks penilaian dan rincian pelacakan. Id-nya dicari
@@ -174,6 +205,13 @@ try {
         for (const k of kursus) {
           const e = await fetch(`${U}/rest/v1/enrollments?select=id,course_id&course_id=eq.${k.id}&limit=1`, { headers: h }).then((r) => (r.ok ? r.json() : []))
           if (e[0]) { pendaftaran = e[0]; break }
+        }
+        if (!pendaftaran) {
+          // Superadmin audit tidak punya kursus sendiri, tetapi bisa membaca
+          // semuanya (owns_course lewat is_superadmin) -- pakai pendaftaran
+          // mana pun supaya layar dinamisnya tetap teruji.
+          const e = await fetch(`${U}/rest/v1/enrollments?select=id,course_id&limit=1`, { headers: h }).then((r) => (r.ok ? r.json() : []))
+          if (e[0]) pendaftaran = e[0]
         }
         if (pendaftaran) {
           await periksa(admin, `/admin/grading/course/${pendaftaran.course_id}`)

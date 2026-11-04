@@ -8,16 +8,31 @@ import { LandingBlocks } from "@/components/landing/LandingBlocks"
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher"
 import { DisplaySettings } from "@/components/preferences/DisplaySettings"
 import { getTranslations } from "@/lib/i18n/server"
+import { getDictionary } from "@/lib/i18n/dictionaries"
+import { isLocale } from "@/lib/i18n/config"
+import { LocaleProvider } from "@/components/i18n/LocaleProvider"
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ bahasa?: string }>
+}) {
+  // ?bahasa= menimpa cookie khusus untuk halaman ini: pratinjau di
+  // /admin/landing memakainya supaya superadmin yang sedang menyunting versi
+  // Inggris melihat versi Inggris, tanpa harus mengganti bahasa antarmukanya
+  // sendiri. Pengunjung biasa tetap lewat cookie seperti halaman lain.
+  const { bahasa } = await searchParams
+  const cookieLocale = (await getTranslations()).locale
+  const locale = isLocale(bahasa) ? bahasa : cookieLocale
+  const t = getDictionary(locale)
+
   // Susunan halaman depan kini data, bukan tata letak: superadmin bisa
   // menambah, menghapus, menyembunyikan, dan mengurutkan bloknya sendiri
   // (lib/landing-blocks.ts).
-  const [blocks, courses, testimonials, { t }, theme] = await Promise.all([
-    getLandingBlocks(),
+  const [blocks, courses, testimonials, theme] = await Promise.all([
+    getLandingBlocks(locale),
     getPublishedCourses(),
     getLandingTestimonials(),
-    getTranslations(),
     getLandingTheme(),
   ])
 
@@ -25,6 +40,15 @@ export default async function Home() {
   // penggantian warna berhenti di halaman depan dan tidak ikut mengubah layar
   // belajar maupun layar pengelola (lib/landing-theme.ts).
   return (
+    /*
+      LocaleProvider kedua, bersarang di dalam milik app/layout.tsx: komponen
+      klien di halaman ini (kartu kursus, pemilih bahasa) membaca kamus dari
+      konteks, yang di layout diisi dari cookie. Tanpa pembungkus ini,
+      pratinjau ?bahasa= hanya mengganti blok yang dirender server sementara
+      kartu kursusnya tetap mengikuti bahasa superadmin -- pratinjau yang
+      setengah berbohong, persis yang dihindari LandingPreview.
+    */
+    <LocaleProvider locale={locale}>
     <div className="min-h-screen bg-card" style={themeStyle(theme)}>
       {/*
         Padding dan kata "sanggabiz" menyusut di layar sempit. Pada 320px --
@@ -79,7 +103,7 @@ export default async function Home() {
         * tidak membawa ke mana pun (WCAG 2.4.1).
         */}
       <main id="main-content" tabIndex={-1} className="outline-none">
-        <LandingBlocks blocks={blocks} courses={courses} testimonials={testimonials} />
+        <LandingBlocks blocks={blocks} courses={courses} testimonials={testimonials} locale={locale} />
       </main>
 
       <footer className="flex flex-col items-center gap-4 border-t border-border bg-card px-6 py-14 text-center">
@@ -104,5 +128,6 @@ export default async function Home() {
         <div className="text-xs text-muted-foreground">© 2026 Sanggabiz</div>
       </footer>
     </div>
+    </LocaleProvider>
   )
 }

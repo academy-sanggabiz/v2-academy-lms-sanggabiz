@@ -6,7 +6,8 @@ import { FeaturedCoursesCarousel } from "@/components/FeaturedCoursesCarousel"
 import type { Course } from "@/lib/courses"
 import type { LandingBlock } from "@/lib/landing-blocks"
 import type { LandingTestimonial } from "@/lib/landing-server"
-import { getTranslations } from "@/lib/i18n/server"
+import { getDictionary } from "@/lib/i18n/dictionaries"
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config"
 
 const ICON_MAP: Record<string, LucideIcon> = {
   "graduation-cap": GraduationCap,
@@ -27,32 +28,44 @@ export function LandingBlocks({
   blocks,
   courses,
   testimonials,
+  locale = DEFAULT_LOCALE,
 }: {
   blocks: LandingBlock[]
   courses: Course[]
   testimonials: LandingTestimonial[]
+  /** Dioper dari halaman, bukan dibaca dari cookie: pratinjau /admin/landing
+   *  menimpa bahasa lewat ?bahasa= dan blok harus mengikutinya. */
+  locale?: Locale
 }) {
   return (
     <>
       {blocks
         .filter((block) => !block.hidden)
         .map((block) => (
-          <LandingBlockView key={block.id} block={block} courses={courses} testimonials={testimonials} />
+          <LandingBlockView
+            key={block.id}
+            block={block}
+            courses={courses}
+            testimonials={testimonials}
+            locale={locale}
+          />
         ))}
     </>
   )
 }
 
-async function LandingBlockView({
+function LandingBlockView({
   block,
   courses,
   testimonials,
+  locale,
 }: {
   block: LandingBlock
   courses: Course[]
   testimonials: LandingTestimonial[]
+  locale: Locale
 }) {
-  const { t } = await getTranslations()
+  const t = getDictionary(locale)
 
   switch (block.type) {
     case "hero":

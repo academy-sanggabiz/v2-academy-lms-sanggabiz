@@ -37,7 +37,7 @@ export default async function CourseDetailPage({
   const { t } = await getTranslations()
   const courseGrade = enrolled ? await getLearnerCourseGrade(course.id) : null
   const notes = enrolled ? await getCourseNotes(course.id) : null
-  const price = formatCourseAccess(course)
+  const price = formatCourseAccess(course, t.courses)
   const initialOpen = enrollParam === "required"
 
   // Butir C4: kursus 64 pelajaran yang hanya menyodorkan totalnya membuat orang

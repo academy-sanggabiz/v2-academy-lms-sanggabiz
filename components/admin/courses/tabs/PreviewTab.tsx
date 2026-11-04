@@ -19,10 +19,13 @@ export function PreviewTab() {
   const totalSeconds = lessons.reduce((n, l) => n + (l.duration_seconds ?? 0), 0)
   const durationHours = totalSeconds === 0 ? 0 : Math.round((totalSeconds / 3600) * 10) / 10
 
-  const priceLabel = formatCourseAccess({
-    price: draft.enrollmentMode === "paid" ? draft.price : 0,
-    is_private: draft.isPrivate,
-  })
+  const priceLabel = formatCourseAccess(
+    {
+      price: draft.enrollmentMode === "paid" ? draft.price : 0,
+      is_private: draft.isPrivate,
+    },
+    t.courses
+  )
 
   return (
     <div>

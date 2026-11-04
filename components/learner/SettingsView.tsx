@@ -18,6 +18,7 @@ import {
 } from "@/app/learner/settings/actions"
 import type { TrackingConsentState } from "@/lib/tracking-consent-server"
 import { useI18n } from "@/components/i18n/LocaleProvider"
+import { LanguageSettingCard } from "@/components/i18n/LanguageSettingCard"
 
 export function SettingsView({
   notificationEmailEnabled,
@@ -41,6 +42,7 @@ export function SettingsView({
             akan melempar fokus keyboard keluar (R18). */}
         <BusyRegion busy={isDeleting} label={t.settings.deletingAccount}>
           <div className="flex flex-col gap-6">
+            <LanguageSettingCard />
             <NotificationsCard initialEnabled={notificationEmailEnabled} />
             <TrackingConsentCard state={trackingConsent} />
             <SecurityCard />

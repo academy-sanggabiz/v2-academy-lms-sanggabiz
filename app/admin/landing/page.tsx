@@ -1,10 +1,8 @@
 import { redirect } from "next/navigation"
 
 import { resolveSuperAdminProfile } from "@/lib/auth/require-admin"
-import { getLandingContent } from "@/lib/landing-server"
 import { getPublishedCourses } from "@/lib/courses-server"
-import { LandingForm } from "@/components/admin/landing/LandingForm"
-import { getLandingBlocks, getLandingTheme } from "@/lib/landing-server"
+import { getEnglishLandingBlocks, getLandingBlocks, getLandingTheme } from "@/lib/landing-server"
 import { ThemePicker } from "@/components/admin/landing/ThemePicker"
 import { BlockEditor } from "@/components/admin/landing/BlockEditor"
 
@@ -17,22 +15,27 @@ export default async function AdminLandingPage() {
     redirect("/admin/dashboard")
   }
 
-  const [content, courses, blocks, theme] = await Promise.all([
-    getLandingContent(),
+  const [courses, blocks, blocksEn, theme] = await Promise.all([
     getPublishedCourses(),
     getLandingBlocks(),
+    getEnglishLandingBlocks(),
     getLandingTheme(),
   ])
   const availableCourses = courses.map((c) => ({ id: c.id, title: c.title }))
 
   return (
     <div className="space-y-10">
-      {/* Penyusun blok menentukan bagian mana yang tampil dan urutannya;
-          formulir di bawahnya menyunting isi rinci hero, keunggulan, dan
-          kursus pilihan. Keduanya menyimpan ke baris yang sama. */}
+      {/*
+        Satu penyunting untuk seluruh halaman depan, per bahasa. Dulu ada
+        formulir kedua di bawah ini yang menyunting kolom `heading`,
+        `features`, dan `featured_course_ids` -- kolom yang hanya dipakai
+        sebagai nilai bawaan saat `blocks` masih kosong, jadi suntingannya
+        tidak pernah tampil di halaman depan. Formulir itu dihapus dan satu
+        kendali yang sungguh dipakainya (pemilih kursus unggulan) pindah ke
+        dalam blok "Kursus Pilihan".
+      */}
       <ThemePicker initialTheme={theme} />
-      <BlockEditor initialBlocks={blocks} />
-      <LandingForm content={content} availableCourses={availableCourses} />
+      <BlockEditor initialBlocks={blocks} initialBlocksEn={blocksEn} availableCourses={availableCourses} />
     </div>
   )
 }
