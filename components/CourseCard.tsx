@@ -4,17 +4,20 @@ import Link from "next/link"
 
 import { cn } from "@/lib/utils"
 import { CourseThumb } from "@/components/CourseThumb"
-import { formatCourseAccess, type Course } from "@/lib/courses"
+import { formatCourseAccess, type CourseCardData } from "@/lib/courses"
+import { levelLabel, normalizeLevel } from "@/lib/course-level"
+import { plural } from "@/lib/i18n/plural"
 import { useI18n } from "@/components/i18n/LocaleProvider"
 
 export function CourseCard({
   course,
   className,
 }: {
-  course: Course
+  course: CourseCardData
   className?: string
 }) {
   const { t } = useI18n()
+  const level = normalizeLevel(course.level)
 
   return (
     /*
@@ -44,11 +47,30 @@ export function CourseCard({
           {formatCourseAccess(course, t.courses)}
         </span>
       </CourseThumb>
+      {/* Kategori dan tingkat ikut ditampilkan seperti di katalog: kartu yang
+          hanya menyebut jumlah pelajaran membuat orang harus membuka satu per
+          satu untuk tahu apakah kelasnya tentang bidang mereka. */}
+      {(course.category || level) && (
+        <div className="mb-2 flex flex-wrap items-center gap-1.5">
+          {course.category && (
+            <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+              {course.category.name}
+            </span>
+          )}
+          {level && (
+            <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+              {levelLabel(level, t)}
+            </span>
+          )}
+        </div>
+      )}
       <div className="mb-2.5 min-h-[46px] text-base leading-snug font-bold group-hover:underline">
         {course.title}
       </div>
       <div className="text-sm text-muted-foreground">
         {course.lesson_count} {t.courses.lessons} · {course.duration_hours} {t.courses.hours}
+        {course.learnerCount != null &&
+          ` · ${plural(course.learnerCount, t.catalog.learnersOne, t.catalog.learners)}`}
       </div>
     </Link>
   )

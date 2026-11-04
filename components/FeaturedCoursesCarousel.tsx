@@ -4,13 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import type { Course } from "@/lib/courses"
+import type { CourseCardData } from "@/lib/courses"
 import { CourseCard } from "@/components/CourseCard"
 
 const AUTO_ADVANCE_MS = 5000
 const RESET_FALLBACK_MS = 400
 
-export function FeaturedCoursesCarousel({ courses }: { courses: Course[] }) {
+export function FeaturedCoursesCarousel({ courses }: { courses: CourseCardData[] }) {
   const trackRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const activeIndexRef = useRef(activeIndex)

@@ -6,13 +6,19 @@ import { ChevronDown, CircleHelp, FileText, PlayCircle, Presentation } from "luc
 
 import { cn } from "@/lib/utils"
 import type { CourseSection, LessonContentType } from "@/lib/courses"
+import { useI18n } from "@/components/i18n/LocaleProvider"
+import { plural } from "@/lib/i18n/plural"
+import type { Dictionary } from "@/lib/i18n/dictionaries"
 
-const typeLabel: Record<LessonContentType, string> = {
-  video: "Video",
-  text: "Bacaan",
-  quiz: "Kuis",
-  mixed: "Campuran",
-  ppt: "Slide",
+/** Label jenis pelajaran; ikut bahasa antarmuka, bukan teks tetap. */
+function typeLabels(t: Dictionary): Record<LessonContentType, string> {
+  return {
+    video: t.catalog.typeVideo,
+    text: t.catalog.typeText,
+    quiz: t.catalog.typeQuiz,
+    mixed: t.catalog.typeMixed,
+    ppt: t.catalog.typeSlides,
+  }
 }
 
 const typeIcon: Record<LessonContentType, typeof PlayCircle> = {
@@ -36,6 +42,7 @@ export function CourseCurriculum({
   enrolled?: boolean
   onLockedLessonClick?: () => void
 }) {
+  const { t } = useI18n()
   const [openId, setOpenId] = useState<string | null>(sections[0]?.id ?? null)
 
   return (
@@ -63,8 +70,12 @@ export function CourseCurriculum({
                       <span className="flex-1 truncate">{lesson.title}</span>
                       <span className="text-xs text-muted-foreground">
                         {lesson.content_type === "quiz" && lesson.quiz
-                          ? `${lesson.quiz.questions.length} soal`
-                          : typeLabel[lesson.content_type]}
+                          ? plural(
+                              lesson.quiz.questions.length,
+                              t.catalog.nQuestionsOne,
+                              t.catalog.nQuestions
+                            )
+                          : typeLabels(t)[lesson.content_type]}
                       </span>
                     </>
                   )

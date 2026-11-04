@@ -1,7 +1,4 @@
-import Link from "next/link"
 
-import { Button } from "@/components/ui/button"
-import { getPublishedCourses } from "@/lib/courses-server"
 import { getCatalogCourses } from "@/lib/catalog-server"
 import {
   getLandingBlocks,
@@ -36,14 +33,14 @@ export default async function Home({
   // Susunan halaman depan kini data, bukan tata letak: superadmin bisa
   // menambah, menghapus, menyembunyikan, dan mengurutkan bloknya sendiri
   // (lib/landing-blocks.ts).
-  const [blocks, courses, testimonials, theme, totals, katalog, instructors] = await Promise.all([
+  const [blocks, testimonials, theme, totals, katalog, instructors] = await Promise.all([
     getLandingBlocks(locale),
-    getPublishedCourses(),
     getLandingTestimonials(),
     getLandingTheme(),
     getPlatformTotals(),
-    // Dipakai hanya untuk daftar kategori beserta jumlah kelasnya; kartunya
-    // sendiri tetap memakai getPublishedCourses() seperti sebelumnya.
+    // Satu sumber untuk dua hal: daftar kategori beserta jumlah kelasnya, dan
+    // kartu kelas yang kini ikut menyebut kategori, tingkat, dan jumlah
+    // peserta -- sama seperti kartu di katalog.
     getCatalogCourses(),
     listPublicInstructors(),
   ])
@@ -58,7 +55,7 @@ export default async function Home({
       konteks, yang di layout diisi dari cookie. Tanpa pembungkus ini,
       pratinjau ?bahasa= hanya mengganti blok yang dirender server sementara
       kartu kursusnya tetap mengikuti bahasa superadmin -- pratinjau yang
-      setengah berbohong, persis yang dihindari LandingPreview.
+      setengah berbohong -- dan kanvas di /admin/landing memakai jalur yang sama.
     */
     <LocaleProvider locale={locale}>
     <div className="min-h-screen bg-card" style={themeStyle(theme)}>
@@ -79,7 +76,7 @@ export default async function Home({
       <main id="main-content" tabIndex={-1} className="outline-none">
         <LandingBlocks
           blocks={blocks}
-          courses={courses}
+          courses={katalog.courses}
           testimonials={testimonials}
           totals={totals}
           categories={katalog.facets.categories}

@@ -3,10 +3,9 @@ import { ArrowRight, Award, GraduationCap, Layers, Star, type LucideIcon } from 
 
 import { Button } from "@/components/ui/button"
 import { FeaturedCoursesCarousel } from "@/components/FeaturedCoursesCarousel"
-import type { Course } from "@/lib/courses"
 import type { LandingBlock } from "@/lib/landing-blocks"
-import type { LandingTestimonial, PlatformTotals } from "@/lib/landing-server"
-import type { Category, Instructor } from "@/lib/courses"
+import type { LandingTestimonial, PlatformTotals } from "@/lib/landing"
+import type { Category, CourseCardData, Instructor } from "@/lib/courses"
 import { plural } from "@/lib/i18n/plural"
 import { getDictionary } from "@/lib/i18n/dictionaries"
 import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config"
@@ -36,7 +35,7 @@ export function LandingBlocks({
   locale = DEFAULT_LOCALE,
 }: {
   blocks: LandingBlock[]
-  courses: Course[]
+  courses: CourseCardData[]
   testimonials: LandingTestimonial[]
   totals: PlatformTotals
   categories: { category: Category; count: number }[]
@@ -65,7 +64,15 @@ export function LandingBlocks({
   )
 }
 
-function LandingBlockView({
+/**
+ * Satu blok halaman depan.
+ *
+ * Diekspor supaya pratinjau langsung di /admin/landing memakai perender yang
+ * sama persis dengan halaman publiknya. Tiruan terpisah akan berbeda dari
+ * aslinya begitu salah satunya diubah, dan pratinjau yang berbohong lebih
+ * buruk daripada tidak ada pratinjau.
+ */
+export function LandingBlockView({
   block,
   courses,
   testimonials,
@@ -75,7 +82,7 @@ function LandingBlockView({
   locale,
 }: {
   block: LandingBlock
-  courses: Course[]
+  courses: CourseCardData[]
   testimonials: LandingTestimonial[]
   totals: PlatformTotals
   categories: { category: Category; count: number }[]
@@ -117,7 +124,9 @@ function LandingBlockView({
     case "courses": {
       const featured =
         block.courseIds.length > 0
-          ? block.courseIds.map((id) => courses.find((c) => c.id === id)).filter((c): c is Course => !!c)
+          ? block.courseIds
+              .map((id) => courses.find((c) => c.id === id))
+              .filter((c): c is CourseCardData => !!c)
           : courses.slice(0, 4)
       if (featured.length === 0) return null
       return (
@@ -213,6 +222,47 @@ function LandingBlockView({
               </li>
             ))}
           </ol>
+        </section>
+      )
+    }
+
+    case "alumni": {
+      const kisah = block.items.filter((i) => i.name.trim() && i.quote.trim())
+      if (kisah.length === 0) return null
+      return (
+        <section className="bg-card px-6 py-20 sm:px-10">
+          <h2 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">{block.heading}</h2>
+          {block.subheading && (
+            <p className="mx-auto mt-3 max-w-2xl text-center text-muted-foreground">{block.subheading}</p>
+          )}
+          <ul className="mx-auto mt-11 grid max-w-5xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {kisah.map((item, i) => (
+              <li key={i} className="flex flex-col rounded-xl border border-border bg-background p-6">
+                <blockquote className="flex-1 text-sm leading-relaxed text-muted-foreground">
+                  &ldquo;{item.quote}&rdquo;
+                </blockquote>
+                <div className="mt-5 flex items-center gap-3 border-t border-muted pt-4">
+                  {item.photoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={item.photoUrl} alt="" className="size-11 shrink-0 rounded-full object-cover" />
+                  ) : (
+                    <span
+                      aria-hidden
+                      className="flex size-11 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-bold text-primary"
+                    >
+                      {item.name.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-bold">{item.name}</div>
+                    <div className="truncate text-xs text-muted-foreground">
+                      {[item.role, item.company].filter(Boolean).join(" \u00B7 ")}
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </section>
       )
     }
@@ -320,7 +370,17 @@ function LandingBlockView({
           <div className="mx-auto mt-11 grid max-w-4xl grid-cols-1 gap-6 sm:grid-cols-3">
             {shown.map((item) => (
               <figure key={item.id} className="rounded-xl border border-border bg-card p-7">
-                <div className="flex gap-0.5" aria-label={`Nilai ${item.rating} dari 5`}>
+                {/* role="img": aria-label dilarang pada <div> polos (axe:
+                    aria-prohibited-attr). Deretan bintang ini memang satu
+                    gambar yang namanya menggantikan seluruh isinya. */}
+                <div
+                  role="img"
+                  className="flex gap-0.5"
+                  aria-label={t.catalog.rating
+                    .replace("{n}", String(item.rating))
+                    .replace(" \u00B7 {c} ulasan", "")
+                    .replace(" \u00B7 {c} reviews", "")}
+                >
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}

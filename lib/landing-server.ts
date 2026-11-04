@@ -4,6 +4,8 @@ import { dbErrorMessage } from "@/lib/db-error-message"
 import { sanitizeRichText } from "@/lib/sanitize-content"
 import { defaultBlocks, parseBlocks, type LandingBlock } from "@/lib/landing-blocks"
 import { checkTheme, parseTheme, type LandingTheme } from "@/lib/landing-theme"
+import type { LandingTestimonial, PlatformTotals } from "@/lib/landing"
+export type { LandingTestimonial, PlatformTotals }
 import {
   defaultFeaturedCourseIds,
   defaultFeatures,
@@ -152,13 +154,6 @@ export async function saveLandingBlocks(
   return { ok: true }
 }
 
-export type LandingTestimonial = {
-  id: string
-  firstName: string
-  rating: number
-  comment: string
-}
-
 /**
  * Ulasan peserta untuk blok testimoni di halaman depan.
  *
@@ -236,7 +231,6 @@ export async function saveLandingTheme(
   return { ok: true }
 }
 
-export type PlatformTotals = { learners: number; courses: number; enrollments: number }
 
 /**
  * Angka platform untuk pita statistik di halaman depan.

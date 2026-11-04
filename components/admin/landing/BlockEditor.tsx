@@ -1,25 +1,44 @@
 "use client"
 
 import { useId, useState, useTransition } from "react"
-import { ArrowDown, ArrowUp, Eye, EyeOff, Plus, Trash2 } from "lucide-react"
+import { Copy, Eye, EyeOff, GripVertical, Plus, Trash2 } from "lucide-react"
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core"
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import { toast } from "sonner"
 
 import { saveLandingBlocksAction } from "@/app/admin/landing/actions"
-import { LandingPreview } from "@/components/admin/landing/LandingPreview"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { RichTextEditor } from "@/components/admin/courses/RichTextEditor"
 import { LANDING_ICON_OPTIONS, type LandingIcon } from "@/lib/landing"
 import { FeaturedCoursesPicker, type PickableCourse } from "./FeaturedCoursesPicker"
+import { LivePreview, type PreviewData } from "./LivePreview"
+import { dndAnnouncements } from "@/lib/dnd-announcements"
 import { ImageDropzone } from "@/components/admin/courses/ImageDropzone"
 import { uploadLessonImage } from "@/lib/storage"
 import { Label } from "@/components/ui/label"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   LANDING_BLOCK_TYPES,
   SINGLETON_BLOCKS,
@@ -56,9 +75,28 @@ function blockLabels(t: Dictionary): Record<LandingBlockType, string> {
     steps: t.superadmin.blockSteps,
     logos: t.superadmin.blockLogos,
     instructors: t.superadmin.blockInstructors,
+    alumni: t.superadmin.blockAlumni,
     testimonials: t.superadmin.blockTestimonials,
     faq: t.superadmin.blockFaq,
     cta: t.superadmin.blockCta,
+  }
+}
+
+/** Keterangan singkat tiap jenis bagian, dipakai palet "Tambah bagian". */
+function blockHints(t: Dictionary): Record<LandingBlockType, string> {
+  return {
+    hero: t.superadmin.hintHero,
+    stats: t.superadmin.hintStats,
+    categories: t.superadmin.hintCategories,
+    courses: t.superadmin.hintCourses,
+    features: t.superadmin.hintFeatures,
+    steps: t.superadmin.hintSteps,
+    instructors: t.superadmin.hintInstructors,
+    alumni: t.superadmin.hintAlumni,
+    logos: t.superadmin.hintLogos,
+    testimonials: t.superadmin.hintTestimonials,
+    faq: t.superadmin.hintFaq,
+    cta: t.superadmin.hintCta,
   }
 }
 
@@ -66,11 +104,13 @@ export function BlockEditor({
   initialBlocks,
   initialBlocksEn,
   availableCourses,
+  previewData,
 }: {
   initialBlocks: LandingBlock[]
   /** null: versi Inggris belum pernah disimpan; pengunjung EN mendapat versi ID. */
   initialBlocksEn: LandingBlock[] | null
   availableCourses: PickableCourse[]
+  previewData: PreviewData
 }) {
   const { t } = useI18n()
   const LABELS = blockLabels(t)
@@ -85,29 +125,57 @@ export function BlockEditor({
     else setBlocksId(updater)
   }
   const [pending, startTransition] = useTransition()
-  // Naik setiap kali penyimpanan berhasil; pratinjau memakainya sebagai aba-aba
-  // memuat ulang, supaya ia tidak memuat ulang pada setiap ketikan.
-  const [savedAt, setSavedAt] = useState(0)
+  // Bagian yang sedang disorot. Kanvas dan daftar di sebelahnya menunjuk
+  // keadaan yang sama, jadi menekan "Sunting bagian ini" di kanvas membawa
+  // penyusun ke ruasnya -- itu yang membuat menyunting terasa "di layoutnya".
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [paletOpen, setPaletOpen] = useState(false)
+
+  // Spasi/Enter mengangkat blok, panah memindahkan, Spasi menjatuhkan --
+  // alternatif non-tetikus yang diminta WCAG 2.5.7, sama seperti di daftar
+  // pelajaran.
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
 
   const usedTypes = new Set(blocks.map((b) => b.type))
   const addableTypes = LANDING_BLOCK_TYPES.filter(
     (type) => !(SINGLETON_BLOCKS.includes(type) && usedTypes.has(type))
   )
 
-  function move(index: number, delta: number) {
-    const target = index + delta
-    if (target < 0 || target >= blocks.length) return
-    setBlocks((current) => {
-      const next = [...current]
-      ;[next[index], next[target]] = [next[target], next[index]]
-      return next
-    })
-  }
-
   function patch(id: string, changes: Partial<LandingBlock>) {
     setBlocks((current) =>
       current.map((block) => (block.id === id ? ({ ...block, ...changes } as LandingBlock) : block))
     )
+  }
+
+  function pilih(id: string) {
+    setSelectedId(id)
+    // Menggulir ke ruasnya: menyorot sesuatu yang berada di luar layar sama
+    // saja dengan tidak menyorot apa pun.
+    document.getElementById(`sunting-${id}`)?.scrollIntoView({ block: "center", behavior: "smooth" })
+  }
+
+  function duplikat(block: LandingBlock) {
+    setBlocks((current) => {
+      const i = current.findIndex((b) => b.id === block.id)
+      const salinan = { ...structuredClone(block), id: newBlockId() } as LandingBlock
+      const next = [...current]
+      next.splice(i + 1, 0, salinan)
+      return next
+    })
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    setBlocks((current) => {
+      const dari = current.findIndex((b) => b.id === active.id)
+      const ke = current.findIndex((b) => b.id === over.id)
+      if (dari < 0 || ke < 0) return current
+      return arrayMove(current, dari, ke)
+    })
   }
 
   /** Salinan dalam versi ID sebagai titik awal terjemahan, dengan id baru
@@ -123,24 +191,23 @@ export function BlockEditor({
         toast.error(result.error)
         return
       }
-      setSavedAt(Date.now())
       toast.success(lang === "en" ? t.superadmin.landingSavedEn : t.superadmin.landingSaved)
     })
   }
 
+  const belumAdaVersiEn = lang === "en" && blocksEn === null
+
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold">{t.superadmin.landingTitle}</h1>
-          <p className="text-sm text-muted-foreground">
-            {t.superadmin.landingSubtitle}
-          </p>
+          <p className="text-sm text-muted-foreground">{t.superadmin.landingSubtitle}</p>
         </div>
         {/*
           flex-wrap, bukan satu baris: di 320px -- lebar yang disyaratkan WCAG
           1.4.10 Reflow -- dua tab bahasa bersama "Tambah Bagian" dan "Simpan"
-          melebar sampai 453px dan memaksa seluruh halaman digulir menyamping.
+          melebar jauh melewati layar.
         */}
         <div className="flex flex-wrap items-center gap-2">
           <div role="group" aria-label={t.superadmin.langTabsAria} className="flex gap-1">
@@ -162,26 +229,10 @@ export function BlockEditor({
               </button>
             ))}
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="outline" disabled={pending}>
-                  <Plus className="size-4" aria-hidden />
-                  {t.superadmin.addSection}
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end">
-              {addableTypes.map((type) => (
-                <DropdownMenuItem
-                  key={type}
-                  onClick={() => setBlocks((current) => [...current, createBlock(type)])}
-                >
-                  {LABELS[type]}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button variant="outline" disabled={pending || belumAdaVersiEn} onClick={() => setPaletOpen(true)}>
+            <Plus className="size-4" aria-hidden />
+            {t.superadmin.addSection}
+          </Button>
           <Button
             onClick={save}
             pending={pending}
@@ -197,11 +248,7 @@ export function BlockEditor({
         {lang === "en" ? t.superadmin.enFallbackNote : t.superadmin.idVersionNote}
       </p>
 
-      <div className="mb-6">
-        <LandingPreview reloadToken={savedAt} locale={lang} />
-      </div>
-
-      {lang === "en" && blocksEn === null ? (
+      {belumAdaVersiEn ? (
         <div className="rounded-2xl border border-dashed border-border p-10 text-center">
           <p className="text-sm font-semibold">{t.superadmin.enEmptyTitle}</p>
           <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">{t.superadmin.enEmptyDesc}</p>
@@ -210,94 +257,194 @@ export function BlockEditor({
           </Button>
         </div>
       ) : (
-      <ol className="space-y-4">
-        {blocks.map((block, index) => (
-          <li
-            key={block.id}
-            className={cn(
-              "rounded-2xl border border-border bg-card p-5",
-              /*
-               * Garis putus-putus, bukan `opacity-70`.
-               *
-               * Meredupkan seluruh kartu ikut meredupkan teks di dalamnya:
-               * lencana "Disembunyikan" yang memakai warna muted lalu jatuh
-               * di bawah 4,5:1 (axe: color-contrast, serius). Keadaan
-               * "tersembunyi" tetap terbaca dari garis putus-putus dan dari
-               * lencananya sendiri -- keduanya tidak mengandalkan kontras
-               * yang dikorbankan.
-               */
-              block.hidden && "border-dashed bg-muted/30"
-            )}
-          >
-            <div className="mb-4 flex flex-wrap items-center gap-2">
-              <span className="text-sm font-bold">{LABELS[block.type]}</span>
-              {block.hidden && (
-                <span className="rounded-full border border-border bg-card px-2 py-0.5 text-xs font-medium text-foreground">
-                  {t.superadmin.hiddenBadge}
-                </span>
-              )}
-              <div className="flex-1" />
-              <Button
-                size="sm"
-                variant="ghost"
-                aria-label={t.superadmin.moveUp.replace("{nama}", LABELS[block.type])}
-                disabled={index === 0 || pending}
-                onClick={() => move(index, -1)}
-              >
-                <ArrowUp className="size-4" aria-hidden />
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                aria-label={t.superadmin.moveDown.replace("{nama}", LABELS[block.type])}
-                disabled={index === blocks.length - 1 || pending}
-                onClick={() => move(index, 1)}
-              >
-                <ArrowDown className="size-4" aria-hidden />
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                aria-label={(block.hidden ? t.superadmin.showBlock : t.superadmin.hideBlock).replace(
-                  "{nama}",
-                  LABELS[block.type]
-                )}
-                aria-pressed={!!block.hidden}
-                disabled={pending}
-                onClick={() => patch(block.id, { hidden: !block.hidden } as Partial<LandingBlock>)}
-              >
-                {block.hidden ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                aria-label={t.editor.deleteNamed.replace("{nama}", LABELS[block.type])}
-                disabled={pending}
-                onClick={() => setBlocks((current) => current.filter((b) => b.id !== block.id))}
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2 className="size-4" aria-hidden />
-              </Button>
-            </div>
-
-            <BlockFields
-              block={block}
-              onPatch={(changes) => patch(block.id, changes)}
-              disabled={pending}
-              availableCourses={availableCourses}
+        /*
+          Kanvas di kiri, panel ruas di kanan -- susunan yang sama dengan
+          pembangun halaman pada umumnya. Di bawah `xl` keduanya menumpuk,
+          jadi di layar sempit kanvasnya tetap terbaca penuh.
+        */
+        <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
+          <div className="xl:sticky xl:top-20">
+            <LivePreview
+              blocks={blocks}
+              data={previewData}
+              locale={lang}
+              selectedId={selectedId}
+              onSelect={pilih}
             />
-          </li>
-        ))}
-      </ol>
+          </div>
 
+          <DndContext
+            sensors={sensors}
+            accessibility={dndAnnouncements(t.superadmin.sectionNoun, t)}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
+              <ol className="space-y-4">
+                {blocks.map((block) => (
+                  <BlockCard
+                    key={block.id}
+                    block={block}
+                    label={LABELS[block.type]}
+                    selected={selectedId === block.id}
+                    disabled={pending}
+                    availableCourses={availableCourses}
+                    onSelect={() => setSelectedId(block.id)}
+                    onPatch={(changes) => patch(block.id, changes)}
+                    onDuplicate={() => duplikat(block)}
+                    onDelete={() => setBlocks((current) => current.filter((b) => b.id !== block.id))}
+                  />
+                ))}
+              </ol>
+            </SortableContext>
+          </DndContext>
+        </div>
       )}
 
-      {!(lang === "en" && blocksEn === null) && blocks.length === 0 && (
+      {!belumAdaVersiEn && blocks.length === 0 && (
         <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
           {t.superadmin.noBlocks}
         </p>
       )}
+
+      {/*
+        Palet bagian: kartu bernama dan berketerangan, bukan daftar nama saja.
+        Nama seperti "Logo Mitra" atau "Angka Platform" tidak menjelaskan apa
+        yang akan muncul di halaman, dan penyusun hanya tahu setelah
+        menambahkannya lalu menghapusnya lagi.
+      */}
+      <Dialog open={paletOpen} onOpenChange={setPaletOpen}>
+        <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-[640px]">
+          <DialogHeader>
+            <DialogTitle>{t.superadmin.addSectionTitle}</DialogTitle>
+            <DialogDescription>{t.superadmin.addSectionHint}</DialogDescription>
+          </DialogHeader>
+          <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            {addableTypes.map((type) => (
+              <li key={type}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const blokBaru = createBlock(type)
+                    setBlocks((current) => [...current, blokBaru])
+                    setSelectedId(blokBaru.id)
+                    setPaletOpen(false)
+                  }}
+                  className="flex h-full w-full flex-col rounded-xl border border-border bg-card p-4 text-left hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+                >
+                  <span className="text-sm font-bold">{LABELS[type]}</span>
+                  <span className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    {blockHints(t)[type]}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </DialogContent>
+      </Dialog>
     </div>
+  )
+}
+
+/** Satu blok di panel ruas: pegangan geser, kendali, lalu isiannya. */
+function BlockCard({
+  block,
+  label,
+  selected,
+  disabled,
+  availableCourses,
+  onSelect,
+  onPatch,
+  onDuplicate,
+  onDelete,
+}: {
+  block: LandingBlock
+  label: string
+  selected: boolean
+  disabled: boolean
+  availableCourses: PickableCourse[]
+  onSelect: () => void
+  onPatch: (changes: Partial<LandingBlock>) => void
+  onDuplicate: () => void
+  onDelete: () => void
+}) {
+  const { t } = useI18n()
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: block.id,
+    data: { title: label },
+  })
+
+  return (
+    <li
+      ref={setNodeRef}
+      id={`sunting-${block.id}`}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      onFocusCapture={onSelect}
+      className={cn(
+        "rounded-2xl border border-border bg-card p-5",
+        /*
+         * Garis putus-putus, bukan `opacity-*`. Meredupkan seluruh kartu ikut
+         * meredupkan teks di dalamnya: lencana "Disembunyikan" lalu jatuh di
+         * bawah 4,5:1 (axe: color-contrast, serius).
+         */
+        block.hidden && "border-dashed bg-muted/30",
+        selected && "ring-2 ring-ring",
+        isDragging && "opacity-50"
+      )}
+    >
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          aria-label={t.superadmin.dragHandleBlock.replace("{nama}", label)}
+          className="-m-1 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded active:cursor-grabbing"
+        >
+          <GripVertical className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+        </button>
+        <span className="text-sm font-bold">{label}</span>
+        {block.hidden && (
+          <span className="rounded-full border border-border bg-card px-2 py-0.5 text-xs font-medium text-foreground">
+            {t.superadmin.hiddenBadge}
+          </span>
+        )}
+        <div className="flex-1" />
+        <Button
+          size="sm"
+          variant="ghost"
+          aria-label={t.superadmin.duplicateBlock.replace("{nama}", label)}
+          disabled={disabled}
+          onClick={onDuplicate}
+        >
+          <Copy className="size-4" aria-hidden />
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          aria-label={(block.hidden ? t.superadmin.showBlock : t.superadmin.hideBlock).replace(
+            "{nama}",
+            label
+          )}
+          aria-pressed={!!block.hidden}
+          disabled={disabled}
+          onClick={() => onPatch({ hidden: !block.hidden } as Partial<LandingBlock>)}
+        >
+          {block.hidden ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          aria-label={t.editor.deleteNamed.replace("{nama}", label)}
+          disabled={disabled}
+          onClick={onDelete}
+          className="text-destructive hover:text-destructive"
+        >
+          <Trash2 className="size-4" aria-hidden />
+        </Button>
+      </div>
+
+      <BlockFields block={block} onPatch={onPatch} disabled={disabled} availableCourses={availableCourses} />
+    </li>
   )
 }
 
@@ -463,6 +610,112 @@ function BlockFields({
           >
             <Plus className="size-4" aria-hidden />
             {t.superadmin.addStep}
+          </Button>
+        </div>
+      )
+
+    case "alumni":
+      return (
+        <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
+              label={t.superadmin.fieldHeading}
+              value={block.heading}
+              disabled={disabled}
+              onChange={(heading) => onPatch({ heading } as Partial<LandingBlock>)}
+            />
+            <Field
+              label={t.superadmin.fieldSubheading}
+              value={block.subheading}
+              disabled={disabled}
+              onChange={(subheading) => onPatch({ subheading } as Partial<LandingBlock>)}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">{t.superadmin.alumniNote}</p>
+          {block.items.map((item, i) => (
+            <div key={i} className="space-y-3 rounded-xl border border-border p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">{i + 1}</span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={disabled}
+                  aria-label={t.superadmin.deleteAlumniN.replace("{n}", String(i + 1))}
+                  onClick={() =>
+                    onPatch({ items: block.items.filter((_, j) => j !== i) } as Partial<LandingBlock>)
+                  }
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="size-4" aria-hidden />
+                </Button>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <Field
+                  label={t.superadmin.alumniName}
+                  value={item.name}
+                  disabled={disabled}
+                  onChange={(name) => {
+                    const items = [...block.items]
+                    items[i] = { ...items[i], name }
+                    onPatch({ items } as Partial<LandingBlock>)
+                  }}
+                />
+                <Field
+                  label={t.superadmin.alumniRole}
+                  value={item.role}
+                  disabled={disabled}
+                  onChange={(role) => {
+                    const items = [...block.items]
+                    items[i] = { ...items[i], role }
+                    onPatch({ items } as Partial<LandingBlock>)
+                  }}
+                />
+                <Field
+                  label={t.superadmin.alumniCompany}
+                  value={item.company}
+                  disabled={disabled}
+                  onChange={(company) => {
+                    const items = [...block.items]
+                    items[i] = { ...items[i], company }
+                    onPatch({ items } as Partial<LandingBlock>)
+                  }}
+                />
+              </div>
+              <Field
+                label={t.superadmin.alumniQuote}
+                value={item.quote}
+                disabled={disabled}
+                onChange={(quote) => {
+                  const items = [...block.items]
+                  items[i] = { ...items[i], quote }
+                  onPatch({ items } as Partial<LandingBlock>)
+                }}
+              />
+              <ImageDropzone
+                value={item.photoUrl || null}
+                label={t.superadmin.alumniPhoto}
+                hint={t.editor.hintThumb}
+                uploadFn={uploadLessonImage}
+                onChange={(photoUrl) => {
+                  const items = [...block.items]
+                  items[i] = { ...items[i], photoUrl }
+                  onPatch({ items } as Partial<LandingBlock>)
+                }}
+              />
+            </div>
+          ))}
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={disabled}
+            onClick={() =>
+              onPatch({
+                items: [...block.items, { name: "", role: "", company: "", quote: "", photoUrl: "" }],
+              } as Partial<LandingBlock>)
+            }
+          >
+            <Plus className="size-4" aria-hidden />
+            {t.superadmin.addAlumni}
           </Button>
         </div>
       )

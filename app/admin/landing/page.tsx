@@ -1,8 +1,15 @@
 import { redirect } from "next/navigation"
 
 import { resolveSuperAdminProfile } from "@/lib/auth/require-admin"
-import { getPublishedCourses } from "@/lib/courses-server"
-import { getEnglishLandingBlocks, getLandingBlocks, getLandingTheme } from "@/lib/landing-server"
+import { getCatalogCourses } from "@/lib/catalog-server"
+import {
+  getEnglishLandingBlocks,
+  getLandingBlocks,
+  getLandingTestimonials,
+  getLandingTheme,
+  getPlatformTotals,
+  listPublicInstructors,
+} from "@/lib/landing-server"
 import { ThemePicker } from "@/components/admin/landing/ThemePicker"
 import { BlockEditor } from "@/components/admin/landing/BlockEditor"
 
@@ -15,13 +22,18 @@ export default async function AdminLandingPage() {
     redirect("/admin/dashboard")
   }
 
-  const [courses, blocks, blocksEn, theme] = await Promise.all([
-    getPublishedCourses(),
+  // Data yang sama dengan yang dipakai halaman depan, supaya pratinjau di
+  // penyunting menampilkan isi sebenarnya -- bukan contoh yang dikarang.
+  const [katalog, blocks, blocksEn, theme, testimonials, totals, instructors] = await Promise.all([
+    getCatalogCourses(),
     getLandingBlocks(),
     getEnglishLandingBlocks(),
     getLandingTheme(),
+    getLandingTestimonials(),
+    getPlatformTotals(),
+    listPublicInstructors(),
   ])
-  const availableCourses = courses.map((c) => ({ id: c.id, title: c.title }))
+  const availableCourses = katalog.courses.map((c) => ({ id: c.id, title: c.title }))
 
   return (
     <div className="space-y-10">
@@ -35,7 +47,19 @@ export default async function AdminLandingPage() {
         dalam blok "Kursus Pilihan".
       */}
       <ThemePicker initialTheme={theme} />
-      <BlockEditor initialBlocks={blocks} initialBlocksEn={blocksEn} availableCourses={availableCourses} />
+      <BlockEditor
+        initialBlocks={blocks}
+        initialBlocksEn={blocksEn}
+        availableCourses={availableCourses}
+        previewData={{
+          courses: katalog.courses,
+          testimonials,
+          totals,
+          categories: katalog.facets.categories,
+          instructors,
+          theme,
+        }}
+      />
     </div>
   )
 }

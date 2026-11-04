@@ -5,6 +5,16 @@ export type Category = {
   slug: string
 }
 
+/**
+ * Kursus beserta keterangan tambahan yang hanya dipakai untuk menampilkan
+ * kartu: nama kategorinya dan jumlah peserta yang sudah disamarkan. Ruas
+ * tambahannya opsional supaya `Course` biasa tetap bisa dioper apa adanya.
+ */
+export type CourseCardData = Course & {
+  category?: Category | null
+  learnerCount?: number | null
+}
+
 export type Course = {
   id: string
   title: string

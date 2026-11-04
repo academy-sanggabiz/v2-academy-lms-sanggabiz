@@ -55,3 +55,20 @@ export const defaultFeatures: Feature[] = [
       "Dapatkan sertifikat setelah menyelesaikan kursus untuk menunjukkan pencapaian Anda.",
   },
 ]
+
+
+/**
+ * Ulasan peserta untuk blok testimoni otomatis. Tipenya tinggal di sini,
+ * bukan di `landing-server.ts`: komponen klien (pratinjau langsung di
+ * /admin/landing) ikut memakainya, dan modul server tidak boleh ikut
+ * tertarik ke bundel peramban.
+ */
+export type LandingTestimonial = {
+  id: string
+  firstName: string
+  rating: number
+  comment: string
+}
+
+/** Angka platform untuk pita statistik. */
+export type PlatformTotals = { learners: number; courses: number; enrollments: number }

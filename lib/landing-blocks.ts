@@ -23,7 +23,7 @@ import {
  * terpisah hanya akan menambah kolom `position` yang harus dijaga sendiri.
  */
 
-export const LANDING_BLOCK_TYPES = ["hero", "stats", "categories", "courses", "features", "steps", "instructors", "logos", "testimonials", "faq", "cta"] as const
+export const LANDING_BLOCK_TYPES = ["hero", "stats", "categories", "courses", "features", "steps", "instructors", "alumni", "logos", "testimonials", "faq", "cta"] as const
 export type LandingBlockType = (typeof LANDING_BLOCK_TYPES)[number]
 
 type BlockBase = {
@@ -102,6 +102,31 @@ export type InstructorsBlock = BlockBase & {
   subheading: string
 }
 
+/** Satu kisah alumni: foto opsional, nama, posisi, perusahaan, kutipan. */
+export type AlumniItem = {
+  name: string
+  role: string
+  company: string
+  quote: string
+  photoUrl: string
+}
+
+/**
+ * Kisah alumni, diketik penyusun.
+ *
+ * Sengaja TIDAK diturunkan dari `course_feedback`. Ulasan kursus ditulis
+ * peserta untuk dibaca pengelola, dan memindahkannya ke halaman pemasaran
+ * lengkap dengan nama dan tempat kerja bukan yang mereka setujui saat
+ * menulisnya. Blok ini isinya kutipan yang memang dikumpulkan untuk
+ * dipublikasikan -- dengan izin orangnya.
+ */
+export type AlumniBlock = BlockBase & {
+  type: "alumni"
+  heading: string
+  subheading: string
+  items: AlumniItem[]
+}
+
 export type FaqItem = { question: string; answer: string }
 export type FaqBlock = BlockBase & { type: "faq"; heading: string; items: FaqItem[] }
 export type CtaBlock = BlockBase & {
@@ -123,6 +148,7 @@ export type LandingBlock =
   | StepsBlock
   | LogosBlock
   | InstructorsBlock
+  | AlumniBlock
   | TestimonialsBlock
   | FaqBlock
   | CtaBlock
@@ -136,6 +162,7 @@ export const BLOCK_LABELS: Record<LandingBlockType, string> = {
   steps: "Cara Mulai",
   logos: "Logo Mitra",
   instructors: "Pengajar",
+  alumni: "Kisah Alumni",
   testimonials: "Testimoni Peserta",
   faq: "Pertanyaan Umum",
   cta: "Ajakan Bertindak",
@@ -169,6 +196,11 @@ export function createBlock(type: LandingBlockType): LandingBlock {
           { title: "Dapatkan sertifikat", description: "" },
         ],
       }
+    case "alumni":
+      // Tersembunyi saat dibuat: kisah alumni menyebut nama orang dan tempat
+      // kerjanya. Sampai isinya nyata, ia tidak boleh tampil di halaman
+      // publik -- testimoni karangan adalah klaim palsu, bukan placeholder.
+      return { id, type, hidden: true, heading: "Kisah alumni", subheading: "", items: [] }
     case "logos":
       // Tersembunyi saat dibuat: pita logo kosong lebih buruk daripada tidak
       // ada pita logo sama sekali.

@@ -919,6 +919,12 @@ export type Dictionary = {
     saveColors: string
     featuredCoursesAria: string
     previewHead: string
+    livePreviewNote: string
+    editThisSection: string
+    duplicateBlock: string
+    addSectionTitle: string
+    addSectionHint: string
+    dragHandleBlock: string
     deviceWidth: string
     deviceDesktop: string
     deviceTablet: string
@@ -957,6 +963,15 @@ export type Dictionary = {
     blockSteps: string
     blockLogos: string
     blockInstructors: string
+    blockAlumni: string
+    alumniName: string
+    alumniRole: string
+    alumniCompany: string
+    alumniQuote: string
+    alumniPhoto: string
+    addAlumni: string
+    deleteAlumniN: string
+    alumniNote: string
     stepN: string
     addStep: string
     deleteStepN: string
@@ -1021,6 +1036,19 @@ export type Dictionary = {
     enEmptyDesc: string
     copyFromId: string
     landingSavedEn: string
+    sectionNoun: string
+    hintHero: string
+    hintStats: string
+    hintCategories: string
+    hintCourses: string
+    hintFeatures: string
+    hintSteps: string
+    hintInstructors: string
+    hintAlumni: string
+    hintLogos: string
+    hintTestimonials: string
+    hintFaq: string
+    hintCta: string
   }
   catalog: {
     navClasses: string
@@ -1111,6 +1139,10 @@ export type Dictionary = {
     typeText: string
     typeQuiz: string
     typeSlides: string
+    /** `{n}` jumlah soal. */
+    nQuestions: string
+    nQuestionsOne: string
+    typeMixed: string
     paidNotice: string
     enrollingNow: string
     /** `{n}` jumlah pelajaran di satu modul. */
@@ -2162,6 +2194,12 @@ const id: Dictionary = {
     saveColors: "Simpan Warna",
     featuredCoursesAria: "Kursus unggulan",
     previewHead: "Pratinjau",
+    livePreviewNote: "Ikut berubah saat Anda mengetik. Belum tersimpan sampai Anda menekan Simpan.",
+    editThisSection: "Sunting bagian ini",
+    duplicateBlock: "Duplikat {nama}",
+    addSectionTitle: "Tambah bagian",
+    addSectionHint: "Pilih bagian yang ingin Anda tambahkan ke halaman depan.",
+    dragHandleBlock: "Pindahkan {nama}: tekan Spasi untuk mengambil, tombol panah untuk memindahkan, Spasi untuk melepas",
     deviceWidth: "Lebar perangkat",
     deviceDesktop: "Desktop",
     deviceTablet: "Tablet",
@@ -2196,6 +2234,15 @@ const id: Dictionary = {
     blockSteps: "Cara Mulai",
     blockLogos: "Logo Mitra",
     blockInstructors: "Pengajar",
+    blockAlumni: "Kisah Alumni",
+    alumniName: "Nama",
+    alumniRole: "Posisi",
+    alumniCompany: "Perusahaan atau institusi",
+    alumniQuote: "Kutipan",
+    alumniPhoto: "Foto",
+    addAlumni: "Tambah kisah alumni",
+    deleteAlumniN: "Hapus kisah alumni {n}",
+    alumniNote: "Tulis kutipan yang memang dikumpulkan untuk dipublikasikan, dengan izin orangnya. Bagian ini menyebut nama dan tempat kerja.",
     stepN: "Langkah {n}",
     addStep: "Tambah langkah",
     deleteStepN: "Hapus langkah {n}",
@@ -2256,6 +2303,19 @@ const id: Dictionary = {
       "Mulai dari salinan versi Indonesia, lalu terjemahkan teksnya. Susunan dan isi kedua versi tersimpan terpisah \u2014 mengubah satu tidak mengubah yang lain.",
     copyFromId: "Mulai dari salinan versi Indonesia",
     landingSavedEn: "Versi Inggris halaman depan tersimpan",
+    sectionNoun: "Bagian",
+    hintHero: "Judul besar, kalimat pembuka, dan dua tombol utama di paling atas halaman.",
+    hintStats: "Pita angka platform. Dibaca dari basis data; akun demo tidak ikut dihitung.",
+    hintCategories: "Kartu per bidang beserta jumlah kelasnya, menuju katalog yang sudah tersaring.",
+    hintCourses: "Carousel kelas pilihan. Dikosongkan berarti menampilkan empat kelas terbit terbaru.",
+    hintFeatures: "Tiga sampai empat alasan singkat kenapa belajar di sini.",
+    hintSteps: "Langkah bernomor dari melihat-lihat sampai mendapat sertifikat.",
+    hintInstructors: "Kartu pengajar. Dibaca dari daftar instruktur di basis data.",
+    hintAlumni: "Kutipan alumni beserta nama, posisi, dan tempat kerjanya.",
+    hintLogos: "Deretan logo mitra, klien, atau institusi. Nama saja sudah cukup bila logonya belum ada.",
+    hintTestimonials: "Ulasan peserta bernilai 4 ke atas, diambil otomatis. Hanya nama depan yang tampil.",
+    hintFaq: "Daftar tanya-jawab yang bisa dibuka satu per satu.",
+    hintCta: "Ajakan penutup dengan dua tombol.",
   },
   catalog: {
     navClasses: "Kelas",
@@ -2340,6 +2400,9 @@ const id: Dictionary = {
     typeText: "Bacaan",
     typeQuiz: "Kuis",
     typeSlides: "Slide",
+    nQuestions: "{n} soal",
+    nQuestionsOne: "{n} soal",
+    typeMixed: "Campuran",
     paidNotice: "Kelas ini berbayar dan belum bisa didaftar sendiri. Hubungi pengelola untuk didaftarkan.",
     enrollingNow: "Mendaftarkan\u2026",
     moduleLessons: "{n} pelajaran",
@@ -3398,6 +3461,12 @@ const en: Dictionary = {
     saveColors: "Save Colours",
     featuredCoursesAria: "Featured courses",
     previewHead: "Preview",
+    livePreviewNote: "Updates as you type. Nothing is saved until you press Save.",
+    editThisSection: "Edit this section",
+    duplicateBlock: "Duplicate {nama}",
+    addSectionTitle: "Add a section",
+    addSectionHint: "Choose the section you want to add to the landing page.",
+    dragHandleBlock: "Move {nama}: press Space to pick up, arrow keys to move, Space to drop",
     deviceWidth: "Device width",
     deviceDesktop: "Desktop",
     deviceTablet: "Tablet",
@@ -3432,6 +3501,15 @@ const en: Dictionary = {
     blockSteps: "How to Start",
     blockLogos: "Partner Logos",
     blockInstructors: "Instructors",
+    blockAlumni: "Alumni Stories",
+    alumniName: "Name",
+    alumniRole: "Role",
+    alumniCompany: "Company or institution",
+    alumniQuote: "Quote",
+    alumniPhoto: "Photo",
+    addAlumni: "Add alumni story",
+    deleteAlumniN: "Delete alumni story {n}",
+    alumniNote: "Use quotes that were actually collected for publication, with the person's permission. This section names people and where they work.",
     stepN: "Step {n}",
     addStep: "Add step",
     deleteStepN: "Delete step {n}",
@@ -3492,6 +3570,19 @@ const en: Dictionary = {
       "Start from a copy of the Indonesian version, then translate the text. The two versions are stored separately \u2014 changing one does not change the other.",
     copyFromId: "Start from a copy of the Indonesian version",
     landingSavedEn: "English landing page saved",
+    sectionNoun: "Section",
+    hintHero: "The big headline, opening sentence, and two main buttons at the very top.",
+    hintStats: "A band of platform numbers. Read from the database; demo accounts are excluded.",
+    hintCategories: "A card per field with its class count, linking to a pre-filtered catalogue.",
+    hintCourses: "Featured class carousel. Leaving it empty shows the four most recent published classes.",
+    hintFeatures: "Three or four short reasons to learn here.",
+    hintSteps: "Numbered steps from browsing to earning a certificate.",
+    hintInstructors: "Instructor cards, read from the instructor list in the database.",
+    hintAlumni: "Alumni quotes with their name, role, and where they work.",
+    hintLogos: "A row of partner, client, or institution logos. A name alone is enough when there is no logo.",
+    hintTestimonials: "Learner reviews rated 4 or higher, pulled automatically. Only first names are shown.",
+    hintFaq: "A list of questions and answers that open one at a time.",
+    hintCta: "A closing call to action with two buttons.",
   },
   catalog: {
     navClasses: "Classes",
@@ -3576,6 +3667,9 @@ const en: Dictionary = {
     typeText: "Reading",
     typeQuiz: "Quiz",
     typeSlides: "Slides",
+    nQuestions: "{n} questions",
+    nQuestionsOne: "{n} question",
+    typeMixed: "Mixed",
     paidNotice: "This class is paid and cannot be self-enrolled yet. Contact the organiser to be enrolled.",
     enrollingNow: "Enrolling\u2026",
     moduleLessons: "{n} lessons",
