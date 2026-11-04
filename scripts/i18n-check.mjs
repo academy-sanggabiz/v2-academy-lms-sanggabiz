@@ -96,7 +96,7 @@ async function ambilIsi() {
     const r = await fetch(`${U}/rest/v1/${p}`, { headers: h })
     return r.ok ? r.json() : []
   }
-  const [kursus, pelajaran, modul, notif, soal, halamanDepan] = await Promise.all([
+  const [kursus, pelajaran, modul, notif, soal, halamanDepan, pengajar] = await Promise.all([
     ambil("courses?select=title,description,who_for,requirements"),
     ambil("lessons?select=title&limit=1000"),
     ambil("course_sections?select=title&limit=500"),
@@ -108,6 +108,11 @@ async function ambilIsi() {
     // adalah ISI: penyunting /admin/landing menampilkannya apa adanya, dan
     // versi Indonesianya memang harus tetap Indonesia di tab Indonesia.
     ambil("landing_content?select=blocks,blocks_en"),
+    // Jabatan dan riwayat singkat pengajar adalah ISI, sekelas judul kursus:
+    // satu orang menulisnya sekali tentang dirinya sendiri, bukan kalimat
+    // antarmuka yang dipakai ulang di banyak layar. Blok "Pengajar kami" di
+    // halaman depan menampilkannya apa adanya, di kedua bahasa.
+    ambil("instructors?select=title,bio&limit=200"),
   ])
   return [
     ...kursus.flatMap((x) => [x.title, x.description, ...(x.who_for ?? []), ...(x.requirements ?? [])]),
@@ -115,6 +120,7 @@ async function ambilIsi() {
     ...modul.map((x) => x.title),
     ...notif.flatMap((x) => [x.title, x.body]),
     ...soal.map((x) => String(x.prompt ?? "").replace(/<[^>]*>/g, " ")),
+    ...pengajar.flatMap((x) => [x.title, x.bio]),
     ...halamanDepan.flatMap((row) =>
       [row.blocks, row.blocks_en].flatMap((blok) =>
         ambilTeksBlok(blok).map((teks) => teks.replace(/<[^>]*>/g, " "))
@@ -242,7 +248,7 @@ const total = hasil.reduce((n, r) => n + r.sisa.length, 0)
 const gagal = hasil.filter((r) => sudahSelesai(r.path) && r.sisa.length > 0)
 console.log(
   `\n${hasil.filter((r) => r.sisa.length === 0).length}/${hasil.length} layar sudah penuh bahasa Inggris, ` +
-    `${total} baris antarmuka tersisa (judul kursus, pelajaran, dan isi notifikasi tidak dihitung)`
+    `${total} baris antarmuka tersisa (judul kursus, pelajaran, profil pengajar, dan isi notifikasi tidak dihitung)`
 )
 if (gagal.length) {
   console.log(`GAGAL: ${gagal.map((r) => r.path).join(", ")} seharusnya sudah selesai`)
