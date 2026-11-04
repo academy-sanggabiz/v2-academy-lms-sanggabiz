@@ -254,8 +254,21 @@ try {
     "/auth/auth-code-error",
     "/auth/lupa-sandi",
     "/legal/privasi",
+    // Katalog kelas publik: halaman pertama yang dilihat pengunjung yang
+    // belum punya akun, jadi ia tidak boleh lolos hanya karena ada sesi.
+    "/kelas",
   ])
     await visit(anon, path)
+
+  // Satu halaman detail kelas, id-nya diambil dari tautan di katalog supaya
+  // tidak ada id yang membusuk di dalam skrip ini.
+  {
+    const kelas = await anon
+      .locator('a[href^="/kelas/"]')
+      .evaluateAll((ns) => [...new Set(ns.map((n) => n.getAttribute("href")).filter(Boolean))])
+    if (kelas[0]) await visit(anon, kelas[0])
+    else console.log("lewat detail kelas: katalog publik masih kosong")
+  }
 
   // Sampel halaman publik diaudit ulang pada tiap mode tampilan.
   for (const mode of DISPLAY_MODES) {

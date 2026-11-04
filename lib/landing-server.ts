@@ -234,3 +234,37 @@ export async function saveLandingTheme(
 
   return { ok: true }
 }
+
+export type PlatformTotals = { learners: number; courses: number; enrollments: number }
+
+/**
+ * Angka platform untuk pita statistik di halaman depan.
+ *
+ * Akun demo (@contoh.test) dikurangkan dari jumlah peserta. View
+ * `public_platform_totals` memang sudah memisahkan hitungannya persis supaya
+ * pemakainya bisa melakukan ini -- menampilkan angka gabungan di halaman
+ * pemasaran berarti memamerkan akun uji sebagai peserta sungguhan.
+ */
+export async function getPlatformTotals(): Promise<PlatformTotals> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("public_platform_totals")
+    .select("learner_count, demo_learner_count, course_count, enrollment_count")
+    .maybeSingle<{
+      learner_count: number
+      demo_learner_count: number
+      course_count: number
+      enrollment_count: number
+    }>()
+
+  if (error || !data) {
+    if (error) console.error("getPlatformTotals failed:", error.message)
+    return { learners: 0, courses: 0, enrollments: 0 }
+  }
+
+  return {
+    learners: Math.max(0, (data.learner_count ?? 0) - (data.demo_learner_count ?? 0)),
+    courses: data.course_count ?? 0,
+    enrollments: data.enrollment_count ?? 0,
+  }
+}

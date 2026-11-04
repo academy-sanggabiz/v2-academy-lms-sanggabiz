@@ -32,6 +32,7 @@ const KATA_ID =
 /** Layar yang sudah dinyatakan dwibahasa; sisa di sini dianggap kegagalan. */
 const SUDAH_SELESAI = new Set([
   "/",
+  "/kelas",
   "/learner/dashboard",
   "/learner/courses",
   "/learner/profile",
@@ -50,7 +51,7 @@ const SUDAH_SELESAI = new Set([
 ])
 
 /** Layar dinamis yang juga sudah selesai -- dicocokkan dengan awalan jalur. */
-const AWALAN_SELESAI = ["/admin/grading/course/", "/admin/tracking/", "/admin/courses/", "/learner/courses/", "/admin/mentor", "/admin/landing", "/admin/certificates"]
+const AWALAN_SELESAI = ["/admin/grading/course/", "/admin/tracking/", "/admin/courses/", "/learner/courses/", "/admin/mentor", "/admin/landing", "/admin/certificates", "/kelas/"]
 function sudahSelesai(path) {
   return SUDAH_SELESAI.has(path) || AWALAN_SELESAI.some((a) => path.startsWith(a))
 }
@@ -165,6 +166,17 @@ try {
     await ctx.addCookies([{ name: "bahasa", value: "en", url: BASE }])
     const anon = await ctx.newPage()
     await periksa(anon, "/")
+    await periksa(anon, "/kelas")
+    // Detail kelas publik: id-nya dicari dari basis data supaya alat ini
+    // tidak menyimpan id yang membusuk.
+    if (env.SUPABASE_SERVICE_ROLE_KEY) {
+      const h = { apikey: env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` }
+      const k = await fetch(
+        `${env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/courses?select=id&status=eq.published&is_private=eq.false&limit=1`,
+        { headers: h }
+      ).then((r) => (r.ok ? r.json() : []))
+      if (k[0]) await periksa(anon, `/kelas/${k[0].id}`)
+    }
     await ctx.close()
   }
 

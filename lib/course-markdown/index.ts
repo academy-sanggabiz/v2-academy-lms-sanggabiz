@@ -1,3 +1,4 @@
+import { normalizeLevel } from "@/lib/course-level"
 import { newId, type CourseDraft, type DraftLesson, type DraftQuestion, type DraftSection } from "@/lib/course-draft"
 import type { AuthorableQuestionType, LessonContentType } from "@/lib/courses"
 import {
@@ -85,7 +86,15 @@ export function courseToMarkdown(draft: CourseDraft): string {
   out.push("---")
   out.push(`format: ${COURSE_MARKDOWN_FORMAT}`)
   out.push(`judul: ${draft.title || ""}`)
-  out.push(`tingkat: ${draft.level || "Pemula"}`)
+  // Ditulis kembali dalam kosakata panduan (Pemula/Menengah/Lanjutan) supaya
+  // berkas .md tetap enak dibaca penyusun, sementara kolomnya tetap kanonis.
+  out.push(
+    `tingkat: ${
+      { beginner: "Pemula", intermediate: "Menengah", advanced: "Lanjutan" }[
+        normalizeLevel(draft.level) ?? "beginner"
+      ]
+    }`
+  )
   out.push(`nilai_kelulusan: ${draft.passingGrade}`)
   out.push("---", "")
 
@@ -482,7 +491,12 @@ export function parseCourseMarkdown(raw: string): ParsedCourse {
       description: markdownToPlainText(buffers.description.join("\n").trim()),
       requirementsText: bulletsToLines(buffers.requirements),
       audienceText: bulletsToLines(buffers.audience),
-      level: (front.tingkat ?? front.level ?? "Pemula").trim() || "Pemula",
+      // Dinormalkan, bukan disimpan apa adanya: panduan .md menyuruh penyusun
+      // menulis "Pemula"/"Menengah"/"Lanjutan", sedangkan kolomnya menyimpan
+      // kosakata kanonis beginner/intermediate/advanced (lib/course-level.ts).
+      // Tanpa pemetaan ini setiap impor mengembalikan lagi kosakata lama dan
+      // saringan tingkat di katalog publik pecah dua.
+      level: normalizeLevel(front.tingkat ?? front.level) ?? "beginner",
       passingGrade: Math.min(100, Math.max(0, Number(front.nilai_kelulusan ?? 70) || 70)),
       sections,
     },

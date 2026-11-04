@@ -49,6 +49,7 @@ function blockLabels(t: Dictionary): Record<LandingBlockType, string> {
     hero: t.superadmin.blockHero,
     courses: t.superadmin.blockCourses,
     features: t.superadmin.blockFeatures,
+    stats: t.superadmin.blockStats,
     testimonials: t.superadmin.blockTestimonials,
     faq: t.superadmin.blockFaq,
     cta: t.superadmin.blockCta,
@@ -353,6 +354,27 @@ function BlockFields({
               onPatch({ hero: { ...block.hero, primaryCtaHref } } as Partial<LandingBlock>)
             }
           />
+        </div>
+      )
+
+    case "stats":
+      return (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label={t.superadmin.fieldHeading}
+            value={block.heading}
+            disabled={disabled}
+            onChange={(heading) => onPatch({ heading } as Partial<LandingBlock>)}
+          />
+          <Field
+            label={t.superadmin.fieldSubheading}
+            value={block.subheading}
+            disabled={disabled}
+            onChange={(subheading) => onPatch({ subheading } as Partial<LandingBlock>)}
+          />
+          <p className="text-xs text-muted-foreground sm:col-span-2">
+            {t.superadmin.statsHiddenNote}
+          </p>
         </div>
       )
 

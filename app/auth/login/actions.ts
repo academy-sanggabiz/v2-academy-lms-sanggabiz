@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 
 import { resolveUserRole, roleHomePath } from "@/lib/auth/require-admin"
 import { authErrorMessage } from "@/lib/auth/auth-error-message"
+import { safeNextPath } from "@/lib/auth/safe-next"
 import { createClient } from "@/lib/supabase/server"
 
 export type LoginState = { error: string } | null
@@ -34,7 +35,19 @@ export async function login(
     return { error: "Akun Anda tidak dapat dikenali" }
   }
 
-  redirect(roleHomePath(resolved.role))
+  /*
+   * Kembali ke halaman yang menyuruh masuk, kalau ada.
+   *
+   * Dipakai pratinjau kelas publik: orang menekan "Daftar", diminta masuk,
+   * lalu harus mendarat kembali di kelas yang tadi dilihatnya -- bukan di
+   * dasbor, tempat kelas itu tidak kelihatan lagi.
+   *
+   * Nilainya datang dari alamat URL, jadi ia disaring safeNextPath() dulu:
+   * tanpa itu, tautan "masuk" yang dibagikan orang lain bisa memindahkan
+   * korban ke situs lain tepat setelah ia memasukkan kata sandinya.
+   */
+  const next = safeNextPath(String(formData.get("next") ?? ""))
+  redirect(next ?? roleHomePath(resolved.role))
 }
 
 export async function logout() {

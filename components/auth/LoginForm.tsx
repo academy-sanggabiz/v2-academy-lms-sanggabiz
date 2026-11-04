@@ -33,7 +33,7 @@ const CAPTCHA_TIMEOUT_MS = 15000
  */
 const CAPTCHA_CLOSE_GRACE_MS = 1500
 
-export function LoginForm() {
+export function LoginForm({ next }: { next?: string }) {
   const [state, formAction, isPending] = useActionState<LoginState, FormData>(login, null)
   const captchaRef = React.useRef<HCaptcha>(null)
   const pendingFormData = React.useRef<FormData | null>(null)
@@ -148,6 +148,9 @@ export function LoginForm() {
         Dengan post, pengiriman pra-hidrasi gagal tanpa membocorkan apa pun.
       */}
       <form method="post" onSubmit={onSubmit} className="space-y-4">
+        {/* Dibawa sebagai ruas form, bukan dibaca ulang dari URL di aksinya:
+            server action tidak melihat alamat halaman pemanggilnya. */}
+        {next && <input type="hidden" name="next" value={next} />}
         {/*
           Placeholder di sini BUKAN pengganti label -- labelnya sudah ada di
           atas. Isinya contoh bentuk yang diharapkan, hal yang tidak bisa

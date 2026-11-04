@@ -945,6 +945,11 @@ export type Dictionary = {
     blockHero: string
     blockCourses: string
     blockFeatures: string
+    blockStats: string
+    statLearners: string
+    statCourses: string
+    statEnrollments: string
+    statsHiddenNote: string
     blockTestimonials: string
     blockFaq: string
     blockCta: string
@@ -995,6 +1000,97 @@ export type Dictionary = {
     enEmptyDesc: string
     copyFromId: string
     landingSavedEn: string
+  }
+  catalog: {
+    navClasses: string
+    title: string
+    subtitle: string
+    searchPlaceholder: string
+    filterLevel: string
+    allLevels: string
+    levelNotSet: string
+    filterAccess: string
+    allAccess: string
+    accessFree: string
+    accessPaid: string
+    filterDuration: string
+    allDurations: string
+    durationShort: string
+    durationMedium: string
+    durationLong: string
+    sortLabel: string
+    sortNewest: string
+    sortTitle: string
+    sortShortest: string
+    sortLongest: string
+    /** `{n}` jumlah kelas yang cocok. */
+    resultCount: string
+    resultCountOne: string
+    /** `{n}` jumlah seluruh kelas. */
+    resultCountFiltered: string
+    noResults: string
+    noResultsHint: string
+    resetFilters: string
+    emptyCatalog: string
+    emptyCatalogHint: string
+    viewDetail: string
+    /** `{n}` jumlah peserta. */
+    learners: string
+    learnersOne: string
+    /** `{n}` rata-rata, `{c}` jumlah ulasan. */
+    rating: string
+    backToCatalog: string
+    aboutCourse: string
+    whatYouGet: string
+    curriculum: string
+    curriculumNote: string
+    /** `{modul}` dan `{pelajaran}`. */
+    curriculumCount: string
+    curriculumCountOne: string
+    instructor: string
+    courseFacts: string
+    factLevel: string
+    factLanguage: string
+    factDuration: string
+    factLessons: string
+    factCertificate: string
+    certificateYes: string
+    certificateNo: string
+    benefitLifetime: string
+    benefitLifetimeDesc: string
+    benefitSelfPaced: string
+    benefitSelfPacedDesc: string
+    /** `{n}` jumlah sumber belajar. */
+    benefitResources: string
+    benefitResourcesOne: string
+    benefitResourcesDesc: string
+    /** `{n}` jumlah kuis. */
+    benefitQuizzes: string
+    benefitQuizzesOne: string
+    benefitQuizzesDesc: string
+    benefitCertificate: string
+    benefitCertificateDesc: string
+    enroll: string
+    enrollFree: string
+    loginToEnroll: string
+    loginNote: string
+    alreadyEnrolled: string
+    continueLearning: string
+    notFoundTitle: string
+    notFoundHint: string
+    previewOnly: string
+    freeLabel: string
+    typeVideo: string
+    typeText: string
+    typeQuiz: string
+    typeSlides: string
+    paidNotice: string
+    enrollingNow: string
+    /** `{n}` jumlah pelajaran di satu modul. */
+    moduleLessons: string
+    moduleLessonsOne: string
+    /** `{n}` menit. */
+    minutes: string
   }
   admin: {
     dashboard: string
@@ -2061,6 +2157,11 @@ const id: Dictionary = {
     blockHero: "Bagian Utama",
     blockCourses: "Kursus Pilihan",
     blockFeatures: "Keunggulan",
+    blockStats: "Angka Platform",
+    statLearners: "Peserta terdaftar",
+    statCourses: "Kelas terbit",
+    statEnrollments: "Pendaftaran kelas",
+    statsHiddenNote: "Angkanya dibaca langsung dari basis data dan tidak bisa diketik tangan. Akun demo tidak ikut dihitung.",
     blockTestimonials: "Testimoni Peserta",
     blockFaq: "Pertanyaan Umum",
     blockCta: "Ajakan Bertindak",
@@ -2107,6 +2208,90 @@ const id: Dictionary = {
       "Mulai dari salinan versi Indonesia, lalu terjemahkan teksnya. Susunan dan isi kedua versi tersimpan terpisah \u2014 mengubah satu tidak mengubah yang lain.",
     copyFromId: "Mulai dari salinan versi Indonesia",
     landingSavedEn: "Versi Inggris halaman depan tersimpan",
+  },
+  catalog: {
+    navClasses: "Kelas",
+    title: "Semua Kelas",
+    subtitle:
+      "Lihat isi kelas sebelum mendaftar: kurikulum, durasi, dan tingkatnya terbuka untuk siapa saja.",
+    searchPlaceholder: "Cari kelas...",
+    filterLevel: "Tingkat",
+    allLevels: "Semua tingkat",
+    levelNotSet: "Belum diisi",
+    filterAccess: "Akses",
+    allAccess: "Semua akses",
+    accessFree: "Publik",
+    accessPaid: "Berbayar",
+    filterDuration: "Durasi",
+    allDurations: "Semua durasi",
+    durationShort: "Di bawah 1 jam",
+    durationMedium: "1\u20135 jam",
+    durationLong: "Di atas 5 jam",
+    sortLabel: "Urutkan",
+    sortNewest: "Terbaru",
+    sortTitle: "Judul A\u2013Z",
+    sortShortest: "Durasi tersingkat",
+    sortLongest: "Durasi terpanjang",
+    resultCount: "{n} kelas",
+    resultCountOne: "{n} kelas",
+    resultCountFiltered: "{n} dari {total} kelas",
+    noResults: "Tidak ada kelas yang cocok",
+    noResultsHint: "Coba ubah kata pencarian atau lepaskan salah satu saringan.",
+    resetFilters: "Hapus semua saringan",
+    emptyCatalog: "Belum ada kelas yang terbit",
+    emptyCatalogHint: "Kelas akan muncul di sini begitu pengajar menerbitkannya.",
+    viewDetail: "Lihat detail",
+    learners: "{n} peserta",
+    learnersOne: "{n} peserta",
+    rating: "{n} dari 5 \u00B7 {c} ulasan",
+    backToCatalog: "Kembali ke daftar kelas",
+    aboutCourse: "Tentang kelas ini",
+    whatYouGet: "Yang Anda dapatkan",
+    curriculum: "Kurikulum",
+    curriculumNote:
+      "Judul setiap pelajaran bisa Anda lihat sekarang. Isinya terbuka setelah Anda terdaftar di kelas ini.",
+    curriculumCount: "{modul} modul \u00B7 {pelajaran} pelajaran",
+    curriculumCountOne: "{modul} modul \u00B7 {pelajaran} pelajaran",
+    instructor: "Instruktur",
+    courseFacts: "Ringkasan kelas",
+    factLevel: "Tingkat",
+    factLanguage: "Bahasa",
+    factDuration: "Durasi",
+    factLessons: "Pelajaran",
+    factCertificate: "Sertifikat",
+    certificateYes: "Ada, setelah lulus",
+    certificateNo: "Belum tersedia",
+    benefitLifetime: "Akses tanpa batas waktu",
+    benefitLifetimeDesc: "Sekali terdaftar, materinya bisa dibuka kapan saja dan diulang sesering yang Anda perlukan.",
+    benefitSelfPaced: "Belajar sesuai ritme Anda",
+    benefitSelfPacedDesc: "Tidak ada jadwal tetap dan tidak ada sesi yang terlewat. Anda yang menentukan kapan belajar.",
+    benefitResources: "{n} sumber belajar",
+    benefitResourcesOne: "{n} sumber belajar",
+    benefitResourcesDesc: "Berkas dan tautan pendamping yang bisa diunduh atau dibuka selama belajar.",
+    benefitQuizzes: "{n} kuis latihan",
+    benefitQuizzesOne: "{n} kuis latihan",
+    benefitQuizzesDesc: "Soal latihan di sepanjang kelas untuk menguji pemahaman, bukan hanya di akhir.",
+    benefitCertificate: "Sertifikat kelulusan",
+    benefitCertificateDesc: "Terbit otomatis setelah seluruh pelajaran selesai dan nilai kelulusan tercapai.",
+    enroll: "Daftar kelas ini",
+    enrollFree: "Daftar, tanpa biaya",
+    loginToEnroll: "Masuk untuk mendaftar",
+    loginNote: "Anda akan diminta masuk dulu, lalu kembali ke halaman ini.",
+    alreadyEnrolled: "Anda sudah terdaftar di kelas ini.",
+    continueLearning: "Lanjutkan belajar",
+    notFoundTitle: "Kelas tidak ditemukan",
+    notFoundHint: "Kelas ini mungkin sudah tidak diterbitkan, atau hanya untuk peserta yang diundang.",
+    previewOnly: "Pratinjau",
+    freeLabel: "Tanpa biaya",
+    typeVideo: "Video",
+    typeText: "Bacaan",
+    typeQuiz: "Kuis",
+    typeSlides: "Slide",
+    paidNotice: "Kelas ini berbayar dan belum bisa didaftar sendiri. Hubungi pengelola untuk didaftarkan.",
+    enrollingNow: "Mendaftarkan\u2026",
+    moduleLessons: "{n} pelajaran",
+    moduleLessonsOne: "{n} pelajaran",
+    minutes: "{n} menit",
   },
   admin: {
     dashboard: "Dashboard",
@@ -3182,6 +3367,11 @@ const en: Dictionary = {
     blockHero: "Hero",
     blockCourses: "Featured Courses",
     blockFeatures: "Highlights",
+    blockStats: "Platform Numbers",
+    statLearners: "Registered learners",
+    statCourses: "Published classes",
+    statEnrollments: "Class enrolments",
+    statsHiddenNote: "The numbers are read straight from the database and cannot be typed in. Demo accounts are left out.",
     blockTestimonials: "Learner Testimonials",
     blockFaq: "FAQ",
     blockCta: "Call to Action",
@@ -3228,6 +3418,90 @@ const en: Dictionary = {
       "Start from a copy of the Indonesian version, then translate the text. The two versions are stored separately \u2014 changing one does not change the other.",
     copyFromId: "Start from a copy of the Indonesian version",
     landingSavedEn: "English landing page saved",
+  },
+  catalog: {
+    navClasses: "Classes",
+    title: "All Classes",
+    subtitle:
+      "See what is inside a class before enrolling: its curriculum, duration, and level are open to everyone.",
+    searchPlaceholder: "Search classes...",
+    filterLevel: "Level",
+    allLevels: "All levels",
+    levelNotSet: "Not set",
+    filterAccess: "Access",
+    allAccess: "All access",
+    accessFree: "Public",
+    accessPaid: "Paid",
+    filterDuration: "Duration",
+    allDurations: "All durations",
+    durationShort: "Under 1 hour",
+    durationMedium: "1\u20135 hours",
+    durationLong: "Over 5 hours",
+    sortLabel: "Sort",
+    sortNewest: "Newest",
+    sortTitle: "Title A\u2013Z",
+    sortShortest: "Shortest first",
+    sortLongest: "Longest first",
+    resultCount: "{n} classes",
+    resultCountOne: "{n} class",
+    resultCountFiltered: "{n} of {total} classes",
+    noResults: "No class matches",
+    noResultsHint: "Try different search words, or drop one of the filters.",
+    resetFilters: "Clear all filters",
+    emptyCatalog: "No published classes yet",
+    emptyCatalogHint: "Classes appear here as soon as an instructor publishes one.",
+    viewDetail: "View details",
+    learners: "{n} learners",
+    learnersOne: "{n} learner",
+    rating: "{n} out of 5 \u00B7 {c} reviews",
+    backToCatalog: "Back to the class list",
+    aboutCourse: "About this class",
+    whatYouGet: "What you get",
+    curriculum: "Curriculum",
+    curriculumNote:
+      "You can see every lesson title right now. The content opens once you are enrolled in this class.",
+    curriculumCount: "{modul} modules \u00B7 {pelajaran} lessons",
+    curriculumCountOne: "{modul} module \u00B7 {pelajaran} lessons",
+    instructor: "Instructor",
+    courseFacts: "Class summary",
+    factLevel: "Level",
+    factLanguage: "Language",
+    factDuration: "Duration",
+    factLessons: "Lessons",
+    factCertificate: "Certificate",
+    certificateYes: "Yes, on passing",
+    certificateNo: "Not available yet",
+    benefitLifetime: "Access with no time limit",
+    benefitLifetimeDesc: "Once enrolled, the material stays open and you can revisit it as often as you need.",
+    benefitSelfPaced: "Learn at your own pace",
+    benefitSelfPacedDesc: "No fixed schedule and no session to miss. You decide when to study.",
+    benefitResources: "{n} learning resources",
+    benefitResourcesOne: "{n} learning resource",
+    benefitResourcesDesc: "Companion files and links you can download or open while studying.",
+    benefitQuizzes: "{n} practice quizzes",
+    benefitQuizzesOne: "{n} practice quiz",
+    benefitQuizzesDesc: "Practice questions throughout the class to test your understanding, not only at the end.",
+    benefitCertificate: "Certificate of completion",
+    benefitCertificateDesc: "Issued automatically once every lesson is done and the passing grade is reached.",
+    enroll: "Enrol in this class",
+    enrollFree: "Enrol, free of charge",
+    loginToEnroll: "Sign in to enrol",
+    loginNote: "You will be asked to sign in first, then brought back to this page.",
+    alreadyEnrolled: "You are already enrolled in this class.",
+    continueLearning: "Continue learning",
+    notFoundTitle: "Class not found",
+    notFoundHint: "This class may no longer be published, or it is only for invited learners.",
+    previewOnly: "Preview",
+    freeLabel: "Free of charge",
+    typeVideo: "Video",
+    typeText: "Reading",
+    typeQuiz: "Quiz",
+    typeSlides: "Slides",
+    paidNotice: "This class is paid and cannot be self-enrolled yet. Contact the organiser to be enrolled.",
+    enrollingNow: "Enrolling\u2026",
+    moduleLessons: "{n} lessons",
+    moduleLessonsOne: "{n} lesson",
+    minutes: "{n} min",
   },
   admin: {
     dashboard: "Dashboard",

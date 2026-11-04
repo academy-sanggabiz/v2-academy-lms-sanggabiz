@@ -4,9 +4,9 @@ import { LoginForm } from "@/components/auth/LoginForm"
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ akun?: string }>
+  searchParams: Promise<{ akun?: string; next?: string }>
 }) {
-  const { akun } = await searchParams
+  const { akun, next } = await searchParams
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gradient-to-b from-background to-secondary px-6 py-16">
@@ -29,7 +29,7 @@ export default async function LoginPage({
             Akun Anda telah dihapus permanen beserta seluruh datanya.
           </StatusMessage>
         )}
-        <LoginForm />
+        <LoginForm next={next} />
       </div>
     </main>
     </div>

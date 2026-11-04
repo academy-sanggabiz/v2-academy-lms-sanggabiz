@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { FeaturedCoursesCarousel } from "@/components/FeaturedCoursesCarousel"
 import type { Course } from "@/lib/courses"
 import type { LandingBlock } from "@/lib/landing-blocks"
-import type { LandingTestimonial } from "@/lib/landing-server"
+import type { LandingTestimonial, PlatformTotals } from "@/lib/landing-server"
 import { getDictionary } from "@/lib/i18n/dictionaries"
 import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config"
 
@@ -28,11 +28,13 @@ export function LandingBlocks({
   blocks,
   courses,
   testimonials,
+  totals,
   locale = DEFAULT_LOCALE,
 }: {
   blocks: LandingBlock[]
   courses: Course[]
   testimonials: LandingTestimonial[]
+  totals: PlatformTotals
   /** Dioper dari halaman, bukan dibaca dari cookie: pratinjau /admin/landing
    *  menimpa bahasa lewat ?bahasa= dan blok harus mengikutinya. */
   locale?: Locale
@@ -47,6 +49,7 @@ export function LandingBlocks({
             block={block}
             courses={courses}
             testimonials={testimonials}
+            totals={totals}
             locale={locale}
           />
         ))}
@@ -58,11 +61,13 @@ function LandingBlockView({
   block,
   courses,
   testimonials,
+  totals,
   locale,
 }: {
   block: LandingBlock
   courses: Course[]
   testimonials: LandingTestimonial[]
+  totals: PlatformTotals
   locale: Locale
 }) {
   const t = getDictionary(locale)
@@ -87,7 +92,10 @@ function LandingBlockView({
             >
               {block.hero.primaryCtaText}
             </Button>
-            <Button size="xl" variant="outline" render={<Link href="/auth/login" />} nativeButton={false}>
+            {/* Ke katalog, bukan ke halaman masuk: "Jelajahi Kursus" yang
+                berujung pada formulir masuk adalah janji yang meleset, dan
+                sekarang ada halaman yang benar-benar menjelajahkan. */}
+            <Button size="xl" variant="outline" render={<Link href="/kelas" />} nativeButton={false}>
               {t.landing.exploreCourses}
             </Button>
           </div>
@@ -110,6 +118,31 @@ function LandingBlockView({
         </section>
       )
     }
+
+    case "stats":
+      return (
+        <section className="bg-background px-6 py-16 sm:px-10">
+          <h2 className="text-center text-2xl font-bold tracking-tight sm:text-3xl">{block.heading}</h2>
+          {block.subheading && (
+            <p className="mt-2 text-center text-sm text-muted-foreground">{block.subheading}</p>
+          )}
+          <dl className="mx-auto mt-9 grid max-w-3xl grid-cols-1 gap-5 sm:grid-cols-3">
+            {[
+              { n: totals.learners, label: t.superadmin.statLearners },
+              { n: totals.courses, label: t.superadmin.statCourses },
+              { n: totals.enrollments, label: t.superadmin.statEnrollments },
+            ].map(({ n, label }) => (
+              <div
+                key={label}
+                className="rounded-xl border border-border bg-card p-7 text-center"
+              >
+                <dt className="order-2 mt-1 text-sm text-muted-foreground">{label}</dt>
+                <dd className="order-1 text-3xl font-bold text-ring sm:text-4xl">{n}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )
 
     case "features":
       return (

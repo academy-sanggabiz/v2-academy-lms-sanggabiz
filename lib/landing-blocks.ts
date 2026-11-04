@@ -23,7 +23,7 @@ import {
  * terpisah hanya akan menambah kolom `position` yang harus dijaga sendiri.
  */
 
-export const LANDING_BLOCK_TYPES = ["hero", "courses", "features", "testimonials", "faq", "cta"] as const
+export const LANDING_BLOCK_TYPES = ["hero", "courses", "features", "stats", "testimonials", "faq", "cta"] as const
 export type LandingBlockType = (typeof LANDING_BLOCK_TYPES)[number]
 
 type BlockBase = {
@@ -47,6 +47,17 @@ export type TestimonialsBlock = BlockBase & {
   /** Berapa ulasan peserta terbaru yang ditampilkan. */
   limit: number
 }
+/**
+ * Pita angka platform (peserta, kelas, pendaftaran).
+ *
+ * Isinya tidak disunting siapa pun: angkanya dibaca langsung dari basis data
+ * saat halaman dirender, dan akun demo dikeluarkan dari hitungan. Blok yang
+ * membiarkan angkanya diketik tangan akan selalu berakhir sebagai angka yang
+ * tidak pernah diperbarui -- dan di halaman pemasaran, angka basi sama saja
+ * dengan angka karangan.
+ */
+export type StatsBlock = BlockBase & { type: "stats"; heading: string; subheading: string }
+
 export type FaqItem = { question: string; answer: string }
 export type FaqBlock = BlockBase & { type: "faq"; heading: string; items: FaqItem[] }
 export type CtaBlock = BlockBase & {
@@ -63,6 +74,7 @@ export type LandingBlock =
   | HeroBlock
   | CoursesBlock
   | FeaturesBlock
+  | StatsBlock
   | TestimonialsBlock
   | FaqBlock
   | CtaBlock
@@ -71,6 +83,7 @@ export const BLOCK_LABELS: Record<LandingBlockType, string> = {
   hero: "Bagian Utama",
   courses: "Kursus Pilihan",
   features: "Keunggulan",
+  stats: "Angka Platform",
   testimonials: "Testimoni Peserta",
   faq: "Pertanyaan Umum",
   cta: "Ajakan Bertindak",
@@ -90,6 +103,10 @@ export function createBlock(type: LandingBlockType): LandingBlock {
       return { id, type, hero: { ...defaultHero } }
     case "courses":
       return { id, type, heading: "Kursus Pilihan", subheading: "", courseIds: [] }
+    case "stats":
+      // Disembunyikan saat dibuat: angka platform baru layak dipamerkan
+      // setelah ada isinya, dan pemiliknya yang paling tahu kapan itu.
+      return { id, type, hidden: true, heading: "Sanggabiz dalam angka", subheading: "" }
     case "features":
       return { id, type, heading: "Kenapa Belajar di Sini", features: defaultFeatures.map((f) => ({ ...f })) }
     case "testimonials":
