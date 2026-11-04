@@ -23,7 +23,7 @@ import {
  * terpisah hanya akan menambah kolom `position` yang harus dijaga sendiri.
  */
 
-export const LANDING_BLOCK_TYPES = ["hero", "courses", "features", "stats", "testimonials", "faq", "cta"] as const
+export const LANDING_BLOCK_TYPES = ["hero", "stats", "categories", "courses", "features", "steps", "instructors", "logos", "testimonials", "faq", "cta"] as const
 export type LandingBlockType = (typeof LANDING_BLOCK_TYPES)[number]
 
 type BlockBase = {
@@ -58,6 +58,50 @@ export type TestimonialsBlock = BlockBase & {
  */
 export type StatsBlock = BlockBase & { type: "stats"; heading: string; subheading: string }
 
+/**
+ * Navigasi bidang: "kelas tentang apa yang Anda cari".
+ *
+ * Isinya tidak diketik siapa pun -- kategorinya dibaca dari tabel
+ * `categories` beserta jumlah kelas terbitnya, dan tiap kartu menuju katalog
+ * yang sudah tersaring. Pola yang sama dipakai hampir semua LMS: pertanyaan
+ * pertama pengunjung bukan "kelas mana yang terbaru", melainkan "ada yang
+ * tentang bidang saya?".
+ */
+export type CategoriesBlock = BlockBase & { type: "categories"; heading: string; subheading: string }
+
+/** Satu langkah pada "cara mulai". */
+export type StepItem = { title: string; description: string }
+
+/**
+ * Tiga sampai empat langkah dari "melihat-lihat" sampai "dapat sertifikat".
+ *
+ * Diketik penyusun, bukan diturunkan dari data: ini janji alur, dan alurnya
+ * ditentukan orang, bukan oleh isi tabel.
+ */
+export type StepsBlock = BlockBase & { type: "steps"; heading: string; subheading: string; items: StepItem[] }
+
+/** Satu logo mitra. `logoUrl` boleh kosong -- namanya saja sudah cukup. */
+export type LogoItem = { name: string; logoUrl: string }
+
+/**
+ * Logo mitra, klien, atau institusi.
+ *
+ * Disimpan sebagai daftar yang diketik, bukan tabel: jumlahnya belasan,
+ * selalu dibaca sekaligus, dan urutannya adalah urutan larik -- alasan yang
+ * sama dengan kenapa bloknya sendiri jsonb.
+ */
+export type LogosBlock = BlockBase & { type: "logos"; heading: string; items: LogoItem[] }
+
+/**
+ * Pengajar. Dibaca dari tabel `instructors`, jadi tidak ada nama yang bisa
+ * diketik di sini -- satu orang hanya ada satu kali, di satu tempat.
+ */
+export type InstructorsBlock = BlockBase & {
+  type: "instructors"
+  heading: string
+  subheading: string
+}
+
 export type FaqItem = { question: string; answer: string }
 export type FaqBlock = BlockBase & { type: "faq"; heading: string; items: FaqItem[] }
 export type CtaBlock = BlockBase & {
@@ -75,6 +119,10 @@ export type LandingBlock =
   | CoursesBlock
   | FeaturesBlock
   | StatsBlock
+  | CategoriesBlock
+  | StepsBlock
+  | LogosBlock
+  | InstructorsBlock
   | TestimonialsBlock
   | FaqBlock
   | CtaBlock
@@ -84,6 +132,10 @@ export const BLOCK_LABELS: Record<LandingBlockType, string> = {
   courses: "Kursus Pilihan",
   features: "Keunggulan",
   stats: "Angka Platform",
+  categories: "Pilihan Bidang",
+  steps: "Cara Mulai",
+  logos: "Logo Mitra",
+  instructors: "Pengajar",
   testimonials: "Testimoni Peserta",
   faq: "Pertanyaan Umum",
   cta: "Ajakan Bertindak",
@@ -103,6 +155,28 @@ export function createBlock(type: LandingBlockType): LandingBlock {
       return { id, type, hero: { ...defaultHero } }
     case "courses":
       return { id, type, heading: "Kursus Pilihan", subheading: "", courseIds: [] }
+    case "categories":
+      return { id, type, heading: "Pilih bidang yang Anda minati", subheading: "" }
+    case "steps":
+      return {
+        id,
+        type,
+        heading: "Cara mulai belajar",
+        subheading: "",
+        items: [
+          { title: "Pilih kelas", description: "" },
+          { title: "Belajar sesuai ritme Anda", description: "" },
+          { title: "Dapatkan sertifikat", description: "" },
+        ],
+      }
+    case "logos":
+      // Tersembunyi saat dibuat: pita logo kosong lebih buruk daripada tidak
+      // ada pita logo sama sekali.
+      return { id, type, hidden: true, heading: "Dipercaya oleh", items: [] }
+    case "instructors":
+      // Tersembunyi saat dibuat: isinya dari tabel instructors, yang bisa saja
+      // masih kosong.
+      return { id, type, hidden: true, heading: "Pengajar kami", subheading: "" }
     case "stats":
       // Disembunyikan saat dibuat: angka platform baru layak dipamerkan
       // setelah ada isinya, dan pemiliknya yang paling tahu kapan itu.

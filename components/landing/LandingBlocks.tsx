@@ -1,11 +1,13 @@
 import Link from "next/link"
-import { Award, GraduationCap, Layers, Star, type LucideIcon } from "lucide-react"
+import { ArrowRight, Award, GraduationCap, Layers, Star, type LucideIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { FeaturedCoursesCarousel } from "@/components/FeaturedCoursesCarousel"
 import type { Course } from "@/lib/courses"
 import type { LandingBlock } from "@/lib/landing-blocks"
 import type { LandingTestimonial, PlatformTotals } from "@/lib/landing-server"
+import type { Category, Instructor } from "@/lib/courses"
+import { plural } from "@/lib/i18n/plural"
 import { getDictionary } from "@/lib/i18n/dictionaries"
 import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config"
 
@@ -29,12 +31,16 @@ export function LandingBlocks({
   courses,
   testimonials,
   totals,
+  categories,
+  instructors,
   locale = DEFAULT_LOCALE,
 }: {
   blocks: LandingBlock[]
   courses: Course[]
   testimonials: LandingTestimonial[]
   totals: PlatformTotals
+  categories: { category: Category; count: number }[]
+  instructors: Instructor[]
   /** Dioper dari halaman, bukan dibaca dari cookie: pratinjau /admin/landing
    *  menimpa bahasa lewat ?bahasa= dan blok harus mengikutinya. */
   locale?: Locale
@@ -50,6 +56,8 @@ export function LandingBlocks({
             courses={courses}
             testimonials={testimonials}
             totals={totals}
+            categories={categories}
+            instructors={instructors}
             locale={locale}
           />
         ))}
@@ -62,12 +70,16 @@ function LandingBlockView({
   courses,
   testimonials,
   totals,
+  categories,
+  instructors,
   locale,
 }: {
   block: LandingBlock
   courses: Course[]
   testimonials: LandingTestimonial[]
   totals: PlatformTotals
+  categories: { category: Category; count: number }[]
+  instructors: Instructor[]
   locale: Locale
 }) {
   const t = getDictionary(locale)
@@ -143,6 +155,131 @@ function LandingBlockView({
           </dl>
         </section>
       )
+
+    case "categories": {
+      // Kategori tanpa kelas terbit tidak ditampilkan: kartu yang membawa ke
+      // katalog kosong adalah jalan buntu, bukan pilihan.
+      if (categories.length === 0) return null
+      return (
+        <section className="bg-card px-6 py-20 sm:px-10">
+          <h2 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">{block.heading}</h2>
+          {block.subheading && (
+            <p className="mx-auto mt-3 max-w-2xl text-center text-muted-foreground">{block.subheading}</p>
+          )}
+          <ul className="mx-auto mt-11 grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {categories.map(({ category, count }) => (
+              <li key={category.id}>
+                <Link
+                  href={`/kelas?kategori=${encodeURIComponent(category.slug)}`}
+                  className="group flex h-full items-center justify-between gap-3 rounded-xl border border-border bg-card p-5 transition-shadow hover:shadow-float focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+                >
+                  <span className="min-w-0">
+                    <span className="block text-base font-bold group-hover:underline">{category.name}</span>
+                    <span className="mt-0.5 block text-sm text-muted-foreground">
+                      {plural(count, t.catalog.categoryCoursesOne, t.catalog.categoryCourses)}
+                    </span>
+                  </span>
+                  <ArrowRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    case "steps": {
+      const langkah = block.items.filter((i) => i.title.trim())
+      if (langkah.length === 0) return null
+      return (
+        <section className="bg-background px-6 py-20 sm:px-10">
+          <h2 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">{block.heading}</h2>
+          {block.subheading && (
+            <p className="mx-auto mt-3 max-w-2xl text-center text-muted-foreground">{block.subheading}</p>
+          )}
+          <ol className="mx-auto mt-11 grid max-w-4xl grid-cols-1 gap-6 sm:grid-cols-3">
+            {langkah.map((item, i) => (
+              <li key={i} className="rounded-xl border border-border bg-card p-7">
+                <span
+                  aria-hidden
+                  className="flex size-9 items-center justify-center rounded-full bg-secondary text-sm font-bold text-primary"
+                >
+                  {i + 1}
+                </span>
+                <h3 className="mt-4 text-base font-bold">{item.title}</h3>
+                {item.description && (
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+                )}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+
+    case "logos": {
+      const logo = block.items.filter((i) => i.name.trim())
+      if (logo.length === 0) return null
+      return (
+        <section className="bg-card px-6 py-14 sm:px-10">
+          <h2 className="text-center text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+            {block.heading}
+          </h2>
+          <ul className="mx-auto mt-7 flex max-w-4xl flex-wrap items-center justify-center gap-x-10 gap-y-6">
+            {logo.map((item, i) => (
+              <li key={i} className="flex items-center">
+                {item.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.logoUrl} alt={item.name} className="h-9 w-auto object-contain" />
+                ) : (
+                  <span className="text-base font-semibold text-muted-foreground">{item.name}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    case "instructors": {
+      if (instructors.length === 0) return null
+      return (
+        <section className="bg-background px-6 py-20 sm:px-10">
+          <h2 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">{block.heading}</h2>
+          {block.subheading && (
+            <p className="mx-auto mt-3 max-w-2xl text-center text-muted-foreground">{block.subheading}</p>
+          )}
+          <ul className="mx-auto mt-11 grid max-w-4xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {instructors.map((pengajar) => (
+              <li key={pengajar.id} className="rounded-xl border border-border bg-card p-6 text-center">
+                {pengajar.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={pengajar.avatar_url}
+                    alt=""
+                    className="mx-auto size-16 rounded-full object-cover"
+                  />
+                ) : (
+                  <span
+                    aria-hidden
+                    className="mx-auto flex size-16 items-center justify-center rounded-full bg-secondary text-xl font-bold text-primary"
+                  >
+                    {pengajar.name.charAt(0).toUpperCase()}
+                  </span>
+                )}
+                <h3 className="mt-3.5 text-base font-bold">{pengajar.name}</h3>
+                {pengajar.title && (
+                  <p className="mt-0.5 text-sm text-muted-foreground">{pengajar.title}</p>
+                )}
+                {pengajar.bio && (
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{pengajar.bio}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
 
     case "features":
       return (

@@ -12,6 +12,7 @@ import {
   type LandingContent,
 } from "@/lib/landing"
 import type { Locale } from "@/lib/i18n/config"
+import type { Instructor } from "@/lib/courses"
 
 type LandingContentRow = {
   blocks: unknown
@@ -267,4 +268,28 @@ export async function getPlatformTotals(): Promise<PlatformTotals> {
     courses: data.course_count ?? 0,
     enrollments: data.enrollment_count ?? 0,
   }
+}
+
+/**
+ * Pengajar untuk blok "Pengajar kami" di halaman depan.
+ *
+ * Dibaca dengan klien anon, bukan lewat `listInstructors()` di
+ * `lib/courses-admin.ts`: modul itu milik layar pengelola, dan halaman
+ * publik yang menariknya ikut membawa seluruh isinya ke jalur render
+ * publik. Policy `instructors are readable` memang sudah mengizinkan anon,
+ * jadi tidak ada yang perlu dilonggarkan.
+ */
+export async function listPublicInstructors(limit = 12): Promise<Instructor[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("instructors")
+    .select("id, name, title, bio, avatar_url")
+    .order("name")
+    .limit(limit)
+
+  if (error) {
+    console.error("listPublicInstructors failed:", error.message)
+    return []
+  }
+  return (data ?? []) as Instructor[]
 }

@@ -2,7 +2,14 @@ import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import { getPublishedCourses } from "@/lib/courses-server"
-import { getLandingBlocks, getLandingTestimonials, getLandingTheme, getPlatformTotals } from "@/lib/landing-server"
+import { getCatalogCourses } from "@/lib/catalog-server"
+import {
+  getLandingBlocks,
+  getLandingTestimonials,
+  getLandingTheme,
+  getPlatformTotals,
+  listPublicInstructors,
+} from "@/lib/landing-server"
 import { themeStyle } from "@/lib/landing-theme"
 import { LandingBlocks } from "@/components/landing/LandingBlocks"
 import { PublicHeader } from "@/components/public/PublicHeader"
@@ -29,12 +36,16 @@ export default async function Home({
   // Susunan halaman depan kini data, bukan tata letak: superadmin bisa
   // menambah, menghapus, menyembunyikan, dan mengurutkan bloknya sendiri
   // (lib/landing-blocks.ts).
-  const [blocks, courses, testimonials, theme, totals] = await Promise.all([
+  const [blocks, courses, testimonials, theme, totals, katalog, instructors] = await Promise.all([
     getLandingBlocks(locale),
     getPublishedCourses(),
     getLandingTestimonials(),
     getLandingTheme(),
     getPlatformTotals(),
+    // Dipakai hanya untuk daftar kategori beserta jumlah kelasnya; kartunya
+    // sendiri tetap memakai getPublishedCourses() seperti sebelumnya.
+    getCatalogCourses(),
+    listPublicInstructors(),
   ])
 
   // Variabel warna dipasang di pembungkus ini saja, bukan di :root, supaya
@@ -71,6 +82,8 @@ export default async function Home({
           courses={courses}
           testimonials={testimonials}
           totals={totals}
+          categories={katalog.facets.categories}
+          instructors={instructors}
           locale={locale}
         />
       </main>

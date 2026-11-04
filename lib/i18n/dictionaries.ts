@@ -953,6 +953,20 @@ export type Dictionary = {
     blockCourses: string
     blockFeatures: string
     blockStats: string
+    blockCategories: string
+    blockSteps: string
+    blockLogos: string
+    blockInstructors: string
+    stepN: string
+    addStep: string
+    deleteStepN: string
+    logoName: string
+    logoImage: string
+    addLogo: string
+    deleteLogoN: string
+    logoNameRequired: string
+    categoriesNote: string
+    instructorsNote: string
     statLearners: string
     statCourses: string
     statEnrollments: string
@@ -1016,6 +1030,9 @@ export type Dictionary = {
     filterLevel: string
     filterCategory: string
     allCategories: string
+    /** `{n}` jumlah kelas. */
+    categoryCourses: string
+    categoryCoursesOne: string
     allLevels: string
     levelNotSet: string
     filterAccess: string
@@ -2175,6 +2192,20 @@ const id: Dictionary = {
     blockCourses: "Kursus Pilihan",
     blockFeatures: "Keunggulan",
     blockStats: "Angka Platform",
+    blockCategories: "Pilihan Bidang",
+    blockSteps: "Cara Mulai",
+    blockLogos: "Logo Mitra",
+    blockInstructors: "Pengajar",
+    stepN: "Langkah {n}",
+    addStep: "Tambah langkah",
+    deleteStepN: "Hapus langkah {n}",
+    logoName: "Nama mitra",
+    logoImage: "Logo",
+    addLogo: "Tambah mitra",
+    deleteLogoN: "Hapus mitra {n}",
+    logoNameRequired: "Nama mitra wajib diisi; logonya boleh kosong.",
+    categoriesNote: "Kategori dan jumlah kelasnya dibaca dari basis data. Yang kosong tidak ditampilkan.",
+    instructorsNote: "Daftar pengajar dibaca dari basis data. Tambahkan pengajar dari editor kursus.",
     statLearners: "Peserta terdaftar",
     statCourses: "Kelas terbit",
     statEnrollments: "Pendaftaran kelas",
@@ -2235,6 +2266,8 @@ const id: Dictionary = {
     filterLevel: "Tingkat",
     filterCategory: "Kategori",
     allCategories: "Semua kategori",
+    categoryCourses: "{n} kelas",
+    categoryCoursesOne: "{n} kelas",
     allLevels: "Semua tingkat",
     levelNotSet: "Belum diisi",
     filterAccess: "Akses",
@@ -3395,6 +3428,20 @@ const en: Dictionary = {
     blockCourses: "Featured Courses",
     blockFeatures: "Highlights",
     blockStats: "Platform Numbers",
+    blockCategories: "Browse by Field",
+    blockSteps: "How to Start",
+    blockLogos: "Partner Logos",
+    blockInstructors: "Instructors",
+    stepN: "Step {n}",
+    addStep: "Add step",
+    deleteStepN: "Delete step {n}",
+    logoName: "Partner name",
+    logoImage: "Logo",
+    addLogo: "Add partner",
+    deleteLogoN: "Delete partner {n}",
+    logoNameRequired: "The partner name is required; the logo is optional.",
+    categoriesNote: "Categories and their class counts are read from the database. Empty ones are not shown.",
+    instructorsNote: "The instructor list is read from the database. Add instructors from the course editor.",
     statLearners: "Registered learners",
     statCourses: "Published classes",
     statEnrollments: "Class enrolments",
@@ -3455,6 +3502,8 @@ const en: Dictionary = {
     filterLevel: "Level",
     filterCategory: "Category",
     allCategories: "All categories",
+    categoryCourses: "{n} classes",
+    categoryCoursesOne: "{n} class",
     allLevels: "All levels",
     levelNotSet: "Not set",
     filterAccess: "Access",
