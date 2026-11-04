@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 function bacaSaringan(raw: {
   cari?: string
   tingkat?: string
+  kategori?: string
   akses?: string
   durasi?: string
   urut?: string
@@ -33,6 +34,7 @@ function bacaSaringan(raw: {
   return {
     q: raw.cari ?? "",
     level: isCourseLevel(raw.tingkat) ? raw.tingkat : null,
+    kategori: raw.kategori?.trim() || null,
     akses,
     durasi,
     sort,
@@ -57,6 +59,7 @@ export default async function KatalogPage({
   searchParams: Promise<{
     cari?: string
     tingkat?: string
+    kategori?: string
     akses?: string
     durasi?: string
     urut?: string

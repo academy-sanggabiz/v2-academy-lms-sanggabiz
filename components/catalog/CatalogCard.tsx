@@ -43,6 +43,11 @@ export function CatalogCard({ course, locale }: { course: CatalogCourse; locale:
           <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold text-primary">
             {price}
           </span>
+          {course.category && (
+            <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+              {course.category.name}
+            </span>
+          )}
           {level && (
             <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
               {levelLabel(level, t)}

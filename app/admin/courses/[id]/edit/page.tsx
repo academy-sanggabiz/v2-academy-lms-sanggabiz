@@ -1,3 +1,4 @@
+import { listCategories } from "@/lib/categories-server"
 import { notFound } from "next/navigation"
 
 import {
@@ -31,6 +32,7 @@ export default async function EditCoursePage({
   // jadi promise-nya dioper apa adanya dan diselesaikan di balik <Suspense> --
   // editor tidak lagi menunggu query paling lambat sebelum muncul.
   const instructorsPromise = listInstructors()
+  const categoriesPromise = listCategories()
   const prerequisitesPromise = listCoursesForPrerequisitePicker(id)
   const rosterPromise = getCourseRoster(id, rosterParams)
   // Kesiapan ikut dibaca supaya editor tidak menawarkan "Ikut Pengaturan
@@ -50,6 +52,7 @@ export default async function EditCoursePage({
     <CourseFormShell
       course={course}
       instructorsPromise={instructorsPromise}
+      categoriesPromise={categoriesPromise}
       prerequisitesPromise={prerequisitesPromise}
       rosterPromise={rosterPromise}
       certificateDefaultsPromise={certificateDefaultsPromise}

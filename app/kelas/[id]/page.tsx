@@ -117,6 +117,11 @@ export default async function PratinjauKelasPage({
                   <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold text-primary">
                     {price}
                   </span>
+                  {course.category && (
+                    <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                      {course.category.name}
+                    </span>
+                  )}
                   {level && (
                     <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
                       {levelLabel(level, t)}
@@ -286,6 +291,11 @@ export default async function PratinjauKelasPage({
                   <Fakta icon={Clock} label={t.catalog.factDuration}>
                     {course.duration_hours} {t.courses.hours}
                   </Fakta>
+                  {course.category && (
+                    <Fakta icon={BookOpen} label={t.catalog.factCategory}>
+                      {course.category.name}
+                    </Fakta>
+                  )}
                   {level && (
                     <Fakta icon={Award} label={t.catalog.factLevel}>
                       {levelLabel(level, t)}

@@ -785,6 +785,7 @@ export async function saveCourseDraft(
       thumbnail_url: draft.thumbnail_url || null,
       price: draft.enrollmentMode === "paid" ? draft.price : 0,
       level: draft.level || null,
+      category_id: draft.categoryId || null,
       status,
       is_private: draft.isPrivate,
       passing_grade: draft.passingGrade,

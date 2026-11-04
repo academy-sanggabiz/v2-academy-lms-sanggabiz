@@ -2,7 +2,7 @@ import "server-only"
 
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
-import type { Course } from "@/lib/courses"
+import type { Category, Course } from "@/lib/courses"
 import { normalizeLevel, type CourseLevel } from "@/lib/course-level"
 
 /**
@@ -28,6 +28,8 @@ export type CatalogFilters = {
   akses?: "gratis" | "berbayar" | null
   /** `pendek` < 1 jam, `sedang` 1-5 jam, `panjang` > 5 jam. */
   durasi?: "pendek" | "sedang" | "panjang" | null
+  /** Slug kategori; dipakai di URL supaya tautannya tetap terbaca orang. */
+  kategori?: string | null
   sort?: CatalogSort
 }
 
@@ -40,6 +42,7 @@ export type CatalogCourse = Course & {
   learnerCount: number | null
   /** Rata-rata ulasan, `null` selama ulasannya belum cukup untuk anonim. */
   rating: { average: number; count: number } | null
+  category: Category | null
 }
 
 /** Pilihan saringan beserta jumlah hasilnya, dihitung dari katalog penuh. */
@@ -49,6 +52,8 @@ export type CatalogFacets = {
   tanpaLevel: number
   gratis: number
   berbayar: number
+  /** Kategori yang benar-benar punya kursus terbit, beserta jumlahnya. */
+  categories: { category: Category; count: number }[]
 }
 
 function cocokDurasi(jam: number, durasi: CatalogFilters["durasi"]): boolean {
@@ -79,6 +84,9 @@ export async function getCatalogCourses(
     .eq("is_private", false)
     .order("created_at", { ascending: false })
 
+  const { data: kategoriRows } = await supabase.from("categories").select("id, name, slug").order("position")
+  const kategoriById = new Map(((kategoriRows ?? []) as Category[]).map((k) => [k.id, k]))
+
   if (error) {
     console.error("getCatalogCourses failed:", error.message)
     return { courses: [], facets: facetKosong() }
@@ -92,7 +100,20 @@ export async function getCatalogCourses(
     tanpaLevel: 0,
     gratis: semua.filter((c) => c.price <= 0).length,
     berbayar: semua.filter((c) => c.price > 0).length,
+    categories: [],
   }
+  // Hanya kategori yang punya isi yang ditawarkan sebagai saringan: pilihan
+  // yang pasti menghasilkan nol hasil adalah jalan buntu yang baru terlihat
+  // setelah ditekan.
+  const hitungKategori = new Map<string, number>()
+  for (const course of semua) {
+    if (course.category_id) {
+      hitungKategori.set(course.category_id, (hitungKategori.get(course.category_id) ?? 0) + 1)
+    }
+  }
+  facets.categories = [...hitungKategori.entries()]
+    .map(([id, count]) => ({ category: kategoriById.get(id), count }))
+    .filter((x): x is { category: Category; count: number } => Boolean(x.category))
   for (const course of semua) {
     const level = normalizeLevel(course.level)
     if (level) facets.perLevel[level] += 1
@@ -102,6 +123,10 @@ export async function getCatalogCourses(
   const kata = (filters.q ?? "").trim().toLowerCase()
   let hasil = semua.filter((course) => {
     if (filters.level && normalizeLevel(course.level) !== filters.level) return false
+    if (filters.kategori) {
+      const k = course.category_id ? kategoriById.get(course.category_id) : null
+      if (!k || k.slug !== filters.kategori) return false
+    }
     if (filters.akses === "gratis" && course.price > 0) return false
     if (filters.akses === "berbayar" && course.price <= 0) return false
     if (!cocokDurasi(Number(course.duration_hours ?? 0), filters.durasi)) return false
@@ -131,6 +156,7 @@ export async function getCatalogCourses(
       ...course,
       learnerCount: peserta.get(course.id) ?? null,
       rating: ulasan.get(course.id) ?? null,
+      category: course.category_id ? (kategoriById.get(course.category_id) ?? null) : null,
     })),
     facets,
   }
@@ -143,6 +169,7 @@ function facetKosong(): CatalogFacets {
     tanpaLevel: 0,
     gratis: 0,
     berbayar: 0,
+    categories: [],
   }
 }
 
@@ -234,10 +261,22 @@ export async function getCatalogCourse(id: string): Promise<CatalogCourse | null
   if (error || !data) return null
 
   const [peserta, ulasan] = await Promise.all([hitungPeserta([id]), ringkasUlasan([id])])
+
+  let category: Category | null = null
+  if (data.category_id) {
+    const { data: k } = await supabase
+      .from("categories")
+      .select("id, name, slug")
+      .eq("id", data.category_id)
+      .maybeSingle<Category>()
+    category = k ?? null
+  }
+
   return {
     ...data,
     learnerCount: peserta.get(id) ?? null,
     rating: ulasan.get(id) ?? null,
+    category,
   }
 }
 

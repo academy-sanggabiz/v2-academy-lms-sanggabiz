@@ -34,11 +34,12 @@ export function CatalogFilters({ facets }: { facets: CatalogFacets }) {
   const { value: cari, setValue: setCari, isPending: mencari } = useDebouncedParam("cari")
 
   const level = get("tingkat")
+  const kategori = get("kategori")
   const akses = get("akses")
   const durasi = get("durasi")
   const urut = get("urut") || "terbaru"
 
-  const adaSaringan = Boolean(cari || level || akses || durasi || get("urut"))
+  const adaSaringan = Boolean(cari || level || kategori || akses || durasi || get("urut"))
 
   return (
     <div className="flex flex-col gap-3">
@@ -59,6 +60,32 @@ export function CatalogFilters({ facets }: { facets: CatalogFacets }) {
             className="bg-card pl-9"
           />
         </div>
+
+        {facets.categories.length > 0 && (
+          <Select
+            items={[
+              { value: "", label: t.catalog.allCategories },
+              ...facets.categories.map((k) => ({
+                value: k.category.slug,
+                label: `${k.category.name} (${k.count})`,
+              })),
+            ]}
+            value={kategori}
+            onValueChange={(v) => setParams({ kategori: v ?? "" })}
+          >
+            <SelectTrigger aria-label={t.catalog.filterCategory} className="min-w-[170px] bg-card">
+              <SelectValue placeholder={t.catalog.allCategories} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">{t.catalog.allCategories}</SelectItem>
+              {facets.categories.map((k) => (
+                <SelectItem key={k.category.id} value={k.category.slug}>
+                  {k.category.name} ({k.count})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
 
         <Select
           items={[
@@ -157,7 +184,7 @@ export function CatalogFilters({ facets }: { facets: CatalogFacets }) {
             variant="ghost"
             onClick={() => {
               setCari("")
-              setParams({ tingkat: "", akses: "", durasi: "", urut: "", cari: "" })
+              setParams({ tingkat: "", kategori: "", akses: "", durasi: "", urut: "", cari: "" })
             }}
           >
             <X className="size-4" aria-hidden />

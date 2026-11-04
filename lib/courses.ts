@@ -1,3 +1,10 @@
+/** Kategori kursus; daftar bersama seperti `instructors`. */
+export type Category = {
+  id: string
+  name: string
+  slug: string
+}
+
 export type Course = {
   id: string
   title: string
@@ -12,6 +19,8 @@ export type Course = {
   who_for: string[]
   requirements: string[]
   language: string
+  /** Kategori kursus, null bila belum dipilih penyusunnya. */
+  category_id: string | null
   /**
    * Invite-only: hidden from the catalog and from anon visitors, readable only
    * by the owning admin and learners an admin has explicitly enrolled.

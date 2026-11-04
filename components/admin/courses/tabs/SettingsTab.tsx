@@ -13,9 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { Instructor } from "@/lib/courses"
+import type { Category, Instructor } from "@/lib/courses"
 import type { CoursePrerequisite } from "@/lib/courses-admin"
 import { InstructorPicker } from "../InstructorPicker"
+import { CategoryPicker } from "../CategoryPicker"
 import { PrerequisitesSettings } from "./PrerequisitesSettings"
 import { SequenceSettings } from "./SequenceSettings"
 import { CertificateSettings } from "./CertificateSettings"
@@ -28,6 +29,7 @@ const LEVELS = ["beginner", "intermediate", "advanced"] as const
 export function SettingsTab({
   status,
   instructors,
+  categories,
   availableCoursesForPrerequisites,
   certificateDefaults,
   certificateDefaultsReady,
@@ -37,6 +39,7 @@ export function SettingsTab({
    *  published), which is easy to mistake for the feature being broken. */
   status: "draft" | "published"
   instructors: Instructor[]
+  categories: Category[]
   availableCoursesForPrerequisites: CoursePrerequisite[]
   certificateDefaults: CertificateDefaults
   certificateDefaultsReady: boolean
@@ -80,6 +83,7 @@ export function SettingsTab({
             </SelectContent>
           </Select>
         </div>
+        <CategoryPicker categories={categories} />
       </section>
 
       <section className="space-y-3">

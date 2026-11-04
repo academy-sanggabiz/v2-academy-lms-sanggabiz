@@ -88,6 +88,8 @@ export type CourseDraft = {
   audienceText: string
   thumbnail_url: string
   level: string
+  /** id kategori, "" berarti belum dipilih. */
+  categoryId: string
   // Derived from price, not a courses column: price > 0 => "paid".
   enrollmentMode: "free" | "paid"
   price: number
@@ -277,6 +279,7 @@ export function draftFromDetail(course: AdminCourseDetail): CourseDraft {
     audienceText: arrayToLines(course.who_for ?? []),
     thumbnail_url: course.thumbnail_url ?? "",
     level: course.level ?? "",
+    categoryId: course.category_id ?? "",
     enrollmentMode: course.price > 0 ? "paid" : "free",
     price: course.price ?? 0,
     isPrivate: course.is_private,
@@ -446,6 +449,7 @@ export const courseDraftSchema = z.object({
   audienceText: z.string().trim().max(20_000),
   thumbnail_url: z.string().trim().max(2000),
   level: z.string().trim().max(100),
+  categoryId: z.string().trim().max(64),
   enrollmentMode: z.enum(["free", "paid"]),
   price: z.number().min(0, "Harga tidak boleh negatif"),
   isPrivate: z.boolean(),
@@ -466,6 +470,7 @@ export type CourseFormValues = Pick<
   | "audienceText"
   | "thumbnail_url"
   | "level"
+  | "categoryId"
   | "enrollmentMode"
   | "price"
   | "isPrivate"

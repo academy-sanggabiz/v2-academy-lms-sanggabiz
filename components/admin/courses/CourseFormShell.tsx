@@ -21,7 +21,7 @@ import { BusyGuardProvider } from "@/components/ui/busy-guard"
 import { SaveStatus, type SaveState } from "@/components/ui/save-status"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useNavigationBlocker } from "@/components/admin/NavigationBlockerContext"
-import type { Instructor } from "@/lib/courses"
+import type { Category, Instructor } from "@/lib/courses"
 import type { AdminCourseDetail, CoursePrerequisite } from "@/lib/courses-admin"
 import type { CourseRosterEntry } from "@/lib/learners-admin"
 import type { Paginated } from "@/lib/pagination"
@@ -58,6 +58,7 @@ type ShellProps = {
    * dan Peserta, jadi editor sudah bisa tampil sebelum ketiganya selesai.
    */
   instructorsPromise: Promise<Instructor[]>
+  categoriesPromise: Promise<Category[]>
   prerequisitesPromise: Promise<CoursePrerequisite[]>
   rosterPromise: Promise<Paginated<CourseRosterEntry>>
   learnerCount: number
@@ -79,6 +80,7 @@ function CourseFormShellInner({
   certificateDefaultsPromise,
   certificateReadyPromise,
   instructorsPromise,
+  categoriesPromise,
   prerequisitesPromise,
   rosterPromise,
   learnerCount,
@@ -386,6 +388,7 @@ function CourseFormShellInner({
               <SettingsTabStreamed
                 status={course.status}
                 instructorsPromise={instructorsPromise}
+                categoriesPromise={categoriesPromise}
                 prerequisitesPromise={prerequisitesPromise}
                 certificateDefaultsPromise={certificateDefaultsPromise}
                 certificateReadyPromise={certificateReadyPromise}
@@ -426,12 +429,14 @@ function TabLoadingSkeleton({ label }: { label: string }) {
 function SettingsTabStreamed({
   status,
   instructorsPromise,
+  categoriesPromise,
   prerequisitesPromise,
   certificateDefaultsPromise,
   certificateReadyPromise,
 }: {
   status: AdminCourseDetail["status"]
   instructorsPromise: Promise<Instructor[]>
+  categoriesPromise: Promise<Category[]>
   prerequisitesPromise: Promise<CoursePrerequisite[]>
   certificateDefaultsPromise: Promise<CertificateDefaults>
   certificateReadyPromise: Promise<boolean>
@@ -440,6 +445,7 @@ function SettingsTabStreamed({
     <SettingsTab
       status={status}
       instructors={use(instructorsPromise)}
+      categories={use(categoriesPromise)}
       availableCoursesForPrerequisites={use(prerequisitesPromise)}
       certificateDefaults={use(certificateDefaultsPromise)}
       certificateDefaultsReady={use(certificateReadyPromise)}

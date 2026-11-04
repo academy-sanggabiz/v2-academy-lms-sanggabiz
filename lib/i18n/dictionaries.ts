@@ -429,6 +429,13 @@ export type Dictionary = {
     basicSettings: string
     level: string
     pickLevel: string
+    category: string
+    pickCategory: string
+    noCategory: string
+    newCategory: string
+    newCategoryLabel: string
+    newCategoryPh: string
+    categoryCreated: string
     levelBeginner: string
     levelIntermediate: string
     levelAdvanced: string
@@ -1007,6 +1014,8 @@ export type Dictionary = {
     subtitle: string
     searchPlaceholder: string
     filterLevel: string
+    filterCategory: string
+    allCategories: string
     allLevels: string
     levelNotSet: string
     filterAccess: string
@@ -1050,6 +1059,7 @@ export type Dictionary = {
     instructor: string
     courseFacts: string
     factLevel: string
+    factCategory: string
     factLanguage: string
     factDuration: string
     factLessons: string
@@ -1674,6 +1684,13 @@ const id: Dictionary = {
     basicSettings: "Pengaturan Dasar",
     level: "Tingkat",
     pickLevel: "Pilih tingkat",
+    category: "Kategori",
+    pickCategory: "Pilih kategori",
+    noCategory: "Tanpa kategori",
+    newCategory: "Kategori baru",
+    newCategoryLabel: "Nama kategori",
+    newCategoryPh: "misal: Pemrograman",
+    categoryCreated: "Kategori dibuat dan dipilih",
     levelBeginner: "Pemula",
     levelIntermediate: "Menengah",
     levelAdvanced: "Lanjutan",
@@ -2216,6 +2233,8 @@ const id: Dictionary = {
       "Lihat isi kelas sebelum mendaftar: kurikulum, durasi, dan tingkatnya terbuka untuk siapa saja.",
     searchPlaceholder: "Cari kelas...",
     filterLevel: "Tingkat",
+    filterCategory: "Kategori",
+    allCategories: "Semua kategori",
     allLevels: "Semua tingkat",
     levelNotSet: "Belum diisi",
     filterAccess: "Akses",
@@ -2255,6 +2274,7 @@ const id: Dictionary = {
     instructor: "Instruktur",
     courseFacts: "Ringkasan kelas",
     factLevel: "Tingkat",
+    factCategory: "Kategori",
     factLanguage: "Bahasa",
     factDuration: "Durasi",
     factLessons: "Pelajaran",
@@ -2886,6 +2906,13 @@ const en: Dictionary = {
     basicSettings: "Basic Settings",
     level: "Level",
     pickLevel: "Choose a level",
+    category: "Category",
+    pickCategory: "Choose a category",
+    noCategory: "No category",
+    newCategory: "New category",
+    newCategoryLabel: "Category name",
+    newCategoryPh: "e.g. Programming",
+    categoryCreated: "Category created and selected",
     levelBeginner: "Beginner",
     levelIntermediate: "Intermediate",
     levelAdvanced: "Advanced",
@@ -3426,6 +3453,8 @@ const en: Dictionary = {
       "See what is inside a class before enrolling: its curriculum, duration, and level are open to everyone.",
     searchPlaceholder: "Search classes...",
     filterLevel: "Level",
+    filterCategory: "Category",
+    allCategories: "All categories",
     allLevels: "All levels",
     levelNotSet: "Not set",
     filterAccess: "Access",
@@ -3465,6 +3494,7 @@ const en: Dictionary = {
     instructor: "Instructor",
     courseFacts: "Class summary",
     factLevel: "Level",
+    factCategory: "Category",
     factLanguage: "Language",
     factDuration: "Duration",
     factLessons: "Lessons",

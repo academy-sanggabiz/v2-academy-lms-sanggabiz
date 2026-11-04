@@ -1,5 +1,7 @@
 "use server"
 
+import { createCategory } from "@/lib/categories-server"
+import type { Category } from "@/lib/courses"
 import { revalidatePath } from "next/cache"
 
 import {
@@ -128,6 +130,28 @@ export async function createInstructorAction(input: {
   if ("error" in result) return { ok: false, error: result.error }
 
   return { ok: true, data: result }
+}
+
+/**
+ * Membuat kategori baru dari dalam editor kursus.
+ *
+ * Dibuat di tempat, bukan lewat layar pengelolaan tersendiri -- pola yang
+ * sama dengan instruktur. Menambah satu entri menu lagi untuk daftar
+ * sependek ini akan memperburuk menu pengelola yang sudah 11 entri, dan
+ * orang membutuhkan kategori justru saat sedang menyusun kursus.
+ */
+export async function createCategoryAction(name: string): Promise<ActionResult<Category>> {
+  try {
+    await requireAdmin()
+  } catch {
+    return { ok: false, error: "Anda tidak berwenang" }
+  }
+
+  const result = await createCategory(name)
+  if ("error" in result) return { ok: false, error: result.error }
+
+  revalidatePath("/kelas")
+  return { ok: true, data: result.category }
 }
 
 export async function deleteInstructorAction(id: string): Promise<ActionResult<undefined>> {
