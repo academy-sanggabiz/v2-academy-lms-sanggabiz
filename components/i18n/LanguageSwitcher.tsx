@@ -1,7 +1,6 @@
 "use client"
 
 import { useTransition } from "react"
-import { Languages } from "lucide-react"
 
 import { setLocale } from "@/app/i18n-actions"
 import { useI18n } from "@/components/i18n/LocaleProvider"
@@ -13,7 +12,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LOCALES, LOCALE_LABELS, isLocale } from "@/lib/i18n/config"
+import { LOCALES, LOCALE_FLAGS, LOCALE_LABELS, isLocale } from "@/lib/i18n/config"
 import { cn } from "@/lib/utils"
 
 /**
@@ -49,7 +48,16 @@ export function LanguageSwitcher({ className }: { className?: string }) {
             aria-label={`${t.common.changeLanguage}: ${LOCALE_LABELS[locale]}`}
             className={cn("gap-1.5", className)}
           >
-            <Languages className="size-4" aria-hidden />
+            {/*
+              Bendera, bukan ikon "Languages" yang umum: dua pilihan yang
+              dibedakan benderanya bisa dikenali tanpa dibaca, sementara satu
+              ikon yang sama untuk keduanya tidak memberi tahu apa pun tentang
+              bahasa yang sedang aktif. Kode bahasanya tetap di sebelahnya --
+              bendera sendirian menandai negara, bukan bahasa.
+            */}
+            <span aria-hidden className="text-base leading-none">
+              {LOCALE_FLAGS[locale]}
+            </span>
             {locale.toUpperCase()}
           </Button>
         }
@@ -69,6 +77,9 @@ export function LanguageSwitcher({ className }: { className?: string }) {
             // bahasanya dengan benar -- "English" dibaca sebagai bahasa
             // Inggris meski menu di sekitarnya berbahasa Indonesia.
             <DropdownMenuRadioItem key={value} value={value} lang={value}>
+              <span aria-hidden className="mr-2 text-base leading-none">
+                {LOCALE_FLAGS[value]}
+              </span>
               {LOCALE_LABELS[value]}
             </DropdownMenuRadioItem>
           ))}

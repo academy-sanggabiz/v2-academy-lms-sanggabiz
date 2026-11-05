@@ -67,6 +67,14 @@ for (const d of ["app", "components", "lib"]) {
     for (const m of asli.matchAll(/"((?:[^"\\\n]|\\.){40,}?)"/g)) {
       const s = m[1]
       if (/[a-z]:\/\/|className|data-|aria-|^[\w/.-]+$/.test(s)) continue
+      // Bukan kalimat kalau hurufnya kurang dari separuh. Yang disaring di
+      // sini data jalur SVG ("M17.472 14.382c-.297-.149..."): panjang,
+      // berspasi, dan lolos semua saringan di atas, tetapi itu koordinat --
+      // menghitungnya sebagai "kalimat 66 kata" membuat gerbang ini melaporkan
+      // kegagalan yang tidak bisa diperbaiki siapa pun. Prosa dalam bahasa apa
+      // pun jauh di atas ambang ini.
+      const huruf = (s.match(/\p{L}/gu) ?? []).length
+      if (huruf / s.length < 0.5) continue
       urai(s, relatif)
     }
     // simpul teks JSX (hanya .tsx), setelah komentar dibuang supaya tidak salah lapor

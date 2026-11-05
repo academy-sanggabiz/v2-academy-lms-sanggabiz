@@ -79,3 +79,12 @@ export function uploadAvatar(file: File, userId: string) {
     allowedTypes: ALLOWED_AVATAR_TYPES,
   })
 }
+
+/**
+ * Gambar halaman depan: logo mitra, foto alumni, galeri, foto hero. Bucket
+ * sendiri (`landing-assets`, migrasi 20261105020000) supaya aset pemasaran
+ * tidak bercampur dengan isi pelajaran dan bisa dibersihkan terpisah.
+ */
+export function uploadLandingImage(file: File) {
+  return uploadToBucket("landing-assets", file, 5 * 1024 * 1024)
+}

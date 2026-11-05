@@ -32,6 +32,22 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   en: "English",
 }
 
+/**
+ * Bendera tiap bahasa, untuk pemilih bahasa.
+ *
+ * Bendera adalah tanda negara, bukan tanda bahasa -- dan itu alasan yang baik
+ * untuk tidak memakainya sendirian. Di sini ia selalu berdampingan dengan kode
+ * bahasanya ("ID", "EN"), jadi yang membawa arti tetap teksnya; benderanya
+ * membuat tombolnya cepat dikenali dari jauh. Bendera Inggris, bukan Amerika:
+ * kode bahasanya "en".
+ *
+ * `aria-hidden` saat dirender -- pembaca layar sudah menerima nama bahasanya.
+ */
+export const LOCALE_FLAGS: Record<Locale, string> = {
+  id: "🇮🇩",
+  en: "🇬🇧",
+}
+
 export const LOCALE_COOKIE = "bahasa"
 
 export function isLocale(value: unknown): value is Locale {
