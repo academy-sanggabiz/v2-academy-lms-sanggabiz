@@ -1094,6 +1094,7 @@ export type Dictionary = {
     hintTestimonials: string
     hintFaq: string
     hintCta: string
+    testimonialsLimit: string
     blockWhatsapp: string
     hintWhatsapp: string
     logoVariantMarquee: string
@@ -2415,6 +2416,7 @@ const id: Dictionary = {
     hintTestimonials: "Ulasan peserta. Bawaannya otomatis dari ulasan bernilai 4 ke atas (hanya nama depan); bisa dialihkan ke isi manual.",
     hintFaq: "Daftar tanya-jawab yang bisa dibuka satu per satu.",
     hintCta: "Ajakan penutup dengan dua tombol.",
+    testimonialsLimit: "Jumlah ulasan ditampilkan",
     blockWhatsapp: "Tombol WhatsApp",
     hintWhatsapp: "Tombol hijau mengambang di pojok kanan bawah, membuka percakapan WhatsApp.",
     logoVariantMarquee: "Berjalan",
@@ -3736,6 +3738,7 @@ const en: Dictionary = {
     hintTestimonials: "Learner reviews rated 4 or higher, pulled automatically. Only first names are shown.",
     hintFaq: "A list of questions and answers that open one at a time.",
     hintCta: "A closing call to action with two buttons.",
+    testimonialsLimit: "Reviews shown",
     blockWhatsapp: "WhatsApp Button",
     hintWhatsapp: "A green button floating at the bottom right that opens a WhatsApp chat.",
     logoVariantMarquee: "Scrolling",

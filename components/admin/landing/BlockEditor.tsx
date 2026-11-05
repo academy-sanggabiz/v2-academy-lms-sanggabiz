@@ -524,6 +524,23 @@ function BlockFields({
               onPatch({ hero: { ...block.hero, primaryCtaHref } } as Partial<LandingBlock>)
             }
           />
+          {/*
+            Paragraf di bawah judul besar. Selama ini ia dirender tetapi tidak
+            punya kolom sama sekali di layar ini -- satu-satunya cara
+            menggantinya adalah lewat basis data. Penyunting kaya, bukan kolom
+            biasa, karena halaman depan merendernya sebagai HTML
+            (`dangerouslySetInnerHTML`), persis seperti keterangan keunggulan.
+          */}
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>{t.superadmin.fieldSubheading}</Label>
+            <RichTextEditor
+              ariaLabel={t.superadmin.fieldSubheading}
+              value={block.hero.subheading}
+              onChange={(subheading) =>
+                onPatch({ hero: { ...block.hero, subheading } } as Partial<LandingBlock>)
+              }
+            />
+          </div>
           {/* Foto kolom kanan dan pita kepercayaan: bukti sebelum janji
               (docs/STANDAR-HALAMAN-DEPAN.md §1). Kosong = hero satu kolom. */}
           <div className="sm:col-span-2">
@@ -1175,6 +1192,24 @@ function BlockFields({
                 realNote={t.superadmin.testimonialsNote.replace("{n}", String(block.limit))}
                 onChange={(source) => onPatch({ source } as Partial<LandingBlock>)}
               />
+              {/*
+                Angkanya hanya berlaku untuk sumber "real": pada sumber manual
+                yang tampil adalah seluruh butir yang diketik. Keterangan di
+                atas menyebut angka ini, jadi tanpa kolomnya penyusun membaca
+                "3 ulasan terbaru" tanpa cara mengubah angka 3.
+              */}
+              {(block.source ?? "real") === "real" && (
+                <div className="max-w-[220px]">
+                  <Field
+                    label={t.superadmin.testimonialsLimit}
+                    value={String(block.limit)}
+                    disabled={disabled}
+                    onChange={(v) =>
+                      onPatch({ limit: Math.min(12, Math.max(1, Number(v) || 1)) } as Partial<LandingBlock>)
+                    }
+                  />
+                </div>
+              )}
               {block.source === "manual" && (
                 <ItemList
                   items={block.manual ?? []}
