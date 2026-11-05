@@ -23,7 +23,7 @@ import {
  * terpisah hanya akan menambah kolom `position` yang harus dijaga sendiri.
  */
 
-export const LANDING_BLOCK_TYPES = ["hero", "stats", "categories", "courses", "features", "steps", "instructors", "alumni", "logos", "testimonials", "faq", "cta"] as const
+export const LANDING_BLOCK_TYPES = ["hero", "stats", "categories", "courses", "features", "steps", "instructors", "alumni", "logos", "gallery", "testimonials", "faq", "cta", "whatsapp"] as const
 export type LandingBlockType = (typeof LANDING_BLOCK_TYPES)[number]
 
 type BlockBase = {
@@ -40,12 +40,22 @@ export type CoursesBlock = BlockBase & {
   courseIds: string[]
 }
 export type FeaturesBlock = BlockBase & { type: "features"; heading: string; features: Feature[] }
+/**
+ * Sumber isi untuk blok yang LMS punya datanya tetapi pemilik boleh mengetik
+ * sendiri (docs/STANDAR-HALAMAN-DEPAN.md §2). Bawaan "real"; "manual" tidak
+ * memperbarui dirinya, dan petunjuk bloknya mengatakan itu.
+ */
+export type ContentSource = "real" | "manual"
+
+export type ManualTestimonial = { name: string; rating: number; comment: string }
 export type TestimonialsBlock = BlockBase & {
   type: "testimonials"
   heading: string
   subheading: string
   /** Berapa ulasan peserta terbaru yang ditampilkan. */
   limit: number
+  source?: ContentSource
+  manual?: ManualTestimonial[]
 }
 /**
  * Pita angka platform (peserta, kelas, pendaftaran).
@@ -56,7 +66,15 @@ export type TestimonialsBlock = BlockBase & {
  * tidak pernah diperbarui -- dan di halaman pemasaran, angka basi sama saja
  * dengan angka karangan.
  */
-export type StatsBlock = BlockBase & { type: "stats"; heading: string; subheading: string }
+export type ManualStat = { label: string; value: string }
+export type StatsBlock = BlockBase & {
+  type: "stats"
+  heading: string
+  subheading: string
+  source?: ContentSource
+  /** Dipakai hanya bila `source === "manual"`. Nilainya teks supaya "2.7M+" bisa ditulis apa adanya. */
+  manual?: ManualStat[]
+}
 
 /**
  * Navigasi bidang: "kelas tentang apa yang Anda cari".
@@ -80,35 +98,93 @@ export type StepItem = { title: string; description: string }
  */
 export type StepsBlock = BlockBase & { type: "steps"; heading: string; subheading: string; items: StepItem[] }
 
-/** Satu logo mitra. `logoUrl` boleh kosong -- namanya saja sudah cukup. */
-export type LogoItem = { name: string; logoUrl: string }
+/**
+ * Satu logo mitra. `name` dipakai sebagai alt dan sebagai cadangan bila
+ * gambarnya belum ada; `count` opsional -- jumlah alumni di sana, seperti
+ * "BCA 56" di dinding logo RevoU (docs/STANDAR-HALAMAN-DEPAN.md §1).
+ */
+export type LogoItem = { name: string; logoUrl: string; count?: number }
 
 /**
  * Logo mitra, klien, atau institusi.
  *
  * Disimpan sebagai daftar yang diketik, bukan tabel: jumlahnya belasan,
  * selalu dibaca sekaligus, dan urutannya adalah urutan larik -- alasan yang
- * sama dengan kenapa bloknya sendiri jsonb.
+ * sama dengan kenapa bloknya sendiri jsonb. Diunggah banyak sekaligus dari
+ * penyunting; satu berkas = satu butir.
  */
-export type LogosBlock = BlockBase & { type: "logos"; heading: string; items: LogoItem[] }
+export type LogosBlock = BlockBase & {
+  type: "logos"
+  heading: string
+  subheading?: string
+  /**
+   * "dinding": ubin ber-grid dengan angka; "pita": satu baris diam;
+   * "berjalan": satu baris yang bergeser sendiri tanpa henti.
+   *
+   * Yang berjalan memuat lebih banyak logo daripada yang muat di layar, dan
+   * itu justru maksudnya -- pita yang penuh sampai terpotong membuat
+   * pengunjung tahu daftarnya belum habis.
+   */
+  variant?: "wall" | "strip" | "marquee"
+  /** Baris penutup, mis. "dan 500+ perusahaan lainnya". */
+  caption?: string
+  items: LogoItem[]
+}
+
+/**
+ * Tombol WhatsApp mengambang.
+ *
+ * Satu-satunya blok yang tidak menempati barisnya sendiri di halaman: ia
+ * melayang di atas segalanya. Tetap disimpan sebagai blok supaya pemilik
+ * mengaturnya di tempat yang sama dengan sisi halaman depan lainnya, dan
+ * supaya tombol "sembunyikan" yang sudah ada berlaku untuknya juga.
+ */
+export type WhatsappBlock = BlockBase & {
+  type: "whatsapp"
+  /** Boleh diketik bebas ("0812-3456-7890"); dibersihkan saat dirender. */
+  number: string
+  /** Isi awal percakapan. Kosong berarti WhatsApp terbuka dengan kolom kosong. */
+  message: string
+  label: string
+}
+
+/** Satu foto galeri (acara, kelas, komunitas). */
+export type GalleryItem = { url: string; caption: string }
+
+/** Mozaik foto, sembilan sekali lihat seperti bagian komunitas RevoU. Diunggah massal. */
+export type GalleryBlock = BlockBase & {
+  type: "gallery"
+  heading: string
+  subheading: string
+  items: GalleryItem[]
+}
 
 /**
  * Pengajar. Dibaca dari tabel `instructors`, jadi tidak ada nama yang bisa
  * diketik di sini -- satu orang hanya ada satu kali, di satu tempat.
  */
+export type ManualInstructor = { name: string; title: string; bio: string; photoUrl: string }
 export type InstructorsBlock = BlockBase & {
   type: "instructors"
   heading: string
   subheading: string
+  source?: ContentSource
+  manual?: ManualInstructor[]
 }
 
-/** Satu kisah alumni: foto opsional, nama, posisi, perusahaan, kutipan. */
+/**
+ * Satu kisah alumni: foto, nama, posisi sebelum → sesudah, perusahaan (nama
+ * dan logonya), kutipan pendek, tautan profil. `role` = posisi sesudah.
+ */
 export type AlumniItem = {
   name: string
   role: string
   company: string
   quote: string
   photoUrl: string
+  before?: string
+  companyLogoUrl?: string
+  linkUrl?: string
 }
 
 /**
@@ -147,6 +223,8 @@ export type LandingBlock =
   | CategoriesBlock
   | StepsBlock
   | LogosBlock
+  | GalleryBlock
+  | WhatsappBlock
   | InstructorsBlock
   | AlumniBlock
   | TestimonialsBlock
@@ -161,6 +239,8 @@ export const BLOCK_LABELS: Record<LandingBlockType, string> = {
   categories: "Pilihan Bidang",
   steps: "Cara Mulai",
   logos: "Logo Mitra",
+  gallery: "Galeri Foto",
+  whatsapp: "Tombol WhatsApp",
   instructors: "Pengajar",
   alumni: "Kisah Alumni",
   testimonials: "Testimoni Peserta",
@@ -204,7 +284,13 @@ export function createBlock(type: LandingBlockType): LandingBlock {
     case "logos":
       // Tersembunyi saat dibuat: pita logo kosong lebih buruk daripada tidak
       // ada pita logo sama sekali.
-      return { id, type, hidden: true, heading: "Dipercaya oleh", items: [] }
+      return { id, type, hidden: true, heading: "Dipercaya oleh", subheading: "", variant: "wall", caption: "", items: [] }
+    case "gallery":
+      return { id, type, hidden: true, heading: "Suasana belajar", subheading: "", items: [] }
+    case "whatsapp":
+      // Tersembunyi saat dibuat: tombol tanpa nomor hanya tautan rusak, dan
+      // nomornya tidak bisa ditebak.
+      return { id, type, hidden: true, number: "", message: "", label: "Hubungi Kami" }
     case "instructors":
       // Tersembunyi saat dibuat: isinya dari tabel instructors, yang bisa saja
       // masih kosong.

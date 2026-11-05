@@ -324,3 +324,49 @@
     cursor: col-resize;
   }
 }
+/*
+ * Dinding logo berjalan (blok `logos`, varian "marquee").
+ *
+ * Jalurnya memuat daftar logo DUA KALI dan bergeser tepat -50%: begitu salinan
+ * pertama habis, salinan kedua sudah persis di tempat yang sama, jadi
+ * perulangannya tidak berkedip. Lebarnya tidak pernah diukur dengan
+ * JavaScript -- itu akan salah pada muatan pertama dan setiap kali fontnya
+ * berganti.
+ *
+ * Yang penting: di bawah `prefers-reduced-motion` animasinya BUKAN sekadar
+ * dipercepat. Aturan global di atas memaksa setiap animasi selesai dalam
+ * 0,01ms, dan untuk jalur ini "selesai" berarti sudah tergeser -50% -- separuh
+ * logonya hilang dari layar. Jadi di sana jalurnya dihentikan di posisi awal
+ * dan barisnya menjadi bisa digulir sendiri.
+ */
+@keyframes sanggabiz-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: sanggabiz-marquee var(--marquee-duration, 40s) linear infinite;
+  will-change: transform;
+}
+
+/* Berhenti saat disentuh tetikus atau saat ada yang mendapat fokus papan ketik:
+   logo yang bergerak tidak bisa dibaca, dan tautan yang bergerak tidak bisa
+   diklik (WCAG 2.2.2 -- gerakan otomatis harus bisa dihentikan). */
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    overflow-x: auto;
+  }
+  .marquee-track {
+    animation: none !important;
+    transform: none !important;
+  }
+}

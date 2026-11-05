@@ -2,6 +2,9 @@ export const LANDING_ICON_OPTIONS = ["graduation-cap", "layers", "award"] as con
 
 export type LandingIcon = (typeof LANDING_ICON_OPTIONS)[number]
 
+/** Satu lencana kepercayaan di hero: logo situs ulasan + nilainya. */
+export type HeroTrustBadge = { label: string; score: string; logoUrl: string }
+
 export type Hero = {
   heading: string
   highlightWord: string
@@ -9,6 +12,11 @@ export type Hero = {
   subheading: string
   primaryCtaText: string
   primaryCtaHref: string
+  /** Foto di kolom kanan hero (docs/STANDAR-HALAMAN-DEPAN.md §1). Kosong = hero satu kolom. */
+  imageUrl?: string
+  /** Pita kepercayaan di bawah tombol, mis. "Dipercaya 12.000+ peserta". */
+  trustText?: string
+  trustBadges?: HeroTrustBadge[]
 }
 
 export type Feature = {

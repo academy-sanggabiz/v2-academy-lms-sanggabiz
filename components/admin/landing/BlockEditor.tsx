@@ -30,7 +30,8 @@ import { FeaturedCoursesPicker, type PickableCourse } from "./FeaturedCoursesPic
 import { LivePreview, type PreviewData } from "./LivePreview"
 import { dndAnnouncements } from "@/lib/dnd-announcements"
 import { ImageDropzone } from "@/components/admin/courses/ImageDropzone"
-import { uploadLessonImage } from "@/lib/storage"
+import { BulkImageDropzone, type UploadedImage } from "./BulkImageDropzone"
+import { uploadLandingImage } from "@/lib/storage"
 import { Label } from "@/components/ui/label"
 import {
   Dialog,
@@ -44,12 +45,14 @@ import {
   SINGLETON_BLOCKS,
   createBlock,
   newBlockId,
+  type ContentSource,
   type LandingBlock,
   type LandingBlockType,
 } from "@/lib/landing-blocks"
 import { LOCALE_LABELS, type Locale } from "@/lib/i18n/config"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/components/i18n/LocaleProvider"
+import { waHref } from "@/components/landing/FloatingWhatsApp"
 import type { Dictionary } from "@/lib/i18n/dictionaries"
 
 /**
@@ -74,11 +77,13 @@ function blockLabels(t: Dictionary): Record<LandingBlockType, string> {
     categories: t.superadmin.blockCategories,
     steps: t.superadmin.blockSteps,
     logos: t.superadmin.blockLogos,
+    gallery: t.superadmin.blockGallery,
     instructors: t.superadmin.blockInstructors,
     alumni: t.superadmin.blockAlumni,
     testimonials: t.superadmin.blockTestimonials,
     faq: t.superadmin.blockFaq,
     cta: t.superadmin.blockCta,
+    whatsapp: t.superadmin.blockWhatsapp,
   }
 }
 
@@ -94,9 +99,11 @@ function blockHints(t: Dictionary): Record<LandingBlockType, string> {
     instructors: t.superadmin.hintInstructors,
     alumni: t.superadmin.hintAlumni,
     logos: t.superadmin.hintLogos,
+    gallery: t.superadmin.hintGallery,
     testimonials: t.superadmin.hintTestimonials,
     faq: t.superadmin.hintFaq,
     cta: t.superadmin.hintCta,
+    whatsapp: t.superadmin.hintWhatsapp,
   }
 }
 
@@ -517,11 +524,99 @@ function BlockFields({
               onPatch({ hero: { ...block.hero, primaryCtaHref } } as Partial<LandingBlock>)
             }
           />
+          {/* Foto kolom kanan dan pita kepercayaan: bukti sebelum janji
+              (docs/STANDAR-HALAMAN-DEPAN.md §1). Kosong = hero satu kolom. */}
+          <div className="sm:col-span-2">
+            <ImageDropzone
+              value={block.hero.imageUrl || null}
+              label={t.superadmin.heroImage}
+              hint={t.editor.hintThumb}
+              uploadFn={uploadLandingImage}
+              onChange={(imageUrl) => onPatch({ hero: { ...block.hero, imageUrl } } as Partial<LandingBlock>)}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <Field
+              label={t.superadmin.heroTrustText}
+              value={block.hero.trustText ?? ""}
+              disabled={disabled}
+              onChange={(trustText) => onPatch({ hero: { ...block.hero, trustText } } as Partial<LandingBlock>)}
+            />
+          </div>
+          <div className="space-y-3 sm:col-span-2">
+            <Label>{t.superadmin.heroTrustBadges}</Label>
+            {(block.hero.trustBadges ?? []).map((badge, i) => (
+              <div key={i} className="grid gap-3 rounded-xl border border-border p-4 sm:grid-cols-3">
+                <Field
+                  label={t.superadmin.trustBadgeLabel}
+                  value={badge.label}
+                  disabled={disabled}
+                  onChange={(label) => {
+                    const trustBadges = [...(block.hero.trustBadges ?? [])]
+                    trustBadges[i] = { ...trustBadges[i], label }
+                    onPatch({ hero: { ...block.hero, trustBadges } } as Partial<LandingBlock>)
+                  }}
+                />
+                <Field
+                  label={t.superadmin.trustBadgeScore}
+                  value={badge.score}
+                  disabled={disabled}
+                  onChange={(score) => {
+                    const trustBadges = [...(block.hero.trustBadges ?? [])]
+                    trustBadges[i] = { ...trustBadges[i], score }
+                    onPatch({ hero: { ...block.hero, trustBadges } } as Partial<LandingBlock>)
+                  }}
+                />
+                <div className="flex items-end gap-2">
+                  <ImageDropzone
+                    value={badge.logoUrl || null}
+                    label={t.superadmin.trustBadgeLogo}
+                    hint=""
+                    uploadFn={uploadLandingImage}
+                    onChange={(logoUrl) => {
+                      const trustBadges = [...(block.hero.trustBadges ?? [])]
+                      trustBadges[i] = { ...trustBadges[i], logoUrl }
+                      onPatch({ hero: { ...block.hero, trustBadges } } as Partial<LandingBlock>)
+                    }}
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={disabled}
+                    aria-label={t.superadmin.deleteTrustBadgeN.replace("{n}", String(i + 1))}
+                    onClick={() =>
+                      onPatch({
+                        hero: { ...block.hero, trustBadges: (block.hero.trustBadges ?? []).filter((_, j) => j !== i) },
+                      } as Partial<LandingBlock>)
+                    }
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="size-4" aria-hidden />
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={disabled}
+              onClick={() =>
+                onPatch({
+                  hero: {
+                    ...block.hero,
+                    trustBadges: [...(block.hero.trustBadges ?? []), { label: "", score: "", logoUrl: "" }],
+                  },
+                } as Partial<LandingBlock>)
+              }
+            >
+              <Plus className="size-4" aria-hidden />
+              {t.superadmin.addTrustBadge}
+            </Button>
+          </div>
         </div>
       )
 
     case "categories":
-    case "instructors":
       return (
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
@@ -536,9 +631,59 @@ function BlockFields({
             disabled={disabled}
             onChange={(subheading) => onPatch({ subheading } as Partial<LandingBlock>)}
           />
-          <p className="text-xs text-muted-foreground sm:col-span-2">
-            {block.type === "categories" ? t.superadmin.categoriesNote : t.superadmin.instructorsNote}
-          </p>
+          <p className="text-xs text-muted-foreground sm:col-span-2">{t.superadmin.categoriesNote}</p>
+        </div>
+      )
+
+    case "instructors":
+      return (
+        <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
+              label={t.superadmin.fieldHeading}
+              value={block.heading}
+              disabled={disabled}
+              onChange={(heading) => onPatch({ heading } as Partial<LandingBlock>)}
+            />
+            <Field
+              label={t.superadmin.fieldSubheading}
+              value={block.subheading}
+              disabled={disabled}
+              onChange={(subheading) => onPatch({ subheading } as Partial<LandingBlock>)}
+            />
+          </div>
+          <SourceToggle
+            value={block.source ?? "real"}
+            disabled={disabled}
+            realNote={t.superadmin.instructorsNote}
+            onChange={(source) => onPatch({ source } as Partial<LandingBlock>)}
+          />
+          {block.source === "manual" && (
+            <ItemList
+              items={block.manual ?? []}
+              disabled={disabled}
+              addLabel={t.superadmin.addInstructor}
+              deleteLabel={t.superadmin.deleteInstructorN}
+              empty={{ name: "", title: "", bio: "", photoUrl: "" }}
+              onChange={(manual) => onPatch({ manual } as Partial<LandingBlock>)}
+              render={(item, set) => (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Field label={t.superadmin.manualInstructorName} value={item.name} disabled={disabled} onChange={(name) => set({ name })} />
+                  <Field label={t.superadmin.manualInstructorTitle} value={item.title} disabled={disabled} onChange={(title) => set({ title })} />
+                  <div className="sm:col-span-2">
+                    <Field label={t.superadmin.manualInstructorBio} value={item.bio} disabled={disabled} onChange={(bio) => set({ bio })} />
+                  </div>
+                  <ImageDropzone
+                    value={item.photoUrl || null}
+                    label={t.superadmin.manualInstructorPhoto}
+                    hint={t.editor.hintThumb}
+                    uploadFn={uploadLandingImage}
+                    onChange={(photoUrl) => set({ photoUrl })}
+                  />
+                </div>
+              )}
+            />
+          )}
         </div>
       )
 
@@ -695,10 +840,41 @@ function BlockFields({
                 value={item.photoUrl || null}
                 label={t.superadmin.alumniPhoto}
                 hint={t.editor.hintThumb}
-                uploadFn={uploadLessonImage}
+                uploadFn={uploadLandingImage}
                 onChange={(photoUrl) => {
                   const items = [...block.items]
                   items[i] = { ...items[i], photoUrl }
+                  onPatch({ items } as Partial<LandingBlock>)
+                }}
+              />
+              <Field
+                label={t.superadmin.alumniBefore}
+                value={item.before ?? ""}
+                disabled={disabled}
+                onChange={(before) => {
+                  const items = [...block.items]
+                  items[i] = { ...items[i], before }
+                  onPatch({ items } as Partial<LandingBlock>)
+                }}
+              />
+              <ImageDropzone
+                value={item.companyLogoUrl || null}
+                label={t.superadmin.alumniCompanyLogo}
+                hint={t.editor.hintThumb}
+                uploadFn={uploadLandingImage}
+                onChange={(companyLogoUrl) => {
+                  const items = [...block.items]
+                  items[i] = { ...items[i], companyLogoUrl }
+                  onPatch({ items } as Partial<LandingBlock>)
+                }}
+              />
+              <Field
+                label={t.superadmin.alumniLink}
+                value={item.linkUrl ?? ""}
+                disabled={disabled}
+                onChange={(linkUrl) => {
+                  const items = [...block.items]
+                  items[i] = { ...items[i], linkUrl }
                   onPatch({ items } as Partial<LandingBlock>)
                 }}
               />
@@ -723,85 +899,239 @@ function BlockFields({
     case "logos":
       return (
         <div className="space-y-4">
-          <Field
-            label={t.superadmin.fieldHeading}
-            value={block.heading}
-            disabled={disabled}
-            onChange={(heading) => onPatch({ heading } as Partial<LandingBlock>)}
-          />
-          <p className="text-xs text-muted-foreground">{t.superadmin.logoNameRequired}</p>
-          {block.items.map((item, i) => (
-            <div key={i} className="space-y-3 rounded-xl border border-border p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">{i + 1}</span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  disabled={disabled}
-                  aria-label={t.superadmin.deleteLogoN.replace("{n}", String(i + 1))}
-                  onClick={() =>
-                    onPatch({ items: block.items.filter((_, j) => j !== i) } as Partial<LandingBlock>)
-                  }
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="size-4" aria-hidden />
-                </Button>
-              </div>
-              <Field
-                label={t.superadmin.logoName}
-                value={item.name}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
+              label={t.superadmin.fieldHeading}
+              value={block.heading}
+              disabled={disabled}
+              onChange={(heading) => onPatch({ heading } as Partial<LandingBlock>)}
+            />
+            <Field
+              label={t.superadmin.fieldSubheading}
+              value={block.subheading ?? ""}
+              disabled={disabled}
+              onChange={(subheading) => onPatch({ subheading } as Partial<LandingBlock>)}
+            />
+            <div className="space-y-1.5">
+              <Label htmlFor={`logo-variant-${block.id}`}>{t.superadmin.logoVariant}</Label>
+              <select
+                id={`logo-variant-${block.id}`}
+                value={block.variant ?? "wall"}
                 disabled={disabled}
-                onChange={(name) => {
-                  const items = [...block.items]
-                  items[i] = { ...items[i], name }
-                  onPatch({ items } as Partial<LandingBlock>)
-                }}
-              />
-              <ImageDropzone
-                value={item.logoUrl || null}
-                label={t.superadmin.logoImage}
-                hint={t.editor.hintThumb}
-                uploadFn={uploadLessonImage}
-                onChange={(logoUrl) => {
-                  const items = [...block.items]
-                  items[i] = { ...items[i], logoUrl }
-                  onPatch({ items } as Partial<LandingBlock>)
-                }}
-              />
+                onChange={(e) => onPatch({ variant: e.target.value as "wall" | "strip" | "marquee" } as Partial<LandingBlock>)}
+                className="flex h-8 w-fit items-center rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring"
+              >
+                <option value="wall">{t.superadmin.logoVariantWall}</option>
+                <option value="strip">{t.superadmin.logoVariantStrip}</option>
+                <option value="marquee">{t.superadmin.logoVariantMarquee}</option>
+              </select>
             </div>
-          ))}
-          <Button
-            size="sm"
-            variant="outline"
+            <Field
+              label={t.superadmin.logoCaption}
+              value={block.caption ?? ""}
+              disabled={disabled}
+              onChange={(caption) => onPatch({ caption } as Partial<LandingBlock>)}
+            />
+          </div>
+
+          {/* Belasan logo sekali pilih: satu berkas = satu butir, namanya
+              dari nama berkas (docs/STANDAR-HALAMAN-DEPAN.md §3). */}
+          <BulkImageDropzone
+            label={t.superadmin.bulkUploadLabel}
+            hint={t.superadmin.bulkUploadHint}
+            uploadFn={uploadLandingImage}
             disabled={disabled}
-            onClick={() =>
-              onPatch({ items: [...block.items, { name: "", logoUrl: "" }] } as Partial<LandingBlock>)
+            onUploaded={(images) =>
+              onPatch({
+                items: [...block.items, ...images.map((img) => ({ name: nameFromFile(img), logoUrl: img.url }))],
+              } as Partial<LandingBlock>)
             }
-          >
-            <Plus className="size-4" aria-hidden />
-            {t.superadmin.addLogo}
-          </Button>
+          />
+
+          {block.items.length > 0 && (
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {block.items.map((item, i) => (
+                <li key={i} className="space-y-2 rounded-xl border border-border p-3">
+                  <div className="flex h-14 items-center justify-center rounded-lg bg-muted/40">
+                    {item.logoUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={item.logoUrl} alt="" className="max-h-10 max-w-full object-contain" />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">{t.superadmin.logoImage}</span>
+                    )}
+                  </div>
+                  <Field
+                    label={t.superadmin.logoName}
+                    value={item.name}
+                    disabled={disabled}
+                    onChange={(name) => {
+                      const items = [...block.items]
+                      items[i] = { ...items[i], name }
+                      onPatch({ items } as Partial<LandingBlock>)
+                    }}
+                  />
+                  {(block.variant ?? "wall") === "wall" && (
+                    <Field
+                      label={t.superadmin.logoCount}
+                      value={item.count ? String(item.count) : ""}
+                      disabled={disabled}
+                      onChange={(v) => {
+                        const items = [...block.items]
+                        const n = Number(v)
+                        items[i] = { ...items[i], count: Number.isFinite(n) && n > 0 ? Math.round(n) : undefined }
+                        onPatch({ items } as Partial<LandingBlock>)
+                      }}
+                    />
+                  )}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={disabled}
+                    aria-label={t.superadmin.deleteLogoN.replace("{n}", String(i + 1))}
+                    onClick={() => onPatch({ items: block.items.filter((_, j) => j !== i) } as Partial<LandingBlock>)}
+                    className="w-full text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="size-4" aria-hidden />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={disabled}
+              onClick={() => onPatch({ items: [...block.items, { name: "", logoUrl: "" }] } as Partial<LandingBlock>)}
+            >
+              <Plus className="size-4" aria-hidden />
+              {t.superadmin.addLogo}
+            </Button>
+            {block.items.length > 1 && (
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={disabled}
+                onClick={() => onPatch({ items: [] } as Partial<LandingBlock>)}
+                className="text-destructive hover:text-destructive"
+              >
+                {t.superadmin.removeAllItems}
+              </Button>
+            )}
+          </div>
+        </div>
+      )
+
+    case "gallery":
+      return (
+        <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
+              label={t.superadmin.fieldHeading}
+              value={block.heading}
+              disabled={disabled}
+              onChange={(heading) => onPatch({ heading } as Partial<LandingBlock>)}
+            />
+            <Field
+              label={t.superadmin.fieldSubheading}
+              value={block.subheading}
+              disabled={disabled}
+              onChange={(subheading) => onPatch({ subheading } as Partial<LandingBlock>)}
+            />
+          </div>
+          <BulkImageDropzone
+            label={t.superadmin.bulkUploadLabel}
+            hint={t.superadmin.bulkUploadHint}
+            uploadFn={uploadLandingImage}
+            disabled={disabled}
+            onUploaded={(images) =>
+              onPatch({ items: [...block.items, ...images.map((img) => ({ url: img.url, caption: "" }))] } as Partial<LandingBlock>)
+            }
+          />
+          {block.items.length > 0 && (
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {block.items.map((item, i) => (
+                <li key={i} className="space-y-2 rounded-xl border border-border p-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={item.url} alt="" className="aspect-square w-full rounded-lg object-cover" />
+                  <Field
+                    label={t.superadmin.galleryCaption}
+                    value={item.caption}
+                    disabled={disabled}
+                    onChange={(caption) => {
+                      const items = [...block.items]
+                      items[i] = { ...items[i], caption }
+                      onPatch({ items } as Partial<LandingBlock>)
+                    }}
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={disabled}
+                    aria-label={t.superadmin.deletePhotoN.replace("{n}", String(i + 1))}
+                    onClick={() => onPatch({ items: block.items.filter((_, j) => j !== i) } as Partial<LandingBlock>)}
+                    className="w-full text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="size-4" aria-hidden />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {block.items.length > 1 && (
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={disabled}
+              onClick={() => onPatch({ items: [] } as Partial<LandingBlock>)}
+              className="text-destructive hover:text-destructive"
+            >
+              {t.superadmin.removeAllItems}
+            </Button>
+          )}
         </div>
       )
 
     case "stats":
       return (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field
-            label={t.superadmin.fieldHeading}
-            value={block.heading}
+        <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
+              label={t.superadmin.fieldHeading}
+              value={block.heading}
+              disabled={disabled}
+              onChange={(heading) => onPatch({ heading } as Partial<LandingBlock>)}
+            />
+            <Field
+              label={t.superadmin.fieldSubheading}
+              value={block.subheading}
+              disabled={disabled}
+              onChange={(subheading) => onPatch({ subheading } as Partial<LandingBlock>)}
+            />
+          </div>
+          <SourceToggle
+            value={block.source ?? "real"}
             disabled={disabled}
-            onChange={(heading) => onPatch({ heading } as Partial<LandingBlock>)}
+            realNote={t.superadmin.statsHiddenNote}
+            onChange={(source) => onPatch({ source } as Partial<LandingBlock>)}
           />
-          <Field
-            label={t.superadmin.fieldSubheading}
-            value={block.subheading}
-            disabled={disabled}
-            onChange={(subheading) => onPatch({ subheading } as Partial<LandingBlock>)}
-          />
-          <p className="text-xs text-muted-foreground sm:col-span-2">
-            {t.superadmin.statsHiddenNote}
-          </p>
+          {block.source === "manual" && (
+            <ItemList
+              items={block.manual ?? []}
+              disabled={disabled}
+              addLabel={t.superadmin.addStat}
+              deleteLabel={t.superadmin.deleteStatN}
+              empty={{ label: "", value: "" }}
+              onChange={(manual) => onPatch({ manual } as Partial<LandingBlock>)}
+              render={(item, set) => (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Field label={t.superadmin.manualStatValue} value={item.value} disabled={disabled} onChange={(value) => set({ value })} />
+                  <Field label={t.superadmin.manualStatLabel} value={item.label} disabled={disabled} onChange={(label) => set({ label })} />
+                </div>
+              )}
+            />
+          )}
         </div>
       )
 
@@ -838,9 +1168,38 @@ function BlockFields({
               />
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground sm:col-span-2">
-              {t.superadmin.testimonialsNote.replace("{n}", String(block.limit))}
-            </p>
+            <div className="space-y-4 sm:col-span-2">
+              <SourceToggle
+                value={block.source ?? "real"}
+                disabled={disabled}
+                realNote={t.superadmin.testimonialsNote.replace("{n}", String(block.limit))}
+                onChange={(source) => onPatch({ source } as Partial<LandingBlock>)}
+              />
+              {block.source === "manual" && (
+                <ItemList
+                  items={block.manual ?? []}
+                  disabled={disabled}
+                  addLabel={t.superadmin.addTestimonial}
+                  deleteLabel={t.superadmin.deleteTestimonialN}
+                  empty={{ name: "", rating: 5, comment: "" }}
+                  onChange={(manual) => onPatch({ manual } as Partial<LandingBlock>)}
+                  render={(item, set) => (
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <Field label={t.superadmin.manualTestimonialName} value={item.name} disabled={disabled} onChange={(name) => set({ name })} />
+                      <Field
+                        label={t.superadmin.manualTestimonialRating}
+                        value={String(item.rating)}
+                        disabled={disabled}
+                        onChange={(v) => set({ rating: Math.min(5, Math.max(1, Number(v) || 1)) })}
+                      />
+                      <div className="sm:col-span-2">
+                        <Field label={t.superadmin.manualTestimonialComment} value={item.comment} disabled={disabled} onChange={(comment) => set({ comment })} />
+                      </div>
+                    </div>
+                  )}
+                />
+              )}
+            </div>
           )}
         </div>
       )
@@ -1026,5 +1385,161 @@ function BlockFields({
           />
         </div>
       )
+
+    case "whatsapp":
+      return (
+        <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
+              label={t.superadmin.waNumber}
+              value={block.number}
+              disabled={disabled}
+              onChange={(number) => onPatch({ number } as Partial<LandingBlock>)}
+            />
+            <Field
+              label={t.superadmin.waLabel}
+              value={block.label}
+              disabled={disabled}
+              onChange={(label) => onPatch({ label } as Partial<LandingBlock>)}
+            />
+          </div>
+          <Field
+            label={t.superadmin.waMessage}
+            value={block.message}
+            disabled={disabled}
+            onChange={(message) => onPatch({ message } as Partial<LandingBlock>)}
+          />
+          {/*
+            Hasil akhirnya ditunjukkan, bukan dipercaya: nomor yang diketik
+            "0812..." dan "+62 812..." sama-sama sah di kolom di atas, dan satu
+            satunya cara tahu tautannya benar adalah melihat alamat jadinya.
+            Nomor yang terlalu pendek tidak menghasilkan tautan sama sekali,
+            dan itu juga yang ditampilkan.
+          */}
+          <p className="text-sm text-muted-foreground">
+            {waHref(block.number, block.message) ? (
+              <>
+                {t.superadmin.waPreview}{" "}
+                <span className="font-mono break-all text-foreground">
+                  {waHref(block.number, block.message)}
+                </span>
+              </>
+            ) : (
+              t.superadmin.waInvalid
+            )}
+          </p>
+        </div>
+      )
   }
+}
+
+/** "bca-logo.png" -> "Bca Logo": nama butir dari nama berkas, bisa disunting. */
+function nameFromFile(img: UploadedImage): string {
+  return img.fileName
+    .replace(/\.[a-z0-9]+$/i, "")
+    .replace(/[-_]+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+/**
+ * Saklar sumber isi: data real dari LMS atau isi manual
+ * (docs/STANDAR-HALAMAN-DEPAN.md §2). Peringatan basinya ikut ditampilkan
+ * saat manual dipilih -- bukan disembunyikan di dokumentasi.
+ */
+function SourceToggle({
+  value,
+  onChange,
+  disabled,
+  realNote,
+}: {
+  value: ContentSource
+  onChange: (value: ContentSource) => void
+  disabled: boolean
+  realNote: string
+}) {
+  const { t } = useI18n()
+  const id = useId()
+  return (
+    <fieldset className="space-y-2">
+      <legend className="text-sm font-medium">{t.superadmin.sourceLabel}</legend>
+      <div role="radiogroup" aria-labelledby={id} className="flex flex-wrap gap-2">
+        <span id={id} className="sr-only">{t.superadmin.sourceLabel}</span>
+        {(["real", "manual"] as const).map((option) => (
+          <button
+            key={option}
+            type="button"
+            role="radio"
+            aria-checked={value === option}
+            disabled={disabled}
+            onClick={() => onChange(option)}
+            className={
+              value === option
+                ? "flex min-h-9 items-center rounded-lg border border-ring bg-secondary px-3 text-xs font-semibold text-primary"
+                : "flex min-h-9 items-center rounded-lg border border-input px-3 text-xs font-semibold text-muted-foreground hover:bg-muted"
+            }
+          >
+            {option === "real" ? t.superadmin.sourceReal : t.superadmin.sourceManual}
+          </button>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground">
+        {value === "manual" ? t.superadmin.sourceManualWarning : realNote}
+      </p>
+    </fieldset>
+  )
+}
+
+/** Daftar butir yang bisa ditambah dan dihapus; bentuk tiap butir diserahkan ke `render`. */
+function ItemList<T>({
+  items,
+  onChange,
+  disabled,
+  addLabel,
+  deleteLabel,
+  empty,
+  render,
+}: {
+  items: T[]
+  onChange: (items: T[]) => void
+  disabled: boolean
+  addLabel: string
+  deleteLabel: string
+  empty: T
+  render: (item: T, set: (changes: Partial<T>) => void, index: number) => React.ReactNode
+}) {
+  return (
+    <div className="space-y-3">
+      {items.map((item, i) => (
+        <div key={i} className="space-y-3 rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted-foreground">{i + 1}</span>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={disabled}
+              aria-label={deleteLabel.replace("{n}", String(i + 1))}
+              onClick={() => onChange(items.filter((_, j) => j !== i))}
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2 className="size-4" aria-hidden />
+            </Button>
+          </div>
+          {render(
+            item,
+            (changes) => {
+              const next = [...items]
+              next[i] = { ...next[i], ...changes }
+              onChange(next)
+            },
+            i
+          )}
+        </div>
+      ))}
+      <Button size="sm" variant="outline" disabled={disabled} onClick={() => onChange([...items, { ...empty }])}>
+        <Plus className="size-4" aria-hidden />
+        {addLabel}
+      </Button>
+    </div>
+  )
 }

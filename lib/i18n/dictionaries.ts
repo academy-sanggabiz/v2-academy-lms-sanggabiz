@@ -1046,9 +1046,62 @@ export type Dictionary = {
     hintInstructors: string
     hintAlumni: string
     hintLogos: string
+    blockGallery: string
+    hintGallery: string
+    heroImage: string
+    heroTrustText: string
+    heroTrustBadges: string
+    trustBadgeLabel: string
+    trustBadgeScore: string
+    trustBadgeLogo: string
+    addTrustBadge: string
+    deleteTrustBadgeN: string
+    logoVariant: string
+    logoVariantWall: string
+    logoVariantStrip: string
+    logoCaption: string
+    logoCount: string
+    bulkUploadLabel: string
+    bulkUploadHint: string
+    bulkUploadProgress: string
+    bulkUploadDone: string
+    bulkUploadFailed: string
+    removeAllItems: string
+    alumniBefore: string
+    alumniCompanyLogo: string
+    alumniLink: string
+    galleryCaption: string
+    deletePhotoN: string
+    sourceLabel: string
+    sourceReal: string
+    sourceManual: string
+    sourceManualWarning: string
+    manualStatLabel: string
+    manualStatValue: string
+    addStat: string
+    deleteStatN: string
+    manualTestimonialName: string
+    manualTestimonialRating: string
+    manualTestimonialComment: string
+    addTestimonial: string
+    deleteTestimonialN: string
+    manualInstructorName: string
+    manualInstructorTitle: string
+    manualInstructorBio: string
+    manualInstructorPhoto: string
+    addInstructor: string
+    deleteInstructorN: string
     hintTestimonials: string
     hintFaq: string
     hintCta: string
+    blockWhatsapp: string
+    hintWhatsapp: string
+    logoVariantMarquee: string
+    waNumber: string
+    waLabel: string
+    waMessage: string
+    waPreview: string
+    waInvalid: string
   }
   catalog: {
     navClasses: string
@@ -1223,6 +1276,7 @@ export type Dictionary = {
     signIn: string
     getStarted: string
     exploreCourses: string
+    viewProfile: string
     footerTagline: string
     privacy: string
   }
@@ -2305,17 +2359,70 @@ const id: Dictionary = {
     landingSavedEn: "Versi Inggris halaman depan tersimpan",
     sectionNoun: "Bagian",
     hintHero: "Judul besar, kalimat pembuka, dan dua tombol utama di paling atas halaman.",
-    hintStats: "Pita angka platform. Dibaca dari basis data; akun demo tidak ikut dihitung.",
+    hintStats: "Angka besar platform. Bawaannya dibaca dari basis data (akun demo tidak dihitung); bisa dialihkan ke isi manual.",
     hintCategories: "Kartu per bidang beserta jumlah kelasnya, menuju katalog yang sudah tersaring.",
     hintCourses: "Carousel kelas pilihan. Dikosongkan berarti menampilkan empat kelas terbit terbaru.",
     hintFeatures: "Tiga sampai empat alasan singkat kenapa belajar di sini.",
     hintSteps: "Langkah bernomor dari melihat-lihat sampai mendapat sertifikat.",
-    hintInstructors: "Kartu pengajar. Dibaca dari daftar instruktur di basis data.",
+    hintInstructors: "Pengajar dengan foto. Bawaannya dari daftar instruktur di basis data; bisa dialihkan ke isi manual.",
     hintAlumni: "Kutipan alumni beserta nama, posisi, dan tempat kerjanya. Isi bawaannya hanya contoh -- ganti dengan cerita nyata, dan minta izin orangnya lebih dulu.",
-    hintLogos: "Deretan logo mitra, klien, atau institusi. Nama saja sudah cukup bila logonya belum ada. Isi bawaannya nama rekaan -- hanya cantumkan pihak yang benar-benar bekerja sama dengan Anda.",
-    hintTestimonials: "Ulasan peserta bernilai 4 ke atas, diambil otomatis. Hanya nama depan yang tampil.",
+    hintLogos: "Dinding atau pita logo mitra, klien, atau institusi -- gambarnya, bukan namanya. Unggah banyak logo sekaligus; angka per logo opsional. Hanya cantumkan pihak yang benar-benar bekerja sama dengan Anda.",
+    blockGallery: "Galeri Foto",
+    hintGallery: "Mozaik foto suasana belajar, acara, atau komunitas. Unggah banyak foto sekaligus; foto pertama tampil paling besar.",
+    heroImage: "Foto hero (kolom kanan)",
+    heroTrustText: "Teks kepercayaan",
+    heroTrustBadges: "Lencana penilaian",
+    trustBadgeLabel: "Nama situs ulasan",
+    trustBadgeScore: "Nilai",
+    trustBadgeLogo: "Logo situs ulasan",
+    addTrustBadge: "Tambah lencana",
+    deleteTrustBadgeN: "Hapus lencana {n}",
+    logoVariant: "Bentuk",
+    logoVariantWall: "Dinding (ubin dengan angka)",
+    logoVariantStrip: "Pita (satu baris)",
+    logoCaption: "Baris penutup",
+    logoCount: "Angka (mis. jumlah alumni)",
+    bulkUploadLabel: "Pilih atau seret banyak gambar sekaligus",
+    bulkUploadHint: "PNG, JPG, atau WebP, maksimal 5MB per berkas. Satu berkas menjadi satu butir; namanya diambil dari nama berkas dan bisa diubah.",
+    bulkUploadProgress: "Mengunggah {done} dari {total}",
+    bulkUploadDone: "{n} gambar ditambahkan",
+    bulkUploadFailed: "{n} gambar gagal diunggah",
+    removeAllItems: "Hapus semua",
+    alumniBefore: "Posisi sebelum",
+    alumniCompanyLogo: "Logo perusahaan",
+    alumniLink: "Tautan profil (opsional)",
+    galleryCaption: "Keterangan foto",
+    deletePhotoN: "Hapus foto {n}",
+    sourceLabel: "Sumber isi",
+    sourceReal: "Data real dari LMS",
+    sourceManual: "Isi manual",
+    sourceManualWarning: "Isi manual tidak memperbarui dirinya. Angka yang tidak pernah diperbarui akan terbaca sebagai angka karangan.",
+    manualStatLabel: "Keterangan",
+    manualStatValue: "Angka",
+    addStat: "Tambah angka",
+    deleteStatN: "Hapus angka {n}",
+    manualTestimonialName: "Nama",
+    manualTestimonialRating: "Bintang (1-5)",
+    manualTestimonialComment: "Ulasan",
+    addTestimonial: "Tambah ulasan",
+    deleteTestimonialN: "Hapus ulasan {n}",
+    manualInstructorName: "Nama",
+    manualInstructorTitle: "Jabatan",
+    manualInstructorBio: "Bio singkat",
+    manualInstructorPhoto: "Foto",
+    addInstructor: "Tambah pengajar",
+    deleteInstructorN: "Hapus pengajar {n}",
+    hintTestimonials: "Ulasan peserta. Bawaannya otomatis dari ulasan bernilai 4 ke atas (hanya nama depan); bisa dialihkan ke isi manual.",
     hintFaq: "Daftar tanya-jawab yang bisa dibuka satu per satu.",
     hintCta: "Ajakan penutup dengan dua tombol.",
+    blockWhatsapp: "Tombol WhatsApp",
+    hintWhatsapp: "Tombol hijau mengambang di pojok kanan bawah, membuka percakapan WhatsApp.",
+    logoVariantMarquee: "Berjalan",
+    waNumber: "Nomor WhatsApp",
+    waLabel: "Tulisan tombol",
+    waMessage: "Pesan awal (opsional)",
+    waPreview: "Tautan jadinya:",
+    waInvalid: "Nomornya belum lengkap, jadi tombolnya belum muncul di halaman.",
   },
   catalog: {
     navClasses: "Kelas",
@@ -2483,6 +2590,7 @@ const id: Dictionary = {
     signIn: "Masuk",
     getStarted: "Mulai",
     exploreCourses: "Jelajahi Kursus",
+    viewProfile: "Lihat profil",
     footerTagline:
       "Kembangkan diri Anda melalui pengetahuan bersama Sanggabiz. Akses kursus berkualitas yang dirancang untuk membantu Anda mencapai tujuan.",
     privacy: "Privasi",
@@ -3579,10 +3687,63 @@ const en: Dictionary = {
     hintSteps: "Numbered steps from browsing to earning a certificate.",
     hintInstructors: "Instructor cards, read from the instructor list in the database.",
     hintAlumni: "Alumni quotes with their name, role, and where they work. The default entries are examples -- replace them with real stories, and ask the person first.",
-    hintLogos: "A row of partner, client, or institution logos. A name alone is enough when there is no logo. The default entries are invented names -- only list organisations you actually work with.",
+    hintLogos: "A wall or strip of partner, client, or institution logos -- the images, not the names. Upload many at once; a number per logo is optional. Only list organisations you actually work with.",
+    blockGallery: "Photo Gallery",
+    hintGallery: "A mosaic of photos from classes, events, or the community. Upload many at once; the first photo shows largest.",
+    heroImage: "Hero photo (right column)",
+    heroTrustText: "Trust line",
+    heroTrustBadges: "Rating badges",
+    trustBadgeLabel: "Review site name",
+    trustBadgeScore: "Score",
+    trustBadgeLogo: "Review site logo",
+    addTrustBadge: "Add badge",
+    deleteTrustBadgeN: "Delete badge {n}",
+    logoVariant: "Shape",
+    logoVariantWall: "Wall (tiles with numbers)",
+    logoVariantStrip: "Strip (one row)",
+    logoCaption: "Closing line",
+    logoCount: "Number (e.g. alumni count)",
+    bulkUploadLabel: "Choose or drop many images at once",
+    bulkUploadHint: "PNG, JPG, or WebP, up to 5MB each. One file becomes one item; its name comes from the file name and can be edited.",
+    bulkUploadProgress: "Uploading {done} of {total}",
+    bulkUploadDone: "{n} images added",
+    bulkUploadFailed: "{n} images failed to upload",
+    removeAllItems: "Remove all",
+    alumniBefore: "Role before",
+    alumniCompanyLogo: "Company logo",
+    alumniLink: "Profile link (optional)",
+    galleryCaption: "Photo caption",
+    deletePhotoN: "Delete photo {n}",
+    sourceLabel: "Content source",
+    sourceReal: "Live data from the LMS",
+    sourceManual: "Manual entry",
+    sourceManualWarning: "Manual content does not update itself. A number that is never updated reads as a made-up number.",
+    manualStatLabel: "Label",
+    manualStatValue: "Number",
+    addStat: "Add number",
+    deleteStatN: "Delete number {n}",
+    manualTestimonialName: "Name",
+    manualTestimonialRating: "Stars (1-5)",
+    manualTestimonialComment: "Review",
+    addTestimonial: "Add review",
+    deleteTestimonialN: "Delete review {n}",
+    manualInstructorName: "Name",
+    manualInstructorTitle: "Title",
+    manualInstructorBio: "Short bio",
+    manualInstructorPhoto: "Photo",
+    addInstructor: "Add instructor",
+    deleteInstructorN: "Delete instructor {n}",
     hintTestimonials: "Learner reviews rated 4 or higher, pulled automatically. Only first names are shown.",
     hintFaq: "A list of questions and answers that open one at a time.",
     hintCta: "A closing call to action with two buttons.",
+    blockWhatsapp: "WhatsApp Button",
+    hintWhatsapp: "A green button floating at the bottom right that opens a WhatsApp chat.",
+    logoVariantMarquee: "Scrolling",
+    waNumber: "WhatsApp number",
+    waLabel: "Button text",
+    waMessage: "Opening message (optional)",
+    waPreview: "Resulting link:",
+    waInvalid: "The number is incomplete, so the button is not shown on the page yet.",
   },
   catalog: {
     navClasses: "Classes",
@@ -3751,6 +3912,7 @@ const en: Dictionary = {
     signIn: "Sign in",
     getStarted: "Get started",
     exploreCourses: "Browse courses",
+    viewProfile: "View profile",
     footerTagline:
       "Grow through knowledge with Sanggabiz. Quality courses designed to help you reach your goals.",
     privacy: "Privacy",
