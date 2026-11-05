@@ -100,6 +100,14 @@ export function LivePreview({
 
       <div className="flex justify-center overflow-x-auto">
         <div
+          /*
+            Penanda untuk scripts/i18n-check.mjs. Isi di dalam kanvas ini
+            sengaja berbahasa lain dari antarmukanya: superadmin yang menyunting
+            versi Indonesia melihat pratinjau Indonesia walau layarnya sendiri
+            berbahasa Inggris. Tanpa penanda ini, gerbang dwibahasa membaca
+            pratinjau itu sebagai "kalimat yang lupa diterjemahkan".
+          */
+          data-pratinjau-bahasa-lain
           style={{ ...themeStyle(data.theme), width: lebar ? `${lebar}px` : "100%" }}
           className="max-w-full shrink-0 overflow-hidden rounded-xl border border-border bg-card"
         >

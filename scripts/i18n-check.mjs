@@ -152,7 +152,28 @@ async function periksa(page, path) {
     console.log(`lewat ${path}: dialihkan, akunnya tidak berwenang`)
     return
   }
-  const teks = await page.locator("main").innerText().catch(() => "")
+  /*
+   * Wilayah bertanda `data-pratinjau-bahasa-lain` dibuang sebelum dibaca.
+   * Satu-satunya pemakainya adalah kanvas pratinjau /admin/landing, yang
+   * memang merender halaman depan dalam bahasa YANG SEDANG DISUNTING -- bukan
+   * bahasa antarmukanya. Membacanya sebagai antarmuka membuat gerbang ini
+   * menuntut terjemahan untuk isi yang justru harus tetap Indonesia.
+   *
+   * Disalin dulu, baru dipangkas: halamannya tidak ikut berubah, jadi
+   * pemeriksaan ini tetap hanya membaca.
+   */
+  const teks = await page
+    .evaluate(() => {
+      const main = document.querySelector("main")
+      if (!main) return ""
+      const salinan = main.cloneNode(true)
+      salinan.querySelectorAll("[data-pratinjau-bahasa-lain]").forEach((el) => el.remove())
+      document.body.append(salinan)
+      const hasil = salinan.innerText
+      salinan.remove()
+      return hasil
+    })
+    .catch(() => "")
   const sisa = teks
     .split("\n")
     .map((l) => l.trim())
