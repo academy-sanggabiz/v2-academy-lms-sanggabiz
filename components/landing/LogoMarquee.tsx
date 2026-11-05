@@ -27,15 +27,22 @@ function Butir({ item, hidden }: { item: LogoItem; hidden?: boolean }) {
       aria-hidden={hidden}
       className="flex w-[116px] shrink-0 flex-col items-center justify-end gap-2 sm:w-[140px]"
     >
+      {/*
+        Angkanya di ATAS nama dan lebih besar daripada namanya -- urutan yang
+        sama dengan dinding alumni RevoU. Yang dibaca orang lebih dulu memang
+        angkanya; nama tempat kerjanya hanya keterangan untuk angka itu.
+      */}
       {typeof item.count === "number" && item.count > 0 && (
-        <span className="text-xl font-bold text-ring tabular-nums sm:text-2xl">{item.count}</span>
+        <span className="font-display text-2xl leading-none font-bold text-ring tabular-nums sm:text-3xl">
+          {item.count}
+        </span>
       )}
       {item.logoUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={item.logoUrl}
           alt={hidden ? "" : item.name}
-          className="h-8 w-auto max-w-full object-contain sm:h-9"
+          className="h-8 w-auto max-w-full object-contain opacity-80 transition-opacity hover:opacity-100 sm:h-9"
         />
       ) : (
         /*
@@ -44,7 +51,7 @@ function Butir({ item, hidden }: { item: LogoItem; hidden?: boolean }) {
           lambang yang diperkecil, dan pemilik bisa mengganti satu per satu
           tanpa barisnya terlihat setengah jadi.
         */
-        <span className="text-center text-sm font-bold tracking-tight text-foreground sm:text-base">
+        <span className="text-center text-xs leading-tight font-semibold tracking-tight text-muted-foreground sm:text-sm">
           {item.name}
         </span>
       )}

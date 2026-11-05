@@ -79,20 +79,26 @@ function SectionHeading({
   align = "center",
   as: Tag = "h2",
   className,
+  onDark,
 }: {
   heading: string
   subheading?: string
   align?: "center" | "left"
   as?: "h2" | "h3"
   className?: string
+  /** Di bidang gelap, `text-muted-foreground` nyaris hilang. */
+  onDark?: boolean
 }) {
   return (
     <div className={cn(align === "center" ? "text-center" : "text-left", className)}>
-      <Tag className="text-3xl font-bold tracking-tight uppercase sm:text-4xl">{heading}</Tag>
+      <Tag className="font-display text-3xl font-bold tracking-tight uppercase sm:text-4xl">
+        {heading}
+      </Tag>
       {subheading ? (
         <p
           className={cn(
-            "mt-3 max-w-2xl text-base text-muted-foreground sm:text-lg",
+            "mt-3 max-w-2xl text-base sm:text-lg",
+            onDark ? "text-background/80" : "text-muted-foreground",
             align === "center" && "mx-auto"
           )}
         >
@@ -153,11 +159,13 @@ export function LandingBlockView({
       const badges = (hero.trustBadges ?? []).filter((b) => b.label.trim() || b.logoUrl)
       const twoColumn = !!hero.imageUrl
       return (
-        <section className="bg-gradient-to-b from-card to-background">
+        <section className="relative overflow-hidden bg-gradient-to-b from-secondary via-secondary/50 to-background">
+          {/* Kisi samar, bukan bidang polos. Lihat .landing-grid di globals.css. */}
+          <div aria-hidden className="landing-grid pointer-events-none absolute inset-0" />
           <div
             className={cn(
               CONTAINER,
-              "grid items-center gap-12 py-20 sm:py-28",
+              "relative grid items-center gap-12 py-20 sm:py-28",
               twoColumn ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]" : "text-center"
             )}
           >
@@ -174,7 +182,7 @@ export function LandingBlockView({
                 `break-words` jaring pengamannya, untuk kata panjang apa pun
                 yang diketik pemilik nanti.
               */}
-              <h1 className="text-4xl leading-[1.02] font-bold tracking-tight break-words uppercase sm:text-5xl lg:text-7xl">
+              <h1 className="font-display text-4xl leading-[1.02] font-bold tracking-tight break-words uppercase sm:text-5xl lg:text-7xl">
                 {hero.heading} <span className="text-ring">{hero.highlightWord}</span>
               </h1>
               <div
@@ -259,12 +267,12 @@ export function LandingBlockView({
       const variant = block.variant ?? "wall"
       const wall = variant === "wall"
       return (
-        <section className="bg-card">
-          <div className={cn(CONTAINER, wall ? "py-20" : "py-14")}>
+        <section className="border-y border-border bg-card">
+          <div className={cn(CONTAINER, wall ? "py-20" : "py-12")}>
             {wall ? (
               <SectionHeading heading={block.heading} subheading={block.subheading} />
             ) : (
-              <h2 className="text-center text-sm font-semibold tracking-[0.2em] text-muted-foreground uppercase">
+              <h2 className="font-display text-center text-sm font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                 {block.heading}
               </h2>
             )}
@@ -369,7 +377,9 @@ export function LandingBlockView({
             <dl className="mx-auto mt-10 flex max-w-5xl flex-wrap justify-center gap-x-16 gap-y-8">
               {items.map(({ value, label }) => (
                 <div key={label} className="min-w-[8rem] text-center">
-                  <dd className="text-5xl font-bold tracking-tight text-ring sm:text-6xl">{value}</dd>
+                  <dd className="font-display text-5xl font-bold tracking-tight text-ring sm:text-6xl">
+                    {value}
+                  </dd>
                   <dt className="mt-2 text-sm font-semibold tracking-wide text-muted-foreground uppercase">
                     {label}
                   </dt>
@@ -429,10 +439,10 @@ export function LandingBlockView({
                     tetap, karena <ol> sudah menyampaikan urutan itu ke pembaca
                     layar.
                   */}
-                  <span aria-hidden className="text-6xl font-bold text-ring">
+                  <span aria-hidden className="font-display text-6xl font-bold text-ring">
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <h3 className="mt-2 text-xl font-bold">{item.title}</h3>
+                  <h3 className="mt-2 font-display text-xl font-bold tracking-tight">{item.title}</h3>
                   {item.description && (
                     <p className="mt-2 text-base leading-relaxed text-muted-foreground">{item.description}</p>
                   )}
@@ -502,16 +512,25 @@ export function LandingBlockView({
       const foto = block.items.filter((i) => i.url)
       if (foto.length === 0) return null
       return (
-        <section className="bg-background">
+        /*
+          Bidang gelap, seperti bagian komunitas RevoU. Gunanya bukan hiasan:
+          sepuluh bagian terang berturut-turut membuat halaman terasa rata, dan
+          foto justru paling menonjol di atas latar gelap.
+
+          `bg-foreground` / `text-background`, bukan warna lepas: pasangan itu
+          persis yang sudah dijamin `checkTheme()` melewati 4,5:1, jadi bidang
+          ini ikut tema pilihan pemilik tanpa bisa menjatuhkan kontras.
+        */
+        <section className="bg-foreground text-background">
           <div className={cn(CONTAINER, "py-20")}>
-            <SectionHeading heading={block.heading} subheading={block.subheading} />
+            <SectionHeading heading={block.heading} subheading={block.subheading} onDark />
             {/* Mozaik: foto pertama lebih besar, sisanya ubin persegi -- sembilan sekali lihat. */}
             <ul className="mx-auto mt-12 grid max-w-6xl grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {foto.map((item, i) => (
                 <li
                   key={i}
                   className={cn(
-                    "relative overflow-hidden rounded-2xl bg-muted",
+                    "relative overflow-hidden rounded-2xl bg-background/10",
                     i === 0 && "col-span-2 row-span-2"
                   )}
                 >
@@ -667,7 +686,7 @@ export function LandingBlockView({
             {/* Dua kolom seperti "Train your team" di RevoU: judul kiri, tombol kanan. */}
             <div className="grid items-center gap-8 rounded-3xl bg-brand-gradient px-8 py-12 text-white sm:px-12 lg:grid-cols-[minmax(0,1.4fr)_auto]">
               <div>
-                <h2 className="text-3xl font-bold tracking-tight uppercase sm:text-4xl">{block.heading}</h2>
+                <h2 className="font-display text-3xl font-bold tracking-tight uppercase sm:text-4xl">{block.heading}</h2>
                 <p className="mt-3 max-w-xl text-base text-white/85 sm:text-lg">{block.subheading}</p>
               </div>
               <div className="flex flex-wrap gap-3.5 lg:justify-end">

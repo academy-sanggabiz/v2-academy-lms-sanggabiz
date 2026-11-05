@@ -61,6 +61,29 @@ Berkas masuk bucket **`landing-assets`** (publik baca, admin tulis; migrasi
 SVG sengaja ditolak (bisa memuat skrip di bucket publik — kebijakan yang
 sama dengan bucket lain); ekspor logo ke PNG/WebP dengan latar transparan.
 
+## 3b. Huruf, latar, dan irama bidang
+
+| | RevoU | Kita |
+|---|---|---|
+| Huruf judul | Oswald, padat, kapital | **Oswald** juga -- lisensi SIL OFL, bebas dipakai |
+| Huruf isi | geometris | Poppins (tetap) |
+| Latar hero | krem polos | teal lembut + kisi samar (`.landing-grid`) |
+| Bidang gelap | navy, untuk komunitas | `bg-foreground` + `text-background`, untuk galeri |
+
+Tiga hal yang mengikat:
+
+1. **Oswald hanya untuk halaman depan.** Tokennya `--font-display`, dipakai
+   `LandingBlocks`. Token `--font-heading` yang menata judul dialog dan kartu
+   di seluruh aplikasi tidak disentuh: mengganti huruf di sana berarti
+   mengganti huruf layar belajar dan layar pengelola juga.
+2. **Kapital hanya untuk frasa pendek.** Judul bagian dan judul hero boleh
+   kapital semua; judul langkah tidak, karena itu kalimat, dan kalimat penuh
+   berhuruf kapital lebih lambat dibaca.
+3. **Bidang gelap memakai pasangan `foreground`/`background`, bukan warna
+   lepas.** Pasangan itu persis yang sudah dijamin `checkTheme()` melewati
+   4,5:1, jadi bidang gelap ikut tema pilihan pemilik tanpa bisa menjatuhkan
+   kontras. Garis kisi di hero ditarik dari `--ring` dengan alasan yang sama.
+
 ## 4. Yang tidak berubah
 
 - Blok tetap jsonb (`landing_content.blocks` / `blocks_en`), dua bahasa,
