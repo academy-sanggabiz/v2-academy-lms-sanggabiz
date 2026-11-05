@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins, Geist_Mono } from "next/font/google";
+import { Poppins, Oswald, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { LocaleProvider } from "@/components/i18n/LocaleProvider";
@@ -12,6 +12,26 @@ const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+});
+
+/**
+ * Huruf judul halaman depan saja.
+ *
+ * Poppins bulat dan ramah -- bagus untuk membaca lama di layar belajar, tetapi
+ * pada judul besar ia melebar dan terbaca lembut. Halaman pemasaran butuh yang
+ * sebaliknya: padat, berat, dan rapat, supaya satu baris kapital terasa tegas
+ * tanpa harus diperbesar lagi.
+ *
+ * Lingkupnya SENGAJA cuma halaman depan (`--font-display`, dipakai
+ * LandingBlocks). Token `--font-heading` yang dipakai judul dialog dan kartu di
+ * seluruh aplikasi tidak disentuh: mengganti huruf di sana berarti mengganti
+ * huruf layar belajar dan layar pengelola juga, dan keduanya bukan tempat
+ * bereksperimen dengan merek.
+ */
+const oswald = Oswald({
+  variable: "--font-oswald",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -60,7 +80,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       {...displayAttributes(display)}
-      className={`${poppins.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${poppins.variable} ${oswald.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <a
