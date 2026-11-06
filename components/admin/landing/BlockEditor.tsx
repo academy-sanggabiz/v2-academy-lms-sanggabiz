@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import { Copy, Eye, EyeOff, GripVertical, Plus, Trash2 } from "lucide-react";
 import {
   DndContext,
@@ -21,7 +21,16 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { toast } from "sonner";
 
-import { saveLandingBlocksAction } from "@/app/admin/landing/actions";
+import {
+  discardLandingDraftAction,
+  publishLandingAction,
+  saveLandingDraftAction,
+} from "@/app/admin/landing/actions";
+import { BuilderShell } from "@/components/admin/builder/BuilderShell";
+import { ThemeFields } from "./ThemePicker";
+import { useRiwayat } from "@/hooks/use-riwayat";
+import type { LandingTheme } from "@/lib/landing-theme";
+import { defaultFeatures, defaultHero } from "@/lib/landing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/admin/courses/RichTextEditor";
@@ -47,12 +56,13 @@ import {
   LANDING_BLOCK_TYPES,
   SINGLETON_BLOCKS,
   createBlock,
+  defaultBlocks,
   newBlockId,
   type ContentSource,
   type LandingBlock,
   type LandingBlockType,
 } from "@/lib/landing-blocks";
-import { LOCALE_LABELS, type Locale } from "@/lib/i18n/config";
+import type { Locale } from "@/lib/i18n/config";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/LocaleProvider";
 import { waHref } from "@/components/landing/FloatingWhatsApp";
@@ -109,102 +119,106 @@ function blockHints(t: Dictionary): Record<LandingBlockType, string> {
     whatsapp: t.superadmin.hintWhatsapp,
   };
 }
+/**
+ * Isi bawaan untuk "Kembalikan bawaan" -- sama persis dengan yang dipakai
+ * server saat `blocks` masih kosong (lib/landing-server.ts). Didefinisikan
+ * sekali di sini supaya kedua jalur tidak bisa menyimpang diam-diam.
+ */
+const ISI_BAWAAN = {
+  hero: defaultHero,
+  features: defaultFeatures,
+  featuredCourseIds: [] as string[],
+};
+
+/** Satu keadaan utuh yang masuk riwayat urung/ulang. */
+type DrafHalaman = {
+  id: LandingBlock[];
+  en: LandingBlock[] | null;
+  theme: LandingTheme;
+};
 
 export function BlockEditor({
   initialBlocks,
   initialBlocksEn,
+  initialTheme,
+  adaDrafTersimpan,
   availableCourses,
   previewData,
 }: {
   initialBlocks: LandingBlock[];
   /** null: versi Inggris belum pernah disimpan; pengunjung EN mendapat versi ID. */
   initialBlocksEn: LandingBlock[] | null;
+  initialTheme: LandingTheme;
+  adaDrafTersimpan: boolean;
   availableCourses: PickableCourse[];
   previewData: PreviewData;
 }) {
   const { t } = useI18n();
   const LABELS = blockLabels(t);
-  // Dua bahasa, dua susunan blok yang tersimpan terpisah. Tab bahasa memilih
-  // susunan mana yang sedang disunting; Simpan hanya menulis kolom bahasa itu.
+
+  /*
+    SATU riwayat untuk blok dua bahasa DAN warna sekaligus, bukan satu per
+    bagian. Alasannya keadaan yang diterbitkan juga satu: menekan Terbitkan
+    mengirim ketiganya. Riwayat terpisah akan membiarkan "urung" mengembalikan
+    warna tanpa mengembalikan blok yang diubah bersamaan dengannya -- keadaan
+    campuran yang tidak pernah benar-benar ada di layar siapa pun.
+  */
+  const riwayat = useRiwayat<DrafHalaman>({
+    id: initialBlocks,
+    en: initialBlocksEn,
+    theme: initialTheme,
+  });
+  const draf = riwayat.nilai;
+
   const [lang, setLang] = useState<Locale>("id");
-  const [blocksId, setBlocksId] = useState(initialBlocks);
-  const [blocksEn, setBlocksEn] = useState<LandingBlock[] | null>(
-    initialBlocksEn,
-  );
-  const blocks = lang === "en" ? (blocksEn ?? []) : blocksId;
-  const setBlocks = (updater: (current: LandingBlock[]) => LandingBlock[]) => {
-    if (lang === "en") setBlocksEn((current) => updater(current ?? []));
-    else setBlocksId(updater);
-  };
-  const [pending, startTransition] = useTransition();
-  // Bagian yang sedang disorot. Kanvas dan daftar di sebelahnya menunjuk
-  // keadaan yang sama, jadi menekan "Sunting bagian ini" di kanvas membawa
-  // penyusun ke ruasnya -- itu yang membuat menyunting terasa "di layoutnya".
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [paletOpen, setPaletOpen] = useState(false);
-  const panelRuas = useRef<HTMLDivElement>(null);
+  const [tab, setTab] = useState("susunan");
+  const [adaDraf, setAdaDraf] = useState(adaDrafTersimpan);
+  const [pending, startTransition] = useTransition();
 
-  // Spasi/Enter mengangkat blok, panah memindahkan, Spasi menjatuhkan --
-  // alternatif non-tetikus yang diminta WCAG 2.5.7, sama seperti di daftar
-  // pelajaran.
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
+  const blocks = lang === "en" ? (draf.en ?? []) : draf.id;
+  const belumAdaVersiEn = lang === "en" && draf.en === null;
 
-  const usedTypes = new Set(blocks.map((b) => b.type));
-  const addableTypes = LANDING_BLOCK_TYPES.filter(
-    (type) => !(SINGLETON_BLOCKS.includes(type) && usedTypes.has(type)),
-  );
-
-  function patch(id: string, changes: Partial<LandingBlock>) {
-    setBlocks((current) =>
-      current.map((block) =>
-        block.id === id ? ({ ...block, ...changes } as LandingBlock) : block,
-      ),
+  /** Menulis daftar blok bahasa yang sedang dibuka. */
+  function setBlocks(
+    updater: (current: LandingBlock[]) => LandingBlock[],
+    kunciGabung?: string,
+  ) {
+    riwayat.set(
+      (d) =>
+        lang === "en"
+          ? { ...d, en: updater(d.en ?? []) }
+          : { ...d, id: updater(d.id) },
+      kunciGabung,
     );
   }
 
+  function patch(id: string, changes: Partial<LandingBlock>) {
+    /*
+      Kunci gabung = blok + nama medan yang diubah. Mengetik satu kalimat di
+      satu medan jadi SATU langkah urung; berpindah ke medan lain memulai
+      langkah baru. Tanpa ini satu kali urung hanya menghapus satu huruf.
+    */
+    const kunci = `${id}:${Object.keys(changes).join(",")}`;
+    setBlocks(
+      (current) =>
+        current.map((block) =>
+          block.id === id ? ({ ...block, ...changes } as LandingBlock) : block,
+        ),
+      kunci,
+    );
+  }
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  /** Memilih satu bagian sekaligus membuka panel ruasnya. */
   function pilih(id: string) {
     setSelectedId(id);
-
-    const kartu = document.getElementById(`sunting-${id}`);
-    if (!kartu) return;
-
-    const halus: ScrollBehavior = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches
-      ? "auto"
-      : "smooth";
-
-    /*
-     * Panel ruasnya yang digulir, BUKAN jendela.
-     *
-     * `scrollIntoView` menggulir setiap pembungkus yang bisa digulir sampai ke
-     * jendela. Di sini akibatnya terbalik dari yang dimaksud: kartu Hero adalah
-     * yang pertama di daftar, jadi menekan "Sunting bagian ini" pada hero
-     * melemparkan seluruh halaman ke paling atas -- dan kanvas di sebelahnya,
-     * yang baru saja digulir penyusun ke bagian yang ingin ia sunting, ikut
-     * terbawa. Menyunting satu bagian tidak boleh memindahkan pandangan dari
-     * bagian itu.
-     *
-     * Di layar lebar panel punya guliran sendiri, jadi selisihnya dihitung
-     * tangan dan hanya panel itu yang bergerak. Di bawah `xl` kedua kolom
-     * menumpuk dan panelnya bukan wadah guliran -- di sana menggulir jendela
-     * memang satu-satunya cara, dan itu yang dipakai.
-     */
-    const panel = panelRuas.current;
-    const punyaGuliranSendiri =
-      panel && panel.scrollHeight > panel.clientHeight + 1;
-    if (punyaGuliranSendiri) {
-      const selisih =
-        kartu.getBoundingClientRect().top - panel.getBoundingClientRect().top;
-      panel.scrollTo({ top: panel.scrollTop + selisih - 12, behavior: halus });
-      return;
-    }
-    kartu.scrollIntoView({ block: "center", behavior: halus });
+    setTab("ruas");
   }
 
   function duplikat(block: LandingBlock) {
@@ -231,174 +245,250 @@ export function BlockEditor({
     });
   }
 
-  /** Salinan dalam versi ID sebagai titik awal terjemahan, dengan id baru
-   *  supaya kedua versi benar-benar lepas satu sama lain. */
+  /** Salinan versi ID sebagai titik awal terjemahan, dengan id baru supaya
+   *  kedua versi benar-benar lepas satu sama lain. */
   function startEnglishFromCopy() {
-    setBlocksEn(
-      blocksId.map((b) => ({ ...structuredClone(b), id: newBlockId() })),
-    );
+    riwayat.set((d) => ({
+      ...d,
+      en: d.id.map((b) => ({ ...structuredClone(b), id: newBlockId() })),
+    }));
   }
 
-  function save() {
+  function simpanDraf() {
     startTransition(async () => {
-      const result = await saveLandingBlocksAction(blocks, lang);
-      if (!result.ok) {
-        toast.error(result.error);
+      const hasil = await saveLandingDraftAction(draf.id, draf.en, draf.theme);
+      if (!hasil.ok) {
+        toast.error(hasil.error);
         return;
       }
-      toast.success(
-        lang === "en" ? t.superadmin.landingSavedEn : t.superadmin.landingSaved,
-      );
+      setAdaDraf(true);
+      toast.success(t.superadmin.draftSaved);
     });
   }
 
-  const belumAdaVersiEn = lang === "en" && blocksEn === null;
+  function terbitkan() {
+    startTransition(async () => {
+      const hasil = await publishLandingAction(draf.id, draf.en, draf.theme);
+      if (!hasil.ok) {
+        toast.error(hasil.error);
+        return;
+      }
+      setAdaDraf(false);
+      toast.success(t.superadmin.published);
+    });
+  }
+
+  function buangPerubahan() {
+    if (!window.confirm(t.superadmin.confirmDiscard)) return;
+    startTransition(async () => {
+      const hasil = await discardLandingDraftAction();
+      if (!hasil.ok) {
+        toast.error(hasil.error);
+        return;
+      }
+      setAdaDraf(false);
+      toast.success(t.superadmin.draftDiscarded);
+      // Memuat ulang, bukan menebak: yang terbit bisa saja berubah dari sesi
+      // lain sejak layar ini dibuka, dan menebaknya berarti menampilkan
+      // keadaan yang tidak ada di basis data.
+      window.location.reload();
+    });
+  }
+
+  function kembalikanBawaan() {
+    if (!window.confirm(t.superadmin.confirmRestore)) return;
+    riwayat.set((d) => ({
+      ...d,
+      ...(lang === "en"
+        ? { en: defaultBlocks(ISI_BAWAAN) }
+        : { id: defaultBlocks(ISI_BAWAAN) }),
+    }));
+    toast.success(t.superadmin.defaultsRestored);
+  }
+
+  const terpilih = blocks.find((b) => b.id === selectedId) ?? null;
+
+  // Hero hanya boleh ada satu. Jenis yang sudah dipakai dicoret dari palet,
+  // bukan ditolak setelah ditekan: pilihan yang tidak akan diterima lebih baik
+  // tidak ditawarkan.
+  const usedTypes = new Set(blocks.map((b) => b.type));
+  const addableTypes = LANDING_BLOCK_TYPES.filter(
+    (type) => !(SINGLETON_BLOCKS.includes(type) && usedTypes.has(type)),
+  );
+
+  const pemilihBahasa = (
+    <div
+      role="group"
+      aria-label={t.superadmin.langTabsAria}
+      className="flex gap-1"
+    >
+      {(["id", "en"] as const).map((value) => (
+        <button
+          key={value}
+          type="button"
+          lang={value}
+          aria-pressed={lang === value}
+          disabled={pending}
+          onClick={() => setLang(value)}
+          className={
+            lang === value
+              ? "flex min-h-8 items-center rounded-lg border border-ring bg-secondary px-2.5 text-xs font-semibold text-primary"
+              : "flex min-h-8 items-center rounded-lg border border-input px-2.5 text-xs font-semibold text-muted-foreground hover:bg-muted"
+          }
+        >
+          {value.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  );
 
   return (
-    <div>
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold">{t.superadmin.landingTitle}</h1>
-          <p className="text-sm text-muted-foreground">
-            {t.superadmin.landingSubtitle}
-          </p>
-        </div>
-        {/*
-          flex-wrap, bukan satu baris: di 320px -- lebar yang disyaratkan WCAG
-          1.4.10 Reflow -- dua tab bahasa bersama "Tambah Bagian" dan "Simpan"
-          melebar jauh melewati layar.
-        */}
-        <div className="flex flex-wrap items-center gap-2">
-          <div
-            role="group"
-            aria-label={t.superadmin.langTabsAria}
-            className="flex gap-1"
-          >
-            {(["id", "en"] as const).map((value) => (
-              <button
-                key={value}
-                type="button"
-                lang={value}
-                aria-pressed={lang === value}
-                disabled={pending}
-                onClick={() => setLang(value)}
-                className={
-                  lang === value
-                    ? "flex min-h-9 items-center rounded-lg border border-ring bg-secondary px-3 text-xs font-semibold text-primary"
-                    : "flex min-h-9 items-center rounded-lg border border-input px-3 text-xs font-semibold text-muted-foreground hover:bg-muted"
-                }
-              >
-                {LOCALE_LABELS[value]}
-              </button>
-            ))}
-          </div>
-          <Button
-            variant="outline"
-            disabled={pending || belumAdaVersiEn}
-            onClick={() => setPaletOpen(true)}
-          >
-            <Plus className="size-4" aria-hidden />
-            {t.superadmin.addSection}
-          </Button>
-          <Button
-            onClick={save}
-            pending={pending}
-            pendingLabel={t.common.saving}
-            className="bg-brand-gradient text-white hover:brightness-105"
-          >
-            {t.common.save}
-          </Button>
-        </div>
+    <div className="space-y-4">
+      <div>
+        <h1 className="text-2xl font-bold">{t.superadmin.landingTitle}</h1>
+        <p className="text-sm text-muted-foreground">
+          {t.superadmin.landingSubtitle}
+        </p>
       </div>
 
-      <p className="mb-4 text-xs text-muted-foreground">
-        {lang === "en"
-          ? t.superadmin.enFallbackNote
-          : t.superadmin.idVersionNote}
-      </p>
-
-      {belumAdaVersiEn ? (
-        <div className="rounded-2xl border border-dashed border-border p-10 text-center">
-          <p className="text-sm font-semibold">{t.superadmin.enEmptyTitle}</p>
-          <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-            {t.superadmin.enEmptyDesc}
-          </p>
-          <Button
-            className="mt-4"
-            variant="outline"
-            onClick={startEnglishFromCopy}
-          >
-            {t.superadmin.copyFromId}
-          </Button>
-        </div>
-      ) : (
-        /*
-          Kanvas di kiri, panel ruas di kanan -- susunan yang sama dengan
-          pembangun halaman pada umumnya. Di bawah `xl` keduanya menumpuk,
-          jadi di layar sempit kanvasnya tetap terbaca penuh.
-        */
-        <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
-          <div className="xl:sticky xl:top-20">
+      <BuilderShell
+        status={adaDraf ? "draf" : "terbit"}
+        draftNote={adaDraf ? t.superadmin.draftNote : undefined}
+        previewHref={`/?bahasa=${lang}`}
+        pending={pending}
+        bisaUrung={riwayat.bisaUrung}
+        bisaUlang={riwayat.bisaUlang}
+        onUrung={riwayat.urung}
+        onUlang={riwayat.ulang}
+        onBuangPerubahan={buangPerubahan}
+        onKembalikanBawaan={kembalikanBawaan}
+        onSimpanDraf={simpanDraf}
+        onTerbitkan={terbitkan}
+        kiri={pemilihBahasa}
+        tabAktif={tab}
+        onTabChange={setTab}
+        preview={
+          belumAdaVersiEn ? (
+            <div className="rounded-2xl border border-dashed border-border p-10 text-center">
+              <p className="text-sm font-bold">{t.superadmin.enEmptyTitle}</p>
+              <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
+                {t.superadmin.enEmptyDesc}
+              </p>
+              <Button
+                className="mt-4"
+                variant="outline"
+                onClick={startEnglishFromCopy}
+              >
+                {t.superadmin.copyFromId}
+              </Button>
+            </div>
+          ) : (
             <LivePreview
               blocks={blocks}
-              data={previewData}
+              data={{ ...previewData, theme: draf.theme }}
               locale={lang}
               selectedId={selectedId}
               onSelect={pilih}
+              labelOf={(b) => LABELS[b.type]}
             />
-          </div>
+          )
+        }
+        tabs={[
+          {
+            id: "susunan",
+            label: t.superadmin.tabStructure,
+            content: (
+              <div className="space-y-3">
+                <DndContext
+                  sensors={sensors}
+                  accessibility={dndAnnouncements(t.superadmin.sectionNoun, t)}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={blocks.map((b) => b.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <ol className="space-y-2">
+                      {blocks.map((block) => (
+                        <BarisBlok
+                          key={block.id}
+                          block={block}
+                          label={LABELS[block.type]}
+                          selected={selectedId === block.id}
+                          disabled={pending}
+                          onSelect={() => pilih(block.id)}
+                          onToggleHidden={() =>
+                            patch(block.id, {
+                              hidden: !block.hidden,
+                            } as Partial<LandingBlock>)
+                          }
+                          onDuplicate={() => duplikat(block)}
+                          onDelete={() =>
+                            setBlocks((current) =>
+                              current.filter((b) => b.id !== block.id),
+                            )
+                          }
+                        />
+                      ))}
+                    </ol>
+                  </SortableContext>
+                </DndContext>
 
-          {/*
-            Kolomnya bergulir sendiri di layar lebar: dua panel yang saling
-            bebas adalah inti pembangun halaman -- menggulir daftar ruas tidak
-            boleh menggeser kanvas, dan sebaliknya. `-mx-1 px-1` memberi ruang
-            bagi cincin fokus supaya tidak terpotong tepi wadah guliran.
-          */}
-          <div
-            ref={panelRuas}
-            className="-mx-1 px-1 xl:sticky xl:top-20 xl:max-h-[calc(100dvh-6rem)] xl:overflow-y-auto"
-          >
-            <DndContext
-              sensors={sensors}
-              accessibility={dndAnnouncements(t.superadmin.sectionNoun, t)}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={blocks.map((b) => b.id)}
-                strategy={verticalListSortingStrategy}
+                {blocks.length === 0 && !belumAdaVersiEn && (
+                  <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+                    {t.superadmin.noBlocks}
+                  </p>
+                )}
+
+                <Button
+                  variant="outline"
+                  disabled={pending || belumAdaVersiEn}
+                  onClick={() => setPaletOpen(true)}
+                >
+                  <Plus className="size-4" aria-hidden />
+                  {t.superadmin.addSection}
+                </Button>
+              </div>
+            ),
+          },
+          {
+            id: "ruas",
+            label: t.superadmin.tabBlockSettings,
+            content: terpilih ? (
+              <div
+                id={`sunting-${terpilih.id}`}
+                className="rounded-2xl border border-border bg-card p-5"
               >
-                <ol className="space-y-4">
-                  {blocks.map((block) => (
-                    <BlockCard
-                      key={block.id}
-                      block={block}
-                      label={LABELS[block.type]}
-                      selected={selectedId === block.id}
-                      disabled={pending}
-                      availableCourses={availableCourses}
-                      onSelect={() => setSelectedId(block.id)}
-                      onPatch={(changes) => patch(block.id, changes)}
-                      onDuplicate={() => duplikat(block)}
-                      onDelete={() =>
-                        setBlocks((current) =>
-                          current.filter((b) => b.id !== block.id),
-                        )
-                      }
-                    />
-                  ))}
-                </ol>
-              </SortableContext>
-            </DndContext>
-          </div>
-        </div>
-      )}
-
-      {!belumAdaVersiEn && blocks.length === 0 && (
-        <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-          {t.superadmin.noBlocks}
-        </p>
-      )}
+                <div className="mb-4 text-sm font-bold">
+                  {LABELS[terpilih.type]}
+                </div>
+                <BlockFields
+                  block={terpilih}
+                  onPatch={(changes) => patch(terpilih.id, changes)}
+                  disabled={pending}
+                  availableCourses={availableCourses}
+                />
+              </div>
+            ) : (
+              <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+                {t.superadmin.noBlockSelected}
+              </p>
+            ),
+          },
+          {
+            id: "warna",
+            label: t.superadmin.tabTheme,
+            content: (
+              <ThemeFields
+                theme={draf.theme}
+                disabled={pending}
+                onChange={(theme) => riwayat.set((d) => ({ ...d, theme }))}
+              />
+            ),
+          },
+        ]}
+      />
 
       {/*
         Palet bagian: kartu bernama dan berketerangan, bukan daftar nama saja.
@@ -410,7 +500,9 @@ export function BlockEditor({
         <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-[640px]">
           <DialogHeader>
             <DialogTitle>{t.superadmin.addSectionTitle}</DialogTitle>
-            <DialogDescription>{t.superadmin.addSectionHint}</DialogDescription>
+            <DialogDescription>
+              {t.superadmin.addSectionHint}
+            </DialogDescription>
           </DialogHeader>
           <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             {addableTypes.map((type) => (
@@ -421,6 +513,7 @@ export function BlockEditor({
                     const blokBaru = createBlock(type);
                     setBlocks((current) => [...current, blokBaru]);
                     setSelectedId(blokBaru.id);
+                    setTab("ruas");
                     setPaletOpen(false);
                   }}
                   className="flex h-full w-full flex-col rounded-xl border border-border bg-card p-4 text-left hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
@@ -439,15 +532,22 @@ export function BlockEditor({
   );
 }
 
-/** Satu blok di panel ruas: pegangan geser, kendali, lalu isiannya. */
-function BlockCard({
+/**
+ * Satu baris di tab "Susunan halaman": pegangan geser, nama, dan kendali.
+ *
+ * Ruas isiannya TIDAK di sini. Dulu tiap kartu membawa seluruh isiannya, jadi
+ * daftar susunan sepanjang tiga belas bagian menjadi gulungan ribuan piksel
+ * dan "menyusun ulang urutan" -- pekerjaan yang seharusnya sekali pandang --
+ * berubah jadi perburuan. Sekarang urutan dan isian dipisah ke dua tab:
+ * yang satu menjawab "apa saja dan dalam urutan apa", yang lain "apa isinya".
+ */
+function BarisBlok({
   block,
   label,
   selected,
   disabled,
-  availableCourses,
   onSelect,
-  onPatch,
+  onToggleHidden,
   onDuplicate,
   onDelete,
 }: {
@@ -455,9 +555,8 @@ function BlockCard({
   label: string;
   selected: boolean;
   disabled: boolean;
-  availableCourses: PickableCourse[];
   onSelect: () => void;
-  onPatch: (changes: Partial<LandingBlock>) => void;
+  onToggleHidden: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
 }) {
@@ -469,21 +568,16 @@ function BlockCard({
     transform,
     transition,
     isDragging,
-  } = useSortable({
-    id: block.id,
-    data: { title: label },
-  });
+  } = useSortable({ id: block.id, data: { title: label } });
 
   return (
     <li
       ref={setNodeRef}
-      id={`sunting-${block.id}`}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      onFocusCapture={onSelect}
       className={cn(
-        "rounded-2xl border border-border bg-card p-5",
+        "flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card px-3 py-2",
         /*
-         * Garis putus-putus, bukan `opacity-*`. Meredupkan seluruh kartu ikut
+         * Garis putus-putus, bukan `opacity-*`. Meredupkan seluruh baris ikut
          * meredupkan teks di dalamnya: lencana "Disembunyikan" lalu jatuh di
          * bawah 4,5:1 (axe: color-contrast, serius).
          */
@@ -492,72 +586,71 @@ function BlockCard({
         isDragging && "opacity-50",
       )}
     >
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          {...attributes}
-          {...listeners}
-          aria-label={t.superadmin.dragHandleBlock.replace("{nama}", label)}
-          className="-m-1 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded active:cursor-grabbing"
-        >
-          <GripVertical
-            className="size-4 shrink-0 text-muted-foreground"
-            aria-hidden
-          />
-        </button>
-        <span className="text-sm font-bold">{label}</span>
-        {block.hidden && (
-          <span className="rounded-full border border-border bg-card px-2 py-0.5 text-xs font-medium text-foreground">
-            {t.superadmin.hiddenBadge}
-          </span>
-        )}
-        <div className="flex-1" />
-        <Button
-          size="sm"
-          variant="ghost"
-          aria-label={t.superadmin.duplicateBlock.replace("{nama}", label)}
-          disabled={disabled}
-          onClick={onDuplicate}
-        >
-          <Copy className="size-4" aria-hidden />
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          aria-label={(block.hidden
-            ? t.superadmin.showBlock
-            : t.superadmin.hideBlock
-          ).replace("{nama}", label)}
-          aria-pressed={!!block.hidden}
-          disabled={disabled}
-          onClick={() =>
-            onPatch({ hidden: !block.hidden } as Partial<LandingBlock>)
-          }
-        >
-          {block.hidden ? (
-            <EyeOff className="size-4" aria-hidden />
-          ) : (
-            <Eye className="size-4" aria-hidden />
-          )}
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          aria-label={t.editor.deleteNamed.replace("{nama}", label)}
-          disabled={disabled}
-          onClick={onDelete}
-          className="text-destructive hover:text-destructive"
-        >
-          <Trash2 className="size-4" aria-hidden />
-        </Button>
-      </div>
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        aria-label={t.superadmin.dragHandleBlock.replace("{nama}", label)}
+        className="-m-1 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded active:cursor-grabbing"
+      >
+        <GripVertical
+          className="size-4 shrink-0 text-muted-foreground"
+          aria-hidden
+        />
+      </button>
 
-      <BlockFields
-        block={block}
-        onPatch={onPatch}
+      {/* Namanya sendiri tombolnya: sasaran klik sepanjang baris, bukan ikon
+          kecil terpisah di ujung. */}
+      <button
+        type="button"
+        onClick={onSelect}
+        className="min-w-0 flex-1 rounded px-1 py-1 text-left text-sm font-semibold hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      >
+        {label}
+      </button>
+
+      {block.hidden && (
+        <span className="rounded-full border border-border bg-card px-2 py-0.5 text-xs font-medium text-foreground">
+          {t.superadmin.hiddenBadge}
+        </span>
+      )}
+
+      <Button
+        size="sm"
+        variant="ghost"
+        aria-label={t.superadmin.duplicateBlock.replace("{nama}", label)}
         disabled={disabled}
-        availableCourses={availableCourses}
-      />
+        onClick={onDuplicate}
+      >
+        <Copy className="size-4" aria-hidden />
+      </Button>
+      <Button
+        size="sm"
+        variant="ghost"
+        aria-label={(block.hidden
+          ? t.superadmin.showBlock
+          : t.superadmin.hideBlock
+        ).replace("{nama}", label)}
+        aria-pressed={!!block.hidden}
+        disabled={disabled}
+        onClick={onToggleHidden}
+      >
+        {block.hidden ? (
+          <EyeOff className="size-4" aria-hidden />
+        ) : (
+          <Eye className="size-4" aria-hidden />
+        )}
+      </Button>
+      <Button
+        size="sm"
+        variant="ghost"
+        aria-label={t.editor.deleteNamed.replace("{nama}", label)}
+        disabled={disabled}
+        onClick={onDelete}
+        className="text-destructive hover:text-destructive"
+      >
+        <Trash2 className="size-4" aria-hidden />
+      </Button>
     </li>
   );
 }

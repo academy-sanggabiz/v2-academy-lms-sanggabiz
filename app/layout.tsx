@@ -7,6 +7,9 @@ import { DisplayProvider } from "@/components/preferences/DisplayProvider";
 import { getTranslations } from "@/lib/i18n/server";
 import { getDisplayPreferences } from "@/lib/preferences/server";
 import { displayAttributes } from "@/lib/preferences/display";
+import { alamatKanonik } from "@/lib/site-url";
+import { getSeo } from "@/lib/seo-server";
+import { seoTerpakai } from "@/lib/seo";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -40,30 +43,34 @@ const geistMono = Geist_Mono({
 });
 
 /**
- * Alamat kanonik aplikasi.
+ * Judul dan keterangan situs dibaca dari basis data, bukan ditulis di sini.
  *
- * Dipakai Next.js untuk melengkapi URL relatif di metadata -- tautan kanonik
- * dan gambar pratinjau saat halaman dibagikan ke WhatsApp atau LinkedIn.
- * Tanpa ini Next memakai alamat tebakan, dan tautan yang dibagikan bisa
- * menunjuk alamat .vercel.app lama walau pengunjungnya datang dari
- * lms.sanggabiz.com.
+ * `generateMetadata`, bukan `metadata` tetap, karena nilainya kini bisa diubah
+ * pemilik lewat /admin/seo tanpa menyentuh kode atau menunggu deploy. Yang
+ * dibaca hanya kolom TERBIT -- draf tidak pernah sampai ke mesin pencari
+ * (lihat getSeo di lib/seo-server.ts).
  *
- * Dibaca dari environment supaya deployment pratinjau menunjuk dirinya
- * sendiri, bukan produksi. `VERCEL_PROJECT_PRODUCTION_URL` dan `VERCEL_URL`
- * diisi Vercel sendiri; nilai terakhir dipakai saat berjalan di komputer.
+ * Judul mengikuti bahasa pengunjung; `template` membiarkan tiap halaman
+ * menambahkan namanya sendiri di depan.
  */
-function alamatKanonik(): string {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL
-  if (process.env.VERCEL_ENV === "production") return "https://lms.sanggabiz.com"
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
-  return "http://localhost:3270"
-}
+export async function generateMetadata(): Promise<Metadata> {
+  const [{ locale }, seo] = await Promise.all([getTranslations(), getSeo()])
+  const { title, description } = seoTerpakai(seo, locale)
 
-export const metadata: Metadata = {
-  metadataBase: new URL(alamatKanonik()),
-  title: { default: "Sanggabiz Academy", template: "%s · Sanggabiz Academy" },
-  description: "Belajar dan mengajar jadi mudah.",
-};
+  return {
+    metadataBase: new URL(alamatKanonik()),
+    title: { default: title, template: `%s · ${title}` },
+    description,
+    openGraph: {
+      title,
+      description,
+      // Gambar kosong lebih baik daripada gambar yang tidak ada: alamat
+      // kosong di openGraph.images membuat beberapa pengurai menampilkan
+      // kotak rusak, bukan melewatinya.
+      ...(seo.ogImageUrl ? { images: [{ url: seo.ogImageUrl }] } : {}),
+    },
+  }
+}
 
 export default async function RootLayout({
   children,

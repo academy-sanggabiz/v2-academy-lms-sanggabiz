@@ -1,11 +1,7 @@
 "use client"
 
-import { useState, useTransition } from "react"
 import { Check } from "lucide-react"
-import { toast } from "sonner"
 
-import { saveLandingThemeAction } from "@/app/admin/landing/actions"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { StatusMessage } from "@/components/ui/status-message"
@@ -28,10 +24,27 @@ import { useI18n } from "@/components/i18n/LocaleProvider"
  * depan mata, kegagalan itu tidak pernah terlihat sampai ada yang mengeluh
  * tidak bisa membaca.
  */
-export function ThemePicker({ initialTheme }: { initialTheme: LandingTheme }) {
+/**
+ * Ruas pemilih warna, TANPA tombol simpannya sendiri.
+ *
+ * Dulu komponen ini menyimpan sendiri, lewat tombol "Simpan Warna" miliknya.
+ * Itu berarti satu layar dengan dua tombol simpan yang menulis ke baris yang
+ * sama, dan penyusun harus mengingat mana yang menyimpan apa. Sekarang
+ * warnanya ikut draf yang sama dengan isi halaman, dan yang menyimpan hanya
+ * bilah di atas.
+ */
+export function ThemeFields({
+  theme,
+  onChange,
+  disabled,
+}: {
+  theme: LandingTheme
+  onChange: (theme: LandingTheme) => void
+  disabled: boolean
+}) {
   const { t } = useI18n()
-  const [theme, setTheme] = useState(initialTheme)
-  const [pending, startTransition] = useTransition()
+  const setTheme = onChange
+  const pending = disabled
 
   const check = checkTheme(theme)
 
@@ -40,17 +53,6 @@ export function ThemePicker({ initialTheme }: { initialTheme: LandingTheme }) {
     { label: t.superadmin.contrastWhiteOnButton, value: contrastRatio("#ffffff", theme.primary) },
     { label: t.superadmin.contrastPrimaryOnWhite, value: contrastRatio(theme.primary, "#ffffff") },
   ]
-
-  function save() {
-    startTransition(async () => {
-      const result = await saveLandingThemeAction(theme)
-      if (!result.ok) {
-        toast.error(result.error)
-        return
-      }
-      toast.success(t.superadmin.colorsSaved)
-    })
-  }
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
@@ -144,16 +146,6 @@ export function ThemePicker({ initialTheme }: { initialTheme: LandingTheme }) {
           {check.problems.join(". ")}
         </StatusMessage>
       )}
-
-      <Button
-        className="mt-4 bg-brand-gradient text-white hover:brightness-105"
-        onClick={save}
-        disabled={!check.ok}
-        pending={pending}
-        pendingLabel={t.common.saving}
-      >
-        {t.superadmin.saveColors}
-      </Button>
     </div>
   )
 }

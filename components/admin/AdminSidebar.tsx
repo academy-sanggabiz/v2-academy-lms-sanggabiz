@@ -14,7 +14,7 @@ import {
   ClipboardCheck,
   Activity,
   UserCog,
-} from "lucide-react"
+  Search,} from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { sidebarClasses } from "@/hooks/use-mobile-nav"
@@ -83,6 +83,7 @@ export function AdminSidebar({
           <>
             <NavLink href="/admin/mentor" label={t.admin.mentors} icon={UserCog} />
             <NavLink href="/admin/landing" label={t.admin.landing} icon={Layout} />
+            <NavLink href="/admin/seo" label={t.admin.seo} icon={Search} />
             <NavLink href="/admin/certificates" label={t.admin.certificates} icon={Award} />
           </>
         )}

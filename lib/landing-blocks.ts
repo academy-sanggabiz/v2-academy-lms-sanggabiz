@@ -251,6 +251,17 @@ export const BLOCK_LABELS: Record<LandingBlockType, string> = {
 /** Jenis blok yang hanya masuk akal muncul sekali. */
 export const SINGLETON_BLOCKS: LandingBlockType[] = ["hero"]
 
+/**
+ * Blok yang tidak menempati barisnya sendiri di halaman.
+ *
+ * Tombol WhatsApp posisinya `fixed`, jadi pembungkusnya setinggi nol. Di
+ * halaman publik itu memang yang diinginkan; di kanvas pratinjau itu berarti
+ * tidak ada apa pun yang bisa diklik untuk menyuntingnya -- dan tombol pilih
+ * setinggi nol gagal ambang sasaran sentuh 24x24 (WCAG 2.5.8, ditangkap
+ * audit a11y). Jenis di sini digambar sebagai kartu bernama di kanvas.
+ */
+export const FLOATING_BLOCKS: LandingBlockType[] = ["whatsapp"]
+
 export function newBlockId(): string {
   return `blok-${Math.random().toString(36).slice(2, 10)}`
 }

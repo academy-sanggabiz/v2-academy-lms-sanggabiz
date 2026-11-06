@@ -47,6 +47,7 @@ const SUDAH_SELESAI = new Set([
   "/admin/profile",
   "/admin/mentor",
   "/admin/landing",
+  "/admin/seo",
   "/admin/certificates",
 ])
 
@@ -227,7 +228,7 @@ try {
   let admin = await masuk(browser, "/auth/admin/login", adminEmail, adminSandi)
   if (!admin && env.DEMO_ADMIN_EMAIL) admin = await masuk(browser, "/auth/admin/login", env.DEMO_ADMIN_EMAIL, env.DEMO_ADMIN_PASSWORD)
   if (admin) {
-    for (const p of ["/admin/dashboard", "/admin/courses", "/admin/learners", "/admin/grading", "/admin/tracking", "/admin/settings", "/admin/profile", "/admin/mentor", "/admin/landing", "/admin/certificates"])
+    for (const p of ["/admin/dashboard", "/admin/courses", "/admin/learners", "/admin/grading", "/admin/tracking", "/admin/settings", "/admin/profile", "/admin/mentor", "/admin/landing", "/admin/seo", "/admin/certificates"])
       await periksa(admin, p)
 
     // Layar dinamis: matriks penilaian dan rincian pelacakan. Id-nya dicari

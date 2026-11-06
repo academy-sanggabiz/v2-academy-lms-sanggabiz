@@ -108,16 +108,17 @@ export async function getEnglishLandingBlocks(): Promise<LandingBlock[] | null> 
 }
 
 /**
- * Menyimpan susunan blok. Setiap teks yang nanti dirender dengan
- * `dangerouslySetInnerHTML` dibersihkan di sini, di titik simpan, sama seperti
- * isi pelajaran (temuan C-09): halaman depan adalah halaman publik, dan apa
- * pun yang lolos ke sini berjalan di peramban setiap pengunjung.
+ * Membersihkan setiap teks yang nanti dirender dengan
+ * `dangerouslySetInnerHTML`.
+ *
+ * Dipanggil di TITIK SIMPAN, bukan saat render, dan berlaku untuk draf
+ * maupun terbitan. Draf memang belum dilihat pengunjung, tetapi draf adalah
+ * calon terbitan: membersihkannya hanya pada saat diterbitkan berarti
+ * membiarkan muatan berbahaya hidup di basis data sampai saat itu, dan
+ * mengandalkan satu jalur saja untuk membersihkannya.
  */
-export async function saveLandingBlocks(
-  blocks: LandingBlock[],
-  locale: Locale = "id"
-): Promise<{ ok: true } | { error: string }> {
-  const clean: LandingBlock[] = blocks.map((block) => {
+function bersihkanBlok(blocks: LandingBlock[]): LandingBlock[] {
+  return blocks.map((block) => {
     switch (block.type) {
       case "hero":
         return { ...block, hero: { ...block.hero, subheading: sanitizeRichText(block.hero.subheading) } }
@@ -135,7 +136,19 @@ export async function saveLandingBlocks(
         return block
     }
   })
+}
 
+/**
+ * Menyimpan susunan blok LANGSUNG KE TERBITAN.
+ *
+ * Masih dipakai sebagai jalan pintas internal; alur pengelola sekarang
+ * melewati draf (`saveLandingDraft` lalu `publishLandingDraft`).
+ */
+export async function saveLandingBlocks(
+  blocks: LandingBlock[],
+  locale: Locale = "id"
+): Promise<{ ok: true } | { error: string }> {
+  const clean = bersihkanBlok(blocks)
   const supabase = await createClient()
   const kolom = locale === "en" ? { blocks_en: clean } : { blocks: clean }
   // UPDATE, bukan upsert: baris tunggalnya sudah disemai migrasi, dan jalur
@@ -286,4 +299,147 @@ export async function listPublicInstructors(limit = 12): Promise<Instructor[]> {
     return []
   }
   return (data ?? []) as Instructor[]
+}
+
+/* ------------------------------------------------------------------ *
+ * Draf halaman depan
+ *
+ * Pemisahan "simpan" dari "terbitkan". Kolom `blocks`/`blocks_en`/`theme`
+ * tetap satu-satunya yang dibaca halaman depan; kembarannya yang berakhiran
+ * `_draft` hanya dibaca penyunting. Halaman publik tidak tahu-menahu soal
+ * draf, dan memang tidak perlu.
+ * ------------------------------------------------------------------ */
+
+export type LandingDraft = {
+  blocks: LandingBlock[]
+  /** null berarti versi Inggris belum pernah ditulis, bukan "kosong". */
+  blocksEn: LandingBlock[] | null
+  theme: LandingTheme
+  /** Ada perubahan tersimpan yang belum dilihat pengunjung. */
+  adaDraf: boolean
+  draftUpdatedAt: string | null
+}
+
+/**
+ * Keadaan yang dibuka penyunting: draf bila ada, terbitan bila tidak.
+ *
+ * Dibaca sekali untuk semuanya, bukan sekali per kolom. Tiga kueri terpisah
+ * bisa jatuh di antara dua penyimpanan dan memberi penyunting campuran draf
+ * lama dengan terbitan baru -- halaman yang tidak pernah benar-benar ada.
+ */
+export async function getLandingDraft(): Promise<LandingDraft> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("landing_content")
+    .select("blocks, blocks_en, theme, blocks_draft, blocks_en_draft, theme_draft, draft_updated_at")
+    .eq("id", true)
+    .maybeSingle<{
+      blocks: unknown
+      blocks_en: unknown
+      theme: unknown
+      blocks_draft: unknown
+      blocks_en_draft: unknown
+      theme_draft: unknown
+      draft_updated_at: string | null
+    }>()
+
+  const draf = parseBlocks(data?.blocks_draft)
+  const terbit = parseBlocks(data?.blocks)
+  const adaDraf = draf !== null
+
+  return {
+    blocks: draf ?? terbit ?? defaultBlocks(await getLandingContent()),
+    // Versi Inggris: draf menang, lalu terbitan, lalu null. null bukan
+    // kekosongan yang perlu diisi -- itu yang memberi tahu penyunting untuk
+    // menawarkan "mulai dari salinan versi Indonesia".
+    blocksEn: adaDraf
+      ? parseBlocks(data?.blocks_en_draft)
+      : parseBlocks(data?.blocks_en),
+    theme: parseTheme(adaDraf && data?.theme_draft ? data.theme_draft : data?.theme),
+    adaDraf,
+    draftUpdatedAt: data?.draft_updated_at ?? null,
+  }
+}
+
+/** Menyimpan draf. Tidak mengubah apa pun yang dilihat pengunjung. */
+export async function saveLandingDraft(
+  blocks: LandingBlock[],
+  blocksEn: LandingBlock[] | null,
+  theme: LandingTheme
+): Promise<{ ok: true } | { error: string }> {
+  const check = checkTheme(theme)
+  if (!check.ok) return { error: check.problems.join(". ") }
+
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from("landing_content")
+    .update({
+      blocks_draft: bersihkanBlok(blocks),
+      blocks_en_draft: blocksEn ? bersihkanBlok(blocksEn) : null,
+      theme_draft: theme,
+      draft_updated_at: new Date().toISOString(),
+    })
+    .eq("id", true)
+
+  if (error) {
+    console.error("saveLandingDraft failed:", error.message)
+    return { error: dbErrorMessage(error.message) }
+  }
+  return { ok: true }
+}
+
+/**
+ * Menerbitkan draf: menyalinnya ke kolom terbit, lalu mengosongkan draf.
+ *
+ * Salinannya diambil dari apa yang dikirim penyunting, bukan dibaca ulang
+ * dari kolom draf. Membaca ulang berarti menerbitkan keadaan yang belum tentu
+ * sama dengan yang baru saja dilihat penyusun di layarnya -- sesi lain bisa
+ * saja menimpa draf itu sedetik sebelumnya.
+ */
+export async function publishLandingDraft(
+  blocks: LandingBlock[],
+  blocksEn: LandingBlock[] | null,
+  theme: LandingTheme
+): Promise<{ ok: true } | { error: string }> {
+  const check = checkTheme(theme)
+  if (!check.ok) return { error: check.problems.join(". ") }
+  if (!Array.isArray(blocks) || blocks.length === 0) {
+    return { error: "Halaman depan harus punya setidaknya satu bagian." }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from("landing_content")
+    .update({
+      blocks: bersihkanBlok(blocks),
+      blocks_en: blocksEn ? bersihkanBlok(blocksEn) : null,
+      theme,
+      updated_at: new Date().toISOString(),
+      blocks_draft: null,
+      blocks_en_draft: null,
+      theme_draft: null,
+      draft_updated_at: null,
+    })
+    .eq("id", true)
+
+  if (error) {
+    console.error("publishLandingDraft failed:", error.message)
+    return { error: dbErrorMessage(error.message) }
+  }
+  return { ok: true }
+}
+
+/** Membuang draf. Yang terbit tidak disentuh. */
+export async function discardLandingDraft(): Promise<{ ok: true } | { error: string }> {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from("landing_content")
+    .update({ blocks_draft: null, blocks_en_draft: null, theme_draft: null, draft_updated_at: null })
+    .eq("id", true)
+
+  if (error) {
+    console.error("discardLandingDraft failed:", error.message)
+    return { error: dbErrorMessage(error.message) }
+  }
+  return { ok: true }
 }

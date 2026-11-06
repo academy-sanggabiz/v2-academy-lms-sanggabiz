@@ -7,7 +7,7 @@ import { LandingBlockView } from "@/components/landing/LandingBlocks"
 import { useI18n } from "@/components/i18n/LocaleProvider"
 import { themeStyle, type LandingTheme } from "@/lib/landing-theme"
 import { cn } from "@/lib/utils"
-import type { LandingBlock } from "@/lib/landing-blocks"
+import { FLOATING_BLOCKS, type LandingBlock } from "@/lib/landing-blocks"
 import type { Category, CourseCardData, Instructor } from "@/lib/courses"
 import type { LandingTestimonial, PlatformTotals } from "@/lib/landing"
 import type { Locale } from "@/lib/i18n/config"
@@ -53,12 +53,15 @@ export function LivePreview({
   locale,
   selectedId,
   onSelect,
+  labelOf,
 }: {
   blocks: LandingBlock[]
   data: PreviewData
   locale: Locale
   selectedId: string | null
   onSelect: (id: string) => void
+  /** Nama bagian yang terbaca orang, untuk nama tombol pilihnya. */
+  labelOf: (block: LandingBlock) => string
 }) {
   const { t } = useI18n()
   const [perangkat, setPerangkat] = useState<Perangkat>("desktop")
@@ -95,7 +98,7 @@ export function LivePreview({
           ))}
         </div>
         <div className="flex-1" />
-        <span className="text-xs text-muted-foreground">{t.superadmin.livePreviewNote}</span>
+        <span className="text-xs text-muted-foreground">{t.superadmin.clickAnySection}</span>
       </div>
 
       {/*
@@ -125,36 +128,45 @@ export function LivePreview({
           style={{ ...themeStyle(data.theme), width: lebar ? `${lebar}px` : "100%" }}
           className="max-w-full shrink-0 overflow-hidden rounded-xl border border-border bg-card"
         >
-          {blocks.map((block) => (
+          {blocks.map((block) =>
+            FLOATING_BLOCKS.includes(block.type) ? (
+              /*
+                Blok melayang digambar sebagai kartu bernama, bukan dibiarkan
+                setinggi nol. Yang direndernya memang tidak menempati baris --
+                tombol WhatsApp posisinya `fixed` -- tetapi penyusun tetap
+                harus bisa melihat bahwa blok itu ada dan menekannya untuk
+                menyunting. Tombol setinggi nol juga gagal ambang sasaran
+                sentuh 24x24 (WCAG 2.5.8).
+              */
+              <div key={block.id} className="border-t border-border p-4">
+                <button
+                  type="button"
+                  onClick={() => onSelect(block.id)}
+                  aria-label={t.superadmin.editSectionAria.replace("{n}", labelOf(block))}
+                  className={cn(
+                    "flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed px-3 text-xs font-semibold",
+                    "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none",
+                    selectedId === block.id
+                      ? "border-ring bg-secondary text-primary"
+                      : "border-border text-muted-foreground hover:bg-muted"
+                  )}
+                >
+                  <Pencil className="size-3.5" aria-hidden />
+                  {labelOf(block)}
+                  {block.hidden && ` \u00b7 ${t.superadmin.hiddenBadge}`}
+                </button>
+              </div>
+            ) : (
             <div key={block.id} className="group/blok relative">
-              {/*
-                Tombol pilih, bukan seluruh bagian yang bisa diklik: sebuah
-                <section> berisi tautan dan tombol sendiri, dan membungkusnya
-                jadi satu tombol akan menyarangkan kontrol di dalam kontrol.
-              */}
-              <button
-                type="button"
-                onClick={() => onSelect(block.id)}
-                className={cn(
-                  "absolute top-2 right-2 z-10 flex min-h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-semibold shadow-sm",
-                  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none",
-                  selectedId === block.id
-                    ? "border-ring bg-secondary text-primary"
-                    : "border-border bg-card text-foreground"
-                )}
-              >
-                <Pencil className="size-3.5" aria-hidden />
-                {t.superadmin.editThisSection}
-              </button>
-
-              {block.hidden && (
-                <span className="absolute top-2 left-2 z-10 rounded-md border border-border bg-card px-2 py-1 text-xs font-medium">
-                  {t.superadmin.hiddenBadge}
-                </span>
-              )}
-
               <div
                 className={cn(
+                  /*
+                    Isinya tidak bisa diklik -- tautan dan tombol di dalam
+                    halaman depan tidak boleh menjalankan apa pun di layar
+                    pengelola. Itu juga yang membuat tombol pilih di bawah
+                    aman menutupi seluruh bagian: tidak ada kontrol yang
+                    tertimbun, karena semuanya sudah mati.
+                  */
                   "pointer-events-none",
                   /*
                    * Garis putus-putus, bukan `opacity-60 grayscale`.
@@ -165,8 +177,7 @@ export function LivePreview({
                    * "tersembunyi" sudah terbaca dari lencana di pojok; tanda
                    * kedua ini tidak boleh dibayar dengan keterbacaan.
                    */
-                  block.hidden && "outline-2 outline-dashed outline-muted-foreground/50 -outline-offset-4",
-                  selectedId === block.id && "ring-2 ring-ring ring-inset"
+                  block.hidden && "outline-2 outline-dashed outline-muted-foreground/50 -outline-offset-4"
                 )}
               >
                 <LandingBlockView
@@ -179,8 +190,50 @@ export function LivePreview({
                   locale={locale}
                 />
               </div>
+
+              {block.hidden && (
+                <span className="pointer-events-none absolute top-2 left-2 z-20 rounded-md border border-border bg-card px-2 py-1 text-xs font-medium">
+                  {t.superadmin.hiddenBadge}
+                </span>
+              )}
+
+              {/*
+                SELURUH bagian jadi satu tombol, bukan tombol kecil di pojok.
+                Sasaran klik sebesar bagian yang dimaksud jauh lebih mudah
+                dikenai daripada tombol 100px, dan ia menghapus satu langkah
+                belajar: tidak ada lagi yang perlu ditemukan dulu sebelum bisa
+                menyunting. Pembaca layar tetap menerima satu kontrol bernama
+                per bagian, bukan sebuah <section> yang dijadikan tombol --
+                tombol ini bersaudara dengan isinya, bukan membungkusnya.
+              */}
+              <button
+                type="button"
+                onClick={() => onSelect(block.id)}
+                aria-label={t.superadmin.editSectionAria.replace("{n}", labelOf(block))}
+                className={cn(
+                  "absolute inset-0 z-10 flex items-start justify-end p-2",
+                  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset focus-visible:outline-none",
+                  selectedId === block.id
+                    ? "ring-2 ring-ring ring-inset"
+                    : "hover:bg-ring/5 hover:ring-2 hover:ring-ring/40 hover:ring-inset"
+                )}
+              >
+                <span
+                  aria-hidden
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-xs font-semibold shadow-sm",
+                    selectedId === block.id
+                      ? "border-ring bg-secondary text-primary"
+                      : "opacity-0 group-hover/blok:opacity-100"
+                  )}
+                >
+                  <Pencil className="size-3.5" />
+                  {labelOf(block)}
+                </span>
+              </button>
             </div>
-          ))}
+            )
+          )}
 
           {blocks.length === 0 && (
             <p className="p-12 text-center text-sm text-muted-foreground">{t.superadmin.noBlocks}</p>

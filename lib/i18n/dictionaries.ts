@@ -1094,6 +1094,40 @@ export type Dictionary = {
     hintTestimonials: string
     hintFaq: string
     hintCta: string
+    statusPublished: string
+    statusDraft: string
+    undo: string
+    redo: string
+    discardDraft: string
+    restoreDefaults: string
+    openInNewTab: string
+    saveDraft: string
+    publish: string
+    builderTabsAria: string
+    tabStructure: string
+    tabBlockSettings: string
+    tabTheme: string
+    clickAnySection: string
+    editSectionAria: string
+    draftSaved: string
+    published: string
+    draftDiscarded: string
+    defaultsRestored: string
+    draftNote: string
+    noBlockSelected: string
+    confirmRestore: string
+    confirmDiscard: string
+    seoTitle: string
+    seoSubtitle: string
+    seoPageTitle: string
+    seoPageDescription: string
+    seoOgImage: string
+    seoOgHint: string
+    seoTooLong: string
+    seoEmptyFallback: string
+    seoPreviewHead: string
+    seoSaved: string
+    seoPublished: string
     testimonialsLimit: string
     blockWhatsapp: string
     hintWhatsapp: string
@@ -1214,6 +1248,7 @@ export type Dictionary = {
     purchases: string
     mentors: string
     landing: string
+    seo: string
     certificates: string
     settings: string
     profile: string
@@ -2416,6 +2451,40 @@ const id: Dictionary = {
     hintTestimonials: "Ulasan peserta. Bawaannya otomatis dari ulasan bernilai 4 ke atas (hanya nama depan); bisa dialihkan ke isi manual.",
     hintFaq: "Daftar tanya-jawab yang bisa dibuka satu per satu.",
     hintCta: "Ajakan penutup dengan dua tombol.",
+    statusPublished: "Sudah terbit",
+    statusDraft: "Draf belum terbit",
+    undo: "Urungkan",
+    redo: "Ulangi",
+    discardDraft: "Buang perubahan",
+    restoreDefaults: "Kembalikan bawaan",
+    openInNewTab: "Tab baru",
+    saveDraft: "Simpan draf",
+    publish: "Terbitkan",
+    builderTabsAria: "Panel pengaturan",
+    tabStructure: "Susunan halaman",
+    tabBlockSettings: "Pengaturan blok",
+    tabTheme: "Warna",
+    clickAnySection: "Klik bagian mana pun untuk menyuntingnya",
+    editSectionAria: "Sunting bagian {n}",
+    draftSaved: "Draf disimpan. Pengunjung belum melihatnya.",
+    published: "Diterbitkan. Pengunjung sudah melihatnya.",
+    draftDiscarded: "Perubahan dibuang. Kembali ke yang terbit.",
+    defaultsRestored: "Isi bawaan dikembalikan. Belum diterbitkan.",
+    draftNote: "Ada perubahan tersimpan yang belum diterbitkan.",
+    noBlockSelected: "Belum ada bagian yang dipilih. Klik satu bagian di pratinjau.",
+    confirmRestore: "Kembalikan seluruh isi ke bawaan? Suntingan Anda yang belum diterbitkan akan hilang.",
+    confirmDiscard: "Buang seluruh perubahan yang belum diterbitkan?",
+    seoTitle: "SEO Situs",
+    seoSubtitle: "Judul dan keterangan yang muncul di hasil pencarian dan saat tautan dibagikan.",
+    seoPageTitle: "Judul situs",
+    seoPageDescription: "Keterangan singkat",
+    seoOgImage: "Gambar saat dibagikan",
+    seoOgHint: "Muncul di WhatsApp dan LinkedIn. Ukuran yang dianjurkan 1200x630.",
+    seoTooLong: "{n} aksara. Di atas {max} biasanya terpotong di hasil pencarian.",
+    seoEmptyFallback: "Dikosongkan berarti memakai bawaan: \u201c{teks}\u201d",
+    seoPreviewHead: "Perkiraan tampilan di hasil pencarian",
+    seoSaved: "Pengaturan SEO disimpan sebagai draf.",
+    seoPublished: "Pengaturan SEO diterbitkan.",
     testimonialsLimit: "Jumlah ulasan ditampilkan",
     blockWhatsapp: "Tombol WhatsApp",
     hintWhatsapp: "Tombol hijau mengambang di pojok kanan bawah, membuka percakapan WhatsApp.",
@@ -2527,6 +2596,7 @@ const id: Dictionary = {
     purchases: "Pembelian",
     mentors: "Mentor",
     landing: "Halaman Depan",
+    seo: "SEO",
     certificates: "Sertifikat",
     settings: "Pengaturan",
     profile: "Profil",
@@ -3738,6 +3808,40 @@ const en: Dictionary = {
     hintTestimonials: "Learner reviews rated 4 or higher, pulled automatically. Only first names are shown.",
     hintFaq: "A list of questions and answers that open one at a time.",
     hintCta: "A closing call to action with two buttons.",
+    statusPublished: "Published",
+    statusDraft: "Unpublished draft",
+    undo: "Undo",
+    redo: "Redo",
+    discardDraft: "Discard changes",
+    restoreDefaults: "Restore defaults",
+    openInNewTab: "New tab",
+    saveDraft: "Save draft",
+    publish: "Publish",
+    builderTabsAria: "Settings panels",
+    tabStructure: "Page structure",
+    tabBlockSettings: "Section settings",
+    tabTheme: "Colours",
+    clickAnySection: "Click any section to edit it",
+    editSectionAria: "Edit the {n} section",
+    draftSaved: "Draft saved. Visitors cannot see it yet.",
+    published: "Published. Visitors can see it now.",
+    draftDiscarded: "Changes discarded. Back to what is published.",
+    defaultsRestored: "Default content restored. Not published yet.",
+    draftNote: "There are saved changes that have not been published.",
+    noBlockSelected: "No section selected yet. Click one in the preview.",
+    confirmRestore: "Restore all content to the defaults? Your unpublished edits will be lost.",
+    confirmDiscard: "Discard every unpublished change?",
+    seoTitle: "Site SEO",
+    seoSubtitle: "The title and description shown in search results and when a link is shared.",
+    seoPageTitle: "Site title",
+    seoPageDescription: "Short description",
+    seoOgImage: "Image when shared",
+    seoOgHint: "Shown on WhatsApp and LinkedIn. 1200x630 is the recommended size.",
+    seoTooLong: "{n} characters. Above {max} it is usually cut off in search results.",
+    seoEmptyFallback: "Leaving it empty uses the default: \u201c{teks}\u201d",
+    seoPreviewHead: "How it will roughly look in search results",
+    seoSaved: "SEO settings saved as a draft.",
+    seoPublished: "SEO settings published.",
     testimonialsLimit: "Reviews shown",
     blockWhatsapp: "WhatsApp Button",
     hintWhatsapp: "A green button floating at the bottom right that opens a WhatsApp chat.",
@@ -3849,6 +3953,7 @@ const en: Dictionary = {
     purchases: "Purchases",
     mentors: "Mentors",
     landing: "Home page",
+    seo: "SEO",
     certificates: "Certificates",
     settings: "Settings",
     profile: "Profile",
