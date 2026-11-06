@@ -98,7 +98,21 @@ export function LivePreview({
         <span className="text-xs text-muted-foreground">{t.superadmin.livePreviewNote}</span>
       </div>
 
-      <div className="flex justify-center overflow-x-auto">
+      {/*
+        Kanvasnya bergulir sendiri di layar lebar, bukan ikut jendela.
+        Pasangannya ada di BlockEditor: panel ruas juga punya guliran sendiri.
+        Dua panel yang saling bebas adalah inti pembangun halaman -- menggulir
+        salah satunya tidak boleh menggeser yang lain, dan menekan "Sunting
+        bagian ini" tidak boleh memindahkan pandangan dari bagian yang sedang
+        dilihat. Baris pemilih perangkat di atas sengaja berada DI LUAR wadah
+        guliran ini supaya ia tidak ikut menghilang saat kanvas digulir.
+
+        `items-start` WAJIB di sini. Tanpa itu anak flex ini diregangkan ke
+        tinggi wadahnya (`align-items: stretch` bawaan), lalu `overflow-hidden`
+        miliknya memotong isi halaman depan di 740px -- kanvasnya tidak
+        bergulir, ia kehilangan sepuluh bagian terakhirnya tanpa suara.
+      */}
+      <div className="flex items-start justify-center overflow-x-auto xl:max-h-[calc(100dvh-10rem)] xl:overflow-y-auto">
         <div
           /*
             Penanda untuk scripts/i18n-check.mjs. Isi di dalam kanvas ini
