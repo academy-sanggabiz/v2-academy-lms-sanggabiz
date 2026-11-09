@@ -4,6 +4,10 @@ import { revalidatePath } from "next/cache"
 
 import { createClient } from "@/lib/supabase/server"
 import { checkAndIssueCertificate } from "@/lib/certificates"
+import { createAdminClient } from "@/lib/supabase/admin"
+import { aiAktif } from "@/lib/ai/client"
+import { buatPembahasan, type ItemPembahasan, type MasukanSoal } from "@/lib/ai/quiz-feedback"
+import { getTranslations } from "@/lib/i18n/server"
 
 export type SubmitQuizResult = {
   pending: boolean
@@ -363,4 +367,165 @@ function userFacingError(message: string): string {
   if (/already submitted/i.test(message)) return "Percobaan ini sudah dikirim."
   if (/not enrolled/i.test(message)) return "Anda belum terdaftar di kursus ini."
   return "Terjadi kesalahan. Coba lagi."
+}
+
+/* ------------------------------------------------------------------ *
+ * F5: Bahas jawaban saya
+ * ------------------------------------------------------------------ */
+
+export type PembahasanHasil =
+  | { ok: true; items: ItemPembahasan[] }
+  | { ok: false; error: string }
+
+/**
+ * Membuat (atau mengambil ulang) pembahasan AI untuk satu percobaan kuis.
+ *
+ * Tiga pagar, dan ketiganya di server:
+ *
+ * 1. **Percobaan harus milik pemanggil dan sudah dikirim.** Memanggil ini
+ *    untuk percobaan orang lain, atau untuk percobaan yang masih berjalan,
+ *    ditolak -- bukan dengan menyembunyikan tombolnya, tetapi di sini.
+ * 2. **Kunci jawaban dibaca dengan service role, bukan sesi peserta.**
+ *    `question_options.is_correct` memang tidak pernah boleh terbaca peserta;
+ *    yang menyeberang ke peramban hanyalah kalimat pembahasannya.
+ * 3. **Hasilnya disimpan per percobaan.** Membuka ulang halaman hasil
+ *    mengambil baris yang sama, jadi tidak ada pemanggilan AI kedua untuk
+ *    percobaan yang sama -- itu juga yang membuat batas harian berarti.
+ */
+export async function bahasJawabanSaya(attemptId: string): Promise<PembahasanHasil> {
+  const supabase = await createClient()
+  const { data: claimsData } = await supabase.auth.getClaims()
+  const userId = claimsData?.claims?.sub
+  if (!userId) return { ok: false, error: "Anda belum masuk." }
+  if (!aiAktif()) return { ok: false, error: "Fitur AI belum diaktifkan." }
+
+  const { data: attempt } = await supabase
+    .from("quiz_attempts")
+    .select("id, learner_id, status")
+    .eq("id", attemptId)
+    .maybeSingle<{ id: string; learner_id: string; status: string }>()
+
+  if (!attempt || attempt.learner_id !== userId) {
+    return { ok: false, error: "Percobaan tidak ditemukan." }
+  }
+  if (attempt.status === "in_progress") {
+    return { ok: false, error: "Kuis ini belum dikirim." }
+  }
+
+  const admin = createAdminClient()
+
+  // Sudah pernah dibahas? Kembalikan yang tersimpan.
+  const { data: tersimpan } = await admin
+    .from("ai_quiz_feedback")
+    .select("items")
+    .eq("attempt_id", attemptId)
+    .maybeSingle<{ items: ItemPembahasan[] }>()
+  if (tersimpan?.items) return { ok: true, items: tersimpan.items }
+
+  const { data: responses } = await admin
+    .from("quiz_responses")
+    .select("question_id, response, is_correct")
+    .eq("attempt_id", attemptId)
+
+  const salah = ((responses ?? []) as {
+    question_id: string
+    response: unknown
+    is_correct: boolean | null
+  }[]).filter((r) => r.is_correct === false)
+
+  if (salah.length === 0) return { ok: false, error: "Tidak ada jawaban salah untuk dibahas." }
+
+  const ids = salah.map((r) => r.question_id)
+  const [{ data: soal }, { data: opsi }, { data: penjelasan }] = await Promise.all([
+    admin.from("questions").select("id, prompt, type").in("id", ids),
+    admin.from("question_options").select("id, question_id, text, is_correct").in("question_id", ids),
+    admin.from("question_explanations").select("question_id, explanation").in("question_id", ids),
+  ])
+
+  const petaSoal = new Map(
+    ((soal ?? []) as { id: string; prompt: string; type: string }[]).map((q) => [q.id, q])
+  )
+  const petaPenjelasan = new Map(
+    ((penjelasan ?? []) as { question_id: string; explanation: string }[]).map((e) => [
+      e.question_id,
+      e.explanation,
+    ])
+  )
+  type Opsi = { id: string; question_id: string; text: string; is_correct: boolean }
+  const opsiPerSoal = new Map<string, Opsi[]>()
+  /** id opsi -> teksnya, untuk seluruh soal sekaligus. */
+  const teksOpsi = new Map<string, string>()
+  for (const o of (opsi ?? []) as Opsi[]) {
+    if (!opsiPerSoal.has(o.question_id)) opsiPerSoal.set(o.question_id, [])
+    opsiPerSoal.get(o.question_id)!.push(o)
+    teksOpsi.set(o.id, o.text)
+  }
+
+  /**
+   * Mengubah jawaban tersimpan menjadi kalimat yang bisa dibaca model.
+   *
+   * **Pilihan ganda disimpan sebagai id opsi**, bukan teksnya -- `QuizPlayer`
+   * menyimpan `answer` sebagai id yang digabung koma. Mengirim id mentah ke AI
+   * membuatnya membahas sebuah UUID: jawabannya tetap terdengar masuk akal,
+   * tetapi ia menebak isi pilihannya. Itu persis yang membatalkan guna F5,
+   * dan tidak terlihat dari layar mana pun -- ketahuan hanya karena keluaran
+   * AI-nya diperiksa terhadap jawaban yang sebenarnya.
+   */
+  function bacaJawaban(questionId: string, response: unknown): string {
+    const keTeks = (nilai: string): string => teksOpsi.get(nilai) ?? nilai
+
+    if (typeof response === "string") {
+      if (!response.trim()) return "(kosong)"
+      return response
+        .split(",")
+        .map((bagian) => keTeks(bagian.trim()))
+        .filter(Boolean)
+        .join(", ")
+    }
+    if (Array.isArray(response)) return response.map((v) => keTeks(String(v))).join(", ")
+    if (response && typeof response === "object") {
+      const o = response as Record<string, unknown>
+      if (typeof o.text === "string") return o.text
+      if (Array.isArray(o.optionIds)) return o.optionIds.map((v) => keTeks(String(v))).join(", ")
+      return JSON.stringify(response).slice(0, 200)
+    }
+    return "(kosong)"
+  }
+
+  const masukan: MasukanSoal[] = []
+  for (const r of salah) {
+    const q = petaSoal.get(r.question_id)
+    if (!q) continue
+    const daftar = opsiPerSoal.get(r.question_id) ?? []
+    const benar = daftar.filter((o) => o.is_correct).map((o) => o.text).join(", ")
+    masukan.push({
+      questionId: r.question_id,
+      prompt: q.prompt.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(),
+      jawabanPeserta: bacaJawaban(r.question_id, r.response),
+      jawabanBenar: benar || "(tidak ada kunci tertulis)",
+      penjelasanPenulis: petaPenjelasan.get(r.question_id),
+    })
+  }
+
+  if (masukan.length === 0) return { ok: false, error: "Soalnya tidak bisa dibaca." }
+
+  const { locale } = await getTranslations()
+  const hasil = await buatPembahasan(masukan, locale)
+  if (!hasil.ok) return { ok: false, error: hasil.error }
+
+  // Disimpan dengan service role: tabelnya sengaja tidak punya policy INSERT
+  // untuk siapa pun, seperti `notifications`.
+  await admin.from("ai_quiz_feedback").insert({
+    attempt_id: attemptId,
+    items: hasil.data.items,
+    model: hasil.data.model,
+  })
+  await admin.from("ai_usage").insert({
+    user_id: userId,
+    feature: "quiz-feedback",
+    tokens: hasil.token,
+    model: hasil.data.model,
+  })
+
+  return { ok: true, items: hasil.data.items }
 }

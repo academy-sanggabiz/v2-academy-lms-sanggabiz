@@ -17,6 +17,7 @@ import { getTranslations } from "@/lib/i18n/server"
 import { computeUnlockedLessons } from "@/lib/lesson-access"
 import { getTrackingConsent } from "@/lib/tracking-consent-server"
 import { LessonTracker } from "@/components/learn/LessonTracker"
+import { aiAktif } from "@/lib/ai/client"
 
 // Judul tab ikut bahasa: generateMetadata bisa membaca cookie, sedangkan
 // `export const metadata` dievaluasi sekali tanpa konteks permintaan.
@@ -200,6 +201,7 @@ export default async function LearnPage({
       }
       pane={
         <LessonPane
+          aiAktif={aiAktif()}
           key={currentLesson.id}
           courseId={courseId}
           course={course}

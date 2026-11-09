@@ -29,6 +29,7 @@ import { toggleLessonComplete } from "@/app/learn/[courseId]/actions"
 import { useI18n } from "@/components/i18n/LocaleProvider"
 
 export function LessonPane({
+  aiAktif = false,
   courseId,
   course,
   lesson,
@@ -45,6 +46,8 @@ export function LessonPane({
   note = null,
   reviewLessons = [],
 }: {
+  /** Diputuskan di server; lihat catatan pada QuizPlayer. */
+  aiAktif?: boolean
   courseId: string
   course: Course
   lesson: Lesson
@@ -128,6 +131,7 @@ export function LessonPane({
                     <EssayAssessmentPlayer quiz={lesson.quiz} attemptInfo={quizAttempt} />
                   ) : (
                     <QuizPlayer
+                      aiAktif={aiAktif}
                       quiz={lesson.quiz}
                       attemptInfo={quizAttempt}
                       nextHref={nextLessonId ? `${basePath}/${courseId}?lesson=${nextLessonId}` : null}

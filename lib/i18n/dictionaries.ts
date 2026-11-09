@@ -213,6 +213,14 @@ export type Dictionary = {
     struggled: string
     reason: string
     freedom: string
+    discussTitle: string
+    discussButton: string
+    discussWorking: string
+    discussWhy: string
+    discussConcept: string
+    discussNext: string
+    discussAiNote: string
+    discussNone: string
   }
   tracking: {
     cardTitle: string
@@ -1648,6 +1656,14 @@ const id: Dictionary = {
     struggled: "Soal \u201C{soal}\u201D sudah {n} kali terjawab salah.",
     reason: "Karena itu kami menyarankan membuka ulang materinya lebih dulu:",
     freedom: "Ini hanya saran \u2014 Anda tetap bisa langsung mencoba lagi.",
+    discussTitle: "Bahas jawaban saya",
+    discussButton: "Bahas jawaban saya",
+    discussWorking: "Menyusun pembahasan…",
+    discussWhy: "Kenapa keliru",
+    discussConcept: "Konsep yang perlu diulang",
+    discussNext: "Langkah berikutnya",
+    discussAiNote: "Dibuat AI dan bisa keliru. Penjelasan penyusun kursus di tiap soal tetap acuan utamanya.",
+    discussNone: "Tidak ada jawaban salah untuk dibahas.",
   },
   tracking: {
     cardTitle: "Membantu Memperbaiki Materi",
@@ -3040,6 +3056,14 @@ const en: Dictionary = {
     struggled: "The question \u201C{soal}\u201D has now been answered wrongly {n} times.",
     reason: "So we suggest reopening the material first:",
     freedom: "Just a suggestion \u2014 you can retry right away.",
+    discussTitle: "Discuss my answers",
+    discussButton: "Discuss my answers",
+    discussWorking: "Writing the discussion…",
+    discussWhy: "Why it is wrong",
+    discussConcept: "Concept to revisit",
+    discussNext: "Next step",
+    discussAiNote: "Written by AI and can be wrong. The course author's explanation on each question remains the main reference.",
+    discussNone: "There are no wrong answers to discuss.",
   },
   tracking: {
     cardTitle: "Help Us Improve the Material",
