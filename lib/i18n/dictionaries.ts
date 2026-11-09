@@ -112,6 +112,17 @@ export type Dictionary = {
     continueAt: string
     noneInProgress: string
     recommended: string
+    forYourJob: string
+    jobRequired: string
+    jobSuggested: string
+    jobReasonRequired: string
+    jobReasonSuggested: string
+    jobDueIn: string
+    jobOverdue: string
+    jobStart: string
+    jobContinue: string
+    jobEnrollNow: string
+    jobNoneYet: string
     noRecommendations: string
     start: string
     continue: string
@@ -1249,6 +1260,28 @@ export type Dictionary = {
     mentors: string
     landing: string
     seo: string
+    orgTitle: string
+    orgSubtitle: string
+    orgDepartments: string
+    orgJobTitles: string
+    orgAddDepartment: string
+    orgAddJobTitle: string
+    orgDepartmentName: string
+    orgJobTitleName: string
+    orgNoDepartment: string
+    orgCourses: string
+    orgAddCourse: string
+    orgRequirement: string
+    orgDueDays: string
+    orgNoCourses: string
+    orgPeople: string
+    orgAssign: string
+    orgAssignFor: string
+    orgSaved: string
+    orgPurpose: string
+    orgSelectJobTitle: string
+    orgSelectCourse: string
+    orgEmpty: string
     certificates: string
     settings: string
     profile: string
@@ -1515,6 +1548,17 @@ const id: Dictionary = {
     continueAt: "Lanjutkan: pelajaran",
     noneInProgress: "Belum ada kursus yang sedang Anda ikuti.",
     recommended: "Kursus rekomendasi",
+    forYourJob: "Untuk jabatan Anda",
+    jobRequired: "Wajib",
+    jobSuggested: "Disarankan",
+    jobReasonRequired: "Wajib untuk {jabatan}",
+    jobReasonSuggested: "Disarankan untuk {jabatan}",
+    jobDueIn: "tenggat {tanggal}",
+    jobOverdue: "lewat tenggat {tanggal}",
+    jobStart: "Mulai",
+    jobContinue: "Lanjutkan",
+    jobEnrollNow: "Daftar",
+    jobNoneYet: "Belum ada kursus untuk jabatan Anda.",
     noRecommendations: "Belum ada rekomendasi",
     start: "Mulai",
     continue: "Lanjutkan",
@@ -2597,6 +2641,28 @@ const id: Dictionary = {
     mentors: "Mentor",
     landing: "Halaman Depan",
     seo: "SEO",
+    orgTitle: "Jabatan & Departemen",
+    orgSubtitle: "Struktur perusahaan dan kursus yang berlaku untuk tiap jabatan.",
+    orgDepartments: "Departemen",
+    orgJobTitles: "Jabatan",
+    orgAddDepartment: "Tambah departemen",
+    orgAddJobTitle: "Tambah jabatan",
+    orgDepartmentName: "Nama departemen",
+    orgJobTitleName: "Nama jabatan",
+    orgNoDepartment: "Tanpa departemen",
+    orgCourses: "Kursus untuk jabatan ini",
+    orgAddCourse: "Tambah kursus",
+    orgRequirement: "Status",
+    orgDueDays: "Tenggat (hari)",
+    orgNoCourses: "Belum ada kursus untuk jabatan ini.",
+    orgPeople: "Peserta",
+    orgAssign: "Atur jabatan",
+    orgAssignFor: "Jabatan untuk {nama}",
+    orgSaved: "Tersimpan.",
+    orgPurpose: "Jabatan dipakai untuk menentukan kursus wajib dan disarankan, serta laporan per departemen. Tidak dipakai untuk memeringkat orang.",
+    orgSelectJobTitle: "Pilih jabatan",
+    orgSelectCourse: "Pilih kursus",
+    orgEmpty: "Belum ada jabatan. Tambahkan satu untuk mulai menyusun jalur kursus.",
     certificates: "Sertifikat",
     settings: "Pengaturan",
     profile: "Profil",
@@ -2874,6 +2940,17 @@ const en: Dictionary = {
     continueAt: "Continue: lesson",
     noneInProgress: "You are not taking any course yet.",
     recommended: "Recommended courses",
+    forYourJob: "For your role",
+    jobRequired: "Required",
+    jobSuggested: "Suggested",
+    jobReasonRequired: "Required for {jabatan}",
+    jobReasonSuggested: "Suggested for {jabatan}",
+    jobDueIn: "due {tanggal}",
+    jobOverdue: "overdue since {tanggal}",
+    jobStart: "Start",
+    jobContinue: "Continue",
+    jobEnrollNow: "Enrol",
+    jobNoneYet: "No courses for your role yet.",
     noRecommendations: "No recommendations yet",
     start: "Start",
     continue: "Continue",
@@ -3954,6 +4031,28 @@ const en: Dictionary = {
     mentors: "Mentors",
     landing: "Home page",
     seo: "SEO",
+    orgTitle: "Roles & Departments",
+    orgSubtitle: "The company structure and which courses apply to each role.",
+    orgDepartments: "Departments",
+    orgJobTitles: "Roles",
+    orgAddDepartment: "Add department",
+    orgAddJobTitle: "Add role",
+    orgDepartmentName: "Department name",
+    orgJobTitleName: "Role name",
+    orgNoDepartment: "No department",
+    orgCourses: "Courses for this role",
+    orgAddCourse: "Add course",
+    orgRequirement: "Status",
+    orgDueDays: "Due (days)",
+    orgNoCourses: "No courses for this role yet.",
+    orgPeople: "Learners",
+    orgAssign: "Set role",
+    orgAssignFor: "Role for {nama}",
+    orgSaved: "Saved.",
+    orgPurpose: "Roles decide which courses are required or suggested, and group the per-department report. They are never used to rank people.",
+    orgSelectJobTitle: "Choose a role",
+    orgSelectCourse: "Choose a course",
+    orgEmpty: "No roles yet. Add one to start building a course path.",
     certificates: "Certificates",
     settings: "Settings",
     profile: "Profile",

@@ -13,13 +13,15 @@ import {
   type ContinueLearningItem,
 } from "@/lib/enrollments-server"
 import { getTranslations } from "@/lib/i18n/server"
+import { getMyJobCourses, getMyJobTitle } from "@/lib/org-server"
+import { JobCoursesCard } from "@/components/learner/JobCoursesCard"
 import { StatCard } from "@/components/admin/StatCard"
 import { getTrackingConsent } from "@/lib/tracking-consent-server"
 import { ConsentNudge } from "@/components/learner/ConsentNudge"
 import type { Dictionary } from "@/lib/i18n/dictionaries"
 
 export default async function LearnerDashboardPage() {
-  const { t } = await getTranslations()
+  const { t, locale } = await getTranslations()
   const supabase = await createClient()
   const { data } = await supabase.auth.getClaims()
   const claims = data?.claims
@@ -61,6 +63,15 @@ export default async function LearnerDashboardPage() {
 
   const displayName = profile?.full_name || claims?.email || "Peserta"
   const recommended = publishedCourses.filter((c) => !enrolledCourseIds.includes(c.id)).slice(0, 2)
+
+  /*
+    Kartu rekomendasi lama TIDAK diganti untuk semua orang.
+    `getMyJobCourses()` mengembalikan daftar kosong untuk peserta tanpa
+    jabatan -- dan peserta UMKM yang memakai LMS ini hari ini memang tidak
+    punya jabatan. Jadi dasbor mereka tetap persis seperti sebelumnya.
+  */
+  const [jabatan, jobCourses] = await Promise.all([getMyJobTitle(), getMyJobCourses()])
+  const pakaiKartuJabatan = !!jabatan.jobTitle && jobCourses.length > 0
   const [primary, ...others] = continueItems
 
   return (
@@ -116,6 +127,13 @@ export default async function LearnerDashboardPage() {
           </CardContent>
         </Card>
 
+        {pakaiKartuJabatan ? (
+          <JobCoursesCard
+            rows={jobCourses}
+            jobTitleName={jabatan.jobTitle!.name}
+            locale={locale}
+          />
+        ) : (
         <Card className="min-h-[280px]">
           <CardContent>
             <h2 className="mb-4 text-lg font-bold">{t.dashboard.recommended}</h2>
@@ -147,6 +165,7 @@ export default async function LearnerDashboardPage() {
             )}
           </CardContent>
         </Card>
+        )}
       </div>
     </div>
   )
