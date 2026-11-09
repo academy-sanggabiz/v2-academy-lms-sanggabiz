@@ -6,6 +6,8 @@ import { ChevronDown, FileText, HelpCircle, Presentation, Video, Lock} from "luc
 
 import { cn } from "@/lib/utils"
 import { formatDuration, type CourseSection, type LessonContentType } from "@/lib/courses"
+import { useI18n } from "@/components/i18n/LocaleProvider"
+import { LessonAssistant } from "@/components/learn/LessonAssistant"
 import { LessonCompleteCheckbox } from "@/components/learn/LessonCompleteCheckbox"
 
 const typeIcon: Record<LessonContentType, typeof Video> = {
@@ -32,6 +34,9 @@ export function LearnSidebar({
   unlockedLessonIds,
   basePath = "/learn",
   mode = "learner",
+  aiAktif = false,
+  currentIsQuiz = false,
+  currentHasTranscript = false,
 }: {
   courseId: string
   sections: CourseSection[]
@@ -41,24 +46,105 @@ export function LearnSidebar({
   unlockedLessonIds?: Set<string>
   basePath?: string
   mode?: "learner" | "admin-preview"
+  /**
+   * Tab "Asisten AI" hanya dirender bila ini true. Diputuskan di SERVER
+   * (`aiAktif()`), bukan ditebak di peramban.
+   *
+   * Tab ini pernah ada di v2 lalu DIHAPUS karena hanya tampilan tanpa backend,
+   * dan standar v2 memperlakukan kontrol yang tidak melakukan apa-apa sebagai
+   * cacat. Ia kembali dengan backend sungguhan -- dan dengan syarat ini,
+   * keadaan "tampil lalu gagal" tidak bisa terulang.
+   */
+  aiAktif?: boolean
+  /** Pelajaran yang sedang dibuka: kuis tidak punya asisten. */
+  currentIsQuiz?: boolean
+  currentHasTranscript?: boolean
 }) {
-  // v2: the "AI Assistant" tab was removed. It looked usable but had no
-  // backend, and a control that does nothing reads as a broken product
-  // (DL standard: every button leads to a real view).
+  const { t } = useI18n()
+  const [tab, setTab] = useState<"isi" | "asisten">("isi")
+
+  // Kuis dan studi kasus tidak punya asisten: membantu memahami bacaan adalah
+  // hal lain dari membantu menjawab penilaian. Ditegakkan lagi di server.
+  const adaAsisten = aiAktif && !currentIsQuiz
+  const aktif = adaAsisten ? tab : "isi"
+
+  const isi = (
+    <ContentTab
+      courseId={courseId}
+      sections={sections}
+      currentLessonId={currentLessonId}
+      completedLessonIds={completedLessonIds}
+      unlockedLessonIds={unlockedLessonIds}
+      basePath={basePath}
+      mode={mode}
+    />
+  )
+
+  if (!adaAsisten) {
+    return (
+      <aside aria-labelledby="course-content-heading" className="flex min-h-0 flex-1 flex-col border-l border-border bg-card">
+        <h2 id="course-content-heading" className="border-b border-muted px-5 py-3 text-sm font-semibold text-foreground">
+          {t.player.contentTab}
+        </h2>
+        {isi}
+      </aside>
+    )
+  }
+
   return (
-    <aside aria-labelledby="course-content-heading" className="flex min-h-0 flex-1 flex-col border-l border-border bg-card">
-      <h2 id="course-content-heading" className="border-b border-muted px-5 py-3 text-sm font-semibold text-foreground">
-        Isi kursus
-      </h2>
-      <ContentTab
-        courseId={courseId}
-        sections={sections}
-        currentLessonId={currentLessonId}
-        completedLessonIds={completedLessonIds}
-        unlockedLessonIds={unlockedLessonIds}
-        basePath={basePath}
-        mode={mode}
-      />
+    <aside className="flex min-h-0 flex-1 flex-col border-l border-border bg-card">
+      <div role="tablist" aria-label={t.player.contentTab} className="flex border-b border-muted">
+        {([
+          ["isi", t.player.contentTab],
+          ["asisten", t.player.assistantTab],
+        ] as const).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            id={`tab-${id}`}
+            aria-selected={aktif === id}
+            aria-controls={`panel-${id}`}
+            onClick={() => setTab(id)}
+            className={
+              aktif === id
+                ? "min-h-11 flex-1 border-b-2 border-ring px-3 text-sm font-semibold text-primary"
+                : "min-h-11 flex-1 border-b-2 border-transparent px-3 text-sm font-medium text-muted-foreground hover:text-foreground"
+            }
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/*
+        `hidden`, bukan dilepas: panel yang dilepas kehilangan percakapannya,
+        dan berpindah tab lalu kembali tidak boleh menghapus apa yang sudah
+        ditanyakan.
+      */}
+      <div
+        role="tabpanel"
+        id="panel-isi"
+        aria-labelledby="tab-isi"
+        hidden={aktif !== "isi"}
+        className="flex min-h-0 flex-1 flex-col"
+      >
+        {isi}
+      </div>
+      <div
+        role="tabpanel"
+        id="panel-asisten"
+        aria-labelledby="tab-asisten"
+        hidden={aktif !== "asisten"}
+        className="flex min-h-0 flex-1 flex-col"
+      >
+        <LessonAssistant
+          courseId={courseId}
+          lessonId={currentLessonId}
+          adaTranskrip={!!currentHasTranscript}
+          pratinjau={mode === "admin-preview"}
+        />
+      </div>
     </aside>
   )
 }

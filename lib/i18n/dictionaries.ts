@@ -1404,6 +1404,22 @@ export type Dictionary = {
     joinedSince: string
   }
   player: {
+    assistantTab: string
+    contentTab: string
+    assistantIntro: string
+    assistantAsk: string
+    assistantWorking: string
+    assistantPlaceholder: string
+    assistantLabel: string
+    assistantAiNote: string
+    assistantSuggest1: string
+    assistantSuggest2: string
+    assistantSuggest3: string
+    assistantQuota: string
+    assistantNoTranscript: string
+    assistantPreview: string
+    assistantYou: string
+    assistantName: string
     previousLesson: string
     nextLesson: string
     previous: string
@@ -2801,6 +2817,22 @@ const id: Dictionary = {
     joinedSince: "Bergabung sejak",
   },
   player: {
+    assistantTab: "Asisten AI",
+    contentTab: "Isi kursus",
+    assistantIntro: "Tanya apa saja tentang pelajaran yang sedang Anda buka. Asisten menjawab dari materinya, bukan dari pengetahuan umum.",
+    assistantAsk: "Tanya",
+    assistantWorking: "Menjawab…",
+    assistantPlaceholder: "Tulis pertanyaan Anda",
+    assistantLabel: "Pertanyaan untuk asisten",
+    assistantAiNote: "Jawaban dibuat AI dan bisa keliru. Periksa kembali ke materinya.",
+    assistantSuggest1: "Ringkas pelajaran ini",
+    assistantSuggest2: "Beri contoh penerapannya",
+    assistantSuggest3: "Jelaskan istilah yang sulit di sini",
+    assistantQuota: "Sisa tanya hari ini: {n}",
+    assistantNoTranscript: "Pelajaran ini video atau slide tanpa transkrip, jadi asisten hanya bisa menjawab dari judul dan daftar isi kursus.",
+    assistantPreview: "Pratinjau pengelola. Peserta melihat panel yang sama.",
+    assistantYou: "Anda",
+    assistantName: "Asisten",
     previousLesson: "Pelajaran sebelumnya",
     nextLesson: "Pelajaran berikutnya",
     previous: "Sebelumnya",
@@ -4200,6 +4232,22 @@ const en: Dictionary = {
     joinedSince: "Member since",
   },
   player: {
+    assistantTab: "AI Assistant",
+    contentTab: "Course content",
+    assistantIntro: "Ask anything about the lesson you have open. The assistant answers from its material, not from general knowledge.",
+    assistantAsk: "Ask",
+    assistantWorking: "Answering…",
+    assistantPlaceholder: "Write your question",
+    assistantLabel: "Question for the assistant",
+    assistantAiNote: "Answers are written by AI and can be wrong. Check them against the material.",
+    assistantSuggest1: "Summarise this lesson",
+    assistantSuggest2: "Give an example of how to apply it",
+    assistantSuggest3: "Explain the hard terms here",
+    assistantQuota: "Questions left today: {n}",
+    assistantNoTranscript: "This lesson is a video or slides with no transcript, so the assistant can only answer from the title and the course outline.",
+    assistantPreview: "Manager preview. Learners see the same panel.",
+    assistantYou: "You",
+    assistantName: "Assistant",
     previousLesson: "Previous lesson",
     nextLesson: "Next lesson",
     previous: "Previous",

@@ -225,6 +225,9 @@ export default async function LearnPage({
           currentLessonId={currentLesson.id}
           completedLessonIds={completedLessonIds}
           unlockedLessonIds={unlockedLessonIds}
+          aiAktif={aiAktif()}
+          currentIsQuiz={currentLesson.content_type === "quiz"}
+          currentHasTranscript={!!currentLesson.transcript?.trim()}
         />
       }
       />
