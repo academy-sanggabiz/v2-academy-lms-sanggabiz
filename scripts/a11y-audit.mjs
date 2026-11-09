@@ -355,6 +355,7 @@ try {
       "/admin/mentor",
       "/admin/landing",
       "/admin/seo",
+      "/admin/organization",
       "/admin/certificates",
       "/admin/settings",
       "/admin/profile",
