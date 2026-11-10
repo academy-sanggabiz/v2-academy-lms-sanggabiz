@@ -1427,6 +1427,7 @@ export type Dictionary = {
     assistantPreview: string
     assistantYou: string
     assistantName: string
+    aiThirdParty: string
     previousLesson: string
     nextLesson: string
     previous: string
@@ -2847,6 +2848,7 @@ const id: Dictionary = {
     assistantPreview: "Pratinjau pengelola. Peserta melihat panel yang sama.",
     assistantYou: "Anda",
     assistantName: "Asisten",
+    aiThirdParty: "Pertanyaan Anda dikirim ke penyedia AI pihak ketiga. Tanpa nama dan email Anda. Lihat Kebijakan Privasi.",
     previousLesson: "Pelajaran sebelumnya",
     nextLesson: "Pelajaran berikutnya",
     previous: "Sebelumnya",
@@ -4269,6 +4271,7 @@ const en: Dictionary = {
     assistantPreview: "Manager preview. Learners see the same panel.",
     assistantYou: "You",
     assistantName: "Assistant",
+    aiThirdParty: "Your question is sent to a third-party AI provider. Without your name or email. See the Privacy Policy.",
     previousLesson: "Previous lesson",
     nextLesson: "Next lesson",
     previous: "Previous",
