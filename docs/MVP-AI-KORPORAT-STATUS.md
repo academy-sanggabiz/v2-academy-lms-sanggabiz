@@ -163,4 +163,24 @@ satunya yang tidak memakai AI sama sekali.
 6. Kerjakan satu kuis sampai ada jawaban salah → di halaman hasil, tekan
    **"Bahas jawaban saya"**.
 
+## Alur branch
+
+`dev` adalah tempat perubahan diuji di lingkungan yang sudah ter-deploy,
+sebelum masuk `main`. Urutannya: kerjakan di branch fitur -> merge ke `dev` ->
+buka `dev` yang sudah ter-deploy dan coba sendiri -> baru PR `dev` -> `main`.
+
+**Yang dipisahkan `dev` adalah KODE, bukan DATA.** `NEXT_PUBLIC_SUPABASE_URL`
+dan `SUPABASE_SERVICE_ROLE_KEY` di lingkungan Preview menunjuk proyek Supabase
+yang sama persis dengan Production. Artinya menguji di `dev`:
+
+- membuat jabatan, departemen, dan penugasan jabatan yang SUNGGUHAN, dan
+  langsung terlihat di produksi;
+- menulis baris `ai_chat_messages`, `ai_quiz_feedback`, dan `ai_usage` yang
+  sungguhan, serta memakai kuota Gemini yang sungguhan.
+
+Jadi `dev` melindungi dari cacat KODE -- halaman yang gagal dirender, galat
+500, tata letak yang rusak, alur yang buntu. Ia tidak melindungi dari
+perubahan data. Untuk itu perlu proyek Supabase kedua, dan migrasi dijalankan
+ulang di sana.
+
 Kembali ke keadaan sebelum pekerjaan ini: `git checkout main`.
