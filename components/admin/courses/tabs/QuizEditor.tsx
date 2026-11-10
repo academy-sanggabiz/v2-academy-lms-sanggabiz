@@ -19,13 +19,20 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import { RichTextEditor } from "../RichTextEditor"
 import type { AuthorableQuestionType } from "@/lib/courses-admin"
 import type { DraftOption, DraftQuestion, DraftQuiz } from "@/lib/course-draft"
-import { QUESTION_TYPE_POINTS } from "@/lib/courses"
+import { QUESTION_TYPE_POINTS, type QuizMeasureKind } from "@/lib/courses"
 import { ASSESSMENT_GRADE_WEIGHT } from "@/lib/course-grade"
 import { QUESTION_TYPES } from "@/lib/question-types"
 import { QuestionBankDialog } from "@/components/admin/courses/bank/QuestionBankDialog"
@@ -165,7 +172,12 @@ export function QuizEditor({ lessonId, quiz }: { lessonId: string; quiz: DraftQu
           <SortableContext items={questions.map((q) => q.id)} strategy={verticalListSortingStrategy}>
             <div className="flex flex-col gap-2.5">
               {questions.map((question, index) => (
-                <QuestionCard key={question.id} question={question} index={index} />
+                <QuestionCard
+                  key={question.id}
+                  question={question}
+                  index={index}
+                  measureKind={quiz?.measure_kind ?? null}
+                />
               ))}
             </div>
           </SortableContext>
@@ -340,6 +352,41 @@ function QuizSettings({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz })
             .replace("{total}", String(total))}
         </p>
       )}
+      {!quiz.is_assessment && (
+        <div className="w-44 space-y-1.5">
+          <Label htmlFor={`measure-kind-${quiz.id}`}>{t.editor.measureKindLabel}</Label>
+          <Select
+            value={quiz.measure_kind ?? "normal"}
+            onValueChange={(value) =>
+              save({ measure_kind: value === "normal" ? null : (value as QuizMeasureKind) })
+            }
+          >
+            <SelectTrigger id={`measure-kind-${quiz.id}`} className="w-full">
+              {/*
+                Labelnya ditulis di sini, bukan diserahkan ke <SelectValue/>
+                kosong: Radix baru tahu teks sebuah pilihan setelah daftarnya
+                pernah terbuka, jadi sebelum disentuh pemicunya menampilkan
+                nilai mentah -- "normal", bukan "Kuis biasa".
+              */}
+              <SelectValue>
+                {quiz.measure_kind === "pretest"
+                  ? t.editor.measurePretest
+                  : quiz.measure_kind === "posttest"
+                    ? t.editor.measurePosttest
+                    : t.editor.measureNormal}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="normal">{t.editor.measureNormal}</SelectItem>
+              <SelectItem value="pretest">{t.editor.measurePretest}</SelectItem>
+              <SelectItem value="posttest">{t.editor.measurePosttest}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+      {quiz.measure_kind !== null && (
+        <p className="w-full text-xs text-muted-foreground">{t.editor.measureNote}</p>
+      )}
       <div className="flex w-full items-start gap-2 border-t border-border pt-3">
         <span
           className={cn(
@@ -362,8 +409,17 @@ function QuizSettings({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz })
   )
 }
 
-function QuestionCard({ question, index }: { question: DraftQuestion; index: number }) {
-  const { dispatch } = useCourseDraft()
+function QuestionCard({
+  question,
+  index,
+  measureKind,
+}: {
+  question: DraftQuestion
+  index: number
+  /** Kuis induknya kuis ukur? Menentukan apakah pemilih modul dirender. */
+  measureKind: QuizMeasureKind | null
+}) {
+  const { draft, dispatch } = useCourseDraft()
   const { t } = useI18n()
   const [expanded, setExpanded] = useState(false)
   const [prompt, setPrompt] = useState(question.prompt)
@@ -390,6 +446,12 @@ function QuestionCard({ question, index }: { question: DraftQuestion; index: num
     setSeenIssue(issue)
     if (issue) setExpanded(true)
   }
+
+  const indeksModul = draft.sections.findIndex((s) => s.id === question.measured_section_id)
+  const labelModul =
+    indeksModul >= 0
+      ? `${indeksModul + 1}. ${draft.sections[indeksModul].title.trim() || t.editor.measuredSectionNone}`
+      : null
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: question.id })
 
@@ -435,6 +497,32 @@ function QuestionCard({ question, index }: { question: DraftQuestion; index: num
             <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
               {issue.message}
             </p>
+          )}
+          {measureKind !== null && (
+            <div className="space-y-1.5">
+              <Label htmlFor={`measured-section-${question.id}`}>{t.editor.measuredSectionLabel}</Label>
+              <Select
+                value={question.measured_section_id ?? ""}
+                onValueChange={(value) => save({ measured_section_id: value || null })}
+              >
+                <SelectTrigger id={`measured-section-${question.id}`} className="w-full sm:w-80">
+                  {/* Label ditulis sendiri; alasannya sama dengan pemilih
+                      jenis kuis di atas -- <SelectValue/> kosong menampilkan
+                      nilai mentah, di sini berarti satu UUID. */}
+                  <SelectValue placeholder={t.editor.measuredSectionNone}>
+                    {labelModul ?? t.editor.measuredSectionNone}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {draft.sections.map((section, i) => (
+                    <SelectItem key={section.id} value={section.id}>
+                      {`${i + 1}. ${section.title.trim() || t.editor.measuredSectionNone}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">{t.editor.measuredSectionHint}</p>
+            </div>
           )}
           <div className="space-y-1.5">
             <Label>{t.editor.promptLabel}</Label>

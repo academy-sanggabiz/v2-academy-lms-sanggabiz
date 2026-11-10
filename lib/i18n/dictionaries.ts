@@ -716,6 +716,15 @@ export type Dictionary = {
     assessmentNote: string
     normalQuizNote: string
     changeModeNote: string
+    measureKindLabel: string
+    measureNormal: string
+    measurePretest: string
+    measurePosttest: string
+    measureNote: string
+    measureWarnLive: string
+    measuredSectionLabel: string
+    measuredSectionNone: string
+    measuredSectionHint: string
     /** `{n}` nomor soal. */
     moveQuestionAria: string
     /** `{n}` nomor soal. */
@@ -1428,6 +1437,12 @@ export type Dictionary = {
     assistantYou: string
     assistantName: string
     aiThirdParty: string
+    measureResultTitle: string
+    pretestIntro: string
+    posttestIntro: string
+    measureNoRetry: string
+    pretestResultNote: string
+    posttestResultNote: string
     previousLesson: string
     nextLesson: string
     previous: string
@@ -2161,6 +2176,17 @@ const id: Dictionary = {
       "Tanpa tombol mulai atau batas waktu; peserta menyimpan draf dan mengirim jika sudah selesai. Nilai secara manual di Admin \u203A Penilaian. Bobotnya {w}\u00D7 kuis biasa dalam nilai akhir kursus.",
     normalQuizNote: "Dinilai otomatis dan langsung mendapat skor saat dikirim.",
     changeModeNote: "Untuk mengganti mode, hapus dulu semua soal di kuis ini.",
+    measureKindLabel: "Jenis kuis",
+    measureNormal: "Kuis biasa",
+    measurePretest: "Pretest",
+    measurePosttest: "Posttest",
+    measureNote:
+      "Pretest dan posttest hanya mengukur. Nilainya tidak masuk nilai akhir dan bukan syarat sertifikat.",
+    measureWarnLive:
+      "Kuis ini sudah pernah dikerjakan. Mengubah jenisnya mengeluarkan nilainya dari nilai akhir peserta.",
+    measuredSectionLabel: "Modul yang diukur",
+    measuredSectionNone: "Belum dipilih",
+    measuredSectionHint: "Dipakai layar Perkembangan untuk menunjukkan modul mana yang naik.",
     moveQuestionAria:
       "Pindahkan soal {n}: tekan Spasi untuk mengambil, tombol panah untuk memindahkan, Spasi untuk melepas",
     questionN: "Soal {n}",
@@ -2849,6 +2875,15 @@ const id: Dictionary = {
     assistantYou: "Anda",
     assistantName: "Asisten",
     aiThirdParty: "Pertanyaan Anda dikirim ke penyedia AI pihak ketiga. Tanpa nama dan email Anda. Lihat Kebijakan Privasi.",
+    measureResultTitle: "Hasil pengukuran",
+    pretestIntro:
+      "Pretest. Gunanya melihat apa yang sudah Anda ketahui sebelum belajar. Nilainya tidak memengaruhi kelulusan maupun sertifikat.",
+    posttestIntro:
+      "Posttest. Gunanya melihat apa yang berubah setelah Anda belajar. Nilainya tidak memengaruhi kelulusan maupun sertifikat.",
+    measureNoRetry: "Kuis ini dikerjakan satu kali. Anda sudah mengerjakannya.",
+    pretestResultNote:
+      "Nilai ini titik awal Anda, bukan penilaian. Jawaban per soal ditahan sampai posttest supaya kenaikannya terukur jujur.",
+    posttestResultNote: "Bandingkan dengan nilai pretest Anda di layar Perkembangan.",
     previousLesson: "Pelajaran sebelumnya",
     nextLesson: "Pelajaran berikutnya",
     previous: "Sebelumnya",
@@ -3585,6 +3620,17 @@ const en: Dictionary = {
       "No start button or time limit; learners save a draft and submit when done. Grade it manually in Admin \u203A Grading. It weighs {w}\u00D7 a normal quiz in the final course grade.",
     normalQuizNote: "Auto-graded with an immediate score on submit.",
     changeModeNote: "To switch modes, first delete every question in this quiz.",
+    measureKindLabel: "Quiz kind",
+    measureNormal: "Regular quiz",
+    measurePretest: "Pre-test",
+    measurePosttest: "Post-test",
+    measureNote:
+      "A pre-test or post-test only measures. Its score stays out of the final grade and the certificate rules.",
+    measureWarnLive:
+      "Learners have already taken this quiz. Changing its kind removes its score from their final grade.",
+    measuredSectionLabel: "Module measured",
+    measuredSectionNone: "Not chosen yet",
+    measuredSectionHint: "The Progress screen uses this to show which module improved.",
     moveQuestionAria: "Move question {n}: press Space to pick up, arrow keys to move, Space to drop",
     questionN: "Question {n}",
     nPoints: "{n} points",
@@ -4272,6 +4318,15 @@ const en: Dictionary = {
     assistantYou: "You",
     assistantName: "Assistant",
     aiThirdParty: "Your question is sent to a third-party AI provider. Without your name or email. See the Privacy Policy.",
+    measureResultTitle: "Measurement result",
+    pretestIntro:
+      "Pre-test. It shows what you already know before studying. The score does not affect passing or your certificate.",
+    posttestIntro:
+      "Post-test. It shows what changed after studying. The score does not affect passing or your certificate.",
+    measureNoRetry: "This quiz is taken once. You have already taken it.",
+    pretestResultNote:
+      "This score is your starting point, not a judgement. Per-question answers are held back until the post-test so the gain stays honest.",
+    posttestResultNote: "Compare it with your pre-test score on the Progress screen.",
     previousLesson: "Previous lesson",
     nextLesson: "Next lesson",
     previous: "Previous",

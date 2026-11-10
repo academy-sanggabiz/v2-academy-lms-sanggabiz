@@ -15,6 +15,7 @@ import type {
   Question,
   QuestionOption,
   Quiz,
+  QuizMeasureKind,
   Resource,
 } from "@/lib/courses"
 import { dbErrorMessage } from "@/lib/db-error-message"
@@ -30,7 +31,16 @@ export type AdminQuestionOption = QuestionOption & { is_correct: boolean }
 // `explanation` lives in public.question_explanations (admin-readable; a
 // learner can read it only after submitting) and is folded in here so the
 // editor treats it like any other question field.
-export type AdminQuestion = Omit<Question, "options"> & { options: AdminQuestionOption[]; explanation: string }
+export type AdminQuestion = Omit<Question, "options"> & {
+  options: AdminQuestionOption[]
+  explanation: string
+  /**
+   * Modul yang diukur soal ini -- hanya terisi di kuis ukur (pretest/posttest).
+   * Admin-only: peserta tidak perlu tahu soal mana memetakan ke modul mana,
+   * jadi kolomnya tidak ikut ke tipe `Question` yang dipakai pemutar.
+   */
+  measured_section_id: string | null
+}
 export type AdminQuiz = Omit<Quiz, "questions"> & { questions: AdminQuestion[] }
 
 export type { AuthorableQuestionType }
@@ -560,6 +570,7 @@ export async function saveCourseDraft(
     shuffle: boolean
     draw_count: number | null
     is_assessment: boolean
+    measure_kind: QuizMeasureKind | null
   }[] = []
   const questionRows: {
     id: string
@@ -570,6 +581,7 @@ export async function saveCourseDraft(
     allow_multiple: boolean
     case_sensitive: boolean
     position: number
+    measured_section_id: string | null
   }[] = []
   const explanationRows: { question_id: string; explanation: string; updated_at: string }[] = []
   const optionRows: {
@@ -665,6 +677,7 @@ export async function saveCourseDraft(
           existingQuiz.shuffle !== lesson.quiz.shuffle ||
           existingQuiz.draw_count !== lesson.quiz.draw_count ||
           existingQuiz.is_assessment !== lesson.quiz.is_assessment ||
+          (existingQuiz.measure_kind ?? null) !== lesson.quiz.measure_kind ||
           existingQuiz.title !== lesson.title
         ) {
           quizRows.push({
@@ -676,6 +689,7 @@ export async function saveCourseDraft(
             shuffle: lesson.quiz.shuffle,
             draw_count: lesson.quiz.draw_count,
             is_assessment: lesson.quiz.is_assessment,
+            measure_kind: lesson.quiz.measure_kind,
           })
         }
 
@@ -691,6 +705,7 @@ export async function saveCourseDraft(
             existingQuestion.points !== points ||
             existingQuestion.allow_multiple !== question.allow_multiple ||
             existingQuestion.case_sensitive !== question.case_sensitive ||
+            (existingQuestion.measured_section_id ?? null) !== question.measured_section_id ||
             existingQuestion.position !== questionIndex
           ) {
             questionRows.push({
@@ -702,6 +717,7 @@ export async function saveCourseDraft(
               allow_multiple: question.allow_multiple,
               case_sensitive: question.case_sensitive,
               position: questionIndex,
+              measured_section_id: question.measured_section_id,
             })
           }
 

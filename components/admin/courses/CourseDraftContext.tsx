@@ -266,6 +266,7 @@ function reducer(state: State, action: CourseDraftAction): State {
         allow_multiple: false,
         case_sensitive: false,
         explanation: "",
+        measured_section_id: null,
         options:
           action.questionType === "true_false"
             ? [
@@ -285,6 +286,7 @@ function reducer(state: State, action: CourseDraftAction): State {
             shuffle: true,
             draw_count: null,
             is_assessment: action.isAssessment ?? false,
+            measure_kind: null,
             questions: [],
           }
           return { ...l, quiz: { ...quiz, questions: [...quiz.questions, question] } }
@@ -314,6 +316,7 @@ function reducer(state: State, action: CourseDraftAction): State {
             shuffle: true,
             draw_count: null,
             is_assessment: action.isAssessment ?? false,
+            measure_kind: null,
             questions: [],
           }
           return { ...l, quiz: { ...quiz, questions: [...quiz.questions, ...fresh] } }

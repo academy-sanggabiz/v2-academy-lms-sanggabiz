@@ -418,6 +418,20 @@ export async function submitQuiz(
     }
   }
 
+  /*
+   * Pretest: jawaban per soal tidak diberikan ke peramban sama sekali.
+   *
+   * Skor dan jumlah benar tetap ada -- itu hasil yang jadi haknya. Yang
+   * ditahan adalah soal MANA yang salah, karena posttest menanyakan soal yang
+   * sama. Dikosongkan di server, bukan sekadar tidak dirender: komponen yang
+   * "tidak menampilkan" tetap menerima datanya, dan membacanya cukup dengan
+   * membuka alat pengembang peramban.
+   */
+  if (jenisUkur === "pretest") {
+    result.perQuestion = {}
+    result.explanations = {}
+  }
+
   revalidatePath("/learn/[courseId]", "page")
 
   return result

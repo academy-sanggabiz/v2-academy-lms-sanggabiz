@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 import { normalizeCourseCertificateSettings } from "@/lib/certificate-settings"
-import type { LessonContentType } from "@/lib/courses"
+import type { LessonContentType, QuizMeasureKind } from "@/lib/courses"
 import type {
   AdminCourseDetail,
   AdminQuiz,
@@ -34,6 +34,12 @@ export type DraftQuestion = {
   case_sensitive: boolean
   /** Shown to the learner after they submit, next to their result. */
   explanation: string
+  /**
+   * Modul yang diukur soal ini. Hanya dipakai di kuis ukur; null untuk kuis
+   * biasa. Inilah yang membuat layar Perkembangan bisa menjawab "modul mana
+   * yang naik" dan bukan sekadar "nilainya naik".
+   */
+  measured_section_id: string | null
   options: DraftOption[]
 }
 
@@ -50,6 +56,12 @@ export type DraftQuiz = {
    */
   draw_count: number | null
   is_assessment: boolean
+  /**
+   * null = kuis biasa, dan itu nilai bawaan setiap kuis yang sudah ada.
+   * pretest/posttest membuat kuis ini MENGUKUR: tidak masuk nilai akhir,
+   * tidak menjadi syarat sertifikat, dan tuntas begitu dikirim.
+   */
+  measure_kind: QuizMeasureKind | null
   // No `weight`: a quiz's weight in the final course grade is derived from
   // is_assessment (see quizGradeWeight in lib/course-grade.ts), not authored.
   questions: DraftQuestion[]
@@ -207,11 +219,46 @@ function hasText(html: string): boolean {
 export function validateQuizzes(draft: CourseDraft): QuizIssue[] {
   const issues: QuizIssue[] = []
 
+  /*
+   * Satu pretest dan satu posttest per kursus. Basis data juga menegakkannya
+   * (trigger jaga_satu_kuis_ukur), dan itu yang sebenarnya menjaga; yang di
+   * sini supaya penyusun tahu sebelum menekan Simpan, bukan sesudah lewat
+   * pesan Postgres berbahasa Inggris.
+   */
+  const ukurTerpakai = new Map<QuizMeasureKind, number>()
+  for (const section of draft.sections) {
+    for (const lesson of section.lessons) {
+      const jenis = lesson.quiz?.measure_kind
+      if (jenis) ukurTerpakai.set(jenis, (ukurTerpakai.get(jenis) ?? 0) + 1)
+    }
+  }
+
   for (const section of draft.sections) {
     for (const lesson of section.lessons) {
       const lessonTitle = lesson.title.trim() || "Pelajaran tanpa judul"
       const quiz = lesson.quiz
       if (!quiz) continue
+
+      if (quiz.measure_kind !== null) {
+        const tambahKuis = (message: string) =>
+          issues.push({
+            lessonId: lesson.id,
+            questionId: quiz.questions[0]?.id ?? quiz.id,
+            questionIndex: 0,
+            lessonTitle,
+            message,
+          })
+        if (quiz.is_assessment) {
+          tambahKuis("Pretest dan posttest tidak boleh berupa studi kasus.")
+        }
+        if ((ukurTerpakai.get(quiz.measure_kind) ?? 0) > 1) {
+          tambahKuis(
+            quiz.measure_kind === "pretest"
+              ? "Kursus ini punya lebih dari satu pretest. Sisakan satu."
+              : "Kursus ini punya lebih dari satu posttest. Sisakan satu."
+          )
+        }
+      }
 
       quiz.questions.forEach((question, index) => {
         const add = (message: string) =>
@@ -241,6 +288,20 @@ export function validateQuizzes(draft: CourseDraft): QuizIssue[] {
 
         if (isEssay) {
           add("Soal esai hanya untuk studi kasus, bukan kuis biasa.")
+          return
+        }
+
+        /*
+         * Setiap soal kuis ukur harus menunjuk satu modul.
+         *
+         * Tanpa ini, pretest hanya menghasilkan satu angka, dan layar
+         * Perkembangan tidak bisa menjawab pertanyaan yang membuatnya ada:
+         * modul mana yang naik dan modul mana yang tidak. Ditegakkan saat
+         * menyimpan, bukan dibiarkan lalu ditampilkan sebagai layar kosong
+         * yang terlihat rusak berbulan-bulan kemudian.
+         */
+        if (quiz.measure_kind !== null && !question.measured_section_id) {
+          add("Soal di pretest atau posttest harus menunjuk modul yang diukurnya.")
           return
         }
 
@@ -323,6 +384,7 @@ export function draftFromDetail(course: AdminCourseDetail): CourseDraft {
                 shuffle: quiz.shuffle,
                 draw_count: quiz.draw_count ?? null,
                 is_assessment: quiz.is_assessment,
+                measure_kind: quiz.measure_kind ?? null,
                 questions: quiz.questions.map((q) => ({
                   id: q.id,
                   type: q.type as AuthorableQuestionType,
@@ -330,6 +392,7 @@ export function draftFromDetail(course: AdminCourseDetail): CourseDraft {
                   allow_multiple: q.allow_multiple,
                   case_sensitive: q.case_sensitive,
                   explanation: q.explanation ?? "",
+                  measured_section_id: q.measured_section_id ?? null,
                   options: q.options.map((o) => ({
                     id: o.id,
                     text: o.text,
@@ -375,6 +438,10 @@ const questionSchema = z.object({
   case_sensitive: z.boolean(),
   // .default("") so a v1 draft restored from localStorage still parses.
   explanation: z.string().max(5000).default(""),
+  // .nullish().default(null) karena alasan yang sama dengan `explanation`:
+  // draf yang tersimpan di localStorage sebelum kolom ini ada harus tetap
+  // bisa diparse, bukan dibuang diam-diam.
+  measured_section_id: z.string().uuid().nullish().transform((v) => v ?? null),
   options: z.array(optionSchema).max(50),
 })
 
@@ -385,6 +452,7 @@ const quizSchema = z.object({
   shuffle: z.boolean(),
   draw_count: z.number().int().min(1).nullish().transform((v) => v ?? null),
   is_assessment: z.boolean(),
+  measure_kind: z.enum(["pretest", "posttest"]).nullish().transform((v) => v ?? null),
   questions: z.array(questionSchema).max(200),
 })
 

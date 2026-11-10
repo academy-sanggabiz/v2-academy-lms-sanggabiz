@@ -87,7 +87,22 @@ export function QuizPlayer({
    * sertifikat. Studi kasus tetap bisa dibatasi lewat quizzes.max_attempts
    * karena dinilai manusia (lihat EssayAssessmentPlayer).
    */
-  const canAttempt = true
+  /*
+   * Kuis ukur dikerjakan SEKALI. Pretest yang bisa diulang bukan lagi titik
+   * awal, dan posttest yang bisa diulang mengukur ketekunan mengulang, bukan
+   * hasil belajar.
+   *
+   * Pagarnya di kode, bukan di basis data: menegakkannya di trigger berarti
+   * menulis ulang `guard_quiz_attempt_write`, yang menjaga SETIAP percobaan
+   * kuis milik semua orang di produksi. Itu ditunda sebagai satu perubahan
+   * tersendiri dengan garis dasar sebagai pembanding. Sampai saat itu, yang
+   * bisa menembusnya hanyalah orang yang menyisipkan barisnya sendiri lewat
+   * REST, dan yang ia dapat cuma mengotori angkanya sendiri -- nilai ukur
+   * tidak menyentuh kelulusan maupun sertifikat siapa pun.
+   */
+  const ukur = quiz.measure_kind
+  const sudahMengukur = ukur !== null && attemptsUsed > 0
+  const canAttempt = !sudahMengukur
   const alreadyPassed = attemptInfo?.lastPassed === true
 
   function handleStart() {
@@ -143,8 +158,15 @@ export function QuizPlayer({
             </div>
             <div className="text-xl font-bold">{quiz.title}</div>
             <p className="text-sm text-muted-foreground">
-              {questions.length} soal · uji pemahaman Anda tentang modul ini
+              {ukur === null
+                ? `${questions.length} soal · uji pemahaman Anda tentang modul ini`
+                : `${questions.length} soal`}
             </p>
+            {ukur !== null && (
+              <p className="max-w-md text-sm text-muted-foreground">
+                {ukur === "pretest" ? t.player.pretestIntro : t.player.posttestIntro}
+              </p>
+            )}
             {attemptInfo?.pendingReview && (
               <p className="text-sm text-muted-foreground">Percobaan terakhir Anda sedang menunggu penilaian instruktur.</p>
             )}
@@ -161,7 +183,11 @@ export function QuizPlayer({
               </Button>
             ) : (
               <p className="text-sm text-muted-foreground">
-                {alreadyPassed ? "Anda sudah lulus kuis ini." : "Kesempatan mencoba sudah habis."}
+                {sudahMengukur
+                  ? t.player.measureNoRetry
+                  : alreadyPassed
+                    ? "Anda sudah lulus kuis ini."
+                    : "Kesempatan mencoba sudah habis."}
               </p>
             )}
           </div>
@@ -291,12 +317,14 @@ export function QuizPlayer({
   }
 
   if (stage === "results" && result) {
-    const canRetry = true
+    const canRetry = ukur === null
 
     return (
       <div className="mx-auto flex max-w-2xl flex-col gap-5 p-10">
         <div className="flex flex-col items-center gap-2.5 rounded-2xl border border-border bg-card p-10 text-center">
-          <div className="text-base font-semibold text-muted-foreground">Hasil Kuis</div>
+          <div className="text-base font-semibold text-muted-foreground">
+            {ukur === null ? "Hasil Kuis" : t.player.measureResultTitle}
+          </div>
           {result.pending ? (
             <>
               <div className="text-2xl font-bold text-muted-foreground">Menunggu penilaian</div>
@@ -307,24 +335,39 @@ export function QuizPlayer({
             </>
           ) : (
             <>
+              {/*
+                Kuis ukur tidak diwarnai lulus/gagal. Merahnya angka pretest
+                menyampaikan "Anda gagal" pada orang yang memang belum belajar
+                -- itu persis pesan yang salah di awal kursus.
+              */}
               <div
                 className={cn(
                   "text-5xl font-bold",
-                  result.passed ? "text-emerald-700" : "text-destructive"
+                  ukur !== null
+                    ? "text-foreground"
+                    : result.passed
+                      ? "text-emerald-700"
+                      : "text-destructive"
                 )}
               >
                 {result.score}%
               </div>
               <div className="text-sm text-muted-foreground">
-                {result.correctCount} dari {result.total} benar · {result.passed ? "Lulus" : "Belum lulus"}
+                {ukur !== null
+                  ? `${result.correctCount} dari ${result.total} benar`
+                  : `${result.correctCount} dari ${result.total} benar · ${result.passed ? "Lulus" : "Belum lulus"}`}
               </div>
               {/* Feedback ends with the next step (Hattie & Timperley: where to next). */}
               <p className="mt-1 max-w-md text-sm text-muted-foreground">
-                {result.passed
-                  ? "Anda lulus kuis ini. Lanjutkan ke pelajaran berikutnya."
-                  : canRetry
-                    ? "Baca penjelasan di bawah, pelajari kembali materi terkait, lalu coba lagi."
-                    : "Baca penjelasan di bawah dan pelajari kembali materi terkait."}
+                {ukur === "pretest"
+                  ? t.player.pretestResultNote
+                  : ukur === "posttest"
+                    ? t.player.posttestResultNote
+                    : result.passed
+                      ? "Anda lulus kuis ini. Lanjutkan ke pelajaran berikutnya."
+                      : canRetry
+                        ? "Baca penjelasan di bawah, pelajari kembali materi terkait, lalu coba lagi."
+                        : "Baca penjelasan di bawah dan pelajari kembali materi terkait."}
               </p>
             </>
           )}
@@ -385,6 +428,18 @@ export function QuizPlayer({
           />
         )}
 
+        {/*
+          Pretest tidak menampilkan jawaban per soal. Posttest menanyakan soal
+          yang sama; menunjukkan mana yang salah sekarang membuat angka
+          kenaikan mengukur ingatan atas layar ini, bukan hasil belajar.
+          Skornya tetap ditampilkan -- yang ditahan jawabannya, bukan hasilnya.
+
+          Tidak dirender SAMA SEKALI, bukan disembunyikan dengan CSS, dan
+          `submitQuiz` juga mengosongkan `perQuestion` untuk pretest: kelas
+          `hidden` tetap mengirim seluruh jawabannya ke peramban, di mana
+          siapa pun bisa membacanya tanpa alat khusus.
+        */}
+        {ukur !== "pretest" && (
         <div className="flex flex-col gap-3">
           {questions.map((question) => {
             const isCorrect = result.perQuestion[question.id]
@@ -455,6 +510,7 @@ export function QuizPlayer({
             )
           })}
         </div>
+        )}
 
         <div className="flex gap-3">
           {canRetry && (
