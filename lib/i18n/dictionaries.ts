@@ -1419,6 +1419,24 @@ export type Dictionary = {
     saveChanges: string
     joinedSince: string
   }
+  perkembangan: {
+    title: string
+    subtitle: string
+    before: string
+    after: string
+    gain: string
+    perModule: string
+    nQuestions: string
+    noPair: string
+    waiting: string
+    classTitle: string
+    classSubtitle: string
+    tooFew: string
+    discarded: string
+    up: string
+    down: string
+    flat: string
+  }
   player: {
     assistantTab: string
     contentTab: string
@@ -2856,6 +2874,24 @@ const id: Dictionary = {
     saved: "Profil tersimpan.",
     saveChanges: "Simpan Perubahan",
     joinedSince: "Bergabung sejak",
+  },
+  perkembangan: {
+    title: "Perkembangan Anda",
+    subtitle: "Selisih nilai pretest dan posttest, dipecah per modul.",
+    before: "Sebelum",
+    after: "Sesudah",
+    gain: "Selisih",
+    perModule: "Per modul",
+    nQuestions: "{n} soal",
+    noPair: "Kerjakan pretest dan posttest untuk melihat perkembangan Anda.",
+    waiting: "Posttest belum dikerjakan. Nilai pretest Anda {n}.",
+    classTitle: "Perkembangan kelas",
+    classSubtitle: "Rata-rata seluruh peserta yang mengerjakan pretest dan posttest. Tanpa nama.",
+    tooFew: "Butuh minimal {n} peserta yang mengerjakan keduanya. Sekarang {ada}.",
+    discarded: "{n} peserta tidak dihitung karena pretest dikerjakan setelah mulai belajar.",
+    up: "naik",
+    down: "turun",
+    flat: "tetap",
   },
   player: {
     assistantTab: "Asisten AI",
@@ -4299,6 +4335,24 @@ const en: Dictionary = {
     saved: "Profile saved.",
     saveChanges: "Save changes",
     joinedSince: "Member since",
+  },
+  perkembangan: {
+    title: "Your progress",
+    subtitle: "The difference between your pre-test and post-test, module by module.",
+    before: "Before",
+    after: "After",
+    gain: "Change",
+    perModule: "By module",
+    nQuestions: "{n} questions",
+    noPair: "Take the pre-test and the post-test to see your progress.",
+    waiting: "The post-test is not done yet. Your pre-test score is {n}.",
+    classTitle: "Class progress",
+    classSubtitle: "The average across every learner who took both tests. No names.",
+    tooFew: "At least {n} learners must take both. Right now there are {ada}.",
+    discarded: "{n} learners are left out because their pre-test came after they started studying.",
+    up: "up",
+    down: "down",
+    flat: "unchanged",
   },
   player: {
     assistantTab: "AI Assistant",
