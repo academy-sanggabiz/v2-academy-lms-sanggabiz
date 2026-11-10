@@ -10,6 +10,7 @@ import { StatusMessage } from "@/components/ui/status-message"
 import { type Quiz } from "@/lib/courses"
 import { orderQuestionsForAttempt } from "@/lib/quiz-shuffle"
 import type { QuizAttemptInfo } from "@/lib/learn-server"
+import { DiscussAnswers } from "@/components/learn/DiscussAnswers"
 import { startQuiz, submitQuiz, type SubmitQuizResult } from "@/app/learn/[courseId]/quiz-actions"
 import { FileUploadAnswer } from "@/components/learn/EssayAssessmentPlayer"
 import { QuestionPrompt } from "@/components/learn/QuestionPrompt"
@@ -28,12 +29,19 @@ function cuplikanSoal(html: string): string {
 }
 
 export function QuizPlayer({
+  aiAktif = false,
   quiz,
   attemptInfo,
   nextHref,
   reviewLessons,
   onReachEnd,
 }: {
+  /**
+   * Apakah fitur AI dirender. Diputuskan di SERVER (`aiAktif()` di
+   * lib/ai/client.ts) dan dioper ke bawah: tanpa kunci, tombol pembahasan
+   * tidak boleh muncul lalu gagal -- standar v2 melarang kontrol mati.
+   */
+  aiAktif?: boolean
   quiz: Quiz
   attemptInfo?: QuizAttemptInfo
   /** Pelajaran berikutnya, atau null bila kuis ini yang terakhir. */
@@ -358,6 +366,19 @@ export function QuizPlayer({
             </p>
             <p className="mt-1.5 text-xs text-muted-foreground">{t.adaptive.freedom}</p>
           </section>
+        )}
+
+        {/*
+          F5, SETELAH kotak adaptif dan memakai `reviewLessons` yang sama.
+          Urutannya disengaja: umpan balik yang sudah ada lebih dulu, lapisan
+          AI menyusul -- bukan sebaliknya.
+        */}
+        {attemptId && aiAktif && (
+          <DiscussAnswers
+            attemptId={attemptId}
+            adaJawabanSalah={result.correctCount < result.total}
+            reviewLessons={reviewLessons}
+          />
         )}
 
         <div className="flex flex-col gap-3">

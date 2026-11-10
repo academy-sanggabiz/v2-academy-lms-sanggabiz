@@ -112,6 +112,17 @@ export type Dictionary = {
     continueAt: string
     noneInProgress: string
     recommended: string
+    forYourJob: string
+    jobRequired: string
+    jobSuggested: string
+    jobReasonRequired: string
+    jobReasonSuggested: string
+    jobDueIn: string
+    jobOverdue: string
+    jobStart: string
+    jobContinue: string
+    jobEnrollNow: string
+    jobNoneYet: string
     noRecommendations: string
     start: string
     continue: string
@@ -202,6 +213,14 @@ export type Dictionary = {
     struggled: string
     reason: string
     freedom: string
+    discussTitle: string
+    discussButton: string
+    discussWorking: string
+    discussWhy: string
+    discussConcept: string
+    discussNext: string
+    discussAiNote: string
+    discussNone: string
   }
   tracking: {
     cardTitle: string
@@ -1249,6 +1268,35 @@ export type Dictionary = {
     mentors: string
     landing: string
     seo: string
+    orgTitle: string
+    orgSubtitle: string
+    orgDepartments: string
+    orgJobTitles: string
+    orgAddDepartment: string
+    orgAddJobTitle: string
+    orgDepartmentName: string
+    orgJobTitleName: string
+    orgNoDepartment: string
+    orgCourses: string
+    orgAddCourse: string
+    orgRequirement: string
+    orgDueDays: string
+    orgNoCourses: string
+    orgPeople: string
+    orgAssign: string
+    orgAssignFor: string
+    orgSaved: string
+    orgPurpose: string
+    orgSelectJobTitle: string
+    orgSelectCourse: string
+    orgEmpty: string
+    orgDeleteDepartment: string
+    orgDeleteJobTitle: string
+    orgConfirmDeleteDepartment: string
+    orgConfirmDeleteJobTitle: string
+    orgDeleted: string
+    orgPeopleCount: string
+    orgJobTitleCount: string
     certificates: string
     settings: string
     profile: string
@@ -1363,6 +1411,22 @@ export type Dictionary = {
     joinedSince: string
   }
   player: {
+    assistantTab: string
+    contentTab: string
+    assistantIntro: string
+    assistantAsk: string
+    assistantWorking: string
+    assistantPlaceholder: string
+    assistantLabel: string
+    assistantAiNote: string
+    assistantSuggest1: string
+    assistantSuggest2: string
+    assistantSuggest3: string
+    assistantQuota: string
+    assistantNoTranscript: string
+    assistantPreview: string
+    assistantYou: string
+    assistantName: string
     previousLesson: string
     nextLesson: string
     previous: string
@@ -1515,6 +1579,17 @@ const id: Dictionary = {
     continueAt: "Lanjutkan: pelajaran",
     noneInProgress: "Belum ada kursus yang sedang Anda ikuti.",
     recommended: "Kursus rekomendasi",
+    forYourJob: "Untuk jabatan Anda",
+    jobRequired: "Wajib",
+    jobSuggested: "Disarankan",
+    jobReasonRequired: "Wajib untuk {jabatan}",
+    jobReasonSuggested: "Disarankan untuk {jabatan}",
+    jobDueIn: "tenggat {tanggal}",
+    jobOverdue: "lewat tenggat {tanggal}",
+    jobStart: "Mulai",
+    jobContinue: "Lanjutkan",
+    jobEnrollNow: "Daftar",
+    jobNoneYet: "Belum ada kursus untuk jabatan Anda.",
     noRecommendations: "Belum ada rekomendasi",
     start: "Mulai",
     continue: "Lanjutkan",
@@ -1604,6 +1679,14 @@ const id: Dictionary = {
     struggled: "Soal \u201C{soal}\u201D sudah {n} kali terjawab salah.",
     reason: "Karena itu kami menyarankan membuka ulang materinya lebih dulu:",
     freedom: "Ini hanya saran \u2014 Anda tetap bisa langsung mencoba lagi.",
+    discussTitle: "Bahas jawaban saya",
+    discussButton: "Bahas jawaban saya",
+    discussWorking: "Menyusun pembahasan…",
+    discussWhy: "Kenapa keliru",
+    discussConcept: "Konsep yang perlu diulang",
+    discussNext: "Langkah berikutnya",
+    discussAiNote: "Dibuat AI dan bisa keliru. Penjelasan penyusun kursus di tiap soal tetap acuan utamanya.",
+    discussNone: "Tidak ada jawaban salah untuk dibahas.",
   },
   tracking: {
     cardTitle: "Membantu Memperbaiki Materi",
@@ -2597,6 +2680,35 @@ const id: Dictionary = {
     mentors: "Mentor",
     landing: "Halaman Depan",
     seo: "SEO",
+    orgTitle: "Jabatan & Departemen",
+    orgSubtitle: "Struktur perusahaan dan kursus yang berlaku untuk tiap jabatan.",
+    orgDepartments: "Departemen",
+    orgJobTitles: "Jabatan",
+    orgAddDepartment: "Tambah departemen",
+    orgAddJobTitle: "Tambah jabatan",
+    orgDepartmentName: "Nama departemen",
+    orgJobTitleName: "Nama jabatan",
+    orgNoDepartment: "Tanpa departemen",
+    orgCourses: "Kursus untuk jabatan ini",
+    orgAddCourse: "Tambah kursus",
+    orgRequirement: "Status",
+    orgDueDays: "Tenggat (hari)",
+    orgNoCourses: "Belum ada kursus untuk jabatan ini.",
+    orgPeople: "Peserta",
+    orgAssign: "Atur jabatan",
+    orgAssignFor: "Jabatan untuk {nama}",
+    orgSaved: "Tersimpan.",
+    orgPurpose: "Jabatan dipakai untuk menentukan kursus wajib dan disarankan, serta laporan per departemen. Tidak dipakai untuk memeringkat orang.",
+    orgSelectJobTitle: "Pilih jabatan",
+    orgSelectCourse: "Pilih kursus",
+    orgEmpty: "Belum ada jabatan. Tambahkan satu untuk mulai menyusun jalur kursus.",
+    orgDeleteDepartment: "Hapus departemen {nama}",
+    orgDeleteJobTitle: "Hapus jabatan {nama}",
+    orgConfirmDeleteDepartment: "Hapus departemen \u201c{nama}\u201d? {n} jabatan di dalamnya tidak ikut terhapus, tetapi berpindah ke Tanpa departemen.",
+    orgConfirmDeleteJobTitle: "Hapus jabatan \u201c{nama}\u201d? Jalur kursusnya ikut terhapus, dan {n} orang yang memegangnya kehilangan jabatan.",
+    orgDeleted: "Terhapus.",
+    orgPeopleCount: "{n} orang",
+    orgJobTitleCount: "{n} jabatan",
     certificates: "Sertifikat",
     settings: "Pengaturan",
     profile: "Profil",
@@ -2719,6 +2831,22 @@ const id: Dictionary = {
     joinedSince: "Bergabung sejak",
   },
   player: {
+    assistantTab: "Asisten AI",
+    contentTab: "Isi kursus",
+    assistantIntro: "Tanya apa saja tentang pelajaran yang sedang Anda buka. Asisten menjawab dari materinya, bukan dari pengetahuan umum.",
+    assistantAsk: "Tanya",
+    assistantWorking: "Menjawab…",
+    assistantPlaceholder: "Tulis pertanyaan Anda",
+    assistantLabel: "Pertanyaan untuk asisten",
+    assistantAiNote: "Jawaban dibuat AI dan bisa keliru. Periksa kembali ke materinya.",
+    assistantSuggest1: "Ringkas pelajaran ini",
+    assistantSuggest2: "Beri contoh penerapannya",
+    assistantSuggest3: "Jelaskan istilah yang sulit di sini",
+    assistantQuota: "Sisa tanya hari ini: {n}",
+    assistantNoTranscript: "Pelajaran ini video atau slide tanpa transkrip, jadi asisten hanya bisa menjawab dari judul dan daftar isi kursus.",
+    assistantPreview: "Pratinjau pengelola. Peserta melihat panel yang sama.",
+    assistantYou: "Anda",
+    assistantName: "Asisten",
     previousLesson: "Pelajaran sebelumnya",
     nextLesson: "Pelajaran berikutnya",
     previous: "Sebelumnya",
@@ -2874,6 +3002,17 @@ const en: Dictionary = {
     continueAt: "Continue: lesson",
     noneInProgress: "You are not taking any course yet.",
     recommended: "Recommended courses",
+    forYourJob: "For your role",
+    jobRequired: "Required",
+    jobSuggested: "Suggested",
+    jobReasonRequired: "Required for {jabatan}",
+    jobReasonSuggested: "Suggested for {jabatan}",
+    jobDueIn: "due {tanggal}",
+    jobOverdue: "overdue since {tanggal}",
+    jobStart: "Start",
+    jobContinue: "Continue",
+    jobEnrollNow: "Enrol",
+    jobNoneYet: "No courses for your role yet.",
     noRecommendations: "No recommendations yet",
     start: "Start",
     continue: "Continue",
@@ -2963,6 +3102,14 @@ const en: Dictionary = {
     struggled: "The question \u201C{soal}\u201D has now been answered wrongly {n} times.",
     reason: "So we suggest reopening the material first:",
     freedom: "Just a suggestion \u2014 you can retry right away.",
+    discussTitle: "Discuss my answers",
+    discussButton: "Discuss my answers",
+    discussWorking: "Writing the discussion…",
+    discussWhy: "Why it is wrong",
+    discussConcept: "Concept to revisit",
+    discussNext: "Next step",
+    discussAiNote: "Written by AI and can be wrong. The course author's explanation on each question remains the main reference.",
+    discussNone: "There are no wrong answers to discuss.",
   },
   tracking: {
     cardTitle: "Help Us Improve the Material",
@@ -3954,6 +4101,35 @@ const en: Dictionary = {
     mentors: "Mentors",
     landing: "Home page",
     seo: "SEO",
+    orgTitle: "Roles & Departments",
+    orgSubtitle: "The company structure and which courses apply to each role.",
+    orgDepartments: "Departments",
+    orgJobTitles: "Roles",
+    orgAddDepartment: "Add department",
+    orgAddJobTitle: "Add role",
+    orgDepartmentName: "Department name",
+    orgJobTitleName: "Role name",
+    orgNoDepartment: "No department",
+    orgCourses: "Courses for this role",
+    orgAddCourse: "Add course",
+    orgRequirement: "Status",
+    orgDueDays: "Due (days)",
+    orgNoCourses: "No courses for this role yet.",
+    orgPeople: "Learners",
+    orgAssign: "Set role",
+    orgAssignFor: "Role for {nama}",
+    orgSaved: "Saved.",
+    orgPurpose: "Roles decide which courses are required or suggested, and group the per-department report. They are never used to rank people.",
+    orgSelectJobTitle: "Choose a role",
+    orgSelectCourse: "Choose a course",
+    orgEmpty: "No roles yet. Add one to start building a course path.",
+    orgDeleteDepartment: "Delete the {nama} department",
+    orgDeleteJobTitle: "Delete the {nama} role",
+    orgConfirmDeleteDepartment: "Delete the department \u201c{nama}\u201d? Its {n} roles are not deleted, they move to No department.",
+    orgConfirmDeleteJobTitle: "Delete the role \u201c{nama}\u201d? Its course path goes with it, and {n} people holding it lose their role.",
+    orgDeleted: "Deleted.",
+    orgPeopleCount: "{n} people",
+    orgJobTitleCount: "{n} roles",
     certificates: "Certificates",
     settings: "Settings",
     profile: "Profile",
@@ -4077,6 +4253,22 @@ const en: Dictionary = {
     joinedSince: "Member since",
   },
   player: {
+    assistantTab: "AI Assistant",
+    contentTab: "Course content",
+    assistantIntro: "Ask anything about the lesson you have open. The assistant answers from its material, not from general knowledge.",
+    assistantAsk: "Ask",
+    assistantWorking: "Answering…",
+    assistantPlaceholder: "Write your question",
+    assistantLabel: "Question for the assistant",
+    assistantAiNote: "Answers are written by AI and can be wrong. Check them against the material.",
+    assistantSuggest1: "Summarise this lesson",
+    assistantSuggest2: "Give an example of how to apply it",
+    assistantSuggest3: "Explain the hard terms here",
+    assistantQuota: "Questions left today: {n}",
+    assistantNoTranscript: "This lesson is a video or slides with no transcript, so the assistant can only answer from the title and the course outline.",
+    assistantPreview: "Manager preview. Learners see the same panel.",
+    assistantYou: "You",
+    assistantName: "Assistant",
     previousLesson: "Previous lesson",
     nextLesson: "Next lesson",
     previous: "Previous",
