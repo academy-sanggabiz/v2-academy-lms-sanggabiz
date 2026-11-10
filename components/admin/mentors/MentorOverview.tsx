@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { BookOpen, ClipboardCheck, Star, Users } from "lucide-react"
 
 import { StatCard } from "@/components/admin/StatCard"
@@ -82,7 +83,25 @@ export async function MentorOverview({ mentors }: { mentors: MentorOverviewRow[]
                 return (
                   <TableRow key={m.mentorId} className="text-sm">
                     <TableCell>
-                      <div className="font-semibold">{m.fullName}</div>
+                      {/*
+                        Nama mentor adalah TAUTAN ke halaman detailnya.
+                        Sebelumnya layar ini tidak menautkan ke mana pun, dan
+                        akibatnya satu kemampuan yang sudah ada jadi tidak bisa
+                        dicapai: tombol "Kembalikan jadi Peserta" hanya hidup di
+                        /admin/learners/<id>, sementara daftar peserta menyaring
+                        `role = 'learner'` sehingga mentor tidak pernah muncul di
+                        sana. Satu-satunya jalan tersisa adalah mengetik id ke
+                        alamat -- yang berarti kemampuannya ada tetapi tidak
+                        terpakai. Halaman detail itu sendiri memang sudah
+                        disiapkan menerima mentor (lihat catatan di
+                        getAdminLearnerDetail).
+                      */}
+                      <Link
+                        href={`/admin/learners/${m.mentorId}`}
+                        className="font-semibold underline decoration-transparent underline-offset-4 hover:decoration-inherit focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+                      >
+                        {m.fullName}
+                      </Link>
                       <div className="text-xs text-muted-foreground">{m.email}</div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
