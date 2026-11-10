@@ -6,6 +6,8 @@ import type { LessonContentType } from "@/lib/courses"
  * Aturannya: sebuah pelajaran terbuka bila **seluruh** pelajaran sebelumnya
  * sudah tuntas. Untuk pelajaran biasa, tuntas berarti ditandai selesai. Untuk
  * pelajaran kuis, tuntas berarti **lulus** -- bukan sekadar dicentang.
+ * Perkecualiannya kuis ukur (pretest/posttest): untuk itu tuntas berarti
+ * sudah dikirim, karena nilainya tidak dipakai menilai.
  *
  * Perbedaan itu penting. Kotak centang di sidebar tidak terkunci, termasuk
  * pada pelajaran kuis, jadi kalau "selesai" saja yang dipakai, peserta bisa
@@ -29,6 +31,11 @@ export type AccessLesson = {
   content_type: LessonContentType
   /** null bila pelajaran ini bukan kuis. */
   quizId: string | null
+  /**
+   * Pelajaran ini kuis ukur (pretest/posttest). Opsional, dan `false` bila
+   * tidak diisi -- pemanggil lama tetap mendapat perilaku lama.
+   */
+  isMeasureQuiz?: boolean
 }
 
 export function computeUnlockedLessons({
@@ -51,9 +58,14 @@ export function computeUnlockedLessons({
   for (const lesson of lessons) {
     unlocked.add(lesson.id)
 
-    const cleared = lesson.quizId
-      ? passedQuizIds.has(lesson.quizId)
-      : completedLessonIds.has(lesson.id)
+    // Kuis ukur tuntas begitu DIKIRIM, bukan begitu lulus. Pretest memang
+    // dirancang untuk banyak dijawab salah -- mensyaratkan lulus akan
+    // mengunci seluruh kursus di pelajaran pertamanya, yang persis kebalikan
+    // dari gunanya. Penanda selesai ditulis oleh submitQuiz saat pengiriman.
+    const cleared =
+      lesson.quizId && !lesson.isMeasureQuiz
+        ? passedQuizIds.has(lesson.quizId)
+        : completedLessonIds.has(lesson.id)
 
     // Begitu satu pelajaran belum tuntas, sisanya tetap terkunci.
     if (!cleared) break

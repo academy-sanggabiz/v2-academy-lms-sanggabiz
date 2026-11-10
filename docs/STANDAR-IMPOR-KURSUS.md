@@ -115,3 +115,50 @@ yang ada, minta asisten memperbaikinya, impor lagi.
 
 Frontmatter memuat `format: sanggabiz-course/v1`. Parser memperingatkan bila
 nilainya berbeda, supaya berkas dari versi lain tidak dibaca salah diam-diam.
+
+## 8. Menyusun kursus dari dokumen SOP
+
+Jalur kedua ke draf yang sama: mentor mengunggah SOP, AI menyusunnya menjadi
+kursus. Diputuskan 2026-11-10, dibangun di atas impor Markdown yang sudah ada
+dan **tidak** sebagai mekanisme baru.
+
+**Berakhir di berkas `.md`, bukan di baris basis data.** `lib/ai/sop.ts`
+menghasilkan teks berformat `sanggabiz-course/v1`, lalu
+`parseCourseMarkdown()` membacanya seperti berkas yang diketik manusia. Itu
+berarti seluruh pagar §5 berlaku apa adanya tanpa ditulis ulang: hasilnya
+masuk ke draf dan tidak pernah tersimpan sendiri, kursus yang sudah punya
+peserta ditolak, dan isinya tetap disanitasi. Jangan membuat jalur tulis
+langsung dari model ke tabel kursus — satu-satunya alasan fitur ini aman
+adalah karena ia melewati pintu yang sama.
+
+**Dua langkah yang terlihat, bukan satu tombol.** Langkah pertama hanya
+membuat kerangka: daftar modul dan judul pelajaran. Mentor membacanya sebelum
+satu kalimat materi pun ditulis, dan berhenti di situ kalau dokumennya
+ternyata salah. Langkah kedua menulis isi per modul. Satu panggilan "ubah SOP
+ini jadi kursus lengkap" menghasilkan keluaran panjang yang terpotong di
+tengah, dan ketika terpotong tidak ada bagian yang bisa diselamatkan.
+
+**Urutan pilihan jawaban diacak di server.** Contoh bentuk di prompt menulis
+kunci pada baris pertama, dan model menyalin posisinya: pada percobaan pertama
+fitur ini, 18 dari 18 soal berkunci pilihan pertama — kuis yang bisa dilewati
+tanpa membaca soalnya. `acakOpsi()` memperbaikinya setelah model menjawab.
+Jangan menggantinya dengan permintaan "variasikan posisinya" di prompt;
+permintaan seperti itu kadang dipatuhi, dan "kadang" bukan jaminan.
+
+**Dokumennya privat.** Bucket `sop-documents` (migrasi `20261110040000`)
+tidak punya policy select sama sekali: SOP adalah dokumen internal perusahaan
+pelanggan, bukan aset yang boleh terbaca lewat URL yang bocor. Hanya server
+action dengan service role yang membacanya. Teks hasil ekstraksi disimpan di
+`ai_course_generations.context` supaya langkah kedua tidak perlu mengunggah
+ulang — dan karena itu, menghapus baris generasi berarti menghapus salinan
+teksnya juga.
+
+**Isi dokumen dikirim ke penyedia AI pihak ketiga.** Dialognya mengatakan itu
+di layar, sebelum tombol unggah, bukan di halaman kebijakan yang tidak dibuka
+siapa pun.
+
+**Pembaca PDF memerlukan Node 22 atau lebih baru** (`unpdf` memuat PDF.js yang
+memakai global `Iterator`). Vercel menjalankan Node 24; `package.json` memuat
+`engines.node: ">=22"` dan `.nvmrc` memuat `22` supaya mesin pengembang tidak
+diam-diam memakai Node 20, tempat jalur PDF gagal dengan pesan yang
+menyesatkan.

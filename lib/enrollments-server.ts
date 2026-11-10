@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { computeCourseGrade, quizGradeWeight, type CourseGrade } from "@/lib/course-grade"
 import { pickRepresentativeAttempt } from "@/lib/quiz-attempt-selection"
+import { isMeasureQuiz } from "@/lib/courses"
 
 export async function getEnrolledCourseIds(): Promise<string[]> {
   const supabase = await createClient()
@@ -74,7 +75,7 @@ export async function getEnrolledCoursesWithDetails(): Promise<EnrolledCourseSum
     .filter((course): course is EnrolledCourseSummary => course !== null)
 }
 
-type LearnerGradeQuiz = { id: string; is_assessment: boolean }
+type LearnerGradeQuiz = { id: string; is_assessment: boolean; measure_kind: string | null }
 type LearnerGradeAttempt = { quiz_id: string; attempt_number: number; score: number | null; status: string }
 
 /**
@@ -91,16 +92,22 @@ export async function getLearnerCourseGrade(courseId: string): Promise<CourseGra
 
   const { data: quizzes, error: quizzesError } = await supabase
     .from("quizzes")
-    .select("id, is_assessment, lesson:lessons!inner(section:course_sections!inner(course_id))")
+    .select("id, is_assessment, measure_kind, lesson:lessons!inner(section:course_sections!inner(course_id))")
     .eq("lesson.section.course_id", courseId)
 
   if (quizzesError || !quizzes) {
     console.error("getLearnerCourseGrade quizzes query failed:", quizzesError?.message)
     return null
   }
-  if (quizzes.length === 0) return null
 
-  const quizIds = (quizzes as LearnerGradeQuiz[]).map((q) => q.id)
+  // Kuis ukur tidak masuk nilai akhir; lihat alasannya di lib/certificates.ts.
+  // Penyaringan dilakukan setelah kueri, bukan dengan `.is("measure_kind", null)`,
+  // supaya jumlah kueri tidak berubah dan satu-satunya definisi "kuis ukur"
+  // tetap `isMeasureQuiz`.
+  const quizRows = (quizzes as LearnerGradeQuiz[]).filter((q) => !isMeasureQuiz(q))
+  if (quizRows.length === 0) return null
+
+  const quizIds = quizRows.map((q) => q.id)
   const { data: attempts, error: attemptsError } = await supabase
     .from("quiz_attempts")
     .select("quiz_id, attempt_number, score, status")
@@ -121,7 +128,7 @@ export async function getLearnerCourseGrade(courseId: string): Promise<CourseGra
     attemptsByQuiz.set(attempt.quiz_id, bucket)
   }
 
-  const items = (quizzes as LearnerGradeQuiz[]).map((quiz) => {
+  const items = quizRows.map((quiz) => {
     const representative = pickRepresentativeAttempt(attemptsByQuiz.get(quiz.id) ?? [], quiz.is_assessment)
     return {
       score: representative?.score ?? null,

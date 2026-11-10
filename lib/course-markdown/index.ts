@@ -198,6 +198,11 @@ function emptyQuiz(passScore: number, isAssessment = false) {
     shuffle: true,
     draw_count: null,
     is_assessment: isAssessment,
+    // Impor `.md` tidak membuat kuis ukur. Formatnya tidak punya cara
+    // menyebut modul per soal, dan pretest tanpa pemetaan modul tidak bisa
+    // dipakai layar Perkembangan -- lebih baik diatur di editor setelah
+    // impor daripada diimpor setengah jadi. Lihat STANDAR-IMPOR-KURSUS.md.
+    measure_kind: null,
     questions: [] as DraftQuestion[],
   }
 }
@@ -390,6 +395,7 @@ export function parseCourseMarkdown(raw: string): ParsedCourse {
         allow_multiple: false,
         case_sensitive: false,
         explanation: "",
+        measured_section_id: null,
         options: [],
       }
       bucket = "question"

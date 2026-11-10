@@ -8,6 +8,8 @@ import { CourseThumb } from "@/components/CourseThumb"
 import { CourseCurriculumGate } from "@/components/learner/CourseCurriculumGate"
 import { EnrollButton } from "@/components/learner/EnrollButton"
 import { CourseNotes } from "@/components/learner/CourseNotes"
+import { PerkembanganPesertaCard } from "@/components/perkembangan/PerkembanganPesertaCard"
+import { getPerkembanganPeserta } from "@/lib/perkembangan-server"
 import { getCourseDetail } from "@/lib/courses-server"
 import { getEnrollmentProgress, getLearnerCourseGrade } from "@/lib/enrollments-server"
 import { formatCourseAccess } from "@/lib/courses"
@@ -37,6 +39,9 @@ export default async function CourseDetailPage({
   const { t } = await getTranslations()
   const courseGrade = enrolled ? await getLearnerCourseGrade(course.id) : null
   const notes = enrolled ? await getCourseNotes(course.id) : null
+  // null bila kursusnya tidak punya kuis ukur sama sekali; kartunya lalu
+  // tidak dirender, jadi halaman kursus lama tidak berubah sebaris pun.
+  const perkembangan = enrolled ? await getPerkembanganPeserta(course.id) : null
   const price = formatCourseAccess(course, t.courses)
   const initialOpen = enrollParam === "required"
 
@@ -108,6 +113,8 @@ export default async function CourseDetailPage({
               />
             </CardContent>
           </Card>
+
+          <PerkembanganPesertaCard data={perkembangan} />
 
           {notes && <CourseNotes courseId={course.id} notes={notes} />}
 

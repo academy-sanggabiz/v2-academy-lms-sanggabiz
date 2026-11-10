@@ -35,6 +35,10 @@ function toDraftQuestion(item: BankItem): DraftQuestion {
     allow_multiple: item.allow_multiple,
     case_sensitive: item.case_sensitive,
     explanation: item.explanation,
+    // Bank soal tidak menyimpan modul: soal yang sama dipakai lintas kursus,
+    // dan "modul yang diukur" hanya punya arti di dalam satu kursus. Penyusun
+    // memilihnya setelah soalnya disisipkan.
+    measured_section_id: null,
     options: item.options.map((o) => ({ id: `${item.id}-${o.position}`, text: o.text, is_correct: o.is_correct })),
   }
 }

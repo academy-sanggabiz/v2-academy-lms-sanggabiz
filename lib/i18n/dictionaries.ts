@@ -716,6 +716,15 @@ export type Dictionary = {
     assessmentNote: string
     normalQuizNote: string
     changeModeNote: string
+    measureKindLabel: string
+    measureNormal: string
+    measurePretest: string
+    measurePosttest: string
+    measureNote: string
+    measureWarnLive: string
+    measuredSectionLabel: string
+    measuredSectionNone: string
+    measuredSectionHint: string
     /** `{n}` nomor soal. */
     moveQuestionAria: string
     /** `{n}` nomor soal. */
@@ -1410,6 +1419,43 @@ export type Dictionary = {
     saveChanges: string
     joinedSince: string
   }
+  sop: {
+    button: string
+    title: string
+    desc: string
+    step1: string
+    step1Desc: string
+    pickFile: string
+    reading: string
+    privacy: string
+    step2: string
+    outlineCount: string
+    writeButton: string
+    writing: string
+    writeNote: string
+    done: string
+    reportCount: string
+    reviewNote: string
+    lockedByLearners: string
+  }
+  perkembangan: {
+    title: string
+    subtitle: string
+    before: string
+    after: string
+    gain: string
+    perModule: string
+    nQuestions: string
+    noPair: string
+    waiting: string
+    classTitle: string
+    classSubtitle: string
+    tooFew: string
+    discarded: string
+    up: string
+    down: string
+    flat: string
+  }
   player: {
     assistantTab: string
     contentTab: string
@@ -1427,6 +1473,13 @@ export type Dictionary = {
     assistantPreview: string
     assistantYou: string
     assistantName: string
+    aiThirdParty: string
+    measureResultTitle: string
+    pretestIntro: string
+    posttestIntro: string
+    measureNoRetry: string
+    pretestResultNote: string
+    posttestResultNote: string
     previousLesson: string
     nextLesson: string
     previous: string
@@ -2160,6 +2213,17 @@ const id: Dictionary = {
       "Tanpa tombol mulai atau batas waktu; peserta menyimpan draf dan mengirim jika sudah selesai. Nilai secara manual di Admin \u203A Penilaian. Bobotnya {w}\u00D7 kuis biasa dalam nilai akhir kursus.",
     normalQuizNote: "Dinilai otomatis dan langsung mendapat skor saat dikirim.",
     changeModeNote: "Untuk mengganti mode, hapus dulu semua soal di kuis ini.",
+    measureKindLabel: "Jenis kuis",
+    measureNormal: "Kuis biasa",
+    measurePretest: "Pretest",
+    measurePosttest: "Posttest",
+    measureNote:
+      "Pretest dan posttest hanya mengukur. Nilainya tidak masuk nilai akhir dan bukan syarat sertifikat.",
+    measureWarnLive:
+      "Kuis ini sudah pernah dikerjakan. Mengubah jenisnya mengeluarkan nilainya dari nilai akhir peserta.",
+    measuredSectionLabel: "Modul yang diukur",
+    measuredSectionNone: "Belum dipilih",
+    measuredSectionHint: "Dipakai layar Perkembangan untuk menunjukkan modul mana yang naik.",
     moveQuestionAria:
       "Pindahkan soal {n}: tekan Spasi untuk mengambil, tombol panah untuk memindahkan, Spasi untuk melepas",
     questionN: "Soal {n}",
@@ -2830,6 +2894,46 @@ const id: Dictionary = {
     saveChanges: "Simpan Perubahan",
     joinedSince: "Bergabung sejak",
   },
+  sop: {
+    button: "Susun dari SOP",
+    title: "Susun kursus dari dokumen SOP",
+    desc: "Unggah SOP, periksa kerangkanya, lalu biarkan AI menulis isinya.",
+    step1: "1. Unggah dokumen",
+    step1Desc: "Berkas PDF berisi teks, atau berkas .md dan .txt. Maksimal 10 MB.",
+    pickFile: "Pilih berkas SOP",
+    reading: "Membaca dokumen…",
+    privacy:
+      "Isi dokumen dikirim ke penyedia AI pihak ketiga untuk diproses. Jangan unggah dokumen rahasia.",
+    step2: "2. Periksa kerangkanya",
+    outlineCount: "{modul} modul, {pelajaran} pelajaran.",
+    writeButton: "Tulis isi kursus",
+    writing: "Menulis…",
+    writeNote: "Penulisan memakan waktu sekitar satu menit untuk tiap modul.",
+    done: "Draf kursus sudah masuk ke editor.",
+    reportCount: "{modul} modul, {pelajaran} pelajaran, {soal} soal.",
+    reviewNote:
+      "Belum tersimpan. Periksa isinya di tab Pelajaran, perbaiki yang perlu, lalu tekan Simpan.",
+    lockedByLearners:
+      "Kursus ini sudah punya {n} peserta, jadi isinya tidak bisa diganti. Buat kursus baru untuk menyusun dari SOP.",
+  },
+  perkembangan: {
+    title: "Perkembangan Anda",
+    subtitle: "Selisih nilai pretest dan posttest, dipecah per modul.",
+    before: "Sebelum",
+    after: "Sesudah",
+    gain: "Selisih",
+    perModule: "Per modul",
+    nQuestions: "{n} soal",
+    noPair: "Kerjakan pretest dan posttest untuk melihat perkembangan Anda.",
+    waiting: "Posttest belum dikerjakan. Nilai pretest Anda {n}.",
+    classTitle: "Perkembangan kelas",
+    classSubtitle: "Rata-rata seluruh peserta yang mengerjakan pretest dan posttest. Tanpa nama.",
+    tooFew: "Butuh minimal {n} peserta yang mengerjakan keduanya. Sekarang {ada}.",
+    discarded: "{n} peserta tidak dihitung karena pretest dikerjakan setelah mulai belajar.",
+    up: "naik",
+    down: "turun",
+    flat: "tetap",
+  },
   player: {
     assistantTab: "Asisten AI",
     contentTab: "Isi kursus",
@@ -2847,6 +2951,16 @@ const id: Dictionary = {
     assistantPreview: "Pratinjau pengelola. Peserta melihat panel yang sama.",
     assistantYou: "Anda",
     assistantName: "Asisten",
+    aiThirdParty: "Pertanyaan Anda dikirim ke penyedia AI pihak ketiga. Tanpa nama dan email Anda. Lihat Kebijakan Privasi.",
+    measureResultTitle: "Hasil pengukuran",
+    pretestIntro:
+      "Pretest. Gunanya melihat apa yang sudah Anda ketahui sebelum belajar. Nilainya tidak memengaruhi kelulusan maupun sertifikat.",
+    posttestIntro:
+      "Posttest. Gunanya melihat apa yang berubah setelah Anda belajar. Nilainya tidak memengaruhi kelulusan maupun sertifikat.",
+    measureNoRetry: "Kuis ini dikerjakan satu kali. Anda sudah mengerjakannya.",
+    pretestResultNote:
+      "Nilai ini titik awal Anda, bukan penilaian. Jawaban per soal ditahan sampai posttest supaya kenaikannya terukur jujur.",
+    posttestResultNote: "Bandingkan dengan nilai pretest Anda di layar Perkembangan.",
     previousLesson: "Pelajaran sebelumnya",
     nextLesson: "Pelajaran berikutnya",
     previous: "Sebelumnya",
@@ -3583,6 +3697,17 @@ const en: Dictionary = {
       "No start button or time limit; learners save a draft and submit when done. Grade it manually in Admin \u203A Grading. It weighs {w}\u00D7 a normal quiz in the final course grade.",
     normalQuizNote: "Auto-graded with an immediate score on submit.",
     changeModeNote: "To switch modes, first delete every question in this quiz.",
+    measureKindLabel: "Quiz kind",
+    measureNormal: "Regular quiz",
+    measurePretest: "Pre-test",
+    measurePosttest: "Post-test",
+    measureNote:
+      "A pre-test or post-test only measures. Its score stays out of the final grade and the certificate rules.",
+    measureWarnLive:
+      "Learners have already taken this quiz. Changing its kind removes its score from their final grade.",
+    measuredSectionLabel: "Module measured",
+    measuredSectionNone: "Not chosen yet",
+    measuredSectionHint: "The Progress screen uses this to show which module improved.",
     moveQuestionAria: "Move question {n}: press Space to pick up, arrow keys to move, Space to drop",
     questionN: "Question {n}",
     nPoints: "{n} points",
@@ -4252,6 +4377,46 @@ const en: Dictionary = {
     saveChanges: "Save changes",
     joinedSince: "Member since",
   },
+  sop: {
+    button: "Build from an SOP",
+    title: "Build a course from an SOP document",
+    desc: "Upload the SOP, check the outline, then let the AI write the content.",
+    step1: "1. Upload the document",
+    step1Desc: "A text-based PDF, or an .md or .txt file. Up to 10 MB.",
+    pickFile: "Choose an SOP file",
+    reading: "Reading the document…",
+    privacy:
+      "The document is sent to a third-party AI provider for processing. Do not upload confidential documents.",
+    step2: "2. Check the outline",
+    outlineCount: "{modul} modules, {pelajaran} lessons.",
+    writeButton: "Write the course content",
+    writing: "Writing…",
+    writeNote: "Writing takes about a minute per module.",
+    done: "The course draft is now in the editor.",
+    reportCount: "{modul} modules, {pelajaran} lessons, {soal} questions.",
+    reviewNote:
+      "Nothing is saved yet. Check it on the Lessons tab, fix what needs fixing, then press Save.",
+    lockedByLearners:
+      "This course already has {n} learners, so its content cannot be replaced. Create a new course to build from an SOP.",
+  },
+  perkembangan: {
+    title: "Your progress",
+    subtitle: "The difference between your pre-test and post-test, module by module.",
+    before: "Before",
+    after: "After",
+    gain: "Change",
+    perModule: "By module",
+    nQuestions: "{n} questions",
+    noPair: "Take the pre-test and the post-test to see your progress.",
+    waiting: "The post-test is not done yet. Your pre-test score is {n}.",
+    classTitle: "Class progress",
+    classSubtitle: "The average across every learner who took both tests. No names.",
+    tooFew: "At least {n} learners must take both. Right now there are {ada}.",
+    discarded: "{n} learners are left out because their pre-test came after they started studying.",
+    up: "up",
+    down: "down",
+    flat: "unchanged",
+  },
   player: {
     assistantTab: "AI Assistant",
     contentTab: "Course content",
@@ -4269,6 +4434,16 @@ const en: Dictionary = {
     assistantPreview: "Manager preview. Learners see the same panel.",
     assistantYou: "You",
     assistantName: "Assistant",
+    aiThirdParty: "Your question is sent to a third-party AI provider. Without your name or email. See the Privacy Policy.",
+    measureResultTitle: "Measurement result",
+    pretestIntro:
+      "Pre-test. It shows what you already know before studying. The score does not affect passing or your certificate.",
+    posttestIntro:
+      "Post-test. It shows what changed after studying. The score does not affect passing or your certificate.",
+    measureNoRetry: "This quiz is taken once. You have already taken it.",
+    pretestResultNote:
+      "This score is your starting point, not a judgement. Per-question answers are held back until the post-test so the gain stays honest.",
+    posttestResultNote: "Compare it with your pre-test score on the Progress screen.",
     previousLesson: "Previous lesson",
     nextLesson: "Next lesson",
     previous: "Previous",
