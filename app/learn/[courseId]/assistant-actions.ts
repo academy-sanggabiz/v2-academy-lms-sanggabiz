@@ -5,6 +5,7 @@ import { getLearnData } from "@/lib/learn-server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { aiAktif } from "@/lib/ai/client"
 import { jawabPertanyaan, keTeks, type KonteksPelajaran } from "@/lib/ai/lesson-assistant"
+import { isMeasureQuiz } from "@/lib/courses"
 import { computeUnlockedLessons } from "@/lib/lesson-access"
 import { getTranslations } from "@/lib/i18n/server"
 
@@ -73,6 +74,7 @@ export async function tanyaAsisten(
       id: l.id,
       content_type: l.content_type,
       quizId: l.quiz?.id ?? null,
+      isMeasureQuiz: isMeasureQuiz(l.quiz),
     })),
     completedLessonIds,
     passedQuizIds,

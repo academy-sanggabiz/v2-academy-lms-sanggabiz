@@ -372,8 +372,12 @@ export function QuizPlayer({
           F5, SETELAH kotak adaptif dan memakai `reviewLessons` yang sama.
           Urutannya disengaja: umpan balik yang sudah ada lebih dulu, lapisan
           AI menyusul -- bukan sebaliknya.
+
+          Tidak dirender untuk pretest. `bahasJawabanSaya` juga menolaknya di
+          server; yang di sini mencegah tombol yang pasti gagal, yang di sana
+          yang sebenarnya menegakkan aturannya.
         */}
-        {attemptId && aiAktif && (
+        {attemptId && aiAktif && quiz.measure_kind !== "pretest" && (
           <DiscussAnswers
             attemptId={attemptId}
             adaJawabanSalah={result.correctCount < result.total}
