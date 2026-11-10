@@ -1427,6 +1427,8 @@ export type Dictionary = {
     aiNote: string
     step1: string
     step1Desc: string
+    sampleHint: string
+    sampleFile: string
     pickFile: string
     reading: string
     privacy: string
@@ -2904,6 +2906,8 @@ const id: Dictionary = {
     aiNote: "Dibuat AI dan bisa keliru. Periksa tiap pelajaran dan soal sebelum menyimpan.",
     step1: "1. Unggah dokumen",
     step1Desc: "Word, PDF berisi teks, atau berkas .md dan .txt. Maksimal 10 MB.",
+    sampleHint: "Belum punya dokumennya? Coba contoh ini dulu.",
+    sampleFile: "Unduh contoh SOP",
     pickFile: "Pilih dokumen",
     reading: "Membaca dokumen…",
     privacy:
@@ -4389,6 +4393,8 @@ const en: Dictionary = {
     aiNote: "Written by AI and can be wrong. Check every lesson and question before saving.",
     step1: "1. Upload the document",
     step1Desc: "Word, a text-based PDF, or an .md or .txt file. Up to 10 MB.",
+    sampleHint: "No document yet? Try this example first.",
+    sampleFile: "Download a sample SOP",
     pickFile: "Choose a document",
     reading: "Reading the document…",
     privacy:

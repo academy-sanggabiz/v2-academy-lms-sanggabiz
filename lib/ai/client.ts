@@ -78,7 +78,22 @@ export function modelAi(): string {
   return penyedia() === "openai" ? "deepseek-flash" : "gemini-3.1-flash-lite"
 }
 
-export type HasilAi<T> = { ok: true; data: T; token: number } | { ok: false; error: string }
+export type HasilAi<T> =
+  | {
+      ok: true
+      data: T
+      token: number
+      /**
+       * Balasan berhenti karena kehabisan jatah token, bukan karena selesai.
+       *
+       * Dulu ini hanya dicatat ke log ketika balasannya KOSONG, sehingga
+       * jawaban yang terpotong di tengah lolos sebagai "ok" dan pemanggil
+       * tidak punya cara tahu. Satu modul kursus pernah keluar dengan satu
+       * soal dari tiga yang diminta, tanpa satu pun tanda.
+       */
+      terpotong: boolean
+    }
+  | { ok: false; error: string }
 
 type Permintaan = {
   /** Aturan peran model. Dipisah dari `prompt` supaya terbaca di log. */
@@ -91,7 +106,7 @@ type Permintaan = {
 
 /** Hasil satu kali panggil ke penyedia, sebelum diputuskan mau diulang atau tidak. */
 type Balasan =
-  | { jenis: "ok"; teks: string; token: number }
+  | { jenis: "ok"; teks: string; token: number; terpotong: boolean }
   | { jenis: "sibuk" } // 429/503: layak dicoba ulang
   | { jenis: "kosong" } // balasan tanpa isi: layak dicoba ulang sekali
   | { jenis: "gagal"; pesan: string } // tidak akan membaik dengan diulang
@@ -135,7 +150,12 @@ async function panggilGemini(req: Permintaan, key: string): Promise<Balasan> {
     console.error("AI (gemini) balas kosong, finishReason:", kandidat?.finishReason)
     return { jenis: "kosong" }
   }
-  return { jenis: "ok", teks, token: json.usageMetadata?.totalTokenCount ?? 0 }
+  return {
+    jenis: "ok",
+    teks,
+    token: json.usageMetadata?.totalTokenCount ?? 0,
+    terpotong: kandidat?.finishReason === "MAX_TOKENS",
+  }
 }
 
 /**
@@ -218,7 +238,12 @@ async function panggilOpenAI(req: Permintaan, key: string): Promise<Balasan> {
     console.error("AI (openai) balas kosong, finish_reason:", pilihan?.finish_reason)
     return { jenis: "kosong" }
   }
-  return { jenis: "ok", teks, token: json.usage?.total_tokens ?? 0 }
+  return {
+    jenis: "ok",
+    teks,
+    token: json.usage?.total_tokens ?? 0,
+    terpotong: pilihan?.finish_reason === "length",
+  }
 }
 
 /**
@@ -245,7 +270,10 @@ async function panggil(req: Permintaan): Promise<HasilAi<string>> {
     }
 
     if (balasan.jenis === "ok") {
-      return { ok: true, data: balasan.teks, token: balasan.token }
+      if (balasan.terpotong) {
+        console.warn("AI: balasan terpotong karena batas token. Pemanggil harus menanganinya.")
+      }
+      return { ok: true, data: balasan.teks, token: balasan.token, terpotong: balasan.terpotong }
     }
     if (balasan.jenis === "gagal") {
       return { ok: false, error: balasan.pesan }
@@ -302,5 +330,5 @@ export async function tanyaJson<T>(
     return { ok: false, error: "Jawaban AI tidak lengkap. Coba lagi." }
   }
 
-  return { ok: true, data: bersih, token: hasil.token }
+  return { ok: true, data: bersih, token: hasil.token, terpotong: hasil.terpotong }
 }

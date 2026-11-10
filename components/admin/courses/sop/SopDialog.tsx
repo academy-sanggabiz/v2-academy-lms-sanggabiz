@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { Sparkles, Upload } from "lucide-react"
+import { Download, Sparkles, Upload } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -161,6 +161,20 @@ export function SopDialog({
                   }}
                 />
               </label>
+              {/* Tombol unduh contoh, pola yang sama dengan dialog impor
+                  Markdown: fitur yang meminta unggahan tidak bisa dicoba
+                  oleh orang yang belum punya berkasnya. */}
+              <p className="mt-2.5 text-xs text-muted-foreground">{t.sop.sampleHint}</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mt-1 px-0"
+                render={<a href="/admin/courses/contoh-dokumen" download />}
+                nativeButton={false}
+              >
+                <Download className="size-4" aria-hidden />
+                {t.sop.sampleFile}
+              </Button>
               <p className="mt-2 text-xs text-muted-foreground">{t.sop.privacy}</p>
             </div>
 

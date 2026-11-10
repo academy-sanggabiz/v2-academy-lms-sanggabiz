@@ -189,6 +189,20 @@ export async function buatKerangka(sop: string, namaBerkas: string) {
 /**
  * Tahap 2: isi satu modul, langsung dalam potongan Markdown yang sah.
  *
+ * Jumlah soalnya DIMINTA tiga, tetapi tidak dijamin tiga. Modul yang sama
+ * pernah menghasilkan satu soal pada satu panggilan dan tiga pada panggilan
+ * berikutnya, tanpa pemotongan token -- itu ragam keluaran model, bukan
+ * kesalahan yang bisa ditutup di sini.
+ *
+ * Mempertegas kalimatnya ("WAJIB tepat 3, tidak boleh kurang") sudah dicoba
+ * dan diukur: hasilnya 12 soal, dari 14 pada kalimat yang lebih tenang.
+ * Tidak membantu, jadi tidak disimpan. Mencoba ulang otomatis juga tidak
+ * dilakukan -- biayanya berlipat untuk perbaikan yang tidak pasti.
+ *
+ * Yang dilakukan sebagai gantinya adalah jujur: laporan di layar menyebut
+ * jumlah soal yang benar-benar jadi, dan penyusun menambah sendiri di editor
+ * bila kurang.
+ *
  * Model menulis Markdown, bukan JSON, karena bentuk akhirnya memang Markdown
  * -- menyuruhnya mengisi JSON lalu merakit ulang menambah satu tahap yang
  * bisa salah tanpa menambah jaminan apa pun; `parseCourseMarkdown` tetap
@@ -203,7 +217,7 @@ export async function tulisModul(
 
   const hasil = await tanyaTeks({
     sistem: SISTEM,
-    maxOutputTokens: 3000,
+    maxOutputTokens: 4200,
     prompt: [
       `Kursus: "${kerangka.judul}". Modul: "${modul.judul}" (${modul.tujuan}).`,
       "Tulis isi modul ini dalam Markdown, PERSIS dengan bentuk berikut dan tanpa teks lain:",
@@ -256,7 +270,40 @@ export async function tulisModul(
     return { ok: false, error: `Modul "${modul.judul}" tidak ditulis dalam bentuk yang benar.` }
   }
 
-  return { ok: true, data: acakOpsi(bersih), token: hasil.token }
+  /*
+   * Balasan yang terpotong batas token berhenti di tengah kalimat, dan yang
+   * terpotong hampir selalu soal terakhir -- karena soal ditulis paling
+   * belakang. Soal setengah jadi (pertanyaan tanpa pilihan, atau pilihan
+   * tanpa kunci) akan ditolak `validateQuizzes` saat penyusun menekan
+   * Simpan, jauh dari sini, dengan pesan yang tidak menyebut sebabnya.
+   *
+   * Jadi ekornya dipangkas di sini: lebih baik modul dengan dua soal utuh
+   * daripada tiga soal yang satu di antaranya rusak.
+   */
+  const rapi = hasil.terpotong ? buangSoalTakUtuh(bersih) : bersih
+
+  return { ok: true, data: acakOpsi(rapi), token: hasil.token }
+}
+
+/**
+ * Membuang blok "#### Soal" terakhir bila ia tidak utuh.
+ *
+ * Utuh berarti: ada teks pertanyaan, minimal dua pilihan, dan tepat satu
+ * pilihan bertanda `[x]`. Itu aturan yang sama dengan `validateQuizzes`,
+ * ditegakkan lebih awal supaya penyusun tidak menemukannya saat menyimpan.
+ */
+export function buangSoalTakUtuh(markdown: string): string {
+  const potongan = markdown.split(/^#### Soal\s*$/m)
+  if (potongan.length < 2) return markdown.trimEnd()
+
+  const terakhir = potongan[potongan.length - 1]
+  const pilihan = terakhir.match(/^- \[[x ]\].*$/gim) ?? []
+  const kunci = pilihan.filter((b) => /^- \[x\]/i.test(b)).length
+  const adaPertanyaan = terakhir.split("\n").some((b) => b.trim() && !/^[->#]/.test(b.trim()))
+
+  if (adaPertanyaan && pilihan.length >= 2 && kunci === 1) return markdown.trimEnd()
+
+  return potongan.slice(0, -1).join("#### Soal").trimEnd()
 }
 
 /**

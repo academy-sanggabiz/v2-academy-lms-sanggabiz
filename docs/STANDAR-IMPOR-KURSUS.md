@@ -175,6 +175,29 @@ tanpa membaca soalnya. `acakOpsi()` memperbaikinya setelah model menjawab.
 Jangan menggantinya dengan permintaan "variasikan posisinya" di prompt;
 permintaan seperti itu kadang dipatuhi, dan "kadang" bukan jaminan.
 
+**Jumlah soal per modul tidak dijamin.** Promptnya meminta tiga; yang keluar
+satu sampai tiga, dan modul yang sama bisa berbeda antar panggilan tanpa ada
+yang terpotong. Mempertegas kalimatnya sudah dicoba dan diukur -- hasilnya
+justru turun dari 14 soal menjadi 12 -- jadi tidak disimpan. Jangan mengejar
+jaminan di sini: laporan di layar menyebut jumlah yang benar-benar jadi, dan
+penyusun menambah sendiri di editor bila kurang.
+
+**Balasan yang terpotong batas token tidak lagi lolos diam-diam.**
+`HasilAi.terpotong` membawa `finish_reason`/`finishReason` ke pemanggil;
+sebelumnya hal itu hanya dicatat ke log ketika balasannya kosong, sehingga
+jawaban yang putus di tengah masuk sebagai "ok". `tulisModul` memakainya
+untuk memangkas soal terakhir yang tidak utuh -- lebih baik dua soal utuh
+daripada tiga yang satu di antaranya ditolak `validateQuizzes` jauh kemudian,
+dengan pesan yang tidak menyebut sebabnya.
+
+**Ada contoh dokumen yang bisa diunduh** dari langkah pertama dialognya
+(`/admin/courses/contoh-dokumen`). Fitur yang meminta unggahan tidak bisa
+dicoba oleh orang yang belum punya berkasnya. Contohnya juga acuan mutu
+masukan: bagian bernomor, angka dan ambang yang pasti, nama benda yang khas,
+bagian definisi, pembagian siapa-melakukan-apa, dan daftar larangan. Yang
+tidak bisa ditolong: PDF hasil pindai, prosa tanpa bagian, dan kebijakan
+tanpa langkah.
+
 **Dokumennya privat.** Bucket `sop-documents` (migrasi `20261110040000`)
 tidak punya policy select sama sekali: SOP adalah dokumen internal perusahaan
 pelanggan, bukan aset yang boleh terbaca lewat URL yang bocor. Hanya server
