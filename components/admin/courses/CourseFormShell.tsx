@@ -68,6 +68,8 @@ type ShellProps = {
   isNew?: boolean
   /** Datang dari "Impor dari berkas .md" di daftar kursus. */
   openImport?: boolean
+  /** Editor dicapai lewat "Buat otomatis dengan AI": dialognya langsung dibuka. */
+  openAi?: boolean
 }
 
 export function CourseFormShell(props: ShellProps) {
@@ -90,6 +92,7 @@ function CourseFormShellInner({
   aiAktif,
   isNew = false,
   openImport = false,
+  openAi = false,
 }: ShellProps) {
   const router = useRouter()
   const { t } = useI18n()
@@ -351,6 +354,7 @@ function CourseFormShellInner({
             canImport={learnerCount === 0}
             learnerCount={learnerCount}
             aiAktif={aiAktif}
+            openOnMount={openAi}
             onImported={(patch) => dispatch({ type: "setField", patch })}
           />
           <SaveStatus

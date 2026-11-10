@@ -1,5 +1,6 @@
 "use server"
 
+import mammoth from "mammoth"
 import { extractText, getDocumentProxy } from "unpdf"
 
 import { requireAdmin } from "@/lib/auth/require-admin"
@@ -10,7 +11,7 @@ import { buatKerangka, rakitMarkdown, tulisModul, type KerangkaKursus } from "@/
 import { parseCourseMarkdown, type ParsedCourse } from "@/lib/course-markdown"
 
 /**
- * F1: dari dokumen SOP menjadi draf kursus.
+ * F1: dari dokumen apa pun menjadi draf kursus.
  *
  * Dua langkah terpisah dan sengaja dipisah, bukan satu tombol:
  *
@@ -61,11 +62,37 @@ async function pastikanBolehDiisi(courseId: string): Promise<{ error: string } |
   return {}
 }
 
-/** Teks dari PDF, atau dari berkas teks apa adanya. */
+const JENIS_WORD = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+/**
+ * Teks dari Word atau PDF, atau dari berkas teks apa adanya.
+ *
+ * Word ikut didukung sejak janjinya berubah dari "SOP" menjadi "dokumen apa
+ * pun": itu format pertama yang dicoba orang, dan nama yang luas dengan
+ * format yang sempit adalah janji yang tidak ditepati.
+ *
+ * `.doc` lama (bukan `.docx`) sengaja tidak didukung -- formatnya biner
+ * warisan yang perlu pustaka tersendiri, dan Word sendiri sudah lama
+ * menyimpan sebagai `.docx`.
+ */
 async function ambilTeks(file: File): Promise<{ teks: string } | { error: string }> {
   const buf = new Uint8Array(await file.arrayBuffer())
+  const nama = file.name.toLowerCase()
 
-  if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+  if (file.type === JENIS_WORD || nama.endsWith(".docx")) {
+    try {
+      // extractRawText, bukan convertToHtml: yang dibutuhkan model hanya
+      // kalimatnya. HTML Word penuh markup gaya yang memakan tempat di
+      // prompt tanpa menambah satu pun informasi.
+      const { value } = await mammoth.extractRawText({ buffer: Buffer.from(buf) })
+      return { teks: value }
+    } catch (e) {
+      console.error("gagal membaca Word:", e)
+      return { error: "Berkas Word-nya tidak terbaca. Pastikan formatnya .docx, bukan .doc lama." }
+    }
+  }
+
+  if (file.type === "application/pdf" || nama.endsWith(".pdf")) {
     try {
       const pdf = await getDocumentProxy(buf)
       // `mergePages: true` membuat `text` sebuah string; tipenya tetap

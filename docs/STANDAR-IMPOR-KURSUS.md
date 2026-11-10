@@ -116,11 +116,41 @@ yang ada, minta asisten memperbaikinya, impor lagi.
 Frontmatter memuat `format: sanggabiz-course/v1`. Parser memperingatkan bila
 nilainya berbeda, supaya berkas dari versi lain tidak dibaca salah diam-diam.
 
-## 8. Menyusun kursus dari dokumen SOP
+## 8. Membuat kursus otomatis dari dokumen
 
-Jalur kedua ke draf yang sama: mentor mengunggah SOP, AI menyusunnya menjadi
-kursus. Diputuskan 2026-11-10, dibangun di atas impor Markdown yang sudah ada
-dan **tidak** sebagai mekanisme baru.
+Jalur kedua ke draf yang sama: mentor mengunggah dokumen, AI menyusunnya
+menjadi kursus. Diputuskan 2026-11-10, dibangun di atas impor Markdown yang
+sudah ada dan **tidak** sebagai mekanisme baru.
+
+**Dokumen apa pun, bukan hanya SOP.** Lahir dari kebutuhan mengubah SOP
+perusahaan menjadi pelatihan, tetapi mesinnya tidak pernah tahu dokumennya
+SOP -- ia hanya menerima teks. Ketika janjinya dilebarkan, dua hal ikut
+berubah dan keduanya bukan soal nama: prompt sistemnya berhenti menyebut
+"penyusun kurikulum pelatihan kerja" (andaian itu memaksa buku panduan dan
+peraturan berbunyi seperti pelatihan karyawan), dan Word ikut didukung
+(`mammoth`) karena `.docx` adalah format pertama yang dicoba orang. Nama
+berkas kode dan bucket `sop-documents` sengaja dibiarkan: keduanya pengenal
+internal, dan menggantinya berarti memindahkan objek Storage demi kosmetik.
+
+**Kilau ✨ milik jalur yang benar-benar memanggil AI.** Sampai 2026-11-10
+ikon itu terpasang di impor `.md` -- jalur yang dialognya sendiri berbunyi
+"Sanggabiz tidak memanggil AI" -- sementara jalur yang sungguh memanggil AI
+memakai ikon berkas biasa. Persis terbalik. Sekarang: **"Buat otomatis
+dengan AI" ✨** untuk jalur yang memanggil model, **"Impor dari berkas .md"**
+dengan ikon unggah untuk jalur yang memindahkan hasil AI milik pengguna
+sendiri. Dua-duanya menyebut AI, jadi yang membedakan harus kata kerjanya:
+*otomatis* berarti Sanggabiz yang mengerjakan. Jangan menyamakan keduanya
+lagi.
+
+**Keluarannya membawa peringatan AI**, sama seperti setiap keluaran AI lain
+di aplikasi ini (`discussAiNote`, `assistantAiNote`): "Dibuat AI dan bisa
+keliru. Periksa tiap pelajaran dan soal sebelum menyimpan." Kursus hasil AI
+justru yang paling perlu membawanya.
+
+**Pintu masuknya dua**, mengikuti pola impor `.md`: baris ketiga di dropdown
+"Buat Kursus" (`?ai=1`), dan tombol di editor. Yang pertama yang penting --
+di situlah orang sedang berpikir "saya butuh kursus tentang ini", dan sebelum
+ini fiturnya terkubur dua langkah di dalam editor yang harus dibuat dulu.
 
 **Berakhir di berkas `.md`, bukan di baris basis data.** `lib/ai/sop.ts`
 menghasilkan teks berformat `sanggabiz-course/v1`, lalu

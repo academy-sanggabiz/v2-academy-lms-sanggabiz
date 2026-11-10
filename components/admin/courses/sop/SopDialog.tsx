@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { FileText, Upload } from "lucide-react"
+import { Sparkles, Upload } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -43,18 +43,22 @@ export function SopDialog({
   canImport,
   learnerCount,
   aiAktif,
+  openOnMount = false,
   onImported,
 }: {
   courseId: string
   canImport: boolean
   learnerCount: number
+  /** Dibuka sendiri saat editor dicapai lewat "Buat otomatis dengan AI" di
+   *  daftar kursus. Pola yang sama dengan CourseMarkdownDialog. */
+  openOnMount?: boolean
   /** Diputuskan di server. Tanpa kunci AI tombolnya tidak dirender sama
    *  sekali -- standar v2 melarang kontrol yang pasti gagal. */
   aiAktif: boolean
   onImported: (patch: Diimpor) => void
 }) {
   const { t } = useI18n()
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(openOnMount)
   const [pending, startTransition] = useTransition()
   const [kerangka, setKerangka] = useState<KerangkaKursus | null>(null)
   const [generationId, setGenerationId] = useState<string | null>(null)
@@ -106,8 +110,11 @@ export function SopDialog({
       <DialogTrigger
         render={
           <Button variant="outline" disabled={pending}>
-            <FileText className="size-4" aria-hidden />
-            {t.sop.button}
+            {/* Kilau ✨ milik jalur yang BENAR-BENAR memanggil AI. Impor .md
+                memakai ikon unggah, karena yang dilakukannya memindahkan
+                berkas, bukan memanggil model. */}
+            <Sparkles className="size-4" aria-hidden />
+            {t.editor.createWithAi}
           </Button>
         }
       />
@@ -144,7 +151,7 @@ export function SopDialog({
                 {pending && !kerangka ? t.sop.reading : (namaBerkas ?? t.sop.pickFile)}
                 <input
                   type="file"
-                  accept=".pdf,application/pdf,.md,.txt,text/plain,text/markdown"
+                  accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,application/pdf,.md,.txt,text/plain,text/markdown"
                   className="sr-only"
                   disabled={pending}
                   onChange={(event) => {
@@ -193,6 +200,10 @@ export function SopDialog({
                   {t.sop.writeButton}
                 </Button>
                 <p className="mt-2 text-xs text-muted-foreground">{t.sop.writeNote}</p>
+                {/* Peringatan yang sama dibawa setiap keluaran AI di aplikasi
+                    ini (lihat discussAiNote dan assistantAiNote). Kursus
+                    hasil AI justru yang paling perlu membawanya. */}
+                <p className="mt-1 text-xs text-muted-foreground">{t.sop.aiNote}</p>
               </div>
             )}
 
@@ -213,6 +224,7 @@ export function SopDialog({
                   </ul>
                 )}
                 <p className="mt-2 text-xs text-muted-foreground">{t.sop.reviewNote}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{t.sop.aiNote}</p>
               </div>
             )}
           </div>

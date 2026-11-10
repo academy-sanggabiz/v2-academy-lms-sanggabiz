@@ -64,6 +64,7 @@ export default async function EditCoursePage({
       aiAktif={aiAktif()}
       isNew={raw.new === "1"}
       openImport={raw.impor === "1"}
+      openAi={raw.ai === "1"}
     />
   )
 }

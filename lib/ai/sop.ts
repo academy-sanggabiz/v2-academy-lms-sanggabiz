@@ -4,11 +4,17 @@ import { tanyaJson, tanyaTeks } from "@/lib/ai/client"
 import { COURSE_MARKDOWN_FORMAT } from "@/lib/course-markdown"
 
 /**
- * Dari dokumen SOP menjadi draf kursus (F1).
+ * Dari dokumen apa pun menjadi draf kursus (F1).
+ *
+ * Dinamai `sop` karena lahir dari kebutuhan mengubah SOP perusahaan menjadi
+ * pelatihan, tetapi sejak 2026-11-10 janjinya lebih luas: panduan produk,
+ * peraturan, materi kelas, apa pun yang berisi teks. Nama berkas dan bucket
+ * dibiarkan -- keduanya pengenal internal yang tidak pernah dilihat siapa
+ * pun, dan menggantinya berarti memindahkan objek di Storage demi kosmetik.
  *
  * == Dua tahap, bukan satu ==
  *
- * Satu panggilan "ubah SOP ini jadi kursus lengkap" menghasilkan keluaran
+ * Satu panggilan "ubah dokumen ini jadi kursus lengkap" menghasilkan keluaran
  * panjang yang terpotong di tengah, dan ketika terpotong tidak ada bagian
  * yang bisa diselamatkan. Dua tahap -- kerangka dulu, lalu isi per modul --
  * membuat setiap panggilan pendek, membuat kegagalan terbatas pada satu
@@ -43,12 +49,21 @@ export type KerangkaKursus = {
 /** Batas yang dipilih supaya satu panggilan tetap pendek dan murah. */
 const MAKS_MODUL = 6
 const MAKS_PELAJARAN = 5
-/** Potong SOP yang sangat panjang. Lebih baik kerangka dari 40 ribu huruf
+/** Potong dokumen yang sangat panjang. Lebih baik kerangka dari 40 ribu huruf
  *  pertama daripada panggilan yang ditolak karena kepanjangan. */
 const MAKS_HURUF_SOP = 40_000
 
+/*
+ * Tidak lagi menyebut "pelatihan kerja".
+ *
+ * Selama fiturnya bernama "Susun dari SOP", mengandaikan dokumennya prosedur
+ * kerja itu tepat. Begitu janjinya menjadi "dokumen apa pun", andaian itu
+ * menyempitkan hasil tanpa ketahuan: buku panduan produk, peraturan, atau
+ * materi kelas dipaksa berbunyi seperti pelatihan karyawan. Yang tersisa
+ * adalah aturan yang berlaku untuk dokumen apa pun -- jangan mengarang.
+ */
 const SISTEM =
-  "Anda penyusun kurikulum pelatihan kerja berbahasa Indonesia. " +
+  "Anda penyusun materi belajar berbahasa Indonesia. " +
   "Anda hanya memakai isi dokumen yang diberikan. " +
   "Anda tidak menambahkan prosedur, angka, nama sistem, atau nama orang yang tidak ada di dokumen. " +
   "Bila dokumen tidak menyebut sesuatu, Anda menghilangkannya, bukan mengarangnya."
@@ -147,7 +162,7 @@ export function periksaKerangka(nilai: unknown): KerangkaKursus | null {
   }
 }
 
-/** Tahap 1: kerangka kursus dari teks SOP. */
+/** Tahap 1: kerangka kursus dari teks dokumen. */
 export async function buatKerangka(sop: string, namaBerkas: string) {
   const potongan = sop.slice(0, MAKS_HURUF_SOP)
   return tanyaJson<KerangkaKursus>(
@@ -156,8 +171,8 @@ export async function buatKerangka(sop: string, namaBerkas: string) {
       skema: SKEMA_KERANGKA,
       maxOutputTokens: 2000,
       prompt: [
-        `Dokumen SOP berikut berjudul "${namaBerkas}".`,
-        `Susun kerangka kursus pelatihan dari isinya: maksimal ${MAKS_MODUL} modul,`,
+        `Dokumen berikut berjudul "${namaBerkas}".`,
+        `Susun kerangka kursus dari isinya: maksimal ${MAKS_MODUL} modul,`,
         `maksimal ${MAKS_PELAJARAN} pelajaran per modul.`,
         "Judul pelajaran menyebut hal yang dikerjakan, bukan \"Pengantar\" atau \"Penutup\".",
         "Ruas \"inti\" berisi satu kalimat tentang apa yang harus bisa dilakukan peserta setelah pelajaran itu.",

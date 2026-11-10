@@ -803,6 +803,8 @@ export type Dictionary = {
     blankCourseDesc: string
     importMd: string
     importMdDesc: string
+    createWithAi: string
+    createWithAiDesc: string
     creatingCourse: string
     courseDeleted: string
     deleteCourseAria: string
@@ -1420,9 +1422,9 @@ export type Dictionary = {
     joinedSince: string
   }
   sop: {
-    button: string
     title: string
     desc: string
+    aiNote: string
     step1: string
     step1Desc: string
     pickFile: string
@@ -2297,7 +2299,9 @@ const id: Dictionary = {
     blankCourse: "Kursus kosong",
     blankCourseDesc: "Isi sendiri dari awal",
     importMd: "Impor dari berkas .md",
-    importMdDesc: "Hasil dari asisten AI Anda",
+    importMdDesc: "Hasil dari asisten AI Anda sendiri",
+    createWithAi: "Buat otomatis dengan AI",
+    createWithAiDesc: "Unggah dokumen, AI yang menyusun kursusnya",
     creatingCourse: "Membuat\u2026",
     courseDeleted: "Kursus dihapus",
     deleteCourseAria: "Hapus kursus",
@@ -2322,7 +2326,7 @@ const id: Dictionary = {
     mdPickFile: "Pilih berkas .md",
     mdFileRead: "Berkas terbaca. Periksa hasilnya, lalu simpan.",
     mdImportExport: "Impor / ekspor",
-    mdTitle: "Susun kursus dengan bantuan AI",
+    mdTitle: "Susun kursus dengan AI Anda sendiri",
     mdDesc:
       "Sanggabiz tidak memanggil AI. Anda memakai asisten AI yang sudah Anda punya, lalu mengimpor hasilnya ke sini.",
     mdStep1: "Unduh panduan penulisan",
@@ -2895,12 +2899,12 @@ const id: Dictionary = {
     joinedSince: "Bergabung sejak",
   },
   sop: {
-    button: "Susun dari SOP",
-    title: "Susun kursus dari dokumen SOP",
-    desc: "Unggah SOP, periksa kerangkanya, lalu biarkan AI menulis isinya.",
+    title: "Buat kursus otomatis dari dokumen",
+    desc: "Unggah dokumen apa pun. AI menyusun kerangkanya, Anda memeriksanya, lalu AI menulis isinya.",
+    aiNote: "Dibuat AI dan bisa keliru. Periksa tiap pelajaran dan soal sebelum menyimpan.",
     step1: "1. Unggah dokumen",
-    step1Desc: "Berkas PDF berisi teks, atau berkas .md dan .txt. Maksimal 10 MB.",
-    pickFile: "Pilih berkas SOP",
+    step1Desc: "Word, PDF berisi teks, atau berkas .md dan .txt. Maksimal 10 MB.",
+    pickFile: "Pilih dokumen",
     reading: "Membaca dokumen…",
     privacy:
       "Isi dokumen dikirim ke penyedia AI pihak ketiga untuk diproses. Jangan unggah dokumen rahasia.",
@@ -2914,7 +2918,7 @@ const id: Dictionary = {
     reviewNote:
       "Belum tersimpan. Periksa isinya di tab Pelajaran, perbaiki yang perlu, lalu tekan Simpan.",
     lockedByLearners:
-      "Kursus ini sudah punya {n} peserta, jadi isinya tidak bisa diganti. Buat kursus baru untuk menyusun dari SOP.",
+      "Kursus ini sudah punya {n} peserta, jadi isinya tidak bisa diganti. Buat kursus baru untuk memakai fitur ini.",
   },
   perkembangan: {
     title: "Perkembangan Anda",
@@ -3779,7 +3783,9 @@ const en: Dictionary = {
     blankCourse: "Blank course",
     blankCourseDesc: "Fill it in yourself from scratch",
     importMd: "Import from a .md file",
-    importMdDesc: "Output from your AI assistant",
+    importMdDesc: "Output from your own AI assistant",
+    createWithAi: "Create automatically with AI",
+    createWithAiDesc: "Upload a document and the AI writes the course",
     creatingCourse: "Creating\u2026",
     courseDeleted: "Course deleted",
     deleteCourseAria: "Delete course",
@@ -3804,7 +3810,7 @@ const en: Dictionary = {
     mdPickFile: "Choose a .md file",
     mdFileRead: "File read. Review the result, then save.",
     mdImportExport: "Import / export",
-    mdTitle: "Build the course with AI help",
+    mdTitle: "Build the course with your own AI",
     mdDesc:
       "Sanggabiz does not call any AI. You use the AI assistant you already have, then import the result here.",
     mdStep1: "Download the writing guide",
@@ -4378,12 +4384,12 @@ const en: Dictionary = {
     joinedSince: "Member since",
   },
   sop: {
-    button: "Build from an SOP",
-    title: "Build a course from an SOP document",
-    desc: "Upload the SOP, check the outline, then let the AI write the content.",
+    title: "Create a course automatically from a document",
+    desc: "Upload any document. The AI drafts an outline, you check it, then the AI writes the content.",
+    aiNote: "Written by AI and can be wrong. Check every lesson and question before saving.",
     step1: "1. Upload the document",
-    step1Desc: "A text-based PDF, or an .md or .txt file. Up to 10 MB.",
-    pickFile: "Choose an SOP file",
+    step1Desc: "Word, a text-based PDF, or an .md or .txt file. Up to 10 MB.",
+    pickFile: "Choose a document",
     reading: "Reading the document…",
     privacy:
       "The document is sent to a third-party AI provider for processing. Do not upload confidential documents.",
@@ -4397,7 +4403,7 @@ const en: Dictionary = {
     reviewNote:
       "Nothing is saved yet. Check it on the Lessons tab, fix what needs fixing, then press Save.",
     lockedByLearners:
-      "This course already has {n} learners, so its content cannot be replaced. Create a new course to build from an SOP.",
+      "This course already has {n} learners, so its content cannot be replaced. Create a new course to use this.",
   },
   perkembangan: {
     title: "Your progress",
