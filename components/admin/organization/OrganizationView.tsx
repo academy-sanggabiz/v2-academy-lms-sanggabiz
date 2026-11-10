@@ -8,6 +8,8 @@ import {
   assignJobTitleAction,
   createDepartmentAction,
   createJobTitleAction,
+  deleteDepartmentAction,
+  deleteJobTitleAction,
   removeJobCourseAction,
   setJobCourseAction,
 } from "@/app/admin/organization/actions"
@@ -56,11 +58,11 @@ export function OrganizationView({
   const judulKursus = new Map(courses.map((c) => [c.id, c.title]))
   const jalur = terpilih ? (jobCourses[terpilih] ?? []) : []
 
-  function jalankan(fn: () => Promise<{ ok: boolean; error?: string }>) {
+  function jalankan(fn: () => Promise<{ ok: boolean; error?: string }>, pesan?: string) {
     startTransition(async () => {
       const hasil = await fn()
       if (!hasil.ok) return void toast.error(hasil.error ?? "Gagal")
-      toast.success(t.admin.orgSaved)
+      toast.success(pesan ?? t.admin.orgSaved)
     })
   }
 
@@ -81,8 +83,39 @@ export function OrganizationView({
           <h2 className="mb-3 text-sm font-bold">{t.admin.orgDepartments}</h2>
           <ul className="mb-4 space-y-1.5">
             {departments.map((d) => (
-              <li key={d.id} className="rounded-lg border border-border px-3 py-1.5 text-sm">
-                {d.name}
+              <li
+                key={d.id}
+                className="flex items-center gap-2 rounded-lg border border-border py-1 pr-1 pl-3 text-sm"
+              >
+                <span className="min-w-0 flex-1 truncate">{d.name}</span>
+                {/*
+                  Jumlahnya di samping namanya, bukan hanya di dialog
+                  konfirmasi: akibat yang baru terbaca setelah menekan tombol
+                  bukan pilihan yang pernah benar-benar ditawarkan.
+                */}
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {t.admin.orgJobTitleCount.replace("{n}", String(d.jobTitleCount))}
+                </span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={pending}
+                  aria-label={t.admin.orgDeleteDepartment.replace("{nama}", d.name)}
+                  onClick={() => {
+                    if (
+                      !window.confirm(
+                        t.admin.orgConfirmDeleteDepartment
+                          .replace("{nama}", d.name)
+                          .replace("{n}", String(d.jobTitleCount))
+                      )
+                    )
+                      return
+                    jalankan(() => deleteDepartmentAction(d.id), t.admin.orgDeleted)
+                  }}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="size-4" aria-hidden />
+                </Button>
               </li>
             ))}
             {departments.length === 0 && (
@@ -123,22 +156,46 @@ export function OrganizationView({
           <h2 className="mb-3 text-sm font-bold">{t.admin.orgJobTitles}</h2>
           <ul className="mb-4 space-y-1.5">
             {jobTitles.map((j) => (
-              <li key={j.id}>
+              <li key={j.id} className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => setTerpilih(j.id)}
                   aria-pressed={terpilih === j.id}
                   className={
                     terpilih === j.id
-                      ? "flex min-h-9 w-full items-center justify-between rounded-lg border border-ring bg-secondary px-3 text-sm font-semibold text-primary"
-                      : "flex min-h-9 w-full items-center justify-between rounded-lg border border-border px-3 text-sm hover:bg-muted"
+                      ? "flex min-h-9 flex-1 items-center justify-between gap-2 rounded-lg border border-ring bg-secondary px-3 text-sm font-semibold text-primary"
+                      : "flex min-h-9 flex-1 items-center justify-between gap-2 rounded-lg border border-border px-3 text-sm hover:bg-muted"
                   }
                 >
-                  <span>{j.name}</span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="min-w-0 truncate">{j.name}</span>
+                  <span className="shrink-0 text-xs font-normal text-muted-foreground">
+                    {t.admin.orgPeopleCount.replace("{n}", String(j.peopleCount))} ·{" "}
                     {(jobCourses[j.id] ?? []).length}
                   </span>
                 </button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={pending}
+                  aria-label={t.admin.orgDeleteJobTitle.replace("{nama}", j.name)}
+                  onClick={() => {
+                    if (
+                      !window.confirm(
+                        t.admin.orgConfirmDeleteJobTitle
+                          .replace("{nama}", j.name)
+                          .replace("{n}", String(j.peopleCount))
+                      )
+                    )
+                      return
+                    // Pilihan dilepas lebih dulu: panel ruas di bawah menunjuk
+                    // jabatan yang sebentar lagi tidak ada.
+                    if (terpilih === j.id) setTerpilih(null)
+                    jalankan(() => deleteJobTitleAction(j.id), t.admin.orgDeleted)
+                  }}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="size-4" aria-hidden />
+                </Button>
               </li>
             ))}
             {jobTitles.length === 0 && (

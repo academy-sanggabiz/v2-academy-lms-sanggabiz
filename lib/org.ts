@@ -6,8 +6,21 @@
  * dengan `lib/landing.ts` dan `lib/courses.ts`.
  */
 
-export type Department = { id: string; name: string }
-export type JobTitle = { id: string; name: string; departmentId: string | null }
+export type Department = {
+  id: string
+  name: string
+  /** Berapa jabatan ada di departemen ini. Dipakai layar untuk memberi tahu
+   *  akibat penghapusan SEBELUM tombolnya ditekan. */
+  jobTitleCount: number
+}
+
+export type JobTitle = {
+  id: string
+  name: string
+  departmentId: string | null
+  /** Berapa orang memegang jabatan ini sekarang. */
+  peopleCount: number
+}
 
 /** Wajib atau disarankan. Nilainya sama dengan enum `job_course_requirement`. */
 export type Requirement = "wajib" | "disarankan"

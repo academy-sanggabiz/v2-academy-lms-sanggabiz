@@ -1290,6 +1290,13 @@ export type Dictionary = {
     orgSelectJobTitle: string
     orgSelectCourse: string
     orgEmpty: string
+    orgDeleteDepartment: string
+    orgDeleteJobTitle: string
+    orgConfirmDeleteDepartment: string
+    orgConfirmDeleteJobTitle: string
+    orgDeleted: string
+    orgPeopleCount: string
+    orgJobTitleCount: string
     certificates: string
     settings: string
     profile: string
@@ -2695,6 +2702,13 @@ const id: Dictionary = {
     orgSelectJobTitle: "Pilih jabatan",
     orgSelectCourse: "Pilih kursus",
     orgEmpty: "Belum ada jabatan. Tambahkan satu untuk mulai menyusun jalur kursus.",
+    orgDeleteDepartment: "Hapus departemen {nama}",
+    orgDeleteJobTitle: "Hapus jabatan {nama}",
+    orgConfirmDeleteDepartment: "Hapus departemen \u201c{nama}\u201d? {n} jabatan di dalamnya tidak ikut terhapus, tetapi berpindah ke Tanpa departemen.",
+    orgConfirmDeleteJobTitle: "Hapus jabatan \u201c{nama}\u201d? Jalur kursusnya ikut terhapus, dan {n} orang yang memegangnya kehilangan jabatan.",
+    orgDeleted: "Terhapus.",
+    orgPeopleCount: "{n} orang",
+    orgJobTitleCount: "{n} jabatan",
     certificates: "Sertifikat",
     settings: "Pengaturan",
     profile: "Profil",
@@ -4109,6 +4123,13 @@ const en: Dictionary = {
     orgSelectJobTitle: "Choose a role",
     orgSelectCourse: "Choose a course",
     orgEmpty: "No roles yet. Add one to start building a course path.",
+    orgDeleteDepartment: "Delete the {nama} department",
+    orgDeleteJobTitle: "Delete the {nama} role",
+    orgConfirmDeleteDepartment: "Delete the department \u201c{nama}\u201d? Its {n} roles are not deleted, they move to No department.",
+    orgConfirmDeleteJobTitle: "Delete the role \u201c{nama}\u201d? Its course path goes with it, and {n} people holding it lose their role.",
+    orgDeleted: "Deleted.",
+    orgPeopleCount: "{n} people",
+    orgJobTitleCount: "{n} roles",
     certificates: "Certificates",
     settings: "Settings",
     profile: "Profile",

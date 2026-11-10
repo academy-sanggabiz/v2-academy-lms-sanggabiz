@@ -19,31 +19,38 @@ type BarisJabatan = { id: string; name: string; department_id: string | null }
 
 export async function listDepartments(): Promise<Department[]> {
   const supabase = await createClient()
+  // `job_titles(count)` dalam satu kueri, bukan satu kueri per departemen:
+  // layar penghapusan harus tahu akibatnya SEBELUM tombolnya ditekan, dan
+  // menghitungnya satu per satu membuat daftar sepuluh departemen jadi
+  // sebelas kueri.
   const { data, error } = await supabase
     .from("departments")
-    .select("id, name")
+    .select("id, name, job_titles(count)")
     .order("name")
   if (error) {
     console.error("listDepartments gagal:", error.message)
     return []
   }
-  return (data ?? []) as Department[]
+  return ((data ?? []) as { id: string; name: string; job_titles: { count: number }[] }[]).map(
+    (r) => ({ id: r.id, name: r.name, jobTitleCount: r.job_titles?.[0]?.count ?? 0 })
+  )
 }
 
 export async function listJobTitles(): Promise<JobTitle[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("job_titles")
-    .select("id, name, department_id")
+    .select("id, name, department_id, profiles(count)")
     .order("name")
   if (error) {
     console.error("listJobTitles gagal:", error.message)
     return []
   }
-  return ((data ?? []) as BarisJabatan[]).map((r) => ({
+  return ((data ?? []) as (BarisJabatan & { profiles: { count: number }[] })[]).map((r) => ({
     id: r.id,
     name: r.name,
     departmentId: r.department_id,
+    peopleCount: r.profiles?.[0]?.count ?? 0,
   }))
 }
 
@@ -94,7 +101,7 @@ export async function getMyJobTitle(): Promise<JabatanSaya> {
       job_title_id: string | null
       department_id: string | null
       job_titles: BarisJabatan | null
-      departments: Department | null
+      departments: { id: string; name: string } | null
     }>()
 
   return {
@@ -103,9 +110,12 @@ export async function getMyJobTitle(): Promise<JabatanSaya> {
           id: data.job_titles.id,
           name: data.job_titles.name,
           departmentId: data.job_titles.department_id,
+          // Tidak relevan di sini: ini jabatan SATU orang, bukan daftar untuk
+          // dikelola. Yang memakainya hanya layar pengaturan.
+          peopleCount: 0,
         }
       : null,
-    department: data?.departments ?? null,
+    department: data?.departments ? { ...data.departments, jobTitleCount: 0 } : null,
   }
 }
 
@@ -370,4 +380,38 @@ export async function listAllJobCourses(): Promise<Record<string, JobCourse[]>> 
     })
   }
   return peta
+}
+
+/**
+ * Menghapus departemen.
+ *
+ * Jabatan di dalamnya TIDAK ikut terhapus -- `job_titles.department_id` dan
+ * `profiles.department_id` keduanya `on delete set null`, jadi jabatannya
+ * berpindah ke "Tanpa departemen" dan orangnya kehilangan departemennya.
+ * Itu sebabnya penghapusan ini aman dan tidak perlu ditahan.
+ */
+export async function deleteDepartment(id: string): Promise<{ ok: true } | { error: string }> {
+  const supabase = await createClient()
+  const { error } = await supabase.from("departments").delete().eq("id", id)
+  if (error) return { error: dbErrorMessage(error.message) }
+  return { ok: true }
+}
+
+/**
+ * Menghapus jabatan.
+ *
+ * Lebih berat daripada menghapus departemen, dan pemanggilnya harus tahu:
+ * `job_title_courses` ikut terhapus (`on delete cascade`), jadi seluruh jalur
+ * kursusnya hilang; dan setiap orang yang memegangnya kehilangan jabatan
+ * (`on delete set null`), jadi kartu "Untuk jabatan Anda" di dasbor mereka
+ * berganti kembali ke kartu rekomendasi lama.
+ *
+ * Tidak ditahan di sini -- superadmin memang berhak -- tetapi layarnya
+ * menyebutkan kedua angka itu sebelum tombolnya ditekan.
+ */
+export async function deleteJobTitle(id: string): Promise<{ ok: true } | { error: string }> {
+  const supabase = await createClient()
+  const { error } = await supabase.from("job_titles").delete().eq("id", id)
+  if (error) return { error: dbErrorMessage(error.message) }
+  return { ok: true }
 }

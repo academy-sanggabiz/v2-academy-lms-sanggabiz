@@ -7,6 +7,8 @@ import {
   assignJobTitle,
   createDepartment,
   createJobTitle,
+  deleteDepartment,
+  deleteJobTitle,
   removeJobCourse,
   setJobCourse,
 } from "@/lib/org-server"
@@ -105,6 +107,38 @@ export async function assignJobTitleAction(
   if (galat) return { ok: false, error: galat }
 
   const hasil = await assignJobTitle(learnerId, jobTitleId || null, departmentId || null)
+  if ("error" in hasil) return { ok: false, error: hasil.error }
+  segarkan()
+  return { ok: true, data: undefined }
+}
+
+/**
+ * Menghapus departemen. Jabatan di dalamnya tidak ikut terhapus -- keduanya
+ * `on delete set null` -- jadi tidak ada yang perlu ditahan di sini.
+ */
+export async function deleteDepartmentAction(id: string): Promise<ActionResult<undefined>> {
+  const galat = await penjaga()
+  if (galat) return { ok: false, error: galat }
+
+  const hasil = await deleteDepartment(id)
+  if ("error" in hasil) return { ok: false, error: hasil.error }
+  segarkan()
+  return { ok: true, data: undefined }
+}
+
+/**
+ * Menghapus jabatan.
+ *
+ * Jalur kursusnya ikut terhapus dan pemegangnya kehilangan jabatan. Tidak
+ * ditahan -- superadmin memang berhak memutuskan -- tetapi layarnya menyebut
+ * kedua angka itu sebelum tombolnya ditekan, karena akibat yang baru terlihat
+ * SETELAH menekan bukan pilihan yang pernah benar-benar ditawarkan.
+ */
+export async function deleteJobTitleAction(id: string): Promise<ActionResult<undefined>> {
+  const galat = await penjaga()
+  if (galat) return { ok: false, error: galat }
+
+  const hasil = await deleteJobTitle(id)
   if ("error" in hasil) return { ok: false, error: hasil.error }
   segarkan()
   return { ok: true, data: undefined }
