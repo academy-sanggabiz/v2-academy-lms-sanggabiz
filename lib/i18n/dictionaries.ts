@@ -1419,6 +1419,25 @@ export type Dictionary = {
     saveChanges: string
     joinedSince: string
   }
+  sop: {
+    button: string
+    title: string
+    desc: string
+    step1: string
+    step1Desc: string
+    pickFile: string
+    reading: string
+    privacy: string
+    step2: string
+    outlineCount: string
+    writeButton: string
+    writing: string
+    writeNote: string
+    done: string
+    reportCount: string
+    reviewNote: string
+    lockedByLearners: string
+  }
   perkembangan: {
     title: string
     subtitle: string
@@ -2874,6 +2893,28 @@ const id: Dictionary = {
     saved: "Profil tersimpan.",
     saveChanges: "Simpan Perubahan",
     joinedSince: "Bergabung sejak",
+  },
+  sop: {
+    button: "Susun dari SOP",
+    title: "Susun kursus dari dokumen SOP",
+    desc: "Unggah SOP, periksa kerangkanya, lalu biarkan AI menulis isinya.",
+    step1: "1. Unggah dokumen",
+    step1Desc: "Berkas PDF berisi teks, atau berkas .md dan .txt. Maksimal 10 MB.",
+    pickFile: "Pilih berkas SOP",
+    reading: "Membaca dokumen…",
+    privacy:
+      "Isi dokumen dikirim ke penyedia AI pihak ketiga untuk diproses. Jangan unggah dokumen rahasia.",
+    step2: "2. Periksa kerangkanya",
+    outlineCount: "{modul} modul, {pelajaran} pelajaran.",
+    writeButton: "Tulis isi kursus",
+    writing: "Menulis…",
+    writeNote: "Penulisan memakan waktu sekitar satu menit untuk tiap modul.",
+    done: "Draf kursus sudah masuk ke editor.",
+    reportCount: "{modul} modul, {pelajaran} pelajaran, {soal} soal.",
+    reviewNote:
+      "Belum tersimpan. Periksa isinya di tab Pelajaran, perbaiki yang perlu, lalu tekan Simpan.",
+    lockedByLearners:
+      "Kursus ini sudah punya {n} peserta, jadi isinya tidak bisa diganti. Buat kursus baru untuk menyusun dari SOP.",
   },
   perkembangan: {
     title: "Perkembangan Anda",
@@ -4335,6 +4376,28 @@ const en: Dictionary = {
     saved: "Profile saved.",
     saveChanges: "Save changes",
     joinedSince: "Member since",
+  },
+  sop: {
+    button: "Build from an SOP",
+    title: "Build a course from an SOP document",
+    desc: "Upload the SOP, check the outline, then let the AI write the content.",
+    step1: "1. Upload the document",
+    step1Desc: "A text-based PDF, or an .md or .txt file. Up to 10 MB.",
+    pickFile: "Choose an SOP file",
+    reading: "Reading the document…",
+    privacy:
+      "The document is sent to a third-party AI provider for processing. Do not upload confidential documents.",
+    step2: "2. Check the outline",
+    outlineCount: "{modul} modules, {pelajaran} lessons.",
+    writeButton: "Write the course content",
+    writing: "Writing…",
+    writeNote: "Writing takes about a minute per module.",
+    done: "The course draft is now in the editor.",
+    reportCount: "{modul} modules, {pelajaran} lessons, {soal} questions.",
+    reviewNote:
+      "Nothing is saved yet. Check it on the Lessons tab, fix what needs fixing, then press Save.",
+    lockedByLearners:
+      "This course already has {n} learners, so its content cannot be replaced. Create a new course to build from an SOP.",
   },
   perkembangan: {
     title: "Your progress",

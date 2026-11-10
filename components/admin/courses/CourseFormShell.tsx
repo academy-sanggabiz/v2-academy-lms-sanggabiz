@@ -46,6 +46,7 @@ import { PreviewTab } from "./tabs/PreviewTab"
 import { SettingsTab } from "./tabs/SettingsTab"
 import { describeDraftIssue, describeDraftIssues } from "@/lib/course-draft-issues"
 import { CourseMarkdownDialog } from "@/components/admin/courses/markdown/CourseMarkdownDialog"
+import { SopDialog } from "@/components/admin/courses/sop/SopDialog"
 import type { CertificateDefaults } from "@/lib/certificate-settings"
 import { useI18n } from "@/components/i18n/LocaleProvider"
 
@@ -62,6 +63,8 @@ type ShellProps = {
   prerequisitesPromise: Promise<CoursePrerequisite[]>
   rosterPromise: Promise<Paginated<CourseRosterEntry>>
   learnerCount: number
+  /** Fitur AI menyala di server. Menentukan apakah tombol "Susun dari SOP" ada. */
+  aiAktif: boolean
   isNew?: boolean
   /** Datang dari "Impor dari berkas .md" di daftar kursus. */
   openImport?: boolean
@@ -84,6 +87,7 @@ function CourseFormShellInner({
   prerequisitesPromise,
   rosterPromise,
   learnerCount,
+  aiAktif,
   isNew = false,
   openImport = false,
 }: ShellProps) {
@@ -337,6 +341,16 @@ function CourseFormShellInner({
             canImport={learnerCount === 0}
             openOnMount={openImport}
             learnerCount={learnerCount}
+            onImported={(patch) => dispatch({ type: "setField", patch })}
+          />
+          {/* Jalur kedua ke draf yang sama: dokumen SOP, bukan berkas .md.
+              Keduanya berakhir di parseCourseMarkdown dan di draf editor --
+              tidak ada jalur tulis baru ke basis data. */}
+          <SopDialog
+            courseId={course.id}
+            canImport={learnerCount === 0}
+            learnerCount={learnerCount}
+            aiAktif={aiAktif}
             onImported={(patch) => dispatch({ type: "setField", patch })}
           />
           <SaveStatus

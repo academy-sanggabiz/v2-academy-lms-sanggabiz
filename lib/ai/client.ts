@@ -156,12 +156,27 @@ async function panggilGemini(req: Permintaan, key: string): Promise<Balasan> {
 async function panggilOpenAI(req: Permintaan, key: string): Promise<Balasan> {
   const base = (process.env.AI_BASE_URL || "https://api.deepseek.com").replace(/\/+$/, "")
 
+  /*
+   * Skema diselipkan ke prompt sistem karena mode JSON DeepSeek tidak
+   * menerima skema seperti `responseSchema` milik Gemini.
+   *
+   * Kalimatnya dipilih setelah model benar-benar salah membacanya: dengan
+   * "balas dengan satu objek json yang cocok dengan bentuk berikut", model
+   * pernah mengembalikan SKEMA-nya sendiri, bukan data yang memenuhinya --
+   * dan karena skema juga JSON yang sah, kesalahan itu baru ketahuan di
+   * `periksa`. Sekarang disebut terang-terangan apa yang bukan jawaban.
+   */
   const sistem = req.skema
     ? [
         req.sistem ?? "",
         "",
-        "Balas HANYA dengan satu objek json yang cocok dengan bentuk berikut.",
+        "Balas HANYA dengan satu objek json berisi DATA.",
+        "Di bawah ini JSON Schema yang harus dipenuhi data itu.",
+        "JSON Schema ini BUKAN jawaban: jangan menyalinnya, dan jangan",
+        'mengembalikan objek yang berisi kata "type", "properties", atau "items".',
         "Jangan menambah kolom, jangan membungkusnya dengan teks apa pun.",
+        "",
+        "JSON Schema:",
         JSON.stringify(req.skema),
       ]
         .join("\n")
