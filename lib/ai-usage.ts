@@ -89,6 +89,24 @@ export const BATAS_TOKEN_SOP_HARIAN = 200_000
 /** Fitur yang dihitung terhadap batas di atas. */
 export const FITUR_SOP: readonly string[] = ["sop_kerangka", "sop_revisi", "sop_tulis"]
 
+/**
+ * Batas token per peserta per hari untuk "Bahas jawaban saya".
+ *
+ * Fitur ini pun sebelumnya tanpa pagar. Hasilnya memang disimpan per
+ * percobaan, sehingga membuka ulang halaman hasil tidak memanggil AI lagi --
+ * tetapi kuis biasa boleh diulang tanpa batas (lihat migrasi
+ * 20261101050000_unlimited_quiz_attempts.sql), jadi tiap percobaan baru adalah
+ * pembahasan baru yang sah. Singgahan per percobaan menahan pengulangan, bukan
+ * pemakaian.
+ *
+ * Satu pembahasan sekitar 1.500 token, jadi angka ini kira-kira tiga belas
+ * pembahasan sehari -- jauh di atas pemakaian belajar yang wajar.
+ */
+export const BATAS_TOKEN_PEMBAHASAN_HARIAN = 20_000
+
+/** Fitur yang dihitung terhadap batas pembahasan. */
+export const FITUR_PEMBAHASAN: readonly string[] = ["quiz-feedback"]
+
 export function formatToken(n: number, locale: string): string {
   return new Intl.NumberFormat(locale === "en" ? "en-US" : "id-ID").format(n)
 }

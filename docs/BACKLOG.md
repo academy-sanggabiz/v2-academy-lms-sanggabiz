@@ -7,7 +7,7 @@ alasannya. Diperbarui 1 November 2026.
 
 ## Belum dikerjakan
 
-### Z. Masukan pemilik atas "Buat otomatis dengan AI" — 11 November 2026
+### Z. Masukan pemilik atas "Buat otomatis dengan AI" — ✅ selesai 11 November 2026
 
 Dicatat apa adanya dari pemakaian pertama di `dev`, lalu dikerjakan di hari
 yang sama. Keempatnya cacat pengalaman, bukan cacat hasil -- kursusnya benar,
@@ -31,7 +31,20 @@ dibangun dengan "manusia memeriksa sebelum menyimpan" sebagai pagar, tetapi
 memeriksa tanpa bisa mengubah bukan pemeriksaan -- itu cuma pilihan terima
 atau ulang dari awal.
 
-Jawabannya dicatat di `docs/STANDAR-IMPOR-KURSUS.md` §8.
+Keempatnya dikerjakan di hari yang sama dan dibuktikan di layar. Jawabannya
+dicatat di `docs/STANDAR-IMPOR-KURSUS.md` §8.
+
+Dua hal menyusul dari sana, keduanya tentang biaya yang berjalan tanpa
+pengawasan:
+
+* **`/admin/ai-usage`** (khusus superadmin) akhirnya membaca `ai_usage`, yang
+  sudah mencatat tiap panggilan sejak fitur AI pertama tanpa pernah
+  ditampilkan di mana pun.
+* **Pagar token harian** untuk dua fitur yang sebelumnya tidak punya:
+  "Buat otomatis dengan AI" (200 ribu) dan "Bahas jawaban saya" (20 ribu).
+  Yang kedua tampak aman karena hasilnya disinggahkan per percobaan -- tetapi
+  kuis biasa boleh diulang tanpa batas, jadi singgahan itu menahan
+  pengulangan, bukan pemakaian.
 
 ---
 

@@ -8,6 +8,8 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { aiAktif } from "@/lib/ai/client"
 import { buatPembahasan, type ItemPembahasan, type MasukanSoal } from "@/lib/ai/quiz-feedback"
 import { getTranslations } from "@/lib/i18n/server"
+import { BATAS_TOKEN_PEMBAHASAN_HARIAN, FITUR_PEMBAHASAN } from "@/lib/ai-usage"
+import { tokenHariIni } from "@/lib/ai-usage-server"
 import type { QuizMeasureKind } from "@/lib/courses"
 
 export type SubmitQuizResult = {
@@ -517,6 +519,18 @@ export async function bahasJawabanSaya(attemptId: string): Promise<PembahasanHas
     .eq("attempt_id", attemptId)
     .maybeSingle<{ items: ItemPembahasan[] }>()
   if (tersimpan?.items) return { ok: true, items: tersimpan.items }
+
+  /*
+   * Pagar biaya, diperiksa SETELAH singgahan dan SEBELUM panggilan AI.
+   *
+   * Urutan itu yang penting: membuka ulang halaman hasil lama tidak boleh
+   * tertahan batas harian, karena ia tidak memanggil AI sama sekali. Yang
+   * dibatasi adalah pembahasan BARU.
+   */
+  const terpakai = await tokenHariIni(userId, FITUR_PEMBAHASAN)
+  if (terpakai >= BATAS_TOKEN_PEMBAHASAN_HARIAN) {
+    return { ok: false, error: "Jatah pembahasan AI hari ini sudah habis. Coba lagi besok." }
+  }
 
   const { data: responses } = await admin
     .from("quiz_responses")
