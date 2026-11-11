@@ -1427,6 +1427,39 @@ export type Dictionary = {
     aiNote: string
     step1: string
     step1Desc: string
+    confirmRead: string
+    fileMeta: string
+    changeFile: string
+    estimateRead: string
+    estimateWrite: string
+    progressTitle: string
+    progressModule: string
+    stageDoc: string
+    stageOutline: string
+    stageWriting: string
+    canLeave: string
+    pause: string
+    paused: string
+    editRestarts: string
+    resumeTitle: string
+    resumeDesc: string
+    resumeWork: string
+    discardWork: string
+    editHint: string
+    addModule: string
+    addLesson: string
+    deleteModule: string
+    deleteLesson: string
+    moduleTitle: string
+    lessonTitle: string
+    unsaved: string
+    askAi: string
+    askPlaceholder: string
+    askSend: string
+    askNoChange: string
+    askSending: string
+    versionLabel: string
+    undoVersion: string
     sampleHint: string
     sampleFile: string
     pickFile: string
@@ -2906,6 +2939,40 @@ const id: Dictionary = {
     aiNote: "Dibuat AI dan bisa keliru. Periksa tiap pelajaran dan soal sebelum menyimpan.",
     step1: "1. Unggah dokumen",
     step1Desc: "Word, PDF berisi teks, atau berkas .md dan .txt. Maksimal 10 MB.",
+    confirmRead: "Baca dokumen",
+    fileMeta: "{ukuran} · {jenis}",
+    changeFile: "Ganti",
+    estimateRead: "± 10 detik",
+    estimateWrite: "± 1 menit",
+    progressTitle: "Menulis isi kursus",
+    progressModule: "Modul {n} dari {total} — {judul}",
+    stageDoc: "Dokumen terbaca",
+    stageOutline: "Kerangka dibuat — {n} modul",
+    stageWriting: "Menulis isi tiap modul",
+    canLeave: "Boleh ditutup. Kalau terputus, bisa dilanjutkan dari modul terakhir.",
+    pause: "Jeda",
+    paused: "Dijeda di modul {n} dari {total}.",
+    editRestarts: "Mengubah kerangka membuat penulisan diulang dari modul 1.",
+    resumeTitle: "Ada pekerjaan yang belum selesai",
+    resumeDesc: "{berkas} — berhenti di modul {n} dari {total}.",
+    resumeWork: "Lanjutkan",
+    discardWork: "Buang",
+    editHint: "Ubah judulnya, hapus yang tidak perlu, atau tambah sendiri.",
+    addModule: "Tambah modul",
+    addLesson: "Tambah pelajaran",
+    deleteModule: "Hapus modul {n}",
+    deleteLesson: "Hapus pelajaran {n}",
+    moduleTitle: "Judul modul {n}",
+    lessonTitle: "Judul pelajaran {n}",
+    unsaved: "Perubahan belum disimpan",
+    askAi: "Minta AI mengubah kerangkanya",
+    askPlaceholder: "Gabungkan modul 5 dan 6",
+    askSend: "Kirim permintaan",
+    askNoChange:
+      "AI tidak mengubah apa pun. Kalau Anda meminta menambah topik, dokumennya mungkin tidak membahasnya.",
+    askSending: "Mengubah…",
+    versionLabel: "Versi {n}",
+    undoVersion: "Kembali ke versi sebelumnya",
     sampleHint: "Belum punya dokumennya? Coba contoh ini dulu.",
     sampleFile: "Unduh contoh SOP",
     pickFile: "Pilih dokumen",
@@ -4393,6 +4460,40 @@ const en: Dictionary = {
     aiNote: "Written by AI and can be wrong. Check every lesson and question before saving.",
     step1: "1. Upload the document",
     step1Desc: "Word, a text-based PDF, or an .md or .txt file. Up to 10 MB.",
+    confirmRead: "Read the document",
+    fileMeta: "{ukuran} · {jenis}",
+    changeFile: "Change",
+    estimateRead: "about 10 seconds",
+    estimateWrite: "about a minute",
+    progressTitle: "Writing the course content",
+    progressModule: "Module {n} of {total} — {judul}",
+    stageDoc: "Document read",
+    stageOutline: "Outline drafted — {n} modules",
+    stageWriting: "Writing each module",
+    canLeave: "You can close this. If it stops, it resumes from the last module.",
+    pause: "Pause",
+    paused: "Paused at module {n} of {total}.",
+    editRestarts: "Changing the outline restarts the writing from module 1.",
+    resumeTitle: "There is unfinished work",
+    resumeDesc: "{berkas} — stopped at module {n} of {total}.",
+    resumeWork: "Resume",
+    discardWork: "Discard",
+    editHint: "Rename, delete what you do not need, or add your own.",
+    addModule: "Add module",
+    addLesson: "Add lesson",
+    deleteModule: "Delete module {n}",
+    deleteLesson: "Delete lesson {n}",
+    moduleTitle: "Module {n} title",
+    lessonTitle: "Lesson {n} title",
+    unsaved: "Changes not saved yet",
+    askAi: "Ask the AI to change the outline",
+    askPlaceholder: "Merge modules 5 and 6",
+    askSend: "Send request",
+    askNoChange:
+      "The AI did not change anything. If you asked to add a topic, the document may not cover it.",
+    askSending: "Changing…",
+    versionLabel: "Version {n}",
+    undoVersion: "Back to the previous version",
     sampleHint: "No document yet? Try this example first.",
     sampleFile: "Download a sample SOP",
     pickFile: "Choose a document",

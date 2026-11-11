@@ -162,6 +162,58 @@ export function periksaKerangka(nilai: unknown): KerangkaKursus | null {
   }
 }
 
+/**
+ * Mengubah kerangka yang sudah ada atas permintaan penyusun.
+ *
+ * Inilah pintu masuk ide manusia. Sebelum ini kerangka hanya bisa diterima
+ * atau dibuang, dan "periksa dulu sebelum menyimpan" kehilangan artinya --
+ * memeriksa tanpa bisa mengubah bukan pemeriksaan, itu cuma pilihan terima
+ * atau ulang dari awal.
+ *
+ * Dokumen aslinya tetap diikutkan, bukan hanya kerangkanya: permintaan
+ * seperti "tambah modul tentang keselamatan kerja" hanya boleh dipenuhi
+ * kalau bahannya memang ada di dokumen. Tanpa dokumen, model akan mengarang
+ * modul yang isinya nanti tidak bisa ditulis.
+ */
+export async function revisiKerangka(sop: string, kerangka: KerangkaKursus, permintaan: string) {
+  return tanyaJson<KerangkaKursus>(
+    {
+      sistem: SISTEM,
+      skema: SKEMA_KERANGKA,
+      maxOutputTokens: 2000,
+      prompt: [
+        "Berikut kerangka kursus yang sudah ada, dalam json:",
+        JSON.stringify(kerangka),
+        "",
+        `Penyusun meminta perubahan ini: "${permintaan}"`,
+        "",
+        "Kembalikan kerangka LENGKAP yang sudah diubah, dalam format json yang sama.",
+        "Bagian yang tidak diminta berubah harus tetap sama persis, termasuk judulnya.",
+        `Tetap maksimal ${MAKS_MODUL} modul dan ${MAKS_PELAJARAN} pelajaran per modul.`,
+        /*
+         * Dua jenis permintaan yang harus dibedakan, dan sebelumnya tidak.
+         *
+         * Versi pertama cuma berkata "bila tidak bisa dipenuhi dari dokumen,
+         * kembalikan apa adanya". Diukur: "hapus modul terakhir" dipatuhi,
+         * tetapi "gabungkan dua modul terakhir" tidak -- model memperlakukan
+         * penataan ulang seolah ia memerlukan bahan baru. Padahal menggabung,
+         * memecah, mengurutkan ulang, dan mengganti judul hanya menyusun
+         * ulang isi yang sudah ada; yang benar-benar perlu bahan baru hanya
+         * penambahan topik.
+         */
+        "Menggabungkan, memecah, mengurutkan ulang, mengganti judul, dan menghapus",
+        "SELALU bisa dilakukan -- semuanya hanya menata ulang isi yang sudah ada.",
+        "Hanya penambahan TOPIK BARU yang memerlukan bahannya ada di dokumen.",
+        "Bila topik yang diminta tidak ada di dokumen, kembalikan kerangka apa adanya.",
+        "",
+        "--- DOKUMEN ---",
+        sop.slice(0, MAKS_HURUF_SOP),
+      ].join("\n"),
+    },
+    periksaKerangka
+  )
+}
+
 /** Tahap 1: kerangka kursus dari teks dokumen. */
 export async function buatKerangka(sop: string, namaBerkas: string) {
   const potongan = sop.slice(0, MAKS_HURUF_SOP)

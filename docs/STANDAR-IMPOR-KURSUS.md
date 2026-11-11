@@ -161,6 +161,45 @@ peserta ditolak, dan isinya tetap disanitasi. Jangan membuat jalur tulis
 langsung dari model ke tabel kursus — satu-satunya alasan fitur ini aman
 adalah karena ia melewati pintu yang sama.
 
+**Memilih berkas tidak menjalankan apa pun.** Berkasnya ditampilkan dulu --
+nama dan ukuran -- lalu ditekan "Baca dokumen". Versi pertama menembak server
+dari `onChange`, sehingga berkas salah pilih baru ketahuan setelah AI dibayar.
+
+**Penulisan berjalan satu modul tiap panggilan**, dan kemajuannya disimpan di
+`ai_course_generations` (migrasi `20261111010000`). Satu perubahan ini
+menyelesaikan tiga hal: persennya nyata (modul selesai / modul total, bukan
+pengatur waktu yang mengarang kemajuan), layarnya boleh ditutup, dan pekerjaan
+yang terputus dilanjutkan dari modul terakhir alih-alih diulang dari nol --
+yang terakhir bukan kemewahan, karena fungsi tanpa server punya batas waktu.
+Gelungnya dikendalikan klien; "sedang menulis" HARUS dibaca dari gelung itu,
+bukan dari `tahap` di basis data, karena baris itu masih bertahap "menulis"
+beberapa detik setelah orangnya menekan Jeda.
+
+**Kerangkanya bisa disunting, dan bisa diminta diubah.** Dua jalan masuk untuk
+ide manusia: ubah/hapus/tambah modul dan pelajaran langsung, atau satu kalimat
+permintaan ke AI dengan jalan kembali ke versi sebelumnya. Ini bukan tambahan
+kenyamanan -- "manusia memeriksa dulu" tidak berarti apa-apa kalau yang bisa
+dilakukan hanya menerima atau mengulang dari nol.
+
+Dua hal yang diukur, bukan ditebak, saat membangunnya:
+
+* Permintaan **penataan ulang** (gabung, pecah, urutkan, ganti judul, hapus)
+  sempat diabaikan model karena promptnya menyamakannya dengan penambahan
+  topik: "hapus modul terakhir" dipatuhi, "gabungkan dua modul terakhir"
+  tidak. Keduanya sekarang dibedakan terang-terangan -- penataan ulang selalu
+  boleh, penambahan topik perlu bahannya ada di dokumen.
+* **Diam bukan jawaban.** Permintaan menambah topik yang memang tidak ada di
+  dokumen ditolak, dan itu benar; yang salah adalah menampilkan "versi 2"
+  beserta tombol kembali padahal tidak ada yang berubah. `mintaRevisiKerangka`
+  membandingkan hasilnya dan mengembalikan `berubah: false`, yang dikatakan
+  apa adanya di layar.
+
+**Menyunting kerangka membuang modul yang sudah ditulis** (`simpanKerangka`
+mengosongkan `bagian` dan `modul_selesai`). Urutan modul berubah berarti
+bagian yang tersimpan tidak lagi cocok dengan tempatnya, dan satu modul berisi
+materi modul lain lebih buruk daripada menulis ulang. Layar mengatakannya
+sebelum terjadi.
+
 **Dua langkah yang terlihat, bukan satu tombol.** Langkah pertama hanya
 membuat kerangka: daftar modul dan judul pelajaran. Mentor membacanya sebelum
 satu kalimat materi pun ditulis, dan berhenti di situ kalau dokumennya

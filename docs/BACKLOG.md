@@ -7,6 +7,34 @@ alasannya. Diperbarui 1 November 2026.
 
 ## Belum dikerjakan
 
+### Z. Masukan pemilik atas "Buat otomatis dengan AI" — 11 November 2026
+
+Dicatat apa adanya dari pemakaian pertama di `dev`, lalu dikerjakan di hari
+yang sama. Keempatnya cacat pengalaman, bukan cacat hasil -- kursusnya benar,
+cara mendapatkannya yang salah.
+
+1. **"ketika upload langsung berhasil, gak ada klarifikasi atau memastikan
+   dulu tombol submit"** -- memilih berkas langsung menembak server. Berkas
+   yang salah pilih baru ketahuan setelah AI dibayar.
+2. **"gak ada prosesnya, harusnya kelihatan berapa persen, upload berhasil
+   dll, agar user bisa menunggu dengan hal lain"** -- satu label "Menulis..."
+   selama satu menit tidak memberi tahu apa pun. Orang tidak tahu boleh
+   ditinggal atau tidak.
+3. **"mungkin ada fitur ditinggal atau semacamnya, nanti bisa balik lagi ke
+   sana"** -- menutup dialog berarti kehilangan pekerjaan yang sedang jalan.
+4. **"gak bisa diedit, aku gak bisa ngobrol ke AI untuk rubah bagian tertentu,
+   jadi gak bisa masukin ide manusia"** -- kerangkanya hanya bisa diterima
+   atau dibuang. Padahal di situlah penyusun paling tahu materinya.
+
+Yang keempat yang paling penting, dan paling mudah dilewatkan: fitur ini
+dibangun dengan "manusia memeriksa sebelum menyimpan" sebagai pagar, tetapi
+memeriksa tanpa bisa mengubah bukan pemeriksaan -- itu cuma pilihan terima
+atau ulang dari awal.
+
+Jawabannya dicatat di `docs/STANDAR-IMPOR-KURSUS.md` §8.
+
+---
+
 ### A. Sertifikat kustom, tata letak, dan pratinjau — ✅ selesai dan terbukti
 
 Lihat `docs/STANDAR-SERTIFIKAT.md`. Pengaturan utama perusahaan ada di
