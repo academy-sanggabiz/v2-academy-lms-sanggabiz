@@ -16,6 +16,8 @@ import {
   type KerangkaKursus,
 } from "@/lib/ai/sop"
 import { parseCourseMarkdown, type ParsedCourse } from "@/lib/course-markdown"
+import { BATAS_TOKEN_SOP_HARIAN, FITUR_SOP, formatToken } from "@/lib/ai-usage"
+import { tokenHariIni } from "@/lib/ai-usage-server"
 
 /**
  * F1: dari dokumen apa pun menjadi draf kursus.
@@ -48,6 +50,35 @@ export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string
 const MAKS_BERKAS = 10 * 1024 * 1024
 const MIN_HURUF = 200
 const MAKS_PERMINTAAN = 500
+
+/**
+ * Pagar biaya harian.
+ *
+ * Fitur ini sebelumnya sama sekali tanpa batas, dan justru ia yang paling
+ * mahal: satu kursus menghabiskan sekitar 28 ribu token, jauh di atas satu
+ * pertanyaan ke asisten pelajaran. Seseorang bisa menekan tombolnya berulang
+ * kali tanpa ada yang menghentikan.
+ *
+ * Dihitung dengan TOKEN, bukan jumlah panggilan. Batas harian asisten
+ * pelajaran menghitung pertanyaan, sehingga satu pertanyaan pendek dan satu
+ * pertanyaan yang membakar dua ribu token dihitung sama -- kekeliruan yang
+ * tidak diulang di sini.
+ *
+ * Diperiksa SEBELUM tiap panggilan AI, bukan sekali di awal: penulisan satu
+ * kursus adalah tujuh panggilan terpisah, dan memeriksa sekali di awal
+ * berarti batasnya bisa dilewati sejauh satu kursus penuh.
+ */
+async function pagarToken(adminId: string): Promise<{ error?: string }> {
+  const terpakai = await tokenHariIni(adminId, FITUR_SOP)
+  if (terpakai >= BATAS_TOKEN_SOP_HARIAN) {
+    return {
+      error:
+        `Jatah AI hari ini sudah habis (${formatToken(terpakai, "id")} token). ` +
+        "Coba lagi besok, atau minta pengelola menaikkan batasnya.",
+    }
+  }
+  return {}
+}
 
 /** Keadaan satu pekerjaan, sebagaimana dilihat layar. */
 export type Pekerjaan = {
@@ -236,6 +267,9 @@ export async function buatKerangkaDariSop(
   const izin = await pastikanBolehDiisi(courseId)
   if (izin.error) return { ok: false, error: izin.error }
 
+  const pagar = await pagarToken(adminId)
+  if (pagar.error) return { ok: false, error: pagar.error }
+
   const file = formData.get("berkas")
   if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Pilih dokumennya dulu." }
   if (file.size > MAKS_BERKAS) {
@@ -374,6 +408,9 @@ export async function mintaRevisiKerangka(
   const sop = ((buka.baris.context as { sop?: string } | null)?.sop ?? "").trim()
   if (!sop) return { ok: false, error: "Teks dokumennya tidak tersimpan. Unggah ulang dokumennya." }
 
+  const pagar = await pagarToken(buka.adminId)
+  if (pagar.error) return { ok: false, error: pagar.error }
+
   const baru = await revisiKerangka(sop, kerangka, pinta)
   if (!baru.ok) return { ok: false, error: baru.error }
 
@@ -426,6 +463,13 @@ export async function tulisModulBerikutnya(
 
   if (indeks >= kerangka.modul.length) {
     return selesaikan(buka.admin, generationId, kerangka, bagian)
+  }
+
+  const pagar = await pagarToken(buka.adminId)
+  if (pagar.error) {
+    // Pekerjaannya TIDAK ditandai gagal: modul yang sudah jadi tetap
+    // tersimpan, dan besok ia bisa dilanjutkan dari tempat berhenti.
+    return { ok: false, error: pagar.error }
   }
 
   const hasil = await tulisModul(sop, kerangka, kerangka.modul[indeks])

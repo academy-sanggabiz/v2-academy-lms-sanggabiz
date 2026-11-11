@@ -256,6 +256,27 @@ Yang tidak bisa ditolong fitur ini: PDF hasil pindai (tidak ada teksnya sama
 sekali), prosa mengalir tanpa bagian, dan pernyataan kebijakan tanpa langkah
 yang bisa dikerjakan.
 
+**Pemakaian AI dicatat dan dibatasi.** Tiap panggilan menulis satu baris ke
+`ai_usage` (siapa, fitur apa, berapa token), dan `/admin/ai-usage` --
+khusus superadmin -- membacanya per orang dan per fitur. Fitur ini juga punya
+pagar harian `BATAS_TOKEN_SOP_HARIAN` (200 ribu token, kira-kira tujuh
+kursus), diperiksa SEBELUM tiap panggilan AI, bukan sekali di awal: menulis
+satu kursus adalah tujuh panggilan terpisah, jadi memeriksa sekali di awal
+berarti batasnya bisa dilewati sejauh satu kursus penuh.
+
+Pagarnya menghitung TOKEN, bukan jumlah panggilan. Batas harian asisten
+pelajaran menghitung pertanyaan, dan karena itu satu pertanyaan pendek dan
+satu pertanyaan yang membakar dua ribu token dihitung sama -- kekeliruan yang
+tidak diulang di sini. Bila pembacaan pemakaian gagal, pagarnya MENUTUP, bukan
+membuka: lebih baik satu orang tertahan sehari daripada batas biaya hilang
+diam-diam setiap kali basis data tersendat.
+
+**Keterangan kursus ikut dibuat, dan ikut bisa disunting.** Judul, deskripsi,
+tingkat, persyaratan, dan "untuk siapa" selalu dihasilkan AI dan selalu masuk
+ke editor. Sampai 11 November 2026 layar periksa kerangka tidak menampilkannya
+sama sekali, jadi penyusun baru melihatnya setelah seluruh kursus ditulis, di
+tab lain, tanpa pernah diberi kesempatan memperbaikinya lebih dulu.
+
 **Dokumennya privat.** Bucket `sop-documents` (migrasi `20261110040000`)
 tidak punya policy select sama sekali: SOP adalah dokumen internal perusahaan
 pelanggan, bukan aset yang boleh terbaca lewat URL yang bocor. Hanya server

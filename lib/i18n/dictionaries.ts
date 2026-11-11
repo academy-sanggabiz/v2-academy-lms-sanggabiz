@@ -1446,6 +1446,13 @@ export type Dictionary = {
     resumeWork: string
     discardWork: string
     editHint: string
+    courseFields: string
+    courseTitleLabel: string
+    courseDescLabel: string
+    courseLevelLabel: string
+    courseReqLabel: string
+    courseAudienceLabel: string
+    perLineHint: string
     addModule: string
     addLesson: string
     deleteModule: string
@@ -1474,6 +1481,25 @@ export type Dictionary = {
     reportCount: string
     reviewNote: string
     lockedByLearners: string
+  }
+  aiUsage: {
+    title: string
+    subtitle: string
+    totalCalls: string
+    totalTokens: string
+    totalCost: string
+    noPrice: string
+    perPerson: string
+    perFeature: string
+    empty: string
+    colPerson: string
+    colCalls: string
+    colTokens: string
+    colCost: string
+    colLast: string
+    featureLine: string
+    featureNames: Record<string, string>
+    privacyNote: string
   }
   perkembangan: {
     title: string
@@ -2958,6 +2984,13 @@ const id: Dictionary = {
     resumeWork: "Lanjutkan",
     discardWork: "Buang",
     editHint: "Ubah judulnya, hapus yang tidak perlu, atau tambah sendiri.",
+    courseFields: "Keterangan kursus",
+    courseTitleLabel: "Judul kursus",
+    courseDescLabel: "Deskripsi",
+    courseLevelLabel: "Tingkat",
+    courseReqLabel: "Persyaratan",
+    courseAudienceLabel: "Untuk siapa",
+    perLineHint: "Satu per baris.",
     addModule: "Tambah modul",
     addLesson: "Tambah pelajaran",
     deleteModule: "Hapus modul {n}",
@@ -2990,6 +3023,33 @@ const id: Dictionary = {
       "Belum tersimpan. Periksa isinya di tab Pelajaran, perbaiki yang perlu, lalu tekan Simpan.",
     lockedByLearners:
       "Kursus ini sudah punya {n} peserta, jadi isinya tidak bisa diganti. Buat kursus baru untuk memakai fitur ini.",
+  },
+  aiUsage: {
+    title: "Pemakaian AI",
+    subtitle: "Siapa memakai fitur AI dan seberapa banyak, {hari} hari terakhir.",
+    totalCalls: "Panggilan",
+    totalTokens: "Token",
+    totalCost: "Perkiraan biaya",
+    noPrice:
+      "Biaya belum bisa dihitung. Setel AI_HARGA_PER_JUTA_TOKEN dengan harga rupiah per satu juta token.",
+    perPerson: "Per orang",
+    perFeature: "Per fitur",
+    empty: "Belum ada pemakaian pada rentang ini.",
+    colPerson: "Orang",
+    colCalls: "Panggilan",
+    colTokens: "Token",
+    colCost: "Biaya",
+    colLast: "Terakhir",
+    featureLine: "{panggilan} panggilan · {token} token",
+    featureNames: {
+      "lesson-assistant": "Asisten pelajaran",
+      "quiz-feedback": "Bahas jawaban kuis",
+      sop_kerangka: "Membaca dokumen",
+      sop_revisi: "Mengubah kerangka",
+      sop_tulis: "Menulis isi kursus",
+    },
+    privacyNote:
+      "Layar ini hanya memuat hitungan. Isi pertanyaan dan jawaban tidak disimpan.",
   },
   perkembangan: {
     title: "Perkembangan Anda",
@@ -4479,6 +4539,13 @@ const en: Dictionary = {
     resumeWork: "Resume",
     discardWork: "Discard",
     editHint: "Rename, delete what you do not need, or add your own.",
+    courseFields: "Course details",
+    courseTitleLabel: "Course title",
+    courseDescLabel: "Description",
+    courseLevelLabel: "Level",
+    courseReqLabel: "Requirements",
+    courseAudienceLabel: "Who it is for",
+    perLineHint: "One per line.",
     addModule: "Add module",
     addLesson: "Add lesson",
     deleteModule: "Delete module {n}",
@@ -4511,6 +4578,32 @@ const en: Dictionary = {
       "Nothing is saved yet. Check it on the Lessons tab, fix what needs fixing, then press Save.",
     lockedByLearners:
       "This course already has {n} learners, so its content cannot be replaced. Create a new course to use this.",
+  },
+  aiUsage: {
+    title: "AI usage",
+    subtitle: "Who used the AI features and how much, over the last {hari} days.",
+    totalCalls: "Calls",
+    totalTokens: "Tokens",
+    totalCost: "Estimated cost",
+    noPrice:
+      "Cost cannot be worked out yet. Set AI_HARGA_PER_JUTA_TOKEN to the rupiah price per million tokens.",
+    perPerson: "By person",
+    perFeature: "By feature",
+    empty: "No usage in this period yet.",
+    colPerson: "Person",
+    colCalls: "Calls",
+    colTokens: "Tokens",
+    colCost: "Cost",
+    colLast: "Last used",
+    featureLine: "{panggilan} calls · {token} tokens",
+    featureNames: {
+      "lesson-assistant": "Lesson assistant",
+      "quiz-feedback": "Discuss quiz answers",
+      sop_kerangka: "Reading the document",
+      sop_revisi: "Changing the outline",
+      sop_tulis: "Writing the course",
+    },
+    privacyNote: "This screen holds counts only. Question and answer text is not stored.",
   },
   perkembangan: {
     title: "Your progress",

@@ -14,6 +14,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { StatusMessage } from "@/components/ui/status-message"
 import { cn } from "@/lib/utils"
@@ -528,6 +536,90 @@ export function SopDialog({
                   </span>
                 </div>
                 <p className="mt-1 text-sm text-muted-foreground">{t.sop.editHint}</p>
+
+                {/*
+                  Keterangan kursus -- judul, deskripsi, tingkat, persyaratan,
+                  untuk siapa -- SELALU dibuat AI dan selalu ikut masuk ke
+                  editor. Sampai 11 November 2026 layar ini tidak
+                  menampilkannya sama sekali, jadi penyusun baru melihatnya
+                  setelah seluruh kursus ditulis, di tab lain, tanpa pernah
+                  diberi kesempatan memperbaikinya lebih dulu. Dibuat kecil
+                  dan di atas: ia keterangan, bukan isi.
+                */}
+                <section className="mt-3 space-y-2.5 rounded-lg border border-border p-3">
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase">
+                    {t.sop.courseFields}
+                  </h4>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="sop-judul">{t.sop.courseTitleLabel}</Label>
+                    <Input
+                      id="sop-judul"
+                      className="h-8"
+                      value={kerangka.judul}
+                      onChange={(e) => ubahKerangka((k) => ({ ...k, judul: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="sop-deskripsi">{t.sop.courseDescLabel}</Label>
+                    <Textarea
+                      id="sop-deskripsi"
+                      rows={3}
+                      value={kerangka.deskripsi}
+                      onChange={(e) => ubahKerangka((k) => ({ ...k, deskripsi: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="sop-tingkat">{t.sop.courseLevelLabel}</Label>
+                    <Select
+                      value={kerangka.tingkat}
+                      onValueChange={(v) =>
+                        ubahKerangka((k) => ({ ...k, tingkat: v as KerangkaKursus["tingkat"] }))
+                      }
+                    >
+                      <SelectTrigger id="sop-tingkat" className="h-8 w-44">
+                        {/* Label ditulis sendiri: <SelectValue/> kosong
+                            menampilkan nilai mentah sampai daftarnya pernah
+                            dibuka sekali. Sama dengan QuizEditor. */}
+                        <SelectValue>{kerangka.tingkat}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Pemula">{t.editor.levelBeginner}</SelectItem>
+                        <SelectItem value="Menengah">{t.editor.levelIntermediate}</SelectItem>
+                        <SelectItem value="Lanjutan">{t.editor.levelAdvanced}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="sop-syarat">{t.sop.courseReqLabel}</Label>
+                    <Textarea
+                      id="sop-syarat"
+                      rows={2}
+                      placeholder={t.sop.perLineHint}
+                      value={kerangka.persyaratan.join("\n")}
+                      onChange={(e) =>
+                        ubahKerangka((k) => ({
+                          ...k,
+                          persyaratan: e.target.value.split("\n").map((x) => x.trim()).filter(Boolean),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="sop-untuk">{t.sop.courseAudienceLabel}</Label>
+                    <Textarea
+                      id="sop-untuk"
+                      rows={2}
+                      placeholder={t.sop.perLineHint}
+                      value={kerangka.untukSiapa.join("\n")}
+                      onChange={(e) =>
+                        ubahKerangka((k) => ({
+                          ...k,
+                          untukSiapa: e.target.value.split("\n").map((x) => x.trim()).filter(Boolean),
+                        }))
+                      }
+                    />
+                  </div>
+                </section>
 
                 <div className="mt-2.5 space-y-2.5">
                   {kerangka.modul.map((m, i) => (
