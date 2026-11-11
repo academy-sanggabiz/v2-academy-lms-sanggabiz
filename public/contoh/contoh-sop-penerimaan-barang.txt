@@ -1,43 +1,4 @@
-/**
- * Contoh dokumen untuk mencoba "Buat otomatis dengan AI".
- *
- * == Kenapa ini ada ==
- *
- * Fitur yang meminta unggahan tidak bisa dicoba oleh orang yang belum punya
- * berkasnya. Tanpa contoh, mentor pertama kali membuka dialognya, sadar ia
- * harus mencari dokumen dulu, lalu menutupnya -- dan sering tidak kembali.
- * Pola yang sama dipakai impor Markdown, yang menawarkan panduannya untuk
- * diunduh di langkah pertama.
- *
- * == Kenapa dokumen INI ==
- *
- * Ia sekaligus acuan "seberapa bagus dokumennya harus". Tiap ciri di bawah
- * dipilih karena menentukan mutu kursus yang keluar, dan semuanya ada di
- * contoh ini:
- *
- *   1. Bagian bernomor dengan judul -- jadi batas modul yang jelas. Tanpa
- *      ini model menebak sendiri di mana satu topik berakhir.
- *   2. Angka dan ambang yang pasti (Rp 2.000.000, 2 x 24 jam, 5%) -- inilah
- *      yang membuat soal kuis punya jawaban benar tunggal. Dokumen tanpa
- *      angka menghasilkan soal yang jawabannya bisa diperdebatkan.
- *   3. Nama benda yang khas (Formulir TB-02, Berita Acara Selisih) -- model
- *      memakainya apa adanya, jadi istilah di kursus sama dengan istilah di
- *      lapangan.
- *   4. Bagian definisi -- hampir selalu jadi modul pertama yang baik.
- *   5. Siapa melakukan apa (petugas, kepala gudang, manajer) -- batas
- *      kewenangan adalah materi yang paling sering ditanyakan peserta.
- *   6. Larangan dan perkecualian -- bahan soal terkuat, karena di situlah
- *      orang paling sering keliru.
- *
- * Yang membuat dokumen BURUK, dan tidak bisa ditolong fitur ini: PDF hasil
- * pindai (tidak ada teksnya sama sekali), prosa mengalir tanpa bagian, dan
- * pernyataan kebijakan tanpa langkah yang bisa dikerjakan.
- *
- * Perusahaannya rekaan. Aturan yang sama dengan blok bukti sosial di halaman
- * depan (docs/STANDAR-HALAMAN-DEPAN.md): jangan menyebut perusahaan nyata di
- * contoh yang akan dibaca orang banyak.
- */
-export const CONTOH_SOP_MARKDOWN = `STANDAR OPERASIONAL PROSEDUR
+STANDAR OPERASIONAL PROSEDUR
 PENERIMAAN BARANG MASUK DI GUDANG
 PT Sarana Contoh Nusantara — Dokumen internal, revisi 4
 
@@ -133,4 +94,3 @@ catatan persediaan, dan tidak berlaku untuk perlengkapan kantor.
 10.3 Petugas dilarang memasukkan barang karantina ke sistem persediaan.
 10.4 Petugas dilarang mengubah angka di Formulir TB-02 yang sudah
      ditandatangani; koreksi dibuat pada formulir baru.
-`

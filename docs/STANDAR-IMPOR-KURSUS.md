@@ -190,13 +190,32 @@ untuk memangkas soal terakhir yang tidak utuh -- lebih baik dua soal utuh
 daripada tiga yang satu di antaranya ditolak `validateQuizzes` jauh kemudian,
 dengan pesan yang tidak menyebut sebabnya.
 
-**Ada contoh dokumen yang bisa diunduh** dari langkah pertama dialognya
-(`/admin/courses/contoh-dokumen`). Fitur yang meminta unggahan tidak bisa
-dicoba oleh orang yang belum punya berkasnya. Contohnya juga acuan mutu
-masukan: bagian bernomor, angka dan ambang yang pasti, nama benda yang khas,
-bagian definisi, pembagian siapa-melakukan-apa, dan daftar larangan. Yang
-tidak bisa ditolong: PDF hasil pindai, prosa tanpa bagian, dan kebijakan
-tanpa langkah.
+**Ada contoh dokumen yang bisa diunduh** dari langkah pertama dialognya:
+`public/contoh/contoh-sop-penerimaan-barang.txt`. Fitur yang meminta
+unggahan tidak bisa dicoba oleh orang yang belum punya berkasnya.
+
+Letaknya di `public/`, bukan di balik rute admin seperti panduan Markdown,
+dan itu keputusan sadar. Isinya perusahaan rekaan sehingga tidak ada yang
+perlu ditutup; sebagai berkas sungguhan ia bisa dibaca dan disunting
+langsung di GitHub; dan ia tidak perlu `fs` saat berjalan -- jalur Cloudflare
+(`npm run deploy`) tidak punya sistem berkas sama sekali, jadi rute yang
+membaca berkas akan hidup di Vercel dan mati di sana.
+
+**Contohnya juga acuan mutu masukan.** Tiap ciri di bawah ada di dalamnya
+karena menentukan mutu kursus yang keluar:
+
+| Ciri dokumen | Akibatnya |
+|---|---|
+| Bagian bernomor berjudul | Batas modul jelas; model tidak menebak di mana satu topik berakhir |
+| Angka dan ambang pasti | Soal punya jawaban benar tunggal. Tanpa angka, jawabannya bisa diperdebatkan |
+| Nama benda khas (Formulir TB-02) | Istilah di kursus sama dengan istilah di lapangan |
+| Bagian definisi | Hampir selalu jadi modul pertama yang baik |
+| Siapa melakukan apa | Batas kewenangan, materi yang paling sering ditanyakan |
+| Larangan dan perkecualian | Bahan soal terkuat; di situlah orang paling sering keliru |
+
+Yang tidak bisa ditolong fitur ini: PDF hasil pindai (tidak ada teksnya sama
+sekali), prosa mengalir tanpa bagian, dan pernyataan kebijakan tanpa langkah
+yang bisa dikerjakan.
 
 **Dokumennya privat.** Bucket `sop-documents` (migrasi `20261110040000`)
 tidak punya policy select sama sekali: SOP adalah dokumen internal perusahaan

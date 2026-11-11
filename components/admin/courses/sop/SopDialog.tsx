@@ -163,13 +163,20 @@ export function SopDialog({
               </label>
               {/* Tombol unduh contoh, pola yang sama dengan dialog impor
                   Markdown: fitur yang meminta unggahan tidak bisa dicoba
-                  oleh orang yang belum punya berkasnya. */}
+                  oleh orang yang belum punya berkasnya.
+
+                  Berkasnya di public/, bukan di balik rute admin seperti
+                  panduan Markdown. Dua alasan: isinya perusahaan rekaan
+                  sehingga tidak ada yang perlu ditutup, dan sebagai berkas
+                  sungguhan ia bisa dibaca serta disunting langsung di
+                  GitHub -- sementara membacanya dari dalam kode berarti
+                  menyunting TypeScript untuk mengubah satu kalimat SOP. */}
               <p className="mt-2.5 text-xs text-muted-foreground">{t.sop.sampleHint}</p>
               <Button
                 variant="ghost"
                 size="sm"
                 className="mt-1 px-0"
-                render={<a href="/admin/courses/contoh-dokumen" download />}
+                render={<a href="/contoh/contoh-sop-penerimaan-barang.txt" download />}
                 nativeButton={false}
               >
                 <Download className="size-4" aria-hidden />
