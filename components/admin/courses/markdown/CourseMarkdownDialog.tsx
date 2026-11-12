@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { Download, FileText, Upload, Sparkles } from "lucide-react"
+import { Download, FileText, FileUp, Upload } from "lucide-react"
 import { toast } from "sonner"
 
 import { importCourseMarkdownAction } from "@/app/admin/courses/actions"
@@ -93,7 +93,10 @@ export function CourseMarkdownDialog({
       <DialogTrigger
         render={
           <Button variant="outline" disabled={pending}>
-            <Sparkles className="size-4" aria-hidden />
+            {/* Bukan ✨: jalur ini TIDAK memanggil AI. Yang dilakukannya
+                memindahkan berkas yang sudah dibuat asisten AI pengguna
+                sendiri. Kilau itu milik "Buat otomatis dengan AI". */}
+            <FileUp className="size-4" aria-hidden />
             {t.editor.mdImportExport}
           </Button>
         }

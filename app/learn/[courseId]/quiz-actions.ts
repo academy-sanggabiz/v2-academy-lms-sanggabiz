@@ -8,6 +8,9 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { aiAktif } from "@/lib/ai/client"
 import { buatPembahasan, type ItemPembahasan, type MasukanSoal } from "@/lib/ai/quiz-feedback"
 import { getTranslations } from "@/lib/i18n/server"
+import { BATAS_TOKEN_PEMBAHASAN_HARIAN, FITUR_PEMBAHASAN } from "@/lib/ai-usage"
+import { tokenHariIni } from "@/lib/ai-usage-server"
+import type { QuizMeasureKind } from "@/lib/courses"
 
 export type SubmitQuizResult = {
   pending: boolean
@@ -37,7 +40,7 @@ export async function startQuiz(
 
   const { data: quiz, error: quizError } = await supabase
     .from("quizzes")
-    .select("lesson_id")
+    .select("lesson_id, measure_kind")
     .eq("id", quizId)
     .single()
 
@@ -84,6 +87,34 @@ export async function startQuiz(
   const attemptsUsed = existing?.[0]?.attempt_number ?? 0
   const attemptNumber = attemptsUsed + 1
 
+  /*
+   * Pretest yang dibuka SETELAH orangnya mulai belajar ditandai di sini.
+   *
+   * Nilainya tetap miliknya dan tetap ditampilkan; yang ditolak hanyalah
+   * memakainya dalam statistik kenaikan, karena "sebelum" dan "sesudah" sudah
+   * tercampur. Ditandai saat percobaan DIBUAT, bukan dihitung belakangan:
+   * jumlah pelajaran selesai terus bertambah, jadi pertanyaan yang sama akan
+   * dijawab berbeda setiap kali ditanya nanti.
+   *
+   * Pagar ini di kode, bukan di basis data. Seseorang yang menyisipkan
+   * barisnya sendiri lewat REST bisa menulis `false` di sini. Konsekuensinya
+   * terbatas dan disengaja: kolom ini tidak menyentuh nilai, kelulusan,
+   * maupun sertifikat siapa pun -- paling jauh ia mengotori satu pasangan
+   * angka pada layar Perkembangan. Memindahkannya ke basis data berarti
+   * menyentuh trigger yang menjaga SETIAP percobaan kuis semua orang, dan itu
+   * ditunda sampai satu perubahan tersendiri dengan garis dasar sebagai
+   * pembanding (scripts/garis-dasar.mjs).
+   */
+  let sudahMulaiBelajar = false
+  if (quiz.measure_kind === "pretest") {
+    const { count } = await supabase
+      .from("lesson_progress")
+      .select("lesson_id", { count: "exact", head: true })
+      .eq("enrollment_id", enrollment.id)
+      .eq("completed", true)
+    sudahMulaiBelajar = (count ?? 0) > 0
+  }
+
   const { data: attempt, error: insertError } = await supabase
     .from("quiz_attempts")
     .insert({
@@ -91,6 +122,7 @@ export async function startQuiz(
       learner_id: userId,
       attempt_number: attemptNumber,
       started_at: new Date().toISOString(),
+      after_learning_started: sudahMulaiBelajar,
     })
     // question_ids diisi trigger draw_attempt_questions di basis data, bukan
     // di sini: percobaan dibuat oleh sesi peserta, jadi daftar soal yang
@@ -258,8 +290,26 @@ export async function submitQuiz(
 
   // Explanations become readable (RLS) only now that this attempt is
   // submitted -- see supabase/migrations/20261028000000_question_explanations.sql.
-  const { data: attemptRow } = await supabase.from("quiz_attempts").select("quiz_id").eq("id", attemptId).single()
-  if (attemptRow) {
+  const { data: attemptRow } = await supabase
+    .from("quiz_attempts")
+    .select("quiz_id, quiz:quizzes(lesson_id, measure_kind)")
+    .eq("id", attemptId)
+    .single()
+
+  const kuis = attemptRow ? (Array.isArray(attemptRow.quiz) ? attemptRow.quiz[0] : attemptRow.quiz) : null
+  const jenisUkur = (kuis?.measure_kind ?? null) as QuizMeasureKind | null
+
+  /*
+   * Pretest tidak memberi pembahasan, dan itu bukan penghematan panggilan AI.
+   * Pretest diukur ulang oleh posttest atas soal yang sama; kalau kunci
+   * jawabannya ditunjukkan sekarang, yang diukur posttest bukan lagi
+   * "berapa banyak yang dipelajari" melainkan "berapa banyak yang diingat
+   * dari halaman hasil". Posttest tetap diberi pembahasan -- setelah itu
+   * tidak ada lagi yang diukur.
+   */
+  const bolehBahas = jenisUkur !== "pretest"
+
+  if (attemptRow && bolehBahas) {
     const { data: explanationRows, error: explanationError } = await supabase
       .from("question_explanations")
       .select("question_id, explanation, question:questions!inner(quiz_id)")
@@ -283,7 +333,11 @@ export async function submitQuiz(
       .filter(([, benar]) => benar === false)
       .map(([id]) => id)
 
-    if (masihSalah.length > 0) {
+    // Tidak berlaku untuk kuis ukur: "salah tiga kali pada soal ini" adalah
+    // pola belajar, dan kuis ukur hanya dikerjakan sekali. Menyarankan
+    // mengulang materi setelah posttest juga keliru arah -- materinya sudah
+    // selesai.
+    if (masihSalah.length > 0 && jenisUkur === null) {
       const { data: salahRows, error: salahError } = await supabase
         .from("quiz_responses")
         .select("question_id, attempt:quiz_attempts!inner(quiz_id)")
@@ -316,15 +370,17 @@ export async function submitQuiz(
     }
   }
 
-  if (result.passed) {
-    const { data: attempt } = await supabase
-      .from("quiz_attempts")
-      .select("quiz:quizzes(lesson_id)")
-      .eq("id", attemptId)
-      .single()
-
-    const quiz = attempt ? (Array.isArray(attempt.quiz) ? attempt.quiz[0] : attempt.quiz) : null
-    const lessonId = quiz?.lesson_id
+  /*
+   * Kuis ukur dianggap TUNTAS begitu dikirim, bukan begitu lulus, jadi
+   * pengirimannya menandai pelajarannya selesai. Tanpa ini, kursus berurutan
+   * akan berhenti selamanya di pretest -- pretest yang dijawab salah semua
+   * adalah hasil yang sah, bukan kegagalan.
+   *
+   * Penulisan pakai upsert yang sama dengan toggleLessonComplete, dan hanya
+   * MENANDAI selesai, tidak pernah mencabutnya.
+   */
+  if (result.passed || jenisUkur !== null) {
+    const lessonId = kuis?.lesson_id
 
     if (lessonId) {
       const { data: lesson } = await supabase
@@ -345,10 +401,37 @@ export async function submitQuiz(
           .maybeSingle()
 
         if (enrollment) {
+          if (jenisUkur !== null) {
+            const { error: progresError } = await supabase.from("lesson_progress").upsert(
+              {
+                enrollment_id: enrollment.id,
+                lesson_id: lessonId,
+                completed: true,
+                completed_at: new Date().toISOString(),
+              },
+              { onConflict: "enrollment_id,lesson_id" }
+            )
+            if (progresError) console.error("submitQuiz measure progress upsert failed:", progresError.message)
+          }
+
           await checkAndIssueCertificate(supabase, { enrollmentId: enrollment.id, courseId, learnerId: userId })
         }
       }
     }
+  }
+
+  /*
+   * Pretest: jawaban per soal tidak diberikan ke peramban sama sekali.
+   *
+   * Skor dan jumlah benar tetap ada -- itu hasil yang jadi haknya. Yang
+   * ditahan adalah soal MANA yang salah, karena posttest menanyakan soal yang
+   * sama. Dikosongkan di server, bukan sekadar tidak dirender: komponen yang
+   * "tidak menampilkan" tetap menerima datanya, dan membacanya cukup dengan
+   * membuka alat pengembang peramban.
+   */
+  if (jenisUkur === "pretest") {
+    result.perQuestion = {}
+    result.explanations = {}
   }
 
   revalidatePath("/learn/[courseId]", "page")
@@ -391,6 +474,11 @@ export type PembahasanHasil =
  * 3. **Hasilnya disimpan per percobaan.** Membuka ulang halaman hasil
  *    mengambil baris yang sama, jadi tidak ada pemanggilan AI kedua untuk
  *    percobaan yang sama -- itu juga yang membuat batas harian berarti.
+ * 4. **Pretest ditolak.** Alasannya sama dengan pembahasan penulis di
+ *    submitQuiz: posttest mengukur soal yang sama, jadi membahas jawaban
+ *    pretest sekarang membuat angka kenaikannya mengukur ingatan atas
+ *    pembahasan, bukan hasil belajar. Ditegakkan di sini, bukan dengan
+ *    menyembunyikan tombolnya.
  */
 export async function bahasJawabanSaya(attemptId: string): Promise<PembahasanHasil> {
   const supabase = await createClient()
@@ -401,15 +489,25 @@ export async function bahasJawabanSaya(attemptId: string): Promise<PembahasanHas
 
   const { data: attempt } = await supabase
     .from("quiz_attempts")
-    .select("id, learner_id, status")
+    .select("id, learner_id, status, quiz:quizzes(measure_kind)")
     .eq("id", attemptId)
-    .maybeSingle<{ id: string; learner_id: string; status: string }>()
+    .maybeSingle<{
+      id: string
+      learner_id: string
+      status: string
+      quiz: { measure_kind: QuizMeasureKind | null } | { measure_kind: QuizMeasureKind | null }[] | null
+    }>()
 
   if (!attempt || attempt.learner_id !== userId) {
     return { ok: false, error: "Percobaan tidak ditemukan." }
   }
   if (attempt.status === "in_progress") {
     return { ok: false, error: "Kuis ini belum dikirim." }
+  }
+
+  const kuisPercobaan = Array.isArray(attempt.quiz) ? attempt.quiz[0] : attempt.quiz
+  if (kuisPercobaan?.measure_kind === "pretest") {
+    return { ok: false, error: "Pretest tidak dibahas. Pembahasannya tersedia setelah posttest." }
   }
 
   const admin = createAdminClient()
@@ -421,6 +519,18 @@ export async function bahasJawabanSaya(attemptId: string): Promise<PembahasanHas
     .eq("attempt_id", attemptId)
     .maybeSingle<{ items: ItemPembahasan[] }>()
   if (tersimpan?.items) return { ok: true, items: tersimpan.items }
+
+  /*
+   * Pagar biaya, diperiksa SETELAH singgahan dan SEBELUM panggilan AI.
+   *
+   * Urutan itu yang penting: membuka ulang halaman hasil lama tidak boleh
+   * tertahan batas harian, karena ia tidak memanggil AI sama sekali. Yang
+   * dibatasi adalah pembahasan BARU.
+   */
+  const terpakai = await tokenHariIni(userId, FITUR_PEMBAHASAN)
+  if (terpakai >= BATAS_TOKEN_PEMBAHASAN_HARIAN) {
+    return { ok: false, error: "Jatah pembahasan AI hari ini sudah habis. Coba lagi besok." }
+  }
 
   const { data: responses } = await admin
     .from("quiz_responses")

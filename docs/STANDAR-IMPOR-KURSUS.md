@@ -115,3 +115,199 @@ yang ada, minta asisten memperbaikinya, impor lagi.
 
 Frontmatter memuat `format: sanggabiz-course/v1`. Parser memperingatkan bila
 nilainya berbeda, supaya berkas dari versi lain tidak dibaca salah diam-diam.
+
+## 8. Membuat kursus otomatis dari dokumen
+
+Jalur kedua ke draf yang sama: mentor mengunggah dokumen, AI menyusunnya
+menjadi kursus. Diputuskan 2026-11-10, dibangun di atas impor Markdown yang
+sudah ada dan **tidak** sebagai mekanisme baru.
+
+**Dokumen apa pun, bukan hanya SOP.** Lahir dari kebutuhan mengubah SOP
+perusahaan menjadi pelatihan, tetapi mesinnya tidak pernah tahu dokumennya
+SOP -- ia hanya menerima teks. Ketika janjinya dilebarkan, dua hal ikut
+berubah dan keduanya bukan soal nama: prompt sistemnya berhenti menyebut
+"penyusun kurikulum pelatihan kerja" (andaian itu memaksa buku panduan dan
+peraturan berbunyi seperti pelatihan karyawan), dan Word ikut didukung
+(`mammoth`) karena `.docx` adalah format pertama yang dicoba orang. Nama
+berkas kode dan bucket `sop-documents` sengaja dibiarkan: keduanya pengenal
+internal, dan menggantinya berarti memindahkan objek Storage demi kosmetik.
+
+**Kilau ✨ milik jalur yang benar-benar memanggil AI.** Sampai 2026-11-10
+ikon itu terpasang di impor `.md` -- jalur yang dialognya sendiri berbunyi
+"Sanggabiz tidak memanggil AI" -- sementara jalur yang sungguh memanggil AI
+memakai ikon berkas biasa. Persis terbalik. Sekarang: **"Buat otomatis
+dengan AI" ✨** untuk jalur yang memanggil model, **"Impor dari berkas .md"**
+dengan ikon unggah untuk jalur yang memindahkan hasil AI milik pengguna
+sendiri. Dua-duanya menyebut AI, jadi yang membedakan harus kata kerjanya:
+*otomatis* berarti Sanggabiz yang mengerjakan. Jangan menyamakan keduanya
+lagi.
+
+**Keluarannya membawa peringatan AI**, sama seperti setiap keluaran AI lain
+di aplikasi ini (`discussAiNote`, `assistantAiNote`): "Dibuat AI dan bisa
+keliru. Periksa tiap pelajaran dan soal sebelum menyimpan." Kursus hasil AI
+justru yang paling perlu membawanya.
+
+**Pintu masuknya dua**, mengikuti pola impor `.md`: baris ketiga di dropdown
+"Buat Kursus" (`?ai=1`), dan tombol di editor. Yang pertama yang penting --
+di situlah orang sedang berpikir "saya butuh kursus tentang ini", dan sebelum
+ini fiturnya terkubur dua langkah di dalam editor yang harus dibuat dulu.
+
+**Berakhir di berkas `.md`, bukan di baris basis data.** `lib/ai/sop.ts`
+menghasilkan teks berformat `sanggabiz-course/v1`, lalu
+`parseCourseMarkdown()` membacanya seperti berkas yang diketik manusia. Itu
+berarti seluruh pagar §5 berlaku apa adanya tanpa ditulis ulang: hasilnya
+masuk ke draf dan tidak pernah tersimpan sendiri, kursus yang sudah punya
+peserta ditolak, dan isinya tetap disanitasi. Jangan membuat jalur tulis
+langsung dari model ke tabel kursus — satu-satunya alasan fitur ini aman
+adalah karena ia melewati pintu yang sama.
+
+**Memilih berkas tidak menjalankan apa pun.** Berkasnya ditampilkan dulu --
+nama dan ukuran -- lalu ditekan "Baca dokumen". Versi pertama menembak server
+dari `onChange`, sehingga berkas salah pilih baru ketahuan setelah AI dibayar.
+
+**Penulisan berjalan satu modul tiap panggilan**, dan kemajuannya disimpan di
+`ai_course_generations` (migrasi `20261111010000`). Satu perubahan ini
+menyelesaikan tiga hal: persennya nyata (modul selesai / modul total, bukan
+pengatur waktu yang mengarang kemajuan), layarnya boleh ditutup, dan pekerjaan
+yang terputus dilanjutkan dari modul terakhir alih-alih diulang dari nol --
+yang terakhir bukan kemewahan, karena fungsi tanpa server punya batas waktu.
+Gelungnya dikendalikan klien; "sedang menulis" HARUS dibaca dari gelung itu,
+bukan dari `tahap` di basis data, karena baris itu masih bertahap "menulis"
+beberapa detik setelah orangnya menekan Jeda.
+
+**Kerangkanya bisa disunting, dan bisa diminta diubah.** Dua jalan masuk untuk
+ide manusia: ubah/hapus/tambah modul dan pelajaran langsung, atau satu kalimat
+permintaan ke AI dengan jalan kembali ke versi sebelumnya. Ini bukan tambahan
+kenyamanan -- "manusia memeriksa dulu" tidak berarti apa-apa kalau yang bisa
+dilakukan hanya menerima atau mengulang dari nol.
+
+Dua hal yang diukur, bukan ditebak, saat membangunnya:
+
+* Permintaan **penataan ulang** (gabung, pecah, urutkan, ganti judul, hapus)
+  sempat diabaikan model karena promptnya menyamakannya dengan penambahan
+  topik: "hapus modul terakhir" dipatuhi, "gabungkan dua modul terakhir"
+  tidak. Keduanya sekarang dibedakan terang-terangan -- penataan ulang selalu
+  boleh, penambahan topik perlu bahannya ada di dokumen.
+* **Diam bukan jawaban.** Permintaan menambah topik yang memang tidak ada di
+  dokumen ditolak, dan itu benar; yang salah adalah menampilkan "versi 2"
+  beserta tombol kembali padahal tidak ada yang berubah. `mintaRevisiKerangka`
+  membandingkan hasilnya dan mengembalikan `berubah: false`, yang dikatakan
+  apa adanya di layar.
+
+**Menyunting kerangka membuang modul yang sudah ditulis** (`simpanKerangka`
+mengosongkan `bagian` dan `modul_selesai`). Urutan modul berubah berarti
+bagian yang tersimpan tidak lagi cocok dengan tempatnya, dan satu modul berisi
+materi modul lain lebih buruk daripada menulis ulang. Layar mengatakannya
+sebelum terjadi.
+
+**Dua langkah yang terlihat, bukan satu tombol.** Langkah pertama hanya
+membuat kerangka: daftar modul dan judul pelajaran. Mentor membacanya sebelum
+satu kalimat materi pun ditulis, dan berhenti di situ kalau dokumennya
+ternyata salah. Langkah kedua menulis isi per modul. Satu panggilan "ubah SOP
+ini jadi kursus lengkap" menghasilkan keluaran panjang yang terpotong di
+tengah, dan ketika terpotong tidak ada bagian yang bisa diselamatkan.
+
+**Urutan pilihan jawaban diacak di server.** Contoh bentuk di prompt menulis
+kunci pada baris pertama, dan model menyalin posisinya: pada percobaan pertama
+fitur ini, 18 dari 18 soal berkunci pilihan pertama — kuis yang bisa dilewati
+tanpa membaca soalnya. `acakOpsi()` memperbaikinya setelah model menjawab.
+Jangan menggantinya dengan permintaan "variasikan posisinya" di prompt;
+permintaan seperti itu kadang dipatuhi, dan "kadang" bukan jaminan.
+
+**Jumlah soal per modul tidak dijamin.** Promptnya meminta tiga; yang keluar
+satu sampai tiga, dan modul yang sama bisa berbeda antar panggilan tanpa ada
+yang terpotong. Mempertegas kalimatnya sudah dicoba dan diukur -- hasilnya
+justru turun dari 14 soal menjadi 12 -- jadi tidak disimpan. Jangan mengejar
+jaminan di sini: laporan di layar menyebut jumlah yang benar-benar jadi, dan
+penyusun menambah sendiri di editor bila kurang.
+
+**Balasan yang terpotong batas token tidak lagi lolos diam-diam.**
+`HasilAi.terpotong` membawa `finish_reason`/`finishReason` ke pemanggil;
+sebelumnya hal itu hanya dicatat ke log ketika balasannya kosong, sehingga
+jawaban yang putus di tengah masuk sebagai "ok". `tulisModul` memakainya
+untuk memangkas soal terakhir yang tidak utuh -- lebih baik dua soal utuh
+daripada tiga yang satu di antaranya ditolak `validateQuizzes` jauh kemudian,
+dengan pesan yang tidak menyebut sebabnya.
+
+**Ada contoh dokumen yang bisa diunduh** dari langkah pertama dialognya:
+`public/contoh/contoh-sop-penerimaan-barang.txt`. Fitur yang meminta
+unggahan tidak bisa dicoba oleh orang yang belum punya berkasnya.
+
+Letaknya di `public/`, bukan di balik rute admin seperti panduan Markdown,
+dan itu keputusan sadar. Isinya perusahaan rekaan sehingga tidak ada yang
+perlu ditutup; sebagai berkas sungguhan ia bisa dibaca dan disunting
+langsung di GitHub; dan ia tidak perlu `fs` saat berjalan -- jalur Cloudflare
+(`npm run deploy`) tidak punya sistem berkas sama sekali, jadi rute yang
+membaca berkas akan hidup di Vercel dan mati di sana.
+
+**Contohnya juga acuan mutu masukan.** Tiap ciri di bawah ada di dalamnya
+karena menentukan mutu kursus yang keluar:
+
+| Ciri dokumen | Akibatnya |
+|---|---|
+| Bagian bernomor berjudul | Batas modul jelas; model tidak menebak di mana satu topik berakhir |
+| Angka dan ambang pasti | Soal punya jawaban benar tunggal. Tanpa angka, jawabannya bisa diperdebatkan |
+| Nama benda khas (Formulir TB-02) | Istilah di kursus sama dengan istilah di lapangan |
+| Bagian definisi | Hampir selalu jadi modul pertama yang baik |
+| Siapa melakukan apa | Batas kewenangan, materi yang paling sering ditanyakan |
+| Larangan dan perkecualian | Bahan soal terkuat; di situlah orang paling sering keliru |
+
+Yang tidak bisa ditolong fitur ini: PDF hasil pindai (tidak ada teksnya sama
+sekali), prosa mengalir tanpa bagian, dan pernyataan kebijakan tanpa langkah
+yang bisa dikerjakan.
+
+**Pemakaian AI dicatat dan dibatasi.** Tiap panggilan menulis satu baris ke
+`ai_usage` (siapa, fitur apa, berapa token), dan `/admin/ai-usage` --
+khusus superadmin -- membacanya per orang dan per fitur. Fitur ini juga punya
+pagar harian `BATAS_TOKEN_SOP_HARIAN` (200 ribu token, kira-kira sepuluh
+kursus), diperiksa SEBELUM tiap panggilan AI, bukan sekali di awal: menulis
+satu kursus adalah tujuh panggilan terpisah, jadi memeriksa sekali di awal
+berarti batasnya bisa dilewati sejauh satu kursus penuh.
+
+Pagarnya menghitung TOKEN, bukan jumlah panggilan. Batas harian asisten
+pelajaran menghitung pertanyaan, dan karena itu satu pertanyaan pendek dan
+satu pertanyaan yang membakar dua ribu token dihitung sama -- kekeliruan yang
+tidak diulang di sini. Bila pembacaan pemakaian gagal, pagarnya MENUTUP, bukan
+membuka: lebih baik satu orang tertahan sehari daripada batas biaya hilang
+diam-diam setiap kali basis data tersendat.
+
+**Biayanya diukur, bukan dikira.** Dokumen contoh 4.211 huruf, DeepSeek,
+12 November 2026:
+
+| Bagian | Token | Catatan |
+|---|---|---|
+| Membaca dokumen + kerangka | 3.573 | sekali per kursus |
+| Menulis satu modul | 2.547 | rata-rata dari enam (2.316–2.770) |
+| **Satu kursus enam modul** | **18.855** | 30 pelajaran, 14 soal, 33 detik |
+| Mengubah kerangka | 5.224 | per permintaan, hanya bila dipakai |
+| Membahas dua jawaban salah | 723 | fitur peserta |
+| Satu pertanyaan ke asisten | ±930 | fitur peserta |
+
+Angka pertama yang tertulis di sini adalah "±28 ribu per kursus" -- hasil
+membagi total satu sesi uji coba tanpa memperhatikan bahwa sesi itu memuat
+dua kerangka dan satu revisi, jadi lebih dari satu kursus. Jangan mengutip
+total pemakaian sebagai biaya satuan; ukur satu putaran utuh.
+
+**Keterangan kursus ikut dibuat, dan ikut bisa disunting.** Judul, deskripsi,
+tingkat, persyaratan, dan "untuk siapa" selalu dihasilkan AI dan selalu masuk
+ke editor. Sampai 11 November 2026 layar periksa kerangka tidak menampilkannya
+sama sekali, jadi penyusun baru melihatnya setelah seluruh kursus ditulis, di
+tab lain, tanpa pernah diberi kesempatan memperbaikinya lebih dulu.
+
+**Dokumennya privat.** Bucket `sop-documents` (migrasi `20261110040000`)
+tidak punya policy select sama sekali: SOP adalah dokumen internal perusahaan
+pelanggan, bukan aset yang boleh terbaca lewat URL yang bocor. Hanya server
+action dengan service role yang membacanya. Teks hasil ekstraksi disimpan di
+`ai_course_generations.context` supaya langkah kedua tidak perlu mengunggah
+ulang — dan karena itu, menghapus baris generasi berarti menghapus salinan
+teksnya juga.
+
+**Isi dokumen dikirim ke penyedia AI pihak ketiga.** Dialognya mengatakan itu
+di layar, sebelum tombol unggah, bukan di halaman kebijakan yang tidak dibuka
+siapa pun.
+
+**Pembaca PDF memerlukan Node 22 atau lebih baru** (`unpdf` memuat PDF.js yang
+memakai global `Iterator`). Vercel menjalankan Node 24; `package.json` memuat
+`engines.node: ">=22"` dan `.nvmrc` memuat `22` supaya mesin pengembang tidak
+diam-diam memakai Node 20, tempat jalur PDF gagal dengan pesan yang
+menyesatkan.

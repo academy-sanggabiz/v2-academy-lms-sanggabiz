@@ -124,6 +124,16 @@ export type Question = {
   options: QuestionOption[]
 }
 
+/**
+ * Pretest dan posttest: kuis yang MENGUKUR, bukan menilai.
+ *
+ * `null` berarti kuis biasa, dan itu bukan sekadar nilai bawaan -- itu seluruh
+ * kursus yang sudah berjalan hari ini. Setiap aturan baru di bawah bentuknya
+ * sama: kalau `measure_kind` null, kodenya berjalan persis seperti sebelumnya.
+ * Nilainya sama dengan enum `public.quiz_measure_kind`.
+ */
+export type QuizMeasureKind = "pretest" | "posttest"
+
 export type Quiz = {
   id: string
   title: string
@@ -132,7 +142,26 @@ export type Quiz = {
   shuffle: boolean
   draw_count: number | null
   is_assessment: boolean
+  /** null = kuis biasa. Lihat QuizMeasureKind. */
+  measure_kind: QuizMeasureKind | null
   questions: Question[]
+}
+
+/**
+ * Satu-satunya tempat "apakah ini kuis ukur" dijawab.
+ *
+ * Dibuat sebagai fungsi, bukan perbandingan `!== null` yang ditulis ulang di
+ * sepuluh tempat, karena pertanyaannya muncul di sepuluh tempat: sertifikat,
+ * nilai akhir, kunci berurutan, matriks penilaian, dan seterusnya. Satu fungsi
+ * berarti satu kali salah, bukan sepuluh.
+ *
+ * Menerima bentuk longgar supaya baris hasil kueri yang hanya memilih kolom
+ * ini pun bisa memakainya tanpa dipaksa menjadi `Quiz` utuh.
+ */
+export function isMeasureQuiz(
+  quiz: { measure_kind?: QuizMeasureKind | string | null } | null | undefined
+): boolean {
+  return quiz?.measure_kind != null
 }
 
 export type Resource = {

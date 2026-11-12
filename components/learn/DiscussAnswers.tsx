@@ -121,6 +121,8 @@ export function DiscussAnswers({
       {items !== null && (
         <p className="mt-2 text-xs text-muted-foreground">{t.adaptive.discussAiNote}</p>
       )}
+      {/* Disebut sebelum DAN sesudah: yang menekan tombol perlu tahu lebih dulu. */}
+      <p className="mt-1 text-xs text-muted-foreground">{t.player.aiThirdParty}</p>
     </section>
   )
 }

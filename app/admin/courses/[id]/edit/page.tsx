@@ -10,6 +10,7 @@ import {
 import { getCourseRoster } from "@/lib/learners-admin"
 import { parseListParams, type RawSearchParams } from "@/lib/pagination"
 import { CourseFormShell } from "@/components/admin/courses/CourseFormShell"
+import { aiAktif } from "@/lib/ai/client"
 import { certificateDefaultsReady, getCertificateDefaults } from "@/lib/certificate-defaults-server"
 
 export default async function EditCoursePage({
@@ -58,8 +59,12 @@ export default async function EditCoursePage({
       certificateDefaultsPromise={certificateDefaultsPromise}
       certificateReadyPromise={certificateReadyPromise}
       learnerCount={learnerCount}
+      // Diputuskan di server: tanpa kunci AI tombol "Susun dari SOP" tidak
+      // dirender sama sekali, bukan dirender lalu gagal.
+      aiAktif={aiAktif()}
       isNew={raw.new === "1"}
       openImport={raw.impor === "1"}
+      openAi={raw.ai === "1"}
     />
   )
 }

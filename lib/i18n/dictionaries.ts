@@ -716,6 +716,15 @@ export type Dictionary = {
     assessmentNote: string
     normalQuizNote: string
     changeModeNote: string
+    measureKindLabel: string
+    measureNormal: string
+    measurePretest: string
+    measurePosttest: string
+    measureNote: string
+    measureWarnLive: string
+    measuredSectionLabel: string
+    measuredSectionNone: string
+    measuredSectionHint: string
     /** `{n}` nomor soal. */
     moveQuestionAria: string
     /** `{n}` nomor soal. */
@@ -794,6 +803,8 @@ export type Dictionary = {
     blankCourseDesc: string
     importMd: string
     importMdDesc: string
+    createWithAi: string
+    createWithAiDesc: string
     creatingCourse: string
     courseDeleted: string
     deleteCourseAria: string
@@ -1410,6 +1421,104 @@ export type Dictionary = {
     saveChanges: string
     joinedSince: string
   }
+  sop: {
+    title: string
+    desc: string
+    aiNote: string
+    step1: string
+    step1Desc: string
+    confirmRead: string
+    fileMeta: string
+    changeFile: string
+    estimateRead: string
+    estimateWrite: string
+    progressTitle: string
+    progressModule: string
+    stageDoc: string
+    stageOutline: string
+    stageWriting: string
+    canLeave: string
+    pause: string
+    paused: string
+    editRestarts: string
+    resumeTitle: string
+    resumeDesc: string
+    resumeWork: string
+    discardWork: string
+    editHint: string
+    courseFields: string
+    courseTitleLabel: string
+    courseDescLabel: string
+    courseLevelLabel: string
+    courseReqLabel: string
+    courseAudienceLabel: string
+    perLineHint: string
+    addModule: string
+    addLesson: string
+    deleteModule: string
+    deleteLesson: string
+    moduleTitle: string
+    lessonTitle: string
+    unsaved: string
+    askAi: string
+    askPlaceholder: string
+    askSend: string
+    askNoChange: string
+    askSending: string
+    versionLabel: string
+    undoVersion: string
+    sampleHint: string
+    sampleFile: string
+    pickFile: string
+    reading: string
+    privacy: string
+    step2: string
+    outlineCount: string
+    writeButton: string
+    writing: string
+    writeNote: string
+    done: string
+    reportCount: string
+    reviewNote: string
+    lockedByLearners: string
+  }
+  aiUsage: {
+    title: string
+    subtitle: string
+    totalCalls: string
+    totalTokens: string
+    totalCost: string
+    noPrice: string
+    perPerson: string
+    perFeature: string
+    empty: string
+    colPerson: string
+    colCalls: string
+    colTokens: string
+    colCost: string
+    colLast: string
+    featureLine: string
+    featureNames: Record<string, string>
+    privacyNote: string
+  }
+  perkembangan: {
+    title: string
+    subtitle: string
+    before: string
+    after: string
+    gain: string
+    perModule: string
+    nQuestions: string
+    noPair: string
+    waiting: string
+    classTitle: string
+    classSubtitle: string
+    tooFew: string
+    discarded: string
+    up: string
+    down: string
+    flat: string
+  }
   player: {
     assistantTab: string
     contentTab: string
@@ -1427,6 +1536,13 @@ export type Dictionary = {
     assistantPreview: string
     assistantYou: string
     assistantName: string
+    aiThirdParty: string
+    measureResultTitle: string
+    pretestIntro: string
+    posttestIntro: string
+    measureNoRetry: string
+    pretestResultNote: string
+    posttestResultNote: string
     previousLesson: string
     nextLesson: string
     previous: string
@@ -2160,6 +2276,17 @@ const id: Dictionary = {
       "Tanpa tombol mulai atau batas waktu; peserta menyimpan draf dan mengirim jika sudah selesai. Nilai secara manual di Admin \u203A Penilaian. Bobotnya {w}\u00D7 kuis biasa dalam nilai akhir kursus.",
     normalQuizNote: "Dinilai otomatis dan langsung mendapat skor saat dikirim.",
     changeModeNote: "Untuk mengganti mode, hapus dulu semua soal di kuis ini.",
+    measureKindLabel: "Jenis kuis",
+    measureNormal: "Kuis biasa",
+    measurePretest: "Pretest",
+    measurePosttest: "Posttest",
+    measureNote:
+      "Pretest dan posttest hanya mengukur. Nilainya tidak masuk nilai akhir dan bukan syarat sertifikat.",
+    measureWarnLive:
+      "Kuis ini sudah pernah dikerjakan. Mengubah jenisnya mengeluarkan nilainya dari nilai akhir peserta.",
+    measuredSectionLabel: "Modul yang diukur",
+    measuredSectionNone: "Belum dipilih",
+    measuredSectionHint: "Dipakai layar Perkembangan untuk menunjukkan modul mana yang naik.",
     moveQuestionAria:
       "Pindahkan soal {n}: tekan Spasi untuk mengambil, tombol panah untuk memindahkan, Spasi untuk melepas",
     questionN: "Soal {n}",
@@ -2233,7 +2360,9 @@ const id: Dictionary = {
     blankCourse: "Kursus kosong",
     blankCourseDesc: "Isi sendiri dari awal",
     importMd: "Impor dari berkas .md",
-    importMdDesc: "Hasil dari asisten AI Anda",
+    importMdDesc: "Hasil dari asisten AI Anda sendiri",
+    createWithAi: "Buat otomatis dengan AI",
+    createWithAiDesc: "Unggah dokumen, AI yang menyusun kursusnya",
     creatingCourse: "Membuat\u2026",
     courseDeleted: "Kursus dihapus",
     deleteCourseAria: "Hapus kursus",
@@ -2258,7 +2387,7 @@ const id: Dictionary = {
     mdPickFile: "Pilih berkas .md",
     mdFileRead: "Berkas terbaca. Periksa hasilnya, lalu simpan.",
     mdImportExport: "Impor / ekspor",
-    mdTitle: "Susun kursus dengan bantuan AI",
+    mdTitle: "Susun kursus dengan AI Anda sendiri",
     mdDesc:
       "Sanggabiz tidak memanggil AI. Anda memakai asisten AI yang sudah Anda punya, lalu mengimpor hasilnya ke sini.",
     mdStep1: "Unduh panduan penulisan",
@@ -2830,6 +2959,116 @@ const id: Dictionary = {
     saveChanges: "Simpan Perubahan",
     joinedSince: "Bergabung sejak",
   },
+  sop: {
+    title: "Buat kursus otomatis dari dokumen",
+    desc: "Unggah dokumen apa pun. AI menyusun kerangkanya, Anda memeriksanya, lalu AI menulis isinya.",
+    aiNote: "Dibuat AI dan bisa keliru. Periksa tiap pelajaran dan soal sebelum menyimpan.",
+    step1: "1. Unggah dokumen",
+    step1Desc: "Word, PDF berisi teks, atau berkas .md dan .txt. Maksimal 10 MB.",
+    confirmRead: "Baca dokumen",
+    fileMeta: "{ukuran} · {jenis}",
+    changeFile: "Ganti",
+    estimateRead: "± 10 detik",
+    estimateWrite: "± 1 menit",
+    progressTitle: "Menulis isi kursus",
+    progressModule: "Modul {n} dari {total} — {judul}",
+    stageDoc: "Dokumen terbaca",
+    stageOutline: "Kerangka dibuat — {n} modul",
+    stageWriting: "Menulis isi tiap modul",
+    canLeave: "Boleh ditutup. Kalau terputus, bisa dilanjutkan dari modul terakhir.",
+    pause: "Jeda",
+    paused: "Dijeda di modul {n} dari {total}.",
+    editRestarts: "Mengubah kerangka membuat penulisan diulang dari modul 1.",
+    resumeTitle: "Ada pekerjaan yang belum selesai",
+    resumeDesc: "{berkas} — berhenti di modul {n} dari {total}.",
+    resumeWork: "Lanjutkan",
+    discardWork: "Buang",
+    editHint: "Ubah judulnya, hapus yang tidak perlu, atau tambah sendiri.",
+    courseFields: "Keterangan kursus",
+    courseTitleLabel: "Judul kursus",
+    courseDescLabel: "Deskripsi",
+    courseLevelLabel: "Tingkat",
+    courseReqLabel: "Persyaratan",
+    courseAudienceLabel: "Untuk siapa",
+    perLineHint: "Satu per baris.",
+    addModule: "Tambah modul",
+    addLesson: "Tambah pelajaran",
+    deleteModule: "Hapus modul {n}",
+    deleteLesson: "Hapus pelajaran {n}",
+    moduleTitle: "Judul modul {n}",
+    lessonTitle: "Judul pelajaran {n}",
+    unsaved: "Perubahan belum disimpan",
+    askAi: "Minta AI mengubah kerangkanya",
+    askPlaceholder: "Gabungkan modul 5 dan 6",
+    askSend: "Kirim permintaan",
+    askNoChange:
+      "AI tidak mengubah apa pun. Kalau Anda meminta menambah topik, dokumennya mungkin tidak membahasnya.",
+    askSending: "Mengubah…",
+    versionLabel: "Versi {n}",
+    undoVersion: "Kembali ke versi sebelumnya",
+    sampleHint: "Belum punya dokumennya? Coba contoh ini dulu.",
+    sampleFile: "Unduh contoh SOP",
+    pickFile: "Pilih dokumen",
+    reading: "Membaca dokumen…",
+    privacy:
+      "Isi dokumen dikirim ke penyedia AI pihak ketiga untuk diproses. Jangan unggah dokumen rahasia.",
+    step2: "2. Periksa kerangkanya",
+    outlineCount: "{modul} modul, {pelajaran} pelajaran.",
+    writeButton: "Tulis isi kursus",
+    writing: "Menulis…",
+    writeNote: "Penulisan memakan waktu sekitar satu menit untuk tiap modul.",
+    done: "Draf kursus sudah masuk ke editor.",
+    reportCount: "{modul} modul, {pelajaran} pelajaran, {soal} soal.",
+    reviewNote:
+      "Belum tersimpan. Periksa isinya di tab Pelajaran, perbaiki yang perlu, lalu tekan Simpan.",
+    lockedByLearners:
+      "Kursus ini sudah punya {n} peserta, jadi isinya tidak bisa diganti. Buat kursus baru untuk memakai fitur ini.",
+  },
+  aiUsage: {
+    title: "Pemakaian AI",
+    subtitle: "Siapa memakai fitur AI dan seberapa banyak, {hari} hari terakhir.",
+    totalCalls: "Panggilan",
+    totalTokens: "Token",
+    totalCost: "Perkiraan biaya",
+    noPrice:
+      "Biaya belum bisa dihitung. Setel AI_HARGA_PER_JUTA_TOKEN dengan harga rupiah per satu juta token.",
+    perPerson: "Per orang",
+    perFeature: "Per fitur",
+    empty: "Belum ada pemakaian pada rentang ini.",
+    colPerson: "Orang",
+    colCalls: "Panggilan",
+    colTokens: "Token",
+    colCost: "Biaya",
+    colLast: "Terakhir",
+    featureLine: "{panggilan} panggilan · {token} token",
+    featureNames: {
+      "lesson-assistant": "Asisten pelajaran",
+      "quiz-feedback": "Bahas jawaban kuis",
+      sop_kerangka: "Membaca dokumen",
+      sop_revisi: "Mengubah kerangka",
+      sop_tulis: "Menulis isi kursus",
+    },
+    privacyNote:
+      "Layar ini hanya memuat hitungan. Isi pertanyaan dan jawaban tidak disimpan.",
+  },
+  perkembangan: {
+    title: "Perkembangan Anda",
+    subtitle: "Selisih nilai pretest dan posttest, dipecah per modul.",
+    before: "Sebelum",
+    after: "Sesudah",
+    gain: "Selisih",
+    perModule: "Per modul",
+    nQuestions: "{n} soal",
+    noPair: "Kerjakan pretest dan posttest untuk melihat perkembangan Anda.",
+    waiting: "Posttest belum dikerjakan. Nilai pretest Anda {n}.",
+    classTitle: "Perkembangan kelas",
+    classSubtitle: "Rata-rata seluruh peserta yang mengerjakan pretest dan posttest. Tanpa nama.",
+    tooFew: "Butuh minimal {n} peserta yang mengerjakan keduanya. Sekarang {ada}.",
+    discarded: "{n} peserta tidak dihitung karena pretest dikerjakan setelah mulai belajar.",
+    up: "naik",
+    down: "turun",
+    flat: "tetap",
+  },
   player: {
     assistantTab: "Asisten AI",
     contentTab: "Isi kursus",
@@ -2847,6 +3086,16 @@ const id: Dictionary = {
     assistantPreview: "Pratinjau pengelola. Peserta melihat panel yang sama.",
     assistantYou: "Anda",
     assistantName: "Asisten",
+    aiThirdParty: "Pertanyaan Anda dikirim ke penyedia AI pihak ketiga. Tanpa nama dan email Anda. Lihat Kebijakan Privasi.",
+    measureResultTitle: "Hasil pengukuran",
+    pretestIntro:
+      "Pretest. Gunanya melihat apa yang sudah Anda ketahui sebelum belajar. Nilainya tidak memengaruhi kelulusan maupun sertifikat.",
+    posttestIntro:
+      "Posttest. Gunanya melihat apa yang berubah setelah Anda belajar. Nilainya tidak memengaruhi kelulusan maupun sertifikat.",
+    measureNoRetry: "Kuis ini dikerjakan satu kali. Anda sudah mengerjakannya.",
+    pretestResultNote:
+      "Nilai ini titik awal Anda, bukan penilaian. Jawaban per soal ditahan sampai posttest supaya kenaikannya terukur jujur.",
+    posttestResultNote: "Bandingkan dengan nilai pretest Anda di layar Perkembangan.",
     previousLesson: "Pelajaran sebelumnya",
     nextLesson: "Pelajaran berikutnya",
     previous: "Sebelumnya",
@@ -3583,6 +3832,17 @@ const en: Dictionary = {
       "No start button or time limit; learners save a draft and submit when done. Grade it manually in Admin \u203A Grading. It weighs {w}\u00D7 a normal quiz in the final course grade.",
     normalQuizNote: "Auto-graded with an immediate score on submit.",
     changeModeNote: "To switch modes, first delete every question in this quiz.",
+    measureKindLabel: "Quiz kind",
+    measureNormal: "Regular quiz",
+    measurePretest: "Pre-test",
+    measurePosttest: "Post-test",
+    measureNote:
+      "A pre-test or post-test only measures. Its score stays out of the final grade and the certificate rules.",
+    measureWarnLive:
+      "Learners have already taken this quiz. Changing its kind removes its score from their final grade.",
+    measuredSectionLabel: "Module measured",
+    measuredSectionNone: "Not chosen yet",
+    measuredSectionHint: "The Progress screen uses this to show which module improved.",
     moveQuestionAria: "Move question {n}: press Space to pick up, arrow keys to move, Space to drop",
     questionN: "Question {n}",
     nPoints: "{n} points",
@@ -3654,7 +3914,9 @@ const en: Dictionary = {
     blankCourse: "Blank course",
     blankCourseDesc: "Fill it in yourself from scratch",
     importMd: "Import from a .md file",
-    importMdDesc: "Output from your AI assistant",
+    importMdDesc: "Output from your own AI assistant",
+    createWithAi: "Create automatically with AI",
+    createWithAiDesc: "Upload a document and the AI writes the course",
     creatingCourse: "Creating\u2026",
     courseDeleted: "Course deleted",
     deleteCourseAria: "Delete course",
@@ -3679,7 +3941,7 @@ const en: Dictionary = {
     mdPickFile: "Choose a .md file",
     mdFileRead: "File read. Review the result, then save.",
     mdImportExport: "Import / export",
-    mdTitle: "Build the course with AI help",
+    mdTitle: "Build the course with your own AI",
     mdDesc:
       "Sanggabiz does not call any AI. You use the AI assistant you already have, then import the result here.",
     mdStep1: "Download the writing guide",
@@ -4252,6 +4514,115 @@ const en: Dictionary = {
     saveChanges: "Save changes",
     joinedSince: "Member since",
   },
+  sop: {
+    title: "Create a course automatically from a document",
+    desc: "Upload any document. The AI drafts an outline, you check it, then the AI writes the content.",
+    aiNote: "Written by AI and can be wrong. Check every lesson and question before saving.",
+    step1: "1. Upload the document",
+    step1Desc: "Word, a text-based PDF, or an .md or .txt file. Up to 10 MB.",
+    confirmRead: "Read the document",
+    fileMeta: "{ukuran} · {jenis}",
+    changeFile: "Change",
+    estimateRead: "about 10 seconds",
+    estimateWrite: "about a minute",
+    progressTitle: "Writing the course content",
+    progressModule: "Module {n} of {total} — {judul}",
+    stageDoc: "Document read",
+    stageOutline: "Outline drafted — {n} modules",
+    stageWriting: "Writing each module",
+    canLeave: "You can close this. If it stops, it resumes from the last module.",
+    pause: "Pause",
+    paused: "Paused at module {n} of {total}.",
+    editRestarts: "Changing the outline restarts the writing from module 1.",
+    resumeTitle: "There is unfinished work",
+    resumeDesc: "{berkas} — stopped at module {n} of {total}.",
+    resumeWork: "Resume",
+    discardWork: "Discard",
+    editHint: "Rename, delete what you do not need, or add your own.",
+    courseFields: "Course details",
+    courseTitleLabel: "Course title",
+    courseDescLabel: "Description",
+    courseLevelLabel: "Level",
+    courseReqLabel: "Requirements",
+    courseAudienceLabel: "Who it is for",
+    perLineHint: "One per line.",
+    addModule: "Add module",
+    addLesson: "Add lesson",
+    deleteModule: "Delete module {n}",
+    deleteLesson: "Delete lesson {n}",
+    moduleTitle: "Module {n} title",
+    lessonTitle: "Lesson {n} title",
+    unsaved: "Changes not saved yet",
+    askAi: "Ask the AI to change the outline",
+    askPlaceholder: "Merge modules 5 and 6",
+    askSend: "Send request",
+    askNoChange:
+      "The AI did not change anything. If you asked to add a topic, the document may not cover it.",
+    askSending: "Changing…",
+    versionLabel: "Version {n}",
+    undoVersion: "Back to the previous version",
+    sampleHint: "No document yet? Try this example first.",
+    sampleFile: "Download a sample SOP",
+    pickFile: "Choose a document",
+    reading: "Reading the document…",
+    privacy:
+      "The document is sent to a third-party AI provider for processing. Do not upload confidential documents.",
+    step2: "2. Check the outline",
+    outlineCount: "{modul} modules, {pelajaran} lessons.",
+    writeButton: "Write the course content",
+    writing: "Writing…",
+    writeNote: "Writing takes about a minute per module.",
+    done: "The course draft is now in the editor.",
+    reportCount: "{modul} modules, {pelajaran} lessons, {soal} questions.",
+    reviewNote:
+      "Nothing is saved yet. Check it on the Lessons tab, fix what needs fixing, then press Save.",
+    lockedByLearners:
+      "This course already has {n} learners, so its content cannot be replaced. Create a new course to use this.",
+  },
+  aiUsage: {
+    title: "AI usage",
+    subtitle: "Who used the AI features and how much, over the last {hari} days.",
+    totalCalls: "Calls",
+    totalTokens: "Tokens",
+    totalCost: "Estimated cost",
+    noPrice:
+      "Cost cannot be worked out yet. Set AI_HARGA_PER_JUTA_TOKEN to the rupiah price per million tokens.",
+    perPerson: "By person",
+    perFeature: "By feature",
+    empty: "No usage in this period yet.",
+    colPerson: "Person",
+    colCalls: "Calls",
+    colTokens: "Tokens",
+    colCost: "Cost",
+    colLast: "Last used",
+    featureLine: "{panggilan} calls · {token} tokens",
+    featureNames: {
+      "lesson-assistant": "Lesson assistant",
+      "quiz-feedback": "Discuss quiz answers",
+      sop_kerangka: "Reading the document",
+      sop_revisi: "Changing the outline",
+      sop_tulis: "Writing the course",
+    },
+    privacyNote: "This screen holds counts only. Question and answer text is not stored.",
+  },
+  perkembangan: {
+    title: "Your progress",
+    subtitle: "The difference between your pre-test and post-test, module by module.",
+    before: "Before",
+    after: "After",
+    gain: "Change",
+    perModule: "By module",
+    nQuestions: "{n} questions",
+    noPair: "Take the pre-test and the post-test to see your progress.",
+    waiting: "The post-test is not done yet. Your pre-test score is {n}.",
+    classTitle: "Class progress",
+    classSubtitle: "The average across every learner who took both tests. No names.",
+    tooFew: "At least {n} learners must take both. Right now there are {ada}.",
+    discarded: "{n} learners are left out because their pre-test came after they started studying.",
+    up: "up",
+    down: "down",
+    flat: "unchanged",
+  },
   player: {
     assistantTab: "AI Assistant",
     contentTab: "Course content",
@@ -4269,6 +4640,16 @@ const en: Dictionary = {
     assistantPreview: "Manager preview. Learners see the same panel.",
     assistantYou: "You",
     assistantName: "Assistant",
+    aiThirdParty: "Your question is sent to a third-party AI provider. Without your name or email. See the Privacy Policy.",
+    measureResultTitle: "Measurement result",
+    pretestIntro:
+      "Pre-test. It shows what you already know before studying. The score does not affect passing or your certificate.",
+    posttestIntro:
+      "Post-test. It shows what changed after studying. The score does not affect passing or your certificate.",
+    measureNoRetry: "This quiz is taken once. You have already taken it.",
+    pretestResultNote:
+      "This score is your starting point, not a judgement. Per-question answers are held back until the post-test so the gain stays honest.",
+    posttestResultNote: "Compare it with your pre-test score on the Progress screen.",
     previousLesson: "Previous lesson",
     nextLesson: "Next lesson",
     previous: "Previous",

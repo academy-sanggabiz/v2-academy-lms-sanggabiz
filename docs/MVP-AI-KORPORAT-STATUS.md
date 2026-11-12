@@ -35,34 +35,56 @@ diperiksa langsung:
 - **`/api/public/stats` dan `/api/learning-events`** tidak disentuh.
 - **Halaman depan, katalog publik, SEO** tidak disentuh.
 
-## Model AI: kenapa `gemini-3.1-flash-lite`
+## Penyedia AI: bisa diganti lewat env
 
-Diukur 10 Nov 2026 dengan kunci proyek 430885087073:
+`lib/ai/client.ts` punya dua adapter berdampingan. Yang di luarnya --
+`tanyaTeks`, `tanyaJson`, `aiAktif`, dan pemanggilnya -- tidak tahu penyedia
+mana yang dipakai.
 
-| Model | Hasil |
+| Env | Arti |
 |---|---|
-| `gemini-2.5-flash`, `gemini-2.5-flash-lite` | **404** — "no longer available to new users" |
-| `gemini-flash-latest` (= gemini-3.8-flash) | Jalan, tetapi sering **503** saat ramai, dan **berpikir 331 token untuk prompt 7 token**: 40 detik untuk satu kalimat |
-| `gemini-3.1-flash-lite` | **1,5–2,4 detik**, `thinkingBudget: 0` diterima, JSON terstruktur sah |
+| `AI_PROVIDER` | `openai` (DeepSeek dan yang kompatibel) atau `gemini`. Kosong = `gemini`, perilaku lama |
+| `AI_BASE_URL`, `AI_API_KEY` | dipakai adapter `openai` |
+| `GEMINI_API_KEY` | dipakai adapter `gemini` |
+| `AI_MODEL` | kosong = bawaan per penyedia |
 
-`thinkingBudget: 0` wajib dan bukan penghematan biaya: tanpa itu fungsi
-serverless Vercel habis waktunya sebelum jawaban datang.
+**Diukur 10 Nov 2026 lewat kode yang sebenarnya**, bukan lewat curl yang
+meniru bentuknya:
 
-503 masih muncul sesekali, jadi `lib/ai/client.ts` mencoba ulang **sekali**
-untuk 503/429 saja — galat lain (kunci salah, model tidak ada, permintaan
-cacat) tidak akan membaik dengan diulang.
+| Penyedia | Teks | JSON terstruktur |
+|---|---|---|
+| `deepseek-flash` | **1,4 dtk** | **2,0 dtk** |
+| `gemini-3.1-flash-lite` | 7,2 dtk | 4,4 dtk |
 
-## Sakelar
+Keduanya mengembalikan JSON yang lolos `periksa()` dengan 0 id karangan.
 
-```
-AI_ENABLED=true
-AI_MODEL=gemini-3.1-flash-lite
-GEMINI_API_KEY=...        # server saja, tidak pernah NEXT_PUBLIC_*
-```
+Lewat aplikasi sungguhan dengan DeepSeek, pelajaran "Kenapa uang usaha harus
+dipisah":
 
-Dengan `AI_ENABLED` mati atau kunci kosong, **F4 dan F5 tidak dirender sama
-sekali** — bukan tampil lalu gagal. F6 tetap jalan karena tidak memakai AI.
-`aiAktif()` diputuskan di server lalu dioper ke bawah lewat props.
+- **di dalam materi, 3,1 dtk** -- menyebut tiga kerugian yang memang ada di
+  pelajarannya (laba semu, modal termakan, sulit pinjam);
+- **di luar materi, 2,2 dtk** -- menolak, lalu menunjuk pelajaran nyata dari
+  daftar isi ("Membedakan omzet, laba kotor, dan laba bersih" di Modul 2).
+
+Model yang TIDAK bisa dipakai, juga diukur:
+
+- `gemini-2.5-flash` dan `-lite`: 404, "no longer available to new users".
+- `gemini-flash-latest` (= gemini-3.8-flash): sering 503, dan berpikir 331
+  token untuk prompt 7 token -- 40 detik untuk satu kalimat.
+
+Mematikan mode berpikir wajib di kedua penyedia (`thinkingBudget: 0` /
+`thinking: {type: "disabled"}`) dan bukan demi biaya: fungsi serverless Vercel
+punya batas durasi, jadi penalaran bawaan bukan sekadar lambat -- ia gagal.
+
+### Ketentuan data DeepSeek
+
+Pemrosesan berlangsung di Republik Rakyat Tiongkok, dan menurut ketentuan
+DeepSeek masukan dapat dipakai melatih model mereka. Untuk demo dengan data
+contoh itu memadai. Untuk klien yang SOP-nya rahasia, ganti `AI_PROVIDER`.
+Jangan pernah menjanjikan "data tidak keluar negeri" selama memakai DeepSeek
+langsung. Halaman `/legal/privasi` menyebut penyedia dan negaranya; panel
+Asisten dan tombol "Bahas jawaban saya" menyebutnya juga, di tempat orang
+mengetik.
 
 ## Keamanan yang dibuktikan, bukan diasumsikan
 

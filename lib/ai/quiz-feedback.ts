@@ -125,5 +125,5 @@ export async function buatPembahasan(
   )
 
   if (!hasil.ok) return hasil
-  return { ok: true, data: { items: hasil.data.items, model: modelAi() }, token: hasil.token }
+  return { ok: true, data: { items: hasil.data.items, model: modelAi() }, token: hasil.token, terpotong: hasil.terpotong }
 }

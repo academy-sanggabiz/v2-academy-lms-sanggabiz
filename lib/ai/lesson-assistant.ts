@@ -121,5 +121,5 @@ export async function jawabPertanyaan(
   })
 
   if (!hasil.ok) return hasil
-  return { ok: true, data: { jawaban: hasil.data.trim(), model: modelAi() }, token: hasil.token }
+  return { ok: true, data: { jawaban: hasil.data.trim(), model: modelAi() }, token: hasil.token, terpotong: hasil.terpotong }
 }

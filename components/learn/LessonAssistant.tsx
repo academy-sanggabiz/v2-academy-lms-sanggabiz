@@ -168,6 +168,12 @@ export function LessonAssistant({
         <StatusMessage className="mt-2">{galat}</StatusMessage>
 
         <p className="mt-2 text-xs text-muted-foreground">{t.player.assistantAiNote}</p>
+        {/*
+          Pengiriman ke pihak ketiga disebut DI TEMPAT ia terjadi, bukan hanya
+          terkubur di halaman kebijakan: orang memutuskan apa yang ia ketik di
+          sini, bukan di sana.
+        */}
+        <p className="mt-1 text-xs text-muted-foreground">{t.player.aiThirdParty}</p>
         {sisa !== null && (
           <p className="mt-1 text-xs text-muted-foreground">
             {t.player.assistantQuota.replace("{n}", String(sisa))}

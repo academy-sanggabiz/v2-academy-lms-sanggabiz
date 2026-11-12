@@ -90,6 +90,46 @@ export default function PrivasiPage() {
         </section>
 
         <section>
+          {/*
+            Bagian ini WAJIB ada selama Asisten AI dan "Bahas jawaban saya"
+            hidup: keduanya mengirim tulisan peserta ke perusahaan lain, di
+            negara lain. Sebelum bagian ini ditulis, keduanya sudah berjalan di
+            produksi tanpa satu kalimat pun yang menyebutkannya -- itu celah,
+            bukan kelalaian kecil.
+
+            Nama penyedia dan negaranya disebut terang-terangan karena itulah
+            yang menentukan hukum mana yang berlaku atas datanya. Kalau
+            penyedianya diganti lewat env, kalimat di bawah ikut diganti.
+          */}
+          <h2 className="text-xl font-bold">Fitur AI dan pengiriman ke pihak ketiga</h2>
+          <p className="mt-3 text-sm">
+            Dua fitur memakai kecerdasan buatan: <strong>Asisten AI</strong> di dalam pelajaran,
+            dan <strong>Bahas jawaban saya</strong> di halaman hasil kuis. Keduanya hanya
+            berjalan saat Anda menekannya sendiri.
+          </p>
+          <p className="mt-3 text-sm">
+            Saat itu terjadi, yang dikirim ke penyedia AI adalah: isi pelajaran yang sedang Anda
+            buka beserta transkripnya, daftar judul pelajaran di kursus itu, pertanyaan yang Anda
+            tulis, serta soal dan jawaban kuis yang dibahas.{" "}
+            <strong>Nama, alamat email, dan identitas Anda tidak ikut dikirim.</strong> Catatan
+            pribadi Anda juga tidak pernah dikirim.
+          </p>
+          <p className="mt-3 text-sm">
+            Penyedia yang kami pakai saat ini adalah <strong>DeepSeek</strong>, dan
+            pemrosesannya berlangsung di <strong>Republik Rakyat Tiongkok</strong>. Menurut
+            ketentuan DeepSeek, masukan yang dikirim dapat dipakai untuk melatih model mereka.
+            Karena itu jangan menulis data rahasia atau data pribadi orang lain di kolom
+            pertanyaan.
+          </p>
+          <p className="mt-3 text-sm">
+            Percakapan Anda dengan Asisten AI disimpan di sistem kami dan{" "}
+            <strong>hanya dapat dibaca oleh Anda</strong> — pengelola maupun instruktur tidak
+            memiliki akses, sama seperti catatan pribadi. Kami juga mencatat jumlah pemakaian
+            (berapa kali dan berapa besar), tanpa menyimpan ulang isi pertanyaan Anda.
+          </p>
+        </section>
+
+        <section>
           <h2 className="text-xl font-bold">Hubungi kami</h2>
           <p className="mt-3 text-sm">
             Pertanyaan tentang data Anda bisa dikirim ke pengelola Sanggabiz Academy melalui

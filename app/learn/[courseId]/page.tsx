@@ -9,7 +9,7 @@ import { getCourseRequirements } from "@/lib/course-requirements"
 import { getCourseFeedbackForLearner } from "@/lib/feedback-server"
 import { getLessonNote } from "@/lib/notes-server"
 import { createClient } from "@/lib/supabase/server"
-import { formatDuration } from "@/lib/courses"
+import { formatDuration, isMeasureQuiz } from "@/lib/courses"
 import { LearnShell } from "@/components/learn/LearnShell"
 import { LearnSidebar } from "@/components/learn/LearnSidebar"
 import { LessonPane } from "@/components/learn/LessonPane"
@@ -68,6 +68,7 @@ export default async function LearnPage({
       id: l.id,
       content_type: l.content_type,
       quizId: l.quiz?.id ?? null,
+      isMeasureQuiz: isMeasureQuiz(l.quiz),
     })),
     completedLessonIds,
     passedQuizIds,
@@ -149,9 +150,17 @@ export default async function LearnPage({
   // menautkan jawaban salah kembali ke pelajaran yang mengajarkannya
   // (STANDAR-DIGITAL-LEARNING §14). Pelajaran bertipe kuis dibuang: menautkan
   // kuis ke kuis lain tidak menolong siapa pun.
-  const reviewLessons = (currentSection?.lessons ?? [])
-    .filter((l) => l.content_type !== "quiz" && l.content_type !== "mixed")
-    .map((l) => ({ id: l.id, title: l.title }))
+  //
+  // Kosong untuk pretest: menautkan jawaban salah ke pelajaran yang
+  // mengajarkannya berguna setelah belajar, tetapi pretest dikerjakan SEBELUM
+  // -- "pelajari ulang materi ini" pada materi yang memang belum dibuka hanya
+  // berbunyi seperti teguran. Posttest tetap mendapatkannya.
+  const reviewLessons =
+    currentLesson.quiz?.measure_kind === "pretest"
+      ? []
+      : (currentSection?.lessons ?? [])
+          .filter((l) => l.content_type !== "quiz" && l.content_type !== "mixed")
+          .map((l) => ({ id: l.id, title: l.title }))
   const remainingSeconds = allLessons
     .filter((l) => !completedLessonIds.has(l.id))
     .reduce((sum, l) => sum + (l.duration_seconds ?? 0), 0)

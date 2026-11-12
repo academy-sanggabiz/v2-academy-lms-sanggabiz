@@ -4,6 +4,7 @@ import { renderToBuffer } from "@react-pdf/renderer"
 import { CertificateDocument } from "@/components/certificates/CertificateDocument"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { computeCourseGrade, quizGradeWeight } from "@/lib/course-grade"
+import { isMeasureQuiz } from "@/lib/courses"
 import { pickRepresentativeAttempt } from "@/lib/quiz-attempt-selection"
 import { getCertificateDefaults } from "@/lib/certificate-defaults-server"
 import { resolveCertificateSettings, type ResolvedCertificateSettings } from "@/lib/certificate-settings"
@@ -55,7 +56,7 @@ export async function checkAndIssueCertificate(
 
   const { data: sections, error: sectionsError } = await supabase
     .from("course_sections")
-    .select("lessons(id, quiz:quizzes(id, is_assessment))")
+    .select("lessons(id, quiz:quizzes(id, is_assessment, measure_kind))")
     .eq("course_id", courseId)
 
   if (sectionsError || !sections) {
@@ -63,13 +64,31 @@ export async function checkAndIssueCertificate(
     return null
   }
 
-  type SectionQuiz = { id: string; is_assessment: boolean }
-  const lessons = (sections as { lessons: { id: string; quiz: SectionQuiz | SectionQuiz[] | null }[] }[])
+  type SectionQuiz = { id: string; is_assessment: boolean; measure_kind: string | null }
+  const semuaPelajaran = (sections as { lessons: { id: string; quiz: SectionQuiz | SectionQuiz[] | null }[] }[])
     .flatMap((s) => s.lessons ?? [])
     .map((l) => ({
       id: l.id,
       quiz: (Array.isArray(l.quiz) ? l.quiz[0] : l.quiz) ?? null,
     }))
+
+  /*
+   * Pretest dan posttest TIDAK ikut menentukan sertifikat -- tidak sebagai
+   * pelajaran yang harus diselesaikan, tidak sebagai kuis yang harus lulus,
+   * dan tidak sebagai angka dalam nilai akhir.
+   *
+   * Itu bukan kelonggaran, melainkan satu-satunya cara alat ukur bisa
+   * disisipkan ke kursus yang SEDANG berjalan tanpa merugikan orang yang
+   * sudah mengerjakannya. Kalau pretest ikut dihitung, mentor yang menambah
+   * pretest hari ini seketika mencabut kelayakan sertifikat setiap peserta
+   * yang sudah menyelesaikan segalanya kemarin. Pretest juga memang dirancang
+   * untuk banyak dijawab salah; menjadikannya syarat kelulusan berarti
+   * menghukum orang karena belum belajar.
+   *
+   * Kursus tanpa kuis ukur melewati penyaring ini tanpa kehilangan satu baris
+   * pun, jadi perhitungannya identik dengan sebelum fitur ini ada.
+   */
+  const lessons = semuaPelajaran.filter((l) => !isMeasureQuiz(l.quiz))
 
   if (lessons.length === 0) return null
 

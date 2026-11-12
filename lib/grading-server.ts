@@ -3,6 +3,7 @@ import { getAdminProfile } from "@/lib/auth/require-admin"
 import { escapeForOrFilter, paginated, rangeFor, type ListParams, type Paginated } from "@/lib/pagination"
 import { pickRepresentativeAttempt } from "@/lib/quiz-attempt-selection"
 import { computeCourseGrade, quizGradeWeight, type CourseGrade } from "@/lib/course-grade"
+import { isMeasureQuiz, type QuizMeasureKind } from "@/lib/courses"
 
 /**
  * Whether a question type is left ungraded by public.grade_attempt() and
@@ -106,6 +107,8 @@ export type GradingColumn = {
   passScore: number
   /** false for regular auto-graded quizzes -- read-only column, no click-to-grade, no eye. */
   isAssessment: boolean
+  /** null = kuis biasa. Kuis ukur ditampilkan tetapi berbobot nol. */
+  measureKind: QuizMeasureKind | null
   /** Derived from isAssessment, not stored -- see quizGradeWeight in lib/course-grade.ts. */
   weight: number
   /** Sliced to COLUMN_PROMPT_PREVIEW server-side -- AssignmentColumnHeader never renders more. */
@@ -167,6 +170,7 @@ type MatrixQuizRow = {
   title: string
   pass_score: number
   is_assessment: boolean
+  measure_kind: QuizMeasureKind | null
   lesson: { title: string; section: { title: string; course_id: string } | { title: string; course_id: string }[] | null } | null
   questions: MatrixQuestionRow[]
 }
@@ -249,7 +253,7 @@ export async function getCourseGradingMatrix(
     supabase
       .from("quizzes")
       .select(
-        `id, title, pass_score, is_assessment,
+        `id, title, pass_score, is_assessment, measure_kind,
          lesson:lessons!inner(title, section:course_sections!inner(title, course_id)),
          questions(id, type, prompt, points, position, options:question_options(is_correct))`
       )
@@ -289,7 +293,15 @@ export async function getCourseGradingMatrix(
       sectionTitle: (section as { title?: string } | null)?.title ?? "",
       passScore: quiz.pass_score,
       isAssessment: quiz.is_assessment,
-      weight: quizGradeWeight(quiz.is_assessment),
+      measureKind: quiz.measure_kind,
+      /*
+       * Kuis ukur tetap muncul sebagai kolom -- mentor justru ingin melihat
+       * nilai pretest -- tetapi bobotnya nol, jadi ia tidak menggeser nilai
+       * akhir sedikit pun. Bobot nol setara persis dengan mengeluarkannya:
+       * computeCourseGrade menambah `100 * bobot` ke penyebut dan
+       * `skor * bobot` ke pembilang, dan keduanya nol.
+       */
+      weight: isMeasureQuiz(quiz) ? 0 : quizGradeWeight(quiz.is_assessment),
       questionPrompts: questions.slice(0, COLUMN_PROMPT_PREVIEW).map((qq) => qq.prompt),
       extraPromptCount: Math.max(0, questions.length - COLUMN_PROMPT_PREVIEW),
     }

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 
 import { computeCourseGrade, quizGradeWeight } from "@/lib/course-grade"
+import { isMeasureQuiz } from "@/lib/courses"
 import { pickRepresentativeAttempt } from "@/lib/quiz-attempt-selection"
 
 /**
@@ -47,7 +48,9 @@ type SectionRow = {
   lessons: {
     id: string
     title: string
-    quiz: { id: string; is_assessment: boolean; pass_score: number; max_attempts: number | null }[] | null
+    quiz:
+      | { id: string; is_assessment: boolean; pass_score: number; max_attempts: number | null; measure_kind: string | null }[]
+      | null
   }[]
 }
 
@@ -71,7 +74,7 @@ export async function getCourseRequirements(
 ): Promise<CourseRequirements | null> {
   const { data: sections, error } = await supabase
     .from("course_sections")
-    .select("lessons(id, title, quiz:quizzes(id, is_assessment, pass_score, max_attempts))")
+    .select("lessons(id, title, quiz:quizzes(id, is_assessment, pass_score, max_attempts, measure_kind))")
     .eq("course_id", courseId)
 
   if (error || !sections) {
@@ -79,7 +82,16 @@ export async function getCourseRequirements(
     return null
   }
 
-  const lessons = (sections as SectionRow[]).flatMap((s) => s.lessons ?? [])
+  /*
+   * Kuis ukur (pretest/posttest) dikeluarkan dari daftar syarat, persis
+   * seperti di lib/certificates.ts. Keduanya HARUS memakai aturan yang sama:
+   * layar ini menjelaskan kepada peserta kenapa sertifikatnya belum terbit,
+   * dan panel yang menyebut satu syarat yang sebenarnya tidak diperiksa lebih
+   * buruk daripada tidak ada panel sama sekali.
+   */
+  const lessons = (sections as SectionRow[])
+    .flatMap((s) => s.lessons ?? [])
+    .filter((l) => !isMeasureQuiz(Array.isArray(l.quiz) ? l.quiz[0] : l.quiz))
   if (lessons.length === 0) return null
 
   const quizLessons = lessons

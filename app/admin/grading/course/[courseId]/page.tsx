@@ -12,6 +12,8 @@ import { ImportGradesDialog } from "@/components/admin/grading/ImportGradesDialo
 import { getCourseDropoff, getQuestionDifficulty, getQuizEffort } from "@/lib/insight-server"
 import { CourseInsight } from "@/components/admin/insight/CourseInsight"
 import { CourseDropoff } from "@/components/admin/insight/CourseDropoff"
+import { PerkembanganKelas } from "@/components/admin/insight/PerkembanganKelas"
+import { getPerkembanganKursus } from "@/lib/perkembangan-server"
 
 export default async function AdminGradingCoursePage({
   params,
@@ -31,11 +33,14 @@ export default async function AdminGradingCoursePage({
     defaultPageSize: 10,
   })
 
-  const [matrix, questions, effort, dropoff] = await Promise.all([
+  const [matrix, questions, effort, dropoff, perkembangan] = await Promise.all([
     getCourseGradingMatrix(courseId, listParams),
     getQuestionDifficulty(courseId),
     getQuizEffort(courseId),
     getCourseDropoff(courseId),
+    // null bila kursusnya tidak punya pretest DAN posttest -- komponennya
+    // lalu tidak merender apa pun, jadi kursus lama tidak berubah.
+    getPerkembanganKursus(courseId),
   ])
   if (!matrix) notFound()
 
@@ -56,6 +61,8 @@ export default async function AdminGradingCoursePage({
       </div>
 
       <GradingCourseMatrix matrix={matrix} />
+
+      <PerkembanganKelas data={perkembangan} />
 
       <CourseDropoff data={dropoff} />
 

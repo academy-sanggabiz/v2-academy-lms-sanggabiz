@@ -2,7 +2,7 @@
 
 import { useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronDown, FileText, Plus, Sparkles } from "lucide-react"
+import { ChevronDown, FileText, FileUp, Plus, Sparkles } from "lucide-react"
 import { toast } from "sonner"
 import { useI18n } from "@/components/i18n/LocaleProvider"
 
@@ -23,13 +23,21 @@ export function CreateCourseButton() {
   const { setBusy } = useAdminBusy()
 
   /**
-   * `withImport` membuat draf lalu membuka dialog impor begitu editor tampil.
+   * Membuat draf, lalu -- untuk dua jalur berbantuan -- langsung membuka
+   * dialognya begitu editor tampil.
    *
-   * Dua jalan ini sengaja ditawarkan berdampingan di sini, bukan hanya di
-   * dalam editor: saat orang menekan "Buat kursus", halaman kosong itulah
-   * yang paling menakutkan, dan itu momen paling tepat menawarkan bantuan.
+   * Ketiganya ditawarkan berdampingan di sini, bukan hanya di dalam editor:
+   * saat orang menekan "Buat Kursus", halaman kosong itulah yang paling
+   * menakutkan, dan itu momen paling tepat menawarkan bantuan.
+   *
+   * Dua jalur AI-nya sengaja dibedakan kata dan ikonnya, karena artinya
+   * berlawanan: `"md"` mengimpor hasil dari asisten AI MILIK PENGGUNA
+   * (Sanggabiz tidak memanggil AI sama sekali), sedangkan `"ai"` adalah
+   * Sanggabiz yang memanggil AI. Sampai 2026-11-10 kilau ✨ justru terpasang
+   * di jalur yang tidak memanggil AI, dan jalur yang memanggil AI memakai
+   * ikon berkas biasa -- persis terbalik.
    */
-  function handleCreate(withImport: boolean) {
+  function handleCreate(cara: "kosong" | "md" | "ai") {
     setBusy(true, t.editor.creatingCourse)
 
     startTransition(async () => {
@@ -45,7 +53,8 @@ export function CreateCourseButton() {
       // halaman editor benar-benar tampil -- bukan hanya sampai barisnya dibuat.
       // Kuncinya dilepas oleh AdminBusyProvider begitu path berubah; layout
       // admin dipakai bersama, jadi ia tidak me-mount ulang dengan sendirinya.
-      router.push(`/admin/courses/${result.data.id}/edit?new=1${withImport ? "&impor=1" : ""}`)
+      const tambahan = cara === "md" ? "&impor=1" : cara === "ai" ? "&ai=1" : ""
+      router.push(`/admin/courses/${result.data.id}/edit?new=1${tambahan}`)
     })
   }
 
@@ -66,15 +75,22 @@ export function CreateCourseButton() {
         }
       />
       <DropdownMenuContent align="end" className="w-64">
-        <DropdownMenuItem onClick={() => handleCreate(false)}>
+        <DropdownMenuItem onClick={() => handleCreate("kosong")}>
           <FileText className="size-4" aria-hidden />
           <div>
             <div>{t.editor.blankCourse}</div>
             <div className="text-xs text-muted-foreground">{t.editor.blankCourseDesc}</div>
           </div>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleCreate(true)}>
+        <DropdownMenuItem onClick={() => handleCreate("ai")}>
           <Sparkles className="size-4" aria-hidden />
+          <div>
+            <div>{t.editor.createWithAi}</div>
+            <div className="text-xs text-muted-foreground">{t.editor.createWithAiDesc}</div>
+          </div>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleCreate("md")}>
+          <FileUp className="size-4" aria-hidden />
           <div>
             <div>{t.editor.importMd}</div>
             <div className="text-xs text-muted-foreground">{t.editor.importMdDesc}</div>
