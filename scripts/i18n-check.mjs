@@ -20,10 +20,25 @@ import { chromium } from "playwright"
 import fs from "node:fs"
 
 const BASE = process.env.AUDIT_BASE_URL || "http://localhost:3270"
-const env = Object.fromEntries(
-  fs.readFileSync(".env.local", "utf8").split("\n").filter((l) => /^[A-Z_]+=/.test(l))
-    .map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1).trim()])
-)
+/*
+ * `.env.local` dulu, lalu `process.env` MENIMPA-nya.
+ *
+ * Urutannya begitu supaya satu kali jalan bisa memakai akun lain tanpa
+ * menyunting berkas: layar khusus superadmin (`/admin/integrations`,
+ * `/admin/ai-usage`) butuh akun berwenang, sementara AUDIT_ADMIN_* di
+ * `.env.local` sengaja akun pengelola biasa. Sebelumnya berkas yang menang,
+ * jadi `AUDIT_ADMIN_EMAIL=... npm run i18n:check` diam-diam tidak berpengaruh
+ * dan layarnya dilaporkan "dialihkan" selamanya.
+ */
+const env = {
+  ...Object.fromEntries(
+    fs.readFileSync(".env.local", "utf8").split("\n").filter((l) => /^[A-Z_]+=/.test(l))
+      .map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1).trim()])
+  ),
+  ...Object.fromEntries(
+    Object.entries(process.env).filter(([k, v]) => k.startsWith("AUDIT_") && v)
+  ),
+}
 
 /** Kata Indonesia yang tidak pernah muncul sebagai kata Inggris. */
 const KATA_ID =
@@ -50,6 +65,11 @@ const SUDAH_SELESAI = new Set([
   "/admin/seo",
   "/admin/organization",
   "/admin/certificates",
+  // Khusus superadmin: dengan akun pengelola biasa skripnya mencetak
+  // "dialihkan, akunnya tidak berwenang" dan tidak mengaku lolos. Jalankan
+  // sekali lagi dengan akun superadmin pada AUDIT_ADMIN_* untuk memeriksanya.
+  "/admin/integrations",
+  "/admin/ai-usage",
 ])
 
 /** Layar dinamis yang juga sudah selesai -- dicocokkan dengan awalan jalur. */
@@ -229,7 +249,7 @@ try {
   let admin = await masuk(browser, "/auth/admin/login", adminEmail, adminSandi)
   if (!admin && env.DEMO_ADMIN_EMAIL) admin = await masuk(browser, "/auth/admin/login", env.DEMO_ADMIN_EMAIL, env.DEMO_ADMIN_PASSWORD)
   if (admin) {
-    for (const p of ["/admin/dashboard", "/admin/courses", "/admin/learners", "/admin/grading", "/admin/tracking", "/admin/settings", "/admin/profile", "/admin/mentor", "/admin/landing", "/admin/seo", "/admin/organization", "/admin/certificates"])
+    for (const p of ["/admin/dashboard", "/admin/courses", "/admin/learners", "/admin/grading", "/admin/tracking", "/admin/settings", "/admin/profile", "/admin/mentor", "/admin/landing", "/admin/seo", "/admin/organization", "/admin/certificates", "/admin/integrations", "/admin/ai-usage"])
       await periksa(admin, p)
 
     // Layar dinamis: matriks penilaian dan rincian pelacakan. Id-nya dicari

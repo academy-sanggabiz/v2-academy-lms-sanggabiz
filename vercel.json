@@ -6,7 +6,7 @@
   "crons": [
     {
       "path": "/api/webhooks/kirim",
-      "schedule": "* * * * *"
+      "schedule": "0 3 * * *"
     }
   ]
 }

@@ -1546,6 +1546,7 @@ export type Dictionary = {
     featureLine: string
     featureNames: Record<string, string>
     privacyNote: string
+    scrollTable: string
   }
   rekomendasi: {
     title: string
@@ -3152,6 +3153,7 @@ const id: Dictionary = {
     },
     privacyNote:
       "Layar ini hanya memuat hitungan. Isi pertanyaan dan jawaban tidak disimpan.",
+    scrollTable: "Pemakaian per orang, dapat digulir mendatar",
   },
   rekomendasi: {
     title: "Mungkin cocok untuk Anda",
@@ -4762,6 +4764,7 @@ const en: Dictionary = {
       sop_tulis: "Writing the course",
     },
     privacyNote: "This screen holds counts only. Question and answer text is not stored.",
+    scrollTable: "Usage by person, scrolls sideways",
   },
   rekomendasi: {
     title: "You might like these",

@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Keluaran `vercel build`. Ada di .gitignore, tapi ESLint tidak membaca
+    // .gitignore -- tanpa baris ini satu kali `vercel build` untuk mendiagnosis
+    // deploy membuat `npm run lint` melaporkan ribuan galat dari kode yang
+    // bukan milik kita.
+    ".vercel/**",
   ]),
 ]);
 

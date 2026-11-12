@@ -1,5 +1,8 @@
 import { createAdminClient } from "@/lib/supabase/admin"
+import { after } from "next/server"
+
 import { galat, halaman, jagaApi, jawab } from "@/lib/api-v1"
+import { kirimAntrean } from "@/lib/webhook-kirim"
 
 /**
  * Pendaftaran: dibaca dan dibuat dari sistem luar.
@@ -176,6 +179,24 @@ export async function POST(request: Request) {
     console.error("POST /api/v1/enrollments gagal:", error.message)
     return galat(500, "enrollment_failed", "Could not create the enrollment.")
   }
+
+  /*
+   * Pendaftaran baru mengantrekan `enrollment.created` lewat trigger. Dikirim
+   * sekarang juga, bukan menunggu cron: paket Hobby hanya mengizinkan cron
+   * harian, dan webhook yang tiba besok bukan webhook.
+   *
+   * `after()` dan bukan janji yang dilepas begitu saja -- fungsi tanpa server
+   * bisa dimatikan begitu jawabannya terkirim, dan janji yang menggantung
+   * ikut mati di tengah. Antreannya tetap jaminan: gagal di sini berarti
+   * tertunda, bukan hilang.
+   */
+  after(async () => {
+    try {
+      await kirimAntrean()
+    } catch (e) {
+      console.error("kirim webhook setelah pendaftaran gagal:", e)
+    }
+  })
 
   const { data: hasil } = await admin
     .from("enrollments")

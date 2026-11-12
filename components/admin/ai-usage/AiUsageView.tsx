@@ -64,7 +64,16 @@ export function AiUsageView({ laporan }: { laporan: LaporanPemakaian }) {
       {laporan.orang.length === 0 ? (
         <p className="mt-2 text-sm text-muted-foreground">{t.aiUsage.empty}</p>
       ) : (
-        <div className="mt-2 overflow-x-auto rounded-lg border border-border">
+        // Wadah yang bisa digulir harus bisa dicapai papan ketik (WCAG 2.1.1):
+        // tanpa tabIndex, kolom di luar layar 320px tidak terjangkau sama
+        // sekali bagi orang yang tidak memakai tetikus. Pola dan kelasnya
+        // mengikuti `components/ui/table.tsx`.
+        <div
+          tabIndex={0}
+          role="group"
+          aria-label={t.aiUsage.scrollTable}
+          className="mt-2 overflow-x-auto rounded-lg border border-border outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
           <table className="w-full min-w-[32rem] text-sm">
             <thead className="bg-muted/50">
               <tr>

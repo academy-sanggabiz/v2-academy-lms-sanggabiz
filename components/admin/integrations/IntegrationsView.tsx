@@ -118,7 +118,10 @@ export function IntegrationsView({ data }: { data: Integrasi }) {
         <div className="mt-3 rounded-lg border border-ring/40 bg-secondary/40 p-3">
           <p className="text-sm font-semibold">{t.integrasi.shownOnce}</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <code className="min-w-0 flex-1 overflow-x-auto rounded-md bg-card px-2.5 py-1.5 text-xs">
+            <code
+              tabIndex={0}
+              className="min-w-0 flex-1 overflow-x-auto rounded-md bg-card px-2.5 py-1.5 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
               {kunciBaru}
             </code>
             <Button size="sm" variant="outline" onClick={() => salin(kunciBaru)}>
@@ -215,7 +218,10 @@ export function IntegrationsView({ data }: { data: Integrasi }) {
         <div className="mt-3 rounded-lg border border-ring/40 bg-secondary/40 p-3">
           <p className="text-sm font-semibold">{t.integrasi.secretShown}</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <code className="min-w-0 flex-1 overflow-x-auto rounded-md bg-card px-2.5 py-1.5 text-xs">
+            <code
+              tabIndex={0}
+              className="min-w-0 flex-1 overflow-x-auto rounded-md bg-card px-2.5 py-1.5 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
               {rahasiaBaru}
             </code>
             <Button size="sm" variant="outline" onClick={() => salin(rahasiaBaru)}>

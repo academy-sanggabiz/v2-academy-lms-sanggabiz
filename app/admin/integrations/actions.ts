@@ -7,6 +7,7 @@ import { requireSuperAdmin } from "@/lib/auth/require-admin"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { buatKunci, cabutKunci } from "@/lib/api-keys-server"
 import { KEJADIAN_WEBHOOK, type Lingkup } from "@/lib/api-keys"
+import { kirimAntrean } from "@/lib/webhook-kirim"
 
 /**
  * Pengelolaan kunci API dan webhook.
@@ -150,16 +151,11 @@ export async function kirimSekarangAction(): Promise<ActionResult<{ terkirim: nu
     return { ok: false, error: "Anda tidak berwenang" }
   }
 
-  const { POST } = await import("@/app/api/webhooks/kirim/route")
-  const rahasia = process.env.CRON_SECRET
-  const r = await POST(
-    new Request("https://internal/api/webhooks/kirim", {
-      method: "POST",
-      headers: rahasia ? { authorization: `Bearer ${rahasia}` } : {},
-    })
-  )
-  const hasil = (await r.json()) as { terkirim?: number; gagal?: number }
+  // Fungsinya langsung, bukan rutenya lewat HTTP. Memanggil rute sendiri
+  // berarti satu perjalanan jaringan dan satu lapis autentikasi yang harus
+  // dipalsukan, demi kode yang sama persis.
+  const hasil = await kirimAntrean()
 
   revalidatePath("/admin/integrations")
-  return { ok: true, data: { terkirim: hasil.terkirim ?? 0, gagal: hasil.gagal ?? 0 } }
+  return { ok: true, data: hasil }
 }

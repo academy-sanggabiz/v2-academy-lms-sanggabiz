@@ -132,10 +132,18 @@ if (!crypto.timingSafeEqual(Buffer.from(diharap), Buffer.from(diberikan ?? "")))
 
       <Bagian judul="Bila penerima sedang mati">
         <p>
-          Kabar yang gagal dicoba ulang sampai {MAKS_PERCOBAAN} kali dengan jeda yang makin panjang
-          (1 menit, 5, 30, 2 jam, 12 jam). Sesudah itu ia berhenti dicoba dan tercatat gagal di
-          jejak pengiriman. Jawab <Kode>2xx</Kode> secepat mungkin lalu kerjakan isinya di belakang
-          layar — kami berhenti menunggu setelah 10 detik.
+          Kabar yang gagal dicoba ulang sampai {MAKS_PERCOBAAN} kali dengan jeda yang makin panjang:
+          1 menit, lalu 5, 30, 2 jam, dan 12 jam. Sesudah itu ia berhenti dicoba dan tercatat gagal
+          di jejak pengiriman.
+        </p>
+        <p>
+          Jeda itu waktu <em>paling cepat</em>, bukan janji. Antrean dikirim setiap kali ada
+          kejadian baru, saat Anda menekan Kirim sekarang di layar Integrasi, dan sekali sehari pukul
+          03.00. Pada hari yang sepi, percobaan ulang bisa menunggu sampai jadwal harian itu.
+        </p>
+        <p>
+          Jawab <Kode>2xx</Kode> secepat mungkin lalu kerjakan isinya di belakang layar — kami
+          berhenti menunggu setelah 10 detik.
         </p>
         <p>
           <Kode>deliveryId</Kode> tetap sama di setiap percobaan ulang, jadi pakailah untuk
@@ -159,9 +167,18 @@ function Kode({ children }: { children: React.ReactNode }) {
   return <code className="rounded bg-muted px-1 py-0.5 text-xs text-foreground">{children}</code>
 }
 
+/**
+ * Blok kode yang bisa digulir mendatar -- dan karena itu harus bisa dicapai
+ * papan ketik (WCAG 2.1.1). Contoh `curl` di sini lebih lebar dari layar
+ * 320px, jadi tanpa `tabIndex` separuh perintahnya tidak terjangkau sama
+ * sekali oleh orang yang tidak memakai tetikus.
+ */
 function Blok({ children }: { children: string }) {
   return (
-    <pre className="overflow-x-auto rounded-lg border border-border bg-muted/40 p-3 text-xs text-foreground">
+    <pre
+      tabIndex={0}
+      className="overflow-x-auto rounded-lg border border-border bg-muted/40 p-3 text-xs text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    >
       <code>{children}</code>
     </pre>
   )

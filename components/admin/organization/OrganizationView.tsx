@@ -324,7 +324,16 @@ export function OrganizationView({
                     <div className="font-medium">{l.name}</div>
                     <div className="text-xs text-muted-foreground">{l.email}</div>
                   </td>
-                  <td className="py-2 pr-3">
+                  {/*
+                    `relative` di sel ini bukan hiasan. `sr-only` adalah
+                    `position: absolute`, dan tanpa leluhur ber-posisi, kotak
+                    labelnya dihitung terhadap halaman -- jadi ia KELUAR dari
+                    wadah `overflow-x-auto` di atas dan melebarkan dokumen
+                    sampai 339px pada layar 320px (WCAG 1.4.10 Reflow gagal,
+                    tak terlihat di layar lebar). Dengan `relative`, labelnya
+                    tetap di dalam wadah yang memang boleh digulir.
+                  */}
+                  <td className="relative py-2 pr-3">
                     <label className="sr-only" htmlFor={`jabatan-${l.id}`}>
                       {t.admin.orgAssignFor.replace("{nama}", l.name)}
                     </label>
