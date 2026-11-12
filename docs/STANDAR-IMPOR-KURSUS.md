@@ -259,7 +259,7 @@ yang bisa dikerjakan.
 **Pemakaian AI dicatat dan dibatasi.** Tiap panggilan menulis satu baris ke
 `ai_usage` (siapa, fitur apa, berapa token), dan `/admin/ai-usage` --
 khusus superadmin -- membacanya per orang dan per fitur. Fitur ini juga punya
-pagar harian `BATAS_TOKEN_SOP_HARIAN` (200 ribu token, kira-kira tujuh
+pagar harian `BATAS_TOKEN_SOP_HARIAN` (200 ribu token, kira-kira sepuluh
 kursus), diperiksa SEBELUM tiap panggilan AI, bukan sekali di awal: menulis
 satu kursus adalah tujuh panggilan terpisah, jadi memeriksa sekali di awal
 berarti batasnya bisa dilewati sejauh satu kursus penuh.
@@ -270,6 +270,23 @@ satu pertanyaan yang membakar dua ribu token dihitung sama -- kekeliruan yang
 tidak diulang di sini. Bila pembacaan pemakaian gagal, pagarnya MENUTUP, bukan
 membuka: lebih baik satu orang tertahan sehari daripada batas biaya hilang
 diam-diam setiap kali basis data tersendat.
+
+**Biayanya diukur, bukan dikira.** Dokumen contoh 4.211 huruf, DeepSeek,
+12 November 2026:
+
+| Bagian | Token | Catatan |
+|---|---|---|
+| Membaca dokumen + kerangka | 3.573 | sekali per kursus |
+| Menulis satu modul | 2.547 | rata-rata dari enam (2.316–2.770) |
+| **Satu kursus enam modul** | **18.855** | 30 pelajaran, 14 soal, 33 detik |
+| Mengubah kerangka | 5.224 | per permintaan, hanya bila dipakai |
+| Membahas dua jawaban salah | 723 | fitur peserta |
+| Satu pertanyaan ke asisten | ±930 | fitur peserta |
+
+Angka pertama yang tertulis di sini adalah "±28 ribu per kursus" -- hasil
+membagi total satu sesi uji coba tanpa memperhatikan bahwa sesi itu memuat
+dua kerangka dan satu revisi, jadi lebih dari satu kursus. Jangan mengutip
+total pemakaian sebagai biaya satuan; ukur satu putaran utuh.
 
 **Keterangan kursus ikut dibuat, dan ikut bisa disunting.** Judul, deskripsi,
 tingkat, persyaratan, dan "untuk siapa" selalu dihasilkan AI dan selalu masuk

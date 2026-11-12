@@ -75,9 +75,16 @@ export function rupiah(token: number, hargaPerJuta: number | null): number | nul
 /**
  * Batas token per orang per hari untuk "Buat otomatis dengan AI".
  *
- * Satu kursus menghabiskan sekitar 28 ribu token, jadi angka ini kira-kira
- * tujuh kursus sehari -- longgar untuk pemakaian sungguhan, rapat untuk
- * seseorang yang menekan tombolnya berulang kali.
+ * DIUKUR, bukan dikira: satu kursus enam modul dari dokumen 4.200 huruf
+ * memakan 18.855 token (kerangka 3.573 + enam modul rata-rata 2.547), selesai
+ * dalam 33 detik. Jadi angka ini kira-kira sepuluh kursus sehari -- longgar
+ * untuk pemakaian sungguhan, rapat untuk seseorang yang menekan tombolnya
+ * berulang kali.
+ *
+ * Angka pertama yang ditulis di sini adalah "28 ribu", hasil membagi total
+ * satu sesi uji coba tanpa memperhatikan bahwa sesi itu memuat dua kerangka
+ * dan satu revisi -- lebih dari satu kursus. Diukur ulang karena batas yang
+ * alasannya salah adalah batas yang akan disetel salah nanti.
  *
  * Dibatasi dengan TOKEN, bukan jumlah panggilan, karena yang dijaga adalah
  * biaya. Batas harian asisten pelajaran menghitung pertanyaan, dan karena itu
@@ -99,8 +106,9 @@ export const FITUR_SOP: readonly string[] = ["sop_kerangka", "sop_revisi", "sop_
  * pembahasan baru yang sah. Singgahan per percobaan menahan pengulangan, bukan
  * pemakaian.
  *
- * Satu pembahasan sekitar 1.500 token, jadi angka ini kira-kira tiga belas
- * pembahasan sehari -- jauh di atas pemakaian belajar yang wajar.
+ * Diukur: membahas dua jawaban salah memakan 723 token. Jadi angka ini
+ * kira-kira dua puluh tujuh pembahasan sehari -- jauh di atas pemakaian
+ * belajar yang wajar.
  */
 export const BATAS_TOKEN_PEMBAHASAN_HARIAN = 20_000
 

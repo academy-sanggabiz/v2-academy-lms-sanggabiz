@@ -55,9 +55,9 @@ const MAKS_PERMINTAAN = 500
  * Pagar biaya harian.
  *
  * Fitur ini sebelumnya sama sekali tanpa batas, dan justru ia yang paling
- * mahal: satu kursus menghabiskan sekitar 28 ribu token, jauh di atas satu
- * pertanyaan ke asisten pelajaran. Seseorang bisa menekan tombolnya berulang
- * kali tanpa ada yang menghentikan.
+ * mahal: satu kursus terukur 18.855 token, dua puluh kali satu pertanyaan ke
+ * asisten pelajaran. Seseorang bisa menekan tombolnya berulang kali tanpa ada
+ * yang menghentikan.
  *
  * Dihitung dengan TOKEN, bukan jumlah panggilan. Batas harian asisten
  * pelajaran menghitung pertanyaan, sehingga satu pertanyaan pendek dan satu
