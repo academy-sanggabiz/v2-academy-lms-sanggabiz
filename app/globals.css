@@ -81,7 +81,15 @@
   --muted-foreground: #566a70;
   --accent: #e3f4f7;
   --accent-foreground: #13707f;
-  --destructive: #c24040;
+  /* Dulu #c24040. Itu lolos 4,5:1 di atas --card yang putih, tetapi JATUH ke
+     4,46:1 di atas --muted (#e7f1f3) -- dan `<StatusMessage>` memang dipakai
+     di atas bg-muted di tiga tempat (dialog impor kursus, panel pendaftaran
+     katalog, dialog buat-kursus-dengan-AI). Kegagalannya tidak pernah
+     terlihat karena ketiganya hanya muncul pada keadaan tertentu: yang di
+     dialog impor baru tampil kalau kursusnya SUDAH punya pendaftaran.
+     #b93a3a memberi 4,90:1 di atas --muted dan 5,63:1 di atas putih, jadi
+     teks galat aman di kedua latar tanpa perlu ditambal satu per satu. */
+  --destructive: #b93a3a;
   --destructive-foreground: #ffffff;
   --success: #e6f6ea;
   --success-foreground: #18733a;

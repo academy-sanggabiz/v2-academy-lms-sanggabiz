@@ -20,6 +20,7 @@ export const FITUR_AI = [
   "sop_kerangka",
   "sop_revisi",
   "sop_tulis",
+  "report-summary",
 ] as const
 
 export type FiturAi = (typeof FITUR_AI)[number]
@@ -114,6 +115,24 @@ export const BATAS_TOKEN_PEMBAHASAN_HARIAN = 20_000
 
 /** Fitur yang dihitung terhadap batas pembahasan. */
 export const FITUR_PEMBAHASAN: readonly string[] = ["quiz-feedback"]
+
+/**
+ * Batas token per pengelola per hari untuk ringkasan laporan departemen.
+ *
+ * Jauh lebih kecil daripada batas pembuatan kursus karena masukannya pun
+ * jauh lebih kecil: yang dikirim hanya beberapa baris angka agregat, bukan
+ * dokumen. Diukur pada enam departemen (dua di antaranya tampil, sisanya
+ * ditahan ambang): 1.536 token untuk dua kali jalan, jadi sekitar 768 token
+ * sekali ringkas. Angka ini karena itu kira-kira tiga puluh kali sehari.
+ *
+ * Pagarnya ada karena tombolnya bisa ditekan berulang-ulang tanpa biaya yang
+ * terlihat oleh penekannya -- dan ringkasan yang sama dibuat dua kali adalah
+ * uang yang dibakar untuk jawaban yang sudah ada di layar.
+ */
+export const BATAS_TOKEN_LAPORAN_HARIAN = 25_000
+
+/** Fitur yang dihitung terhadap batas laporan. */
+export const FITUR_LAPORAN: readonly string[] = ["report-summary"]
 
 export function formatToken(n: number, locale: string): string {
   return new Intl.NumberFormat(locale === "en" ? "en-US" : "id-ID").format(n)

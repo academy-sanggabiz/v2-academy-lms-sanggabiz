@@ -10,13 +10,15 @@ import { getTranslations } from "@/lib/i18n/server"
 import { resolveSuperAdminProfile } from "@/lib/auth/require-admin"
 import { getBehaviorSummary } from "@/lib/behavior-server"
 import { BehaviorSummary } from "@/components/admin/tracking/BehaviorSummary"
+import { getLaporanDepartemen, getRingkasanTerakhir } from "@/lib/laporan-departemen-server"
+import { LaporanDepartemen } from "@/components/admin/tracking/LaporanDepartemen"
 
 export default async function AdminTrackingPage({
   searchParams,
 }: {
   searchParams: Promise<RawSearchParams>
 }) {
-  const { t } = await getTranslations()
+  const { t, locale } = await getTranslations()
   await requireAdmin()
 
   const raw = await searchParams
@@ -31,7 +33,17 @@ export default async function AdminTrackingPage({
   // Lama belajar adalah data perilaku per orang, bukan data penyampaian
   // kursus -- jadi hanya superadmin, sejalan dengan docs/STANDAR-PERAN.md §2.
   const superadmin = (await resolveSuperAdminProfile()).status === "ok"
-  const behavior = superadmin ? await getBehaviorSummary() : null
+  /*
+   * Laporan per departemen menyatukan angka SELURUH organisasi, jadi ia
+   * berada di pagar yang sama dengan lama belajar: superadmin saja, sejalan
+   * dengan docs/STANDAR-PERAN.md §2. Seorang mentor berhak atas kursusnya
+   * sendiri, bukan atas gambaran lintas departemen.
+   */
+  const [behavior, laporan, ringkasan] = await Promise.all([
+    superadmin ? getBehaviorSummary() : null,
+    superadmin ? getLaporanDepartemen() : null,
+    superadmin ? getRingkasanTerakhir(locale) : null,
+  ])
 
   return (
     <div>
@@ -59,6 +71,12 @@ export default async function AdminTrackingPage({
       </div>
 
       <TrackingListClient page={page} />
+
+      {laporan && (
+        <div className="mt-10">
+          <LaporanDepartemen data={laporan} ringkasan={ringkasan} />
+        </div>
+      )}
 
       {behavior && (
         <div className="mt-10">
