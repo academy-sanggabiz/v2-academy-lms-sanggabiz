@@ -2,7 +2,10 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { renderToBuffer } from "@react-pdf/renderer"
 
 import { CertificateDocument } from "@/components/certificates/CertificateDocument"
+import { after } from "next/server"
+
 import { createAdminClient } from "@/lib/supabase/admin"
+import { kirimAntrean } from "@/lib/webhook-kirim"
 import { computeCourseGrade, quizGradeWeight } from "@/lib/course-grade"
 import { isMeasureQuiz } from "@/lib/courses"
 import { pickRepresentativeAttempt } from "@/lib/quiz-attempt-selection"
@@ -232,6 +235,30 @@ export async function checkAndIssueCertificate(
       .single()
 
     if (updated) certificate = updated as Certificate
+  }
+
+  /*
+   * Menyelesaikan kursus mengantrekan `course.completed`, menerbitkan
+   * sertifikat mengantrekan `certificate.issued`. Keduanya dikirim sekarang:
+   * cron di paket Hobby hanya harian, dan kabar kelulusan yang tiba besok
+   * sudah kehilangan gunanya bagi sistem kepegawaian yang menunggunya.
+   *
+   * Dibungkus try sendiri dan tidak pernah dilemparkan: penerbitan sertifikat
+   * TIDAK BOLEH gagal gara-gara webhook, aturan yang sama dengan trigger
+   * pengantrenya.
+   */
+  try {
+    after(async () => {
+      try {
+        await kirimAntrean()
+      } catch (e) {
+        console.error("kirim webhook setelah sertifikat gagal:", e)
+      }
+    })
+  } catch {
+    // `after()` hanya sah di dalam permintaan. checkAndIssueCertificate juga
+    // dipanggil dari skrip, dan di sana ketiadaan konteks bukan kesalahan --
+    // antreannya tetap terkirim oleh cron atau tombol di layar pengelola.
   }
 
   return certificate

@@ -359,6 +359,13 @@ try {
       "/admin/certificates",
       "/admin/settings",
       "/admin/profile",
+      // Tiga di bawah ini khusus superadmin. Dengan akun pengelola biasa
+      // `visit()` mencetak "dialihkan, akunnya tidak berwenang" dan tidak
+      // mengaku lolos; jalankan sekali lagi dengan akun superadmin pada
+      // AUDIT_ADMIN_* untuk benar-benar memeriksanya.
+      "/admin/integrations",
+      "/admin/integrations/petunjuk",
+      "/admin/ai-usage",
     ])
       await visit(page, path)
     if (page) {

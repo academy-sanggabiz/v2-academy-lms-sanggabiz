@@ -7,6 +7,27 @@ alasannya. Diperbarui 1 November 2026.
 
 ## Belum dikerjakan
 
+### Y. API integrasi dan rekomendasi dari pengerjaan — ✅ selesai 12 November 2026
+
+Dua celah yang ditemukan saat pemilik memeriksa daftar fitur terhadap kode
+yang benar-benar ada.
+
+**API untuk tim IT** sebelumnya nol: tiga tabel integrasi ada sejak migrasi
+MVP tetapi nol baris dan nol kode yang menyentuhnya. Sekarang `/api/v1`
+dengan kunci yang bisa dicabut satu per satu, webhook berantrean, layar
+pengelola, dan petunjuk di dalam aplikasi. Lihat
+`docs/STANDAR-API-INTEGRASI.md`.
+
+**Rekomendasi kursus** sebelumnya hanya berdasarkan JABATAN (kartu "Untuk
+jabatan Anda"). Yang diminta pemilik juga "berdasarkan pengerjaan", dan itu
+belum ada sama sekali. Sekarang ada kartu kedua yang menyarankan dari kursus
+yang sudah DISELESAIKAN — kategori yang sama, lalu tingkat berikutnya —
+berdampingan dengan kartu jabatan, tidak menggantikannya. Keduanya menjawab
+pertanyaan berbeda: jabatan menjawab "apa yang diwajibkan posisi saya",
+riwayat menjawab "apa yang masuk akal saya pelajari berikutnya".
+
+---
+
 ### Z. Masukan pemilik atas "Buat otomatis dengan AI" — ✅ selesai 11 November 2026
 
 Dicatat apa adanya dari pemakaian pertama di `dev`, lalu dikerjakan di hari

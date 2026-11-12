@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Activity, Award, BookOpen, Building2, ClipboardCheck, Layout, LayoutDashboard, PanelLeftClose, Search, ShoppingCart, Sparkles, UserCog, Users, X } from "lucide-react"
+import { Activity, Award, BookOpen, Building2, ClipboardCheck, Layout, LayoutDashboard, PanelLeftClose, Plug, Search, ShoppingCart, Sparkles, UserCog, Users, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { sidebarClasses } from "@/hooks/use-mobile-nav"
@@ -75,6 +75,7 @@ export function AdminSidebar({
             <NavLink href="/admin/seo" label={t.admin.seo} icon={Search} />
             <NavLink href="/admin/certificates" label={t.admin.certificates} icon={Award} />
             <NavLink href="/admin/ai-usage" label={t.aiUsage.title} icon={Sparkles} />
+            <NavLink href="/admin/integrations" label={t.integrasi.title} icon={Plug} />
           </>
         )}
       </nav>
