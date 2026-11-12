@@ -10,12 +10,13 @@ Dikerjakan: 10 Nov 2026, branch `mvp-ai-korporat`.
 | F4 | Asisten AI di pelajaran | **Selesai, memakai Gemini sungguhan** |
 | F5 | Bahas jawaban saya | **Selesai, memakai Gemini sungguhan** |
 | F6 | Kursus untuk jabatan Anda | **Selesai** (tanpa AI, memang aturan) |
-| F3 | Laporan per departemen | Belum — fondasi datanya sudah ada |
-| F1 | Buat kursus dari dokumen | Belum |
-| F2 | Integrasi API dan webhook | Belum — tabelnya sudah ada |
+| F1 | Buat kursus dari dokumen | **Selesai** (12 Nov 2026) |
+| F2 | Integrasi API dan webhook | **Selesai** (12 Nov 2026) |
+| F3 | Laporan per departemen | **Selesai** (13 Nov 2026) |
 
-Ketiga yang selesai adalah persis yang brief sendiri sebut realistis di §10
-("realistisnya yang nyata adalah F5, F4, dan F6").
+Tiga yang pertama selesai adalah persis yang brief sendiri sebut realistis di
+§10 ("realistisnya yang nyata adalah F5, F4, dan F6"). Tiga sisanya menyusul
+pada 12-13 November 2026; keenamnya kini ada.
 
 ## Yang tidak berubah di v2
 
@@ -139,26 +140,50 @@ menutup ketidakcocokan bentuknya dengan `as never`, cast yang membungkam
 pemeriksa tipe alih-alih memperbaiki panggilannya. Diganti `getLearnData()`,
 pembaca yang sama dengan halaman pemutar.
 
-## Yang belum dikerjakan, dan apa yang sudah siap untuknya
+## Tiga yang menyusul
 
-### F3 — Laporan per departemen
-Fondasinya **sudah ada**: `departments`, `job_titles`, `profiles.department_id`,
-dan tabel `ai_report_summaries`. Yang kurang: fungsi agregat per departemen di
-`lib/insight-server.ts`, tab di `/admin/tracking`, dan `lib/ai/report-summary.ts`.
-Aturan yang harus dihormati: kelompok di bawah 5 orang disembunyikan, ringkasan
-hanya dari angka agregat, tidak ada pemeringkatan orang.
+### F3 — Laporan per departemen (13 Nov 2026)
+`lib/laporan-departemen.ts` (logika murni), `lib/laporan-departemen-server.ts`
+(pembaca, klien pemanggil), `lib/ai/report-summary.ts`, dan bagian
+`LaporanDepartemen` di `/admin/tracking` — superadmin saja, sepagar dengan
+"Lama belajar".
 
-### F1 — Buat kursus dari dokumen
-Belum ada apa pun selain tabel `ai_course_generations`. Perlu keputusan
-tertulis: ini **membalik** `docs/STANDAR-IMPOR-KURSUS.md §1` ("LMS tidak pernah
-memanggil model bahasa"). Jalur `.md` lama harus tetap ada sebagai cadangan.
+Ketiga aturan brief dihormati, dan dua di antaranya dijaga oleh **tipe**, bukan
+oleh niat baik:
 
-### F2 — Integrasi API dan webhook
-Tabelnya **sudah ada** (`integration_api_keys`, `webhook_endpoints`,
-`webhook_deliveries`) lengkap dengan RLS superadmin. Yang kurang: rute
-`/api/v1/*`, hash kunci, penandatanganan HMAC, antrean kiriman, layar
-Integrasi, dan simulator HRIS. Ini pekerjaan terbesar dari keenamnya dan satu-
-satunya yang tidak memakai AI sama sekali.
+- **Kelompok di bawah lima orang tidak menampilkan angka** (`AMBANG_LAPORAN`).
+  Yang ditahan angkanya, bukan barisnya: menghilangkan departemennya membuat
+  jumlah tidak pernah cocok dan terbaca seperti data rusak.
+- **Ringkasan hanya melihat angka agregat.** Yang dikirim ke model adalah
+  `AngkaRingkas`, tipe yang tidak punya ruas untuk id, nama orang, surel,
+  maupun judul kursus.
+- **Tidak ada pemeringkatan orang.** Tidak satu pun fungsi di modul itu
+  mengembalikan baris per orang.
+
+Dibuat sebagai BAGIAN di `/admin/tracking`, bukan layar sendiri seperti
+rencana awal "tab": menu pengelola sudah di sebelas entri (butir A4 standar
+platform), dan halaman itu memang sudah tempat angka agregat tinggal.
+Agregatnya juga tidak jadi diletakkan di `lib/insight-server.ts` — berkas itu
+seluruhnya ber-lingkup satu kursus, sementara laporan ini lintas organisasi.
+
+Ringkasan disimpan **satu per bahasa** (`scope` = `departemen:id` /
+`departemen:en`). Dengan satu baris untuk semua bahasa, pembaca Inggris
+mendapat antarmuka Inggris berisi ringkasan Indonesia, karena penulis terakhir
+yang menang.
+
+### F1 — Buat kursus dari dokumen (12 Nov 2026)
+`lib/ai/sop.ts` + `app/admin/courses/sop-actions.ts` + `SopDialog`. Menerima
+`.pdf`, `.docx`, `.md`, `.txt`. Jalur `.md` lama tetap ada sebagai cadangan,
+sesuai syarat yang dicatat di sini sebelumnya.
+
+### F2 — Integrasi API dan webhook (12 Nov 2026)
+`/api/v1/*` dengan kunci ber-hash SHA-256 dan lingkup `read`/`write`, webhook
+bertanda tangan HMAC yang diantrekan **oleh trigger basis data**, dan layar
+Integrasi beserta halaman petunjuknya. Pengirimannya tidak bergantung
+penjadwal: paket Hobby menolak cron lebih sering dari sekali sehari, jadi
+antrean dikirim lewat `after()` tepat sesudah kejadian terantre. Simulator
+HRIS tidak dibuat — halaman petunjuk berisi contoh `curl` yang bisa disalin,
+dan itu memenuhi kebutuhan yang sama tanpa layar tambahan.
 
 ## Gerbang
 

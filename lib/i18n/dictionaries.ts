@@ -1548,6 +1548,34 @@ export type Dictionary = {
     privacyNote: string
     scrollTable: string
   }
+  laporanDepartemen: {
+    title: string
+    subtitle: string
+    noDepartment: string
+    colDepartment: string
+    colPeople: string
+    colEnrollments: string
+    colCompleted: string
+    colCertificates: string
+    colOverdue: string
+    colNotStarted: string
+    totalRow: string
+    withheld: string
+    withheldWhy: string
+    withheldCount: string
+    empty: string
+    scrollTable: string
+    summaryTitle: string
+    summaryNone: string
+    summaryMake: string
+    summaryMaking: string
+    summaryAgain: string
+    summaryFindings: string
+    summaryActions: string
+    summaryMadeAt: string
+    summaryStale: string
+    summaryNote: string
+  }
   rekomendasi: {
     title: string
     subtitle: string
@@ -3150,10 +3178,41 @@ const id: Dictionary = {
       sop_kerangka: "Membaca dokumen",
       sop_revisi: "Mengubah kerangka",
       sop_tulis: "Menulis isi kursus",
+      "report-summary": "Ringkasan laporan",
     },
     privacyNote:
       "Layar ini hanya memuat hitungan. Isi pertanyaan dan jawaban tidak disimpan.",
     scrollTable: "Pemakaian per orang, dapat digulir mendatar",
+  },
+  laporanDepartemen: {
+    title: "Laporan per departemen",
+    subtitle: "Penyelesaian pelatihan tiap departemen, dihitung saat halaman ini dibuka.",
+    noDepartment: "Tanpa departemen",
+    colDepartment: "Departemen",
+    colPeople: "Orang",
+    colEnrollments: "Pendaftaran",
+    colCompleted: "Selesai",
+    colCertificates: "Sertifikat",
+    colOverdue: "Lewat tenggat",
+    colNotStarted: "Wajib belum mulai",
+    totalRow: "Seluruh organisasi",
+    withheld: "Angka ditahan",
+    withheldWhy:
+      "Angka baru ditampilkan mulai {n} orang, supaya satu baris tidak menunjuk satu orang.",
+    withheldCount: "{n} kelompok angkanya ditahan karena anggotanya kurang dari {ambang} orang.",
+    empty: "Belum ada departemen. Buat dulu di layar Jabatan & Departemen.",
+    scrollTable: "Laporan per departemen, dapat digulir mendatar",
+    summaryTitle: "Ringkasan",
+    summaryNone: "Belum ada ringkasan untuk angka ini.",
+    summaryMake: "Buat ringkasan dengan AI",
+    summaryMaking: "Meringkas…",
+    summaryAgain: "Buat ulang",
+    summaryFindings: "Yang menonjol",
+    summaryActions: "Langkah berikutnya",
+    summaryMadeAt: "Dibuat {waktu}",
+    summaryStale: "Angkanya sudah berubah sejak ringkasan ini dibuat.",
+    summaryNote:
+      "Ringkasan disusun AI hanya dari angka di tabel ini. Bila keduanya berbeda, tabelnya yang benar.",
   },
   rekomendasi: {
     title: "Mungkin cocok untuk Anda",
@@ -4762,9 +4821,40 @@ const en: Dictionary = {
       sop_kerangka: "Reading the document",
       sop_revisi: "Changing the outline",
       sop_tulis: "Writing the course",
+      "report-summary": "Report summary",
     },
     privacyNote: "This screen holds counts only. Question and answer text is not stored.",
     scrollTable: "Usage by person, scrolls sideways",
+  },
+  laporanDepartemen: {
+    title: "Report by department",
+    subtitle: "Training completion per department, counted when this page was opened.",
+    noDepartment: "No department",
+    colDepartment: "Department",
+    colPeople: "People",
+    colEnrollments: "Enrolments",
+    colCompleted: "Completed",
+    colCertificates: "Certificates",
+    colOverdue: "Overdue",
+    colNotStarted: "Required, not started",
+    totalRow: "Whole organisation",
+    withheld: "Figures withheld",
+    withheldWhy:
+      "Figures appear from {n} people upward, so that one row never points at one person.",
+    withheldCount: "{n} groups have their figures withheld for having fewer than {ambang} people.",
+    empty: "No departments yet. Create one on the Job titles and departments screen.",
+    scrollTable: "Report by department, scrolls sideways",
+    summaryTitle: "Summary",
+    summaryNone: "No summary for these figures yet.",
+    summaryMake: "Write a summary with AI",
+    summaryMaking: "Summarising…",
+    summaryAgain: "Write it again",
+    summaryFindings: "What stands out",
+    summaryActions: "Next steps",
+    summaryMadeAt: "Written {waktu}",
+    summaryStale: "The figures have changed since this summary was written.",
+    summaryNote:
+      "The summary is written by AI from the figures in this table alone. Where they differ, the table is right.",
   },
   rekomendasi: {
     title: "You might like these",
