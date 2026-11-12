@@ -19,6 +19,7 @@ export type Dictionary = {
     language: string
     changeLanguage: string
     optional: string
+    close: string
   }
   nav: {
     dashboard: string
@@ -1482,6 +1483,51 @@ export type Dictionary = {
     reviewNote: string
     lockedByLearners: string
   }
+  integrasi: {
+    title: string
+    subtitle: string
+    keysTitle: string
+    keysDesc: string
+    newKey: string
+    keyName: string
+    keyNamePh: string
+    scopeLabel: string
+    scopeRead: string
+    scopeWrite: string
+    create: string
+    creating: string
+    shownOnce: string
+    copy: string
+    copied: string
+    revoke: string
+    revoked: string
+    neverUsed: string
+    lastUsed: string
+    noKeys: string
+    hooksTitle: string
+    hooksDesc: string
+    hookUrl: string
+    hookNote: string
+    hookNotePh: string
+    hookEvents: string
+    addHook: string
+    secretShown: string
+    deleteHook: string
+    noHooks: string
+    logTitle: string
+    pendingCount: string
+    sendNow: string
+    sending: string
+    sendResult: string
+    noLog: string
+    delivered: string
+    failed: string
+    waiting: string
+    docsTitle: string
+    docsDesc: string
+    openDocs: string
+    privacyWarn: string
+  }
   aiUsage: {
     title: string
     subtitle: string
@@ -1500,6 +1546,15 @@ export type Dictionary = {
     featureLine: string
     featureNames: Record<string, string>
     privacyNote: string
+  }
+  rekomendasi: {
+    title: string
+    subtitle: string
+    becauseCategory: string
+    becauseLevel: string
+    becausePopular: string
+    lessons: string
+    open: string
   }
   perkembangan: {
     title: string
@@ -1600,6 +1655,7 @@ const id: Dictionary = {
     language: "Bahasa",
     changeLanguage: "Ganti bahasa",
     optional: "opsional",
+    close: "Tutup",
   },
   nav: {
     dashboard: "Dashboard",
@@ -3024,6 +3080,52 @@ const id: Dictionary = {
     lockedByLearners:
       "Kursus ini sudah punya {n} peserta, jadi isinya tidak bisa diganti. Buat kursus baru untuk memakai fitur ini.",
   },
+  integrasi: {
+    title: "Integrasi",
+    subtitle: "Kunci API untuk sistem lain, dan webhook untuk mengabari mereka.",
+    keysTitle: "Kunci API",
+    keysDesc: "Dipakai sistem lain untuk membaca data lewat alamat /api/v1.",
+    newKey: "Kunci baru",
+    keyName: "Nama kunci",
+    keyNamePh: "Sistem kepegawaian",
+    scopeLabel: "Hak akses",
+    scopeRead: "Baca",
+    scopeWrite: "Tulis (mendaftarkan peserta)",
+    create: "Buat kunci",
+    creating: "Membuat…",
+    shownOnce: "Salin sekarang. Kunci ini tidak bisa dilihat lagi setelah Anda menutup pesan ini.",
+    copy: "Salin",
+    copied: "Tersalin",
+    revoke: "Cabut",
+    revoked: "Dicabut",
+    neverUsed: "Belum pernah dipakai",
+    lastUsed: "Terakhir dipakai {tanggal}",
+    noKeys: "Belum ada kunci.",
+    hooksTitle: "Webhook",
+    hooksDesc: "Kami mengirim kabar ke alamat Anda tiap kali kejadian yang dipilih terjadi.",
+    hookUrl: "Alamat penerima",
+    hookNote: "Keterangan",
+    hookNotePh: "Dipakai tim HRIS",
+    hookEvents: "Kejadian",
+    addHook: "Tambah alamat",
+    secretShown: "Simpan kunci tanda tangan ini. Dipakai memastikan kabar memang dari kami.",
+    deleteHook: "Hapus",
+    noHooks: "Belum ada alamat penerima.",
+    logTitle: "Jejak pengiriman",
+    pendingCount: "{n} menunggu dikirim",
+    sendNow: "Kirim sekarang",
+    sending: "Mengirim…",
+    sendResult: "{terkirim} terkirim, {gagal} gagal.",
+    noLog: "Belum ada pengiriman.",
+    delivered: "Terkirim",
+    failed: "Gagal",
+    waiting: "Menunggu",
+    docsTitle: "Petunjuk untuk tim IT",
+    docsDesc: "Daftar alamat, contoh permintaan, dan cara memeriksa tanda tangan webhook.",
+    openDocs: "Buka petunjuk",
+    privacyWarn:
+      "Webhook mengirim nama dan email peserta ke alamat yang Anda daftarkan. Pastikan alamatnya milik organisasi Anda.",
+  },
   aiUsage: {
     title: "Pemakaian AI",
     subtitle: "Siapa memakai fitur AI dan seberapa banyak, {hari} hari terakhir.",
@@ -3050,6 +3152,15 @@ const id: Dictionary = {
     },
     privacyNote:
       "Layar ini hanya memuat hitungan. Isi pertanyaan dan jawaban tidak disimpan.",
+  },
+  rekomendasi: {
+    title: "Mungkin cocok untuk Anda",
+    subtitle: "Dipilih dari kursus yang sudah Anda selesaikan.",
+    becauseCategory: "Karena Anda menyelesaikan {kursus}",
+    becauseLevel: "Tingkat berikutnya setelah yang Anda selesaikan",
+    becausePopular: "Banyak dipelajari peserta lain",
+    lessons: "{n} pelajaran",
+    open: "Lihat kursus",
   },
   perkembangan: {
     title: "Perkembangan Anda",
@@ -3156,6 +3267,7 @@ const en: Dictionary = {
     language: "Language",
     changeLanguage: "Change language",
     optional: "optional",
+    close: "Close",
   },
   nav: {
     dashboard: "Dashboard",
@@ -4579,6 +4691,52 @@ const en: Dictionary = {
     lockedByLearners:
       "This course already has {n} learners, so its content cannot be replaced. Create a new course to use this.",
   },
+  integrasi: {
+    title: "Integrations",
+    subtitle: "API keys for other systems, and webhooks to notify them.",
+    keysTitle: "API keys",
+    keysDesc: "Used by other systems to read data through /api/v1.",
+    newKey: "New key",
+    keyName: "Key name",
+    keyNamePh: "HR system",
+    scopeLabel: "Permissions",
+    scopeRead: "Read",
+    scopeWrite: "Write (enrol learners)",
+    create: "Create key",
+    creating: "Creating…",
+    shownOnce: "Copy it now. This key cannot be shown again once you close this message.",
+    copy: "Copy",
+    copied: "Copied",
+    revoke: "Revoke",
+    revoked: "Revoked",
+    neverUsed: "Never used",
+    lastUsed: "Last used {tanggal}",
+    noKeys: "No keys yet.",
+    hooksTitle: "Webhooks",
+    hooksDesc: "We send a message to your address whenever a chosen event happens.",
+    hookUrl: "Receiving address",
+    hookNote: "Note",
+    hookNotePh: "Used by the HRIS team",
+    hookEvents: "Events",
+    addHook: "Add address",
+    secretShown: "Save this signing key. Use it to confirm a message really came from us.",
+    deleteHook: "Delete",
+    noHooks: "No receiving address yet.",
+    logTitle: "Delivery log",
+    pendingCount: "{n} waiting to be sent",
+    sendNow: "Send now",
+    sending: "Sending…",
+    sendResult: "{terkirim} sent, {gagal} failed.",
+    noLog: "Nothing sent yet.",
+    delivered: "Sent",
+    failed: "Failed",
+    waiting: "Waiting",
+    docsTitle: "Guide for the IT team",
+    docsDesc: "Endpoint list, example requests, and how to check a webhook signature.",
+    openDocs: "Open the guide",
+    privacyWarn:
+      "Webhooks send learner names and emails to the address you register. Make sure it belongs to your organisation.",
+  },
   aiUsage: {
     title: "AI usage",
     subtitle: "Who used the AI features and how much, over the last {hari} days.",
@@ -4604,6 +4762,15 @@ const en: Dictionary = {
       sop_tulis: "Writing the course",
     },
     privacyNote: "This screen holds counts only. Question and answer text is not stored.",
+  },
+  rekomendasi: {
+    title: "You might like these",
+    subtitle: "Chosen from the courses you have finished.",
+    becauseCategory: "Because you finished {kursus}",
+    becauseLevel: "The next level after the one you finished",
+    becausePopular: "Many other learners are studying this",
+    lessons: "{n} lessons",
+    open: "View course",
   },
   perkembangan: {
     title: "Your progress",

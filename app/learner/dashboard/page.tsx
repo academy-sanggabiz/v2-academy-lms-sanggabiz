@@ -15,6 +15,8 @@ import {
 import { getTranslations } from "@/lib/i18n/server"
 import { getMyJobCourses, getMyJobTitle } from "@/lib/org-server"
 import { JobCoursesCard } from "@/components/learner/JobCoursesCard"
+import { RekomendasiCard } from "@/components/learner/RekomendasiCard"
+import { getRekomendasi } from "@/lib/rekomendasi-server"
 import { StatCard } from "@/components/admin/StatCard"
 import { getTrackingConsent } from "@/lib/tracking-consent-server"
 import { ConsentNudge } from "@/components/learner/ConsentNudge"
@@ -70,7 +72,19 @@ export default async function LearnerDashboardPage() {
     jabatan -- dan peserta UMKM yang memakai LMS ini hari ini memang tidak
     punya jabatan. Jadi dasbor mereka tetap persis seperti sebelumnya.
   */
-  const [jabatan, jobCourses] = await Promise.all([getMyJobTitle(), getMyJobCourses()])
+  const [jabatan, jobCourses, rekomendasi] = await Promise.all([
+    getMyJobTitle(),
+    getMyJobCourses(),
+    /*
+     * Rekomendasi dari riwayat sendiri, BERDAMPINGAN dengan yang dari
+     * jabatan -- bukan menggantikannya. Keduanya menjawab pertanyaan
+     * berbeda: jabatan menjawab "apa yang diwajibkan posisi saya", riwayat
+     * menjawab "apa yang masuk akal saya pelajari berikutnya". Kosong untuk
+     * peserta yang belum menuntaskan satu kursus pun, dan kartunya lalu
+     * tidak dirender sama sekali.
+     */
+    getRekomendasi(),
+  ])
   const pakaiKartuJabatan = !!jabatan.jobTitle && jobCourses.length > 0
   const [primary, ...others] = continueItems
 
@@ -166,6 +180,10 @@ export default async function LearnerDashboardPage() {
           </CardContent>
         </Card>
         )}
+      </div>
+
+      <div className="mt-6">
+        <RekomendasiCard items={rekomendasi} />
       </div>
     </div>
   )
