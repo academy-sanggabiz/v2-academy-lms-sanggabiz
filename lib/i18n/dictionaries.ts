@@ -1630,6 +1630,16 @@ export type Dictionary = {
     previousLesson: string
     nextLesson: string
     previous: string
+    aboutThisCourse: string
+    /**
+     * Nama tombol centang pelajaran untuk pembaca layar. Dua ruas, bukan satu
+     * yang disusun di komponen: susunan kata "Tandai X selesai" tidak sama
+     * urutannya di bahasa lain.
+     */
+    markLessonDone: string
+    markLessonNotDone: string
+    /** Tombol utama pemutar saat masih ada pelajaran berikutnya. */
+    completeAndContinue: string
     finishLesson: string
     finishCourse: string
     lessonNavigation: string
@@ -3271,6 +3281,10 @@ const id: Dictionary = {
     previousLesson: "Pelajaran sebelumnya",
     nextLesson: "Pelajaran berikutnya",
     previous: "Sebelumnya",
+    aboutThisCourse: "Tentang kursus ini",
+    markLessonDone: 'Tandai "{judul}" selesai',
+    markLessonNotDone: 'Tandai "{judul}" belum selesai',
+    completeAndContinue: "Selesai & lanjut",
     finishLesson: "Selesaikan pelajaran",
     finishCourse: "Selesaikan kursus",
     lessonNavigation: "Navigasi pelajaran",
@@ -4913,6 +4927,10 @@ const en: Dictionary = {
     previousLesson: "Previous lesson",
     nextLesson: "Next lesson",
     previous: "Previous",
+    aboutThisCourse: "About this course",
+    markLessonDone: 'Mark "{judul}" as done',
+    markLessonNotDone: 'Mark "{judul}" as not done',
+    completeAndContinue: "Complete & continue",
     finishLesson: "Finish lesson",
     finishCourse: "Finish course",
     lessonNavigation: "Lesson navigation",

@@ -21,20 +21,22 @@
  *    orang tidak pernah.
  */
 
+import { AMBANG_ANONIMITAS } from "@/lib/anonimitas"
+
 /**
  * Jumlah orang paling sedikit sebelum angka sebuah departemen ditampilkan.
  *
- * Sama dengan `AMBANG_ANONIMITAS` di `lib/catalog-server.ts`, dan alasannya
- * sama: pada organisasi sebesar ini "penyelesaian 50% di Keuangan" yang
- * berasal dari dua orang bukan statistik, melainkan cara menyebut nama
- * seseorang tanpa menuliskannya.
+ * Nilainya `AMBANG_ANONIMITAS` (lib/anonimitas.ts), satu definisi untuk
+ * seluruh aplikasi. Pada organisasi sebesar ini "penyelesaian 50% di
+ * Keuangan" yang berasal dari dua orang bukan statistik, melainkan cara
+ * menyebut nama seseorang tanpa menuliskannya.
  *
  * Yang disembunyikan ANGKANYA, bukan departemennya. Menghilangkan barisnya
  * membuat jumlah tidak pernah cocok dan membuat pengelola mengira datanya
  * rusak; menampilkan nama departemen dengan alasan kenapa angkanya kosong
  * justru memberi tahu apa yang perlu dilakukan.
  */
-export const AMBANG_LAPORAN = 5
+export const AMBANG_LAPORAN = AMBANG_ANONIMITAS
 
 export type AngkaDepartemen = {
   /** Pendaftaran kursus milik orang-orang di departemen ini. */

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { angkaAman } from "@/lib/anonimitas"
 import type { Course, CourseDetail, CourseSection, Instructor, Lesson, Question } from "@/lib/courses"
 
 export async function getPublishedCourses(): Promise<Course[]> {
@@ -195,16 +196,32 @@ export async function getCourseDetail(id: string): Promise<CourseDetail | null> 
   // even to visitors who can't read the resources themselves.
   const resourceCount = publicLessons.reduce((sum, l) => sum + (l.resource_count ?? 0), 0)
 
-  const { count: enrolledCount } = await supabase
-    .from("enrollments")
-    .select("*", { count: "exact", head: true })
-    .eq("course_id", id)
+  /*
+   * Dihitung dari `public_course_stats`, bukan dari `enrollments`.
+   *
+   * Temuan C-15 di docs/SECURITY-REVIEW.md. `enrollments` ber-RLS own-row,
+   * jadi menghitungnya dengan klien peserta selalu menghasilkan 0 atau 1 --
+   * halaman detail kursus mengatakan "1 peserta terdaftar" pada setiap kursus,
+   * untuk setiap orang. Bukan kebocoran, tetapi angka yang salah di layar
+   * yang dipakai orang memilih kursus.
+   *
+   * View-nya `security_invoker = false` sehingga ia boleh menghitung lintas
+   * peserta, dan kolom kursusnya bernama `id` (bukan `course_id`).
+   * `angkaAman()` menahan angka di bawah ambang anonimitas, aturan yang sama
+   * dengan katalog publik.
+   */
+  const { data: statistik } = await supabase
+    .from("public_course_stats")
+    .select("learner_count")
+    .eq("id", id)
+    .maybeSingle<{ learner_count: number }>()
+  const enrolledCount = angkaAman(statistik?.learner_count)
 
   return {
     ...data,
     sections,
     instructor,
     resource_count: resourceCount,
-    enrolled_count: enrolledCount ?? 0,
+    enrolled_count: enrolledCount,
   }
 }

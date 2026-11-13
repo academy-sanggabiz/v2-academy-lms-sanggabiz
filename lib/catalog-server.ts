@@ -1,4 +1,5 @@
 import "server-only"
+import { AMBANG_ANONIMITAS } from "@/lib/anonimitas"
 
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
@@ -16,8 +17,7 @@ import { normalizeLevel, type CourseLevel } from "@/lib/course-level"
  * memang tertutup bagi anon, dan itu dipisah ke fungsi tersendiri di bawah.
  */
 
-/** Berapa data minimum sebelum sebuah angka boleh ditampilkan di halaman publik. */
-const AMBANG_ANONIMITAS = 5
+// Ambangnya satu definisi untuk seluruh aplikasi -- lihat lib/anonimitas.ts.
 
 export type CatalogSort = "terbaru" | "judul" | "tersingkat" | "terpanjang"
 

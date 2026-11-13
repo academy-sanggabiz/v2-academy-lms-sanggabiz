@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ChevronDown, FileText, HelpCircle, Presentation, Video, Lock} from "lucide-react"
+import { ChevronDown, CircleCheck, Circle, FileText, HelpCircle, Presentation, Video, Lock} from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { formatDuration, type CourseSection, type LessonContentType } from "@/lib/courses"
@@ -241,6 +241,26 @@ function ContentTab({
                              terkunci akan membuka kunci pelajaran berikutnya
                              tanpa pelajaran ini pernah dibuka. */
                           <Lock className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                        ) : lesson.content_type === "quiz" ? (
+                          /* Pelajaran kuis menunjukkan keadaannya, tidak
+                             menawarkan kotak centang.
+
+                             Kuis biasa selesai dengan LULUS; kuis ukur
+                             ditandai selesai oleh pengirimannya. Keduanya
+                             jalur lain, jadi kotak centang di sini adalah
+                             kontrol yang tidak pernah boleh berhasil --
+                             dan sejak temuan C-13 ditutup, aksinya memang
+                             menolaknya. Menampilkan kontrol yang pasti gagal
+                             melanggar docs/STANDAR-UMPAN-BALIK-UI.md.
+
+                             Bukan ikon saja: subjudul di bawah sudah menulis
+                             "Selesai" sebagai teks, jadi keadaannya tidak
+                             pernah hanya bentuk atau warna. */
+                          isDone ? (
+                            <CircleCheck className="size-4 shrink-0 text-success-foreground" aria-hidden />
+                          ) : (
+                            <Circle className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                          )
                         ) : (
                           <LessonCompleteCheckbox
                             courseId={courseId}

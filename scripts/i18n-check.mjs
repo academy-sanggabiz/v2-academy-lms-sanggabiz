@@ -89,7 +89,7 @@ const SUDAH_SELESAI = new Set([
 ])
 
 /** Layar dinamis yang juga sudah selesai -- dicocokkan dengan awalan jalur. */
-const AWALAN_SELESAI = ["/admin/grading/course/", "/admin/tracking/", "/admin/courses/", "/learner/courses/", "/admin/mentor", "/admin/landing", "/admin/certificates", "/kelas/"]
+const AWALAN_SELESAI = ["/admin/grading/course/", "/admin/tracking/", "/admin/courses/", "/learner/courses/", "/learn/", "/admin/mentor", "/admin/landing", "/admin/certificates", "/kelas/"]
 function sudahSelesai(path) {
   return SUDAH_SELESAI.has(path) || AWALAN_SELESAI.some((a) => path.startsWith(a))
 }
@@ -136,7 +136,12 @@ async function ambilIsi() {
   }
   const [kursus, pelajaran, modul, notif, soal, halamanDepan, pengajar] = await Promise.all([
     ambil("courses?select=title,description,who_for,requirements"),
-    ambil("lessons?select=title&limit=1000"),
+    // Judul DAN badan pelajaran. Isi pelajaran adalah materi ajar -- paragraf
+    // yang ditulis penyusun kursus, bukan kalimat antarmuka. Tanpa `content`
+    // dan `transcript` di sini, halaman pemutar melaporkan sepuluh "baris
+    // masih ID" yang seluruhnya adalah bahan belajarnya sendiri, dan angka
+    // yang tidak mungkin nol membuat alat ukurnya berhenti dipakai.
+    ambil("lessons?select=title,content,transcript&limit=1000"),
     ambil("course_sections?select=title&limit=500"),
     ambil("notifications?select=title,body&limit=500"),
     // Teks soal adalah ISI juga: layar kesulitan peserta dan matriks
@@ -154,7 +159,11 @@ async function ambilIsi() {
   ])
   return [
     ...kursus.flatMap((x) => [x.title, x.description, ...(x.who_for ?? []), ...(x.requirements ?? [])]),
-    ...pelajaran.map((x) => x.title),
+    ...pelajaran.flatMap((x) => [
+      x.title,
+      String(x.content ?? "").replace(/<[^>]*>/g, " "),
+      x.transcript,
+    ]),
     ...modul.map((x) => x.title),
     ...notif.flatMap((x) => [x.title, x.body]),
     ...soal.map((x) => String(x.prompt ?? "").replace(/<[^>]*>/g, " ")),
@@ -255,7 +264,16 @@ try {
       const profil = await fetch(`${env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/profiles?select=id&email=eq.${encodeURIComponent(env.AUDIT_LEARNER_EMAIL)}`, { headers: h }).then((r) => (r.ok ? r.json() : []))
       if (profil[0]) {
         const e = await fetch(`${env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/enrollments?select=course_id&learner_id=eq.${profil[0].id}&limit=1`, { headers: h }).then((r) => (r.ok ? r.json() : []))
-        if (e[0]) await periksa(learner, `/learner/courses/${e[0].course_id}`)
+        if (e[0]) {
+          await periksa(learner, `/learner/courses/${e[0].course_id}`)
+          /*
+           * Pemutar pelajaran: layar yang paling sering dibuka peserta, dan
+           * selama ini satu-satunya layar utama yang tidak pernah diukur.
+           * Lolos begitu saja karena jalurnya `/learn/...`, bukan
+           * `/learner/...`, sehingga tidak masuk daftar mana pun.
+           */
+          await periksa(learner, `/learn/${e[0].course_id}`)
+        }
       }
     }
   } else console.log("lewat layar peserta: gagal masuk")

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { useI18n } from "@/components/i18n/LocaleProvider"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
@@ -25,6 +26,7 @@ export function LessonCompleteCheckbox({
   title: string
   isDone: boolean
 }) {
+  const { t } = useI18n()
   const [pending, startTransition] = useTransition()
   const [optimistic, setOptimistic] = useState<{ value: boolean; from: boolean } | null>(null)
 
@@ -53,7 +55,7 @@ export function LessonCompleteCheckbox({
       onClick={onToggle}
       aria-pressed={done}
       aria-busy={pending || undefined}
-      aria-label={done ? `Tandai "${title}" belum selesai` : `Tandai "${title}" selesai`}
+      aria-label={(done ? t.player.markLessonNotDone : t.player.markLessonDone).replace("{judul}", title)}
       /* Area sentuh 24px di sekitar kotak 18px (WCAG 2.5.8 target size). */
       className="-m-[3px] flex size-6 shrink-0 items-center justify-center rounded"
     >
