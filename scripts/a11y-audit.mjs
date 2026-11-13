@@ -2,7 +2,11 @@
 //
 //   npm run build && npm run start          (in another terminal)
 //   AUDIT_LEARNER_EMAIL=... AUDIT_LEARNER_PASSWORD=... \
-//   AUDIT_ADMIN_EMAIL=... AUDIT_ADMIN_PASSWORD=... npm run audit:a11y
+//   AUDIT_ADMIN_EMAIL=... AUDIT_ADMIN_PASSWORD=... \
+//   AUDIT_SUPERADMIN_EMAIL=... AUDIT_SUPERADMIN_PASSWORD=... npm run audit:a11y
+//
+// Tanpa AUDIT_SUPERADMIN_*, delapan halaman superadmin tidak diperiksa dan
+// ringkasan di akhir mengatakannya.
 //
 // playwright dipin ke 1.45.3: versi yang lebih baru menolak memasang browser
 // di macOS 12 ("Playwright does not support chromium on mac12"), sehingga
@@ -30,6 +34,28 @@ const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]
 // terutama landmark-one-main dan region, yang menentukan apakah pengguna
 // screen reader bisa melompati navigasi. Disertakan supaya tidak tersaring.
 const EXTRA_RULES = ["landmark-one-main", "region", "landmark-unique"]
+
+/*
+ * Halaman yang hanya boleh dibuka superadmin.
+ *
+ * Dengan akun pengelola biasa, `visit()` mencetak "dialihkan, akunnya tidak
+ * berwenang" dan TIDAK mengaku lolos -- jujur, tetapi berarti delapan halaman
+ * tidak pernah benar-benar diperiksa. Lubang itu sempat menyembunyikan tiga
+ * pelanggaran WCAG sungguhan sampai 13 November 2026. Setel
+ * AUDIT_SUPERADMIN_EMAIL dan AUDIT_SUPERADMIN_PASSWORD supaya satu kali jalan
+ * memeriksa keduanya; tanpa itu, ringkasan di akhir mengatakan berapa yang
+ * terlewat, bukan membiarkannya lewat tanpa suara.
+ */
+const HALAMAN_SUPERADMIN = [
+  "/admin/mentor",
+  "/admin/landing",
+  "/admin/seo",
+  "/admin/organization",
+  "/admin/certificates",
+  "/admin/integrations",
+  "/admin/integrations/petunjuk",
+  "/admin/ai-usage",
+]
 
 const results = []
 
@@ -290,7 +316,14 @@ try {
   }
   await anon.context().clearCookies()
 
-  const { AUDIT_LEARNER_EMAIL, AUDIT_LEARNER_PASSWORD, AUDIT_ADMIN_EMAIL, AUDIT_ADMIN_PASSWORD } = process.env
+  const {
+    AUDIT_LEARNER_EMAIL,
+    AUDIT_LEARNER_PASSWORD,
+    AUDIT_ADMIN_EMAIL,
+    AUDIT_ADMIN_PASSWORD,
+    AUDIT_SUPERADMIN_EMAIL,
+    AUDIT_SUPERADMIN_PASSWORD,
+  } = process.env
 
   if (AUDIT_LEARNER_EMAIL && AUDIT_LEARNER_PASSWORD) {
     const page = await login(browser, "/auth/login", AUDIT_LEARNER_EMAIL, AUDIT_LEARNER_PASSWORD, "learner")
@@ -359,13 +392,7 @@ try {
       "/admin/certificates",
       "/admin/settings",
       "/admin/profile",
-      // Tiga di bawah ini khusus superadmin. Dengan akun pengelola biasa
-      // `visit()` mencetak "dialihkan, akunnya tidak berwenang" dan tidak
-      // mengaku lolos; jalankan sekali lagi dengan akun superadmin pada
-      // AUDIT_ADMIN_* untuk benar-benar memeriksanya.
-      "/admin/integrations",
-      "/admin/integrations/petunjuk",
-      "/admin/ai-usage",
+      ...HALAMAN_SUPERADMIN,
     ])
       await visit(page, path)
     if (page) {
@@ -435,10 +462,37 @@ try {
   } else {
     console.log("skip admin pages (set AUDIT_ADMIN_EMAIL / AUDIT_ADMIN_PASSWORD)")
   }
+
+  if (AUDIT_SUPERADMIN_EMAIL && AUDIT_SUPERADMIN_PASSWORD) {
+    const page = await login(
+      browser,
+      "/auth/admin/login",
+      AUDIT_SUPERADMIN_EMAIL,
+      AUDIT_SUPERADMIN_PASSWORD,
+      "superadmin"
+    )
+    if (page) for (const path of HALAMAN_SUPERADMIN) await visit(page, path)
+  }
 } finally {
   await browser.close()
 }
 
 const failed = results.filter((r) => r.violations.length > 0)
 console.log(`\n${results.length - failed.length}/${results.length} pages without WCAG 2.2 A/AA violations`)
+
+/*
+ * Halaman yang dialihkan bukan halaman yang lolos. Tanpa baris ini, laporan
+ * "113/113 bersih" terbaca menyeluruh padahal delapan halaman superadmin tidak
+ * pernah dibuka.
+ */
+const takDiperiksa = HALAMAN_SUPERADMIN.filter(
+  (p) => !results.some((r) => r.name.startsWith(`${p} [`))
+)
+if (takDiperiksa.length > 0) {
+  console.log(
+    `\nCATATAN: ${takDiperiksa.length} halaman superadmin tidak diperiksa ` +
+      `(${takDiperiksa.join(", ")}). Setel AUDIT_SUPERADMIN_EMAIL dan ` +
+      `AUDIT_SUPERADMIN_PASSWORD untuk mencakupnya.`
+  )
+}
 process.exit(failed.length > 0 ? 1 : 0)

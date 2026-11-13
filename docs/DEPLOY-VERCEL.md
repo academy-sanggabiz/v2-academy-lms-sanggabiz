@@ -51,8 +51,15 @@ Login Google (`signInWithOAuth`) dan link konfirmasi email memakai `origin` doma
 4. Jalankan audit aksesibilitas terhadap URL produksi:
    ```bash
    AUDIT_BASE_URL=https://<domain> AUDIT_LEARNER_EMAIL=... AUDIT_LEARNER_PASSWORD=... \
-   AUDIT_ADMIN_EMAIL=... AUDIT_ADMIN_PASSWORD=... npm run audit:a11y
+   AUDIT_ADMIN_EMAIL=... AUDIT_ADMIN_PASSWORD=... \
+   AUDIT_SUPERADMIN_EMAIL=... AUDIT_SUPERADMIN_PASSWORD=... npm run audit:a11y
    ```
+
+   `AUDIT_SUPERADMIN_*` bukan tambahan opsional. Tanpa itu, delapan halaman
+   khusus superadmin — termasuk Integrasi, Pemakaian AI, dan Jabatan &
+   Departemen — tidak pernah dibuka, dan ringkasan di akhir mengatakannya.
+   Lubang itu sempat menyembunyikan tiga pelanggaran WCAG sungguhan sampai
+   13 November 2026. `npm run i18n:check` memakai pasangan variabel yang sama.
 
 ## 6. Alur kerja selanjutnya
 

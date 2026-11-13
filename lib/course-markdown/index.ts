@@ -243,6 +243,18 @@ export function parseCourseMarkdown(raw: string): ParsedCourse {
   let currentSection: DraftSection | null = null
   let currentLesson: DraftLesson | null = null
   let currentQuestion: DraftQuestion | null = null
+  /*
+   * Apakah baris berikutnya masih lanjutan kutipan "> Penjelasan:".
+   *
+   * Penjelasan ditulis sebagai kutipan markdown, dan kutipan markdown boleh
+   * membungkus ke beberapa baris -- contoh di panduan unduhan sendiri
+   * membungkusnya ke tiga baris. Tanpa penanda ini, hanya baris PERTAMA yang
+   * terbaca sebagai penjelasan dan sisanya jatuh ke teks soal sebagai
+   * <blockquote>, terpotong di tengah kalimat. Itulah butir D di
+   * docs/BACKLOG.md: dua dari tiga soal sebuah kursus draf membawa potongan
+   * penjelasan di dalam pertanyaannya.
+   */
+  let lanjutanPenjelasan = false
 
   let bucket: "none" | "description" | "requirements" | "audience" | "lesson" | "transcript" | "question" = "none"
   const buffers = { description: [] as string[], requirements: [] as string[], audience: [] as string[] }
@@ -388,6 +400,7 @@ export function parseCourseMarkdown(raw: string): ParsedCourse {
         currentLesson.quiz = emptyQuiz(Number(front.nilai_kelulusan ?? 70) || 70)
         currentLesson.content_type = "quiz"
       }
+      lanjutanPenjelasan = false
       currentQuestion = {
         id: newId(),
         type: "multiple_choice" as AuthorableQuestionType,
@@ -434,8 +447,26 @@ export function parseCourseMarkdown(raw: string): ParsedCourse {
         // sebagai teks, dan menyanitasinya pernah menghapus kalimat setelah
         // tanda "<" secara permanen.
         currentQuestion.explanation = explanation[1].trim()
+        lanjutanPenjelasan = true
         continue
       }
+
+      if (lanjutanPenjelasan) {
+        const lanjutan = /^>\s?(.*)$/.exec(trimmed)
+        if (lanjutan) {
+          const isi = lanjutan[1].trim()
+          // "> " kosong adalah pergantian paragraf di dalam kutipan, bukan
+          // akhir kutipannya.
+          currentQuestion.explanation = isi
+            ? `${currentQuestion.explanation} ${isi}`.trimStart()
+            : `${currentQuestion.explanation}\n\n`
+          continue
+        }
+        // Baris apa pun yang bukan kutipan mengakhiri penjelasannya --
+        // termasuk baris kosong, persis seperti kutipan markdown biasa.
+        lanjutanPenjelasan = false
+      }
+
       questionBody.push(line)
       continue
     }

@@ -75,3 +75,6 @@ supabase/.temp/
 # Keluaran scripts/buat-akun-massal.mjs: berisi kata sandi peserta.
 # Tidak boleh pernah masuk repositori.
 *-kredensial.csv
+
+# Rekaman "sebelum" dari scripts/garis-dasar.mjs -- lokal, bukan milik repo.
+.garis-dasar.json

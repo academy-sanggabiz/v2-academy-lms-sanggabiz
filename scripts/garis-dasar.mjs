@@ -2,7 +2,7 @@
  * Merekam keadaan penilaian SEBELUM sebuah perubahan, lalu membandingkannya
  * SESUDAH.
  *
- *   node scripts/garis-dasar.mjs rekam    # simpan ke /tmp/garis-dasar.json
+ *   node scripts/garis-dasar.mjs rekam    # simpan ke .garis-dasar.json
  *   node scripts/garis-dasar.mjs banding  # bandingkan dengan rekaman itu
  *
  * **Kenapa ini ada.** Pretest dan posttest menyentuh tiga aturan yang dilewati
@@ -23,7 +23,16 @@
  */
 import fs from "node:fs"
 
-const BERKAS = "/tmp/garis-dasar.json"
+/*
+ * Disimpan di dalam proyek (dan diabaikan git), bukan di /tmp.
+ *
+ * macOS membersihkan /tmp sendiri, dan rekaman "sebelum" yang hilang di
+ * tengah pekerjaan membuat `banding` menjawab "belum ada rekaman" -- yaitu
+ * tepat saat jaring pengamannya paling dibutuhkan. Sudah terjadi dua kali
+ * pada 12-13 November 2026. `GARIS_DASAR_FILE` tetap bisa menimpanya untuk
+ * menyimpan beberapa rekaman sekaligus.
+ */
+const BERKAS = process.env.GARIS_DASAR_FILE ?? ".garis-dasar.json"
 
 const env = Object.fromEntries(
   fs
