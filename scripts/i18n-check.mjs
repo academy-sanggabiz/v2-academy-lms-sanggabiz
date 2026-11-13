@@ -44,6 +44,24 @@ const env = {
 const KATA_ID =
   /\b(yang|dan|atau|tidak|untuk|ini|itu|dari|pada|akan|sudah|belum|bisa|dapat|anda|peserta|kursus|soal|kuis|pelajaran|simpan|hapus|tambah|ubah|cari|pilih|kembali|lanjut|selesai|masuk|keluar|nilai|jawaban|tanggal|semua|setiap|dengan|tanpa|lebih|hanya|sedang|belajar)\b/i
 
+/*
+ * Layar yang hanya boleh dibuka superadmin.
+ *
+ * Dengan akun pengelola biasa, `periksa()` mencetak "dialihkan, akunnya tidak
+ * berwenang" dan tidak mengaku lolos -- jujur, tetapi berarti tujuh layar
+ * tidak pernah benar-benar diperiksa. Setel AUDIT_SUPERADMIN_EMAIL dan
+ * AUDIT_SUPERADMIN_PASSWORD supaya satu kali jalan mencakup keduanya.
+ */
+const LAYAR_SUPERADMIN = [
+  "/admin/mentor",
+  "/admin/landing",
+  "/admin/seo",
+  "/admin/organization",
+  "/admin/certificates",
+  "/admin/integrations",
+  "/admin/ai-usage",
+]
+
 /** Layar yang sudah dinyatakan dwibahasa; sisa di sini dianggap kegagalan. */
 const SUDAH_SELESAI = new Set([
   "/",
@@ -65,9 +83,7 @@ const SUDAH_SELESAI = new Set([
   "/admin/seo",
   "/admin/organization",
   "/admin/certificates",
-  // Khusus superadmin: dengan akun pengelola biasa skripnya mencetak
-  // "dialihkan, akunnya tidak berwenang" dan tidak mengaku lolos. Jalankan
-  // sekali lagi dengan akun superadmin pada AUDIT_ADMIN_* untuk memeriksanya.
+  // Khusus superadmin -- lihat LAYAR_SUPERADMIN di atas.
   "/admin/integrations",
   "/admin/ai-usage",
 ])
@@ -249,7 +265,7 @@ try {
   let admin = await masuk(browser, "/auth/admin/login", adminEmail, adminSandi)
   if (!admin && env.DEMO_ADMIN_EMAIL) admin = await masuk(browser, "/auth/admin/login", env.DEMO_ADMIN_EMAIL, env.DEMO_ADMIN_PASSWORD)
   if (admin) {
-    for (const p of ["/admin/dashboard", "/admin/courses", "/admin/learners", "/admin/grading", "/admin/tracking", "/admin/settings", "/admin/profile", "/admin/mentor", "/admin/landing", "/admin/seo", "/admin/organization", "/admin/certificates", "/admin/integrations", "/admin/ai-usage"])
+    for (const p of ["/admin/dashboard", "/admin/courses", "/admin/learners", "/admin/grading", "/admin/tracking", "/admin/settings", "/admin/profile", ...LAYAR_SUPERADMIN])
       await periksa(admin, p)
 
     // Layar dinamis: matriks penilaian dan rincian pelacakan. Id-nya dicari
@@ -283,6 +299,12 @@ try {
       }
     } else console.log("lewat layar dinamis: SUPABASE_SERVICE_ROLE_KEY tidak ada")
   } else console.log("lewat layar pengelola: gagal masuk")
+
+  if (env.AUDIT_SUPERADMIN_EMAIL && env.AUDIT_SUPERADMIN_PASSWORD) {
+    const sa = await masuk(browser, "/auth/admin/login", env.AUDIT_SUPERADMIN_EMAIL, env.AUDIT_SUPERADMIN_PASSWORD)
+    if (sa) for (const p of LAYAR_SUPERADMIN) await periksa(sa, p)
+    else console.log("lewat layar superadmin: gagal masuk")
+  }
 } finally {
   await browser.close()
 }
@@ -293,6 +315,20 @@ console.log(
   `\n${hasil.filter((r) => r.sisa.length === 0).length}/${hasil.length} layar sudah penuh bahasa Inggris, ` +
     `${total} baris antarmuka tersisa (judul kursus, pelajaran, profil pengajar, dan isi notifikasi tidak dihitung)`
 )
+/*
+ * Layar yang dialihkan bukan layar yang lolos. Tanpa baris ini, "27/27 penuh
+ * bahasa Inggris" terbaca menyeluruh padahal tujuh layar superadmin tidak
+ * pernah dibuka.
+ */
+const takDiperiksa = LAYAR_SUPERADMIN.filter((p) => !hasil.some((r) => r.path === p))
+if (takDiperiksa.length > 0) {
+  console.log(
+    `CATATAN: ${takDiperiksa.length} layar superadmin tidak diperiksa ` +
+      `(${takDiperiksa.join(", ")}). Setel AUDIT_SUPERADMIN_EMAIL dan ` +
+      `AUDIT_SUPERADMIN_PASSWORD untuk mencakupnya.`
+  )
+}
+
 if (gagal.length) {
   console.log(`GAGAL: ${gagal.map((r) => r.path).join(", ")} seharusnya sudah selesai`)
   process.exit(1)

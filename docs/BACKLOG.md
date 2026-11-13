@@ -1,7 +1,7 @@
 # Daftar Permintaan
 
 Peta seluruh permintaan yang belum selesai, beserta urutan pengerjaan dan
-alasannya. Diperbarui 1 November 2026.
+alasannya. Diperbarui 13 November 2026.
 
 ---
 
@@ -149,25 +149,53 @@ menjalankan SQL lewat Management API tanpa menyentuh riwayat migrasi — berguna
 untuk perbaikan sekali jalan. Untuk migrasi biasa, `supabase db push` kini
 sudah bisa dipakai seperti biasa.
 
-### D. Teks penjelasan bocor ke dalam teks soal (impor .md)
+### D. Teks penjelasan bocor ke dalam teks soal (impor .md) — ✅ selesai 13 November 2026
 
-Ditemukan saat menguji layar titik kesulitan. Pada kursus **Menangani Keluhan
-Pelanggan di Toko** (draf), **2 dari 3 soal** punya potongan kalimat penjelasan
-yang ikut tersimpan di dalam `questions.prompt` sebagai `<blockquote>`:
+Ditemukan saat menguji layar titik kesulitan: pada kursus **Menangani Keluhan
+Pelanggan di Toko** (draf), **2 dari 3 soal** membawa potongan kalimat
+penjelasan di dalam `questions.prompt` sebagai `<blockquote>`, terpotong di
+tengah kalimat.
 
-> `<p>Pelanggan mengirim pesan: "Barangnya rusak waktu sampai!" ...</p>`
-> `<blockquote><p>membuat percakapan bergerak ke penyelesaian. Membantah di pesan pertama</p></blockquote>`
+**Sebabnya penguraian, bukan penulisnya.** Penjelasan ditulis sebagai kutipan
+markdown dan diurai dengan regex satu baris:
 
-Kalimatnya terpotong di tengah, jadi ini bukan sekadar salah tempat —
-penjelasannya juga tidak utuh. Keluarga bug yang sama dengan `<p>` yang dulu
-muncul di deskripsi kursus: pengurai impor salah menempatkan isi.
+```
+/^>\s*(?:Penjelasan|Explanation)\s*:\s*(.+)$/
+```
 
-Belum diperbaiki karena **isi yang benar tidak bisa disimpulkan** dari
-potongan yang tersisa; penyusunnya yang tahu kalimat utuhnya. Cakupannya
-terbatas pada satu kursus draf.
+Kutipan markdown boleh membungkus ke beberapa baris — dan **contoh di panduan
+unduhan sendiri membungkusnya ke tiga baris**. Jadi hanya baris pertama yang
+terbaca sebagai penjelasan; sisanya jatuh ke `questionBody` dan tersimpan di
+dalam teks soal. Bukan kasus tepi: siapa pun yang mengikuti panduan
+menghasilkannya.
 
-Layar titik kesulitan menampilkan paragraf pertama saja, jadi cacat ini tidak
-terlihat di sana — tetapi itu menutupi, bukan memperbaiki.
+Diperbaiki di `lib/course-markdown/index.ts` dengan penanda `lanjutanPenjelasan`
+— baris kutipan yang menyusul langsung digabungkan ke penjelasan, sementara
+baris kosong atau baris bukan-kutipan mengakhirinya, persis seperti kutipan
+markdown biasa. Diuji 12 pemeriksaan, termasuk tiga penjaga regresi: penjelasan
+satu baris tetap utuh, kutipan yang **bukan** penjelasan tetap masuk teks soal,
+dan penandanya tidak bocor ke soal berikutnya.
+
+**Catatan lama di sini keliru**, dan itu layak dicatat: tertulis "isi yang benar
+tidak bisa disimpulkan dari potongan yang tersisa". Ternyata bisa — potongan
+yang bocor itu justru *lanjutan* yang hilang. Digabungkan kembali berurutan,
+keduanya menjadi kalimat utuh:
+
+> Mengakui lebih dulu menurunkan ketegangan, dan pertanyaan detail **membuat
+> percakapan bergerak ke penyelesaian. Membantah di pesan pertama membuat
+> pelanggan merasa harus membuktikan diri.**
+
+Kedua baris sudah dipulihkan (kursusnya draf, jadi tidak ada peserta yang
+terdampak), dan pemeriksaan sesudahnya menunjukkan nol soal yang masih membawa
+`<blockquote>` serta nol penjelasan yang berakhir di kata sambung. Cadangan
+sebelum-sesudah disimpan sebelum perubahan diterapkan.
+
+### E. Laporan per departemen (F3) — ✅ selesai 13 November 2026
+
+Butir terakhir dari `BRIEF-MVP-AI-KORPORAT`; dengan ini keenam fiturnya ada.
+Satu bagian di `/admin/tracking`, khusus superadmin, beserta ringkasan AI yang
+hanya melihat angka agregat. Ambang lima orang, tidak ada pemeringkatan orang.
+Lihat `docs/MVP-AI-KORPORAT-STATUS.md`.
 
 ### 0. Impor kursus dari berkas .md — ✅ selesai
 
