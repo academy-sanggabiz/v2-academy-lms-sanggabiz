@@ -22,6 +22,7 @@ import { QuizPreview } from "@/components/learn/QuizPreview"
 import { EssayAssessmentPlayer } from "@/components/learn/EssayAssessmentPlayer"
 import type { CourseRequirements } from "@/lib/course-requirements"
 import { CourseFeedbackForm } from "@/components/learn/CourseFeedbackForm"
+import { InteractiveMaterial } from "@/components/learn/InteractiveMaterial"
 import { LessonNotes } from "@/components/learn/LessonNotes"
 import { useLearnBusy } from "@/components/learn/LearnBusyContext"
 import type { LessonNote } from "@/lib/notes"
@@ -104,6 +105,16 @@ export function LessonPane({
             )}
             {lesson.content_type === "text" && (
               <TextContent
+                lesson={lesson}
+                courseId={courseId}
+                prevLessonId={prevLessonId}
+                nextLessonId={nextLessonId}
+                onReachEnd={() => setShowFinished(true)}
+                basePath={basePath}
+              />
+            )}
+            {lesson.content_type === "interactive" && (
+              <InteractiveContent
                 lesson={lesson}
                 courseId={courseId}
                 prevLessonId={prevLessonId}
@@ -570,6 +581,65 @@ function SlidesContent({
       </div>
       <LessonTranscript transcript={lesson.transcript} />
     </>
+  )
+}
+
+/**
+ * Materi interaktif, digambar LANGSUNG di halaman -- bukan di dalam iframe.
+ *
+ * Diukur 13 Nov 2026: inline, axe melihat materinya dan bisa melaporkan
+ * pelanggarannya; di dalam iframe ber-sandbox ia tidak melihat apa pun, dan
+ * materi yang tidak bisa diukur tidak bisa dijamin bisa dipakai. Itu
+ * pertimbangan yang menentukan, dan harganya dibayar di tempat lain: tiga
+ * lapis penjagaan (profil pembersih kedua, CSS yang dilingkupi, dan `contain`
+ * pada pembungkusnya) menggantikan pemisahan yang diberikan iframe.
+ *
+ * Tidak ada batas 72 karakter seperti pada bacaan: materi interaktif mengatur
+ * tata letaknya sendiri -- kolom, kisi, kartu -- dan memaksanya ke satu kolom
+ * sempit akan merusak justru bagian yang membuatnya interaktif.
+ */
+function InteractiveContent({
+  lesson,
+  courseId,
+  prevLessonId,
+  nextLessonId,
+  onReachEnd,
+  basePath = "/learn",
+}: {
+  lesson: Lesson
+  courseId: string
+  prevLessonId: string | null
+  nextLessonId: string | null
+  onReachEnd: () => void
+  basePath?: string
+}) {
+  return (
+    <div className="group relative flex h-full flex-col">
+      <div className="flex-1 overflow-y-auto border-b border-border bg-card">
+        <div className="mx-auto max-w-[80rem] px-5 py-8 sm:px-10">
+          <div className="mb-2.5 text-xs font-semibold tracking-wider text-ring uppercase">
+            Interaktif
+            {lesson.duration_seconds ? ` · ${formatDuration(lesson.duration_seconds)}` : ""}
+          </div>
+          <h1 className="mb-7 text-2xl leading-tight font-bold sm:text-3xl">{lesson.title}</h1>
+          {lesson.content ? (
+            <InteractiveMaterial html={lesson.content} />
+          ) : (
+            <p className="text-base leading-[1.85] text-muted-foreground">
+              Konten untuk pelajaran ini belum tersedia.
+            </p>
+          )}
+        </div>
+      </div>
+      <LessonNavArrows
+        courseId={courseId}
+        prevLessonId={prevLessonId}
+        nextLessonId={nextLessonId}
+        onReachEnd={onReachEnd}
+        revealOnHover={false}
+        basePath={basePath}
+      />
+    </div>
   )
 }
 

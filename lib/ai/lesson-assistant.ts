@@ -24,6 +24,16 @@ import { modelAi, tanyaTeks, type HasilAi } from "@/lib/ai/client"
 export function keTeks(html: string | null | undefined): string {
   if (!html) return ""
   return html
+    /*
+      `<style>` dan `<script>` dibuang BERIKUT isinya, bukan hanya tagnya.
+      Materi interaktif menyimpan CSS penulis sebagai `<style>` di dalam
+      `lessons.content`; tanpa baris ini seluruh CSS itu ikut terbaca sebagai
+      "isi pelajaran" -- masuk ke pengetahuan chatbot dan ke bahan terjemahan
+      sebagai ratusan baris `.materi-interaktif .kartu{...}`. `<script>` sudah
+      tidak pernah tersimpan, tetapi dibuang juga di sini karena fungsi ini
+      juga dipakai untuk isi yang datang dari jalan lain.
+    */
+    .replace(/<(style|script)\b[^>]*>[\s\S]*?<\/\1>/gi, " ")
     // Blok yang berakhir dipisah baris baru, supaya kalimat tidak menempel.
     .replace(/<\/(p|div|li|h[1-6]|blockquote|pre)>/gi, "\n")
     .replace(/<br\s*\/?>/gi, "\n")

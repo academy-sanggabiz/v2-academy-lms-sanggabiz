@@ -276,21 +276,29 @@ cukup, jalan keluar ini tidak pernah perlu dibuka.
 
 ---
 
-## 8. Keputusan yang MASIH TERBUKA
+## 8. Keputusan yang sudah diambil
 
-Tiga hal belum dijawab pemilik. **Tanyakan sebelum membangun bagian yang
-bersangkutan**, jangan ditebak:
+Tiga hal ini dulu terbuka. Fitur ini dikerjakan tanpa menunggu jawaban, dengan
+alasan yang ditulis di bawah -- **semuanya masih bisa diubah**, dan tempat
+mengubahnya disebut.
 
-1. **`<style>` dari penulis** — dibolehkan tapi dilingkupi (penulis bebas,
-   risiko lebih besar), atau dilarang dan kita sediakan kelas siap pakai
-   (lebih aman, pola terbatas pada yang kita siapkan)?
-2. **Dwibahasa** — satu berkas satu bahasa, mengikuti aturan judul pelajaran
-   yang memang tidak diterjemahkan? Atau dua berkas ID/EN seperti halaman
-   depan?
-3. **Label di katalog publik** — `PublicCurriculum` ikut terdampak, jadi calon
-   peserta di `/kelas` akan melihat jenisnya. "Interaktif"?
+1. **`<style>` dari penulis: DIBOLEHKAN, tapi dilingkupi.** Melarangnya akan
+   mematikan fiturnya sendiri: seluruh interaksi tanpa JavaScript bersandar
+   pada `:checked`, `:has()`, dan selector saudara -- yang semuanya CSS.
+   Risikonya ditutup di tempat lain (§4): setiap selector diberi awalan
+   `.materi-interaktif`, `position: fixed`/`sticky` dibuang, `@import` dan
+   `@font-face` dibuang, `url()` ke luar dibuang, dan `:root`/`html`/`body`
+   diarahkan ke kotak materi. Diubah di `lib/sanitize-interactive.ts`.
+2. **Satu berkas satu bahasa.** Mengikuti aturan yang sudah berlaku untuk
+   judul pelajaran dan profil pengajar: itu **isi**, bukan antarmuka. Dua
+   berkas ID/EN berarti satu permukaan penyusunan lagi untuk setiap pelajaran,
+   dan materi yang terjemahannya tertinggal akan tampil setengah-setengah.
+   Kalau nanti dibutuhkan, caranya adalah dua pelajaran, bukan dua berkas.
+3. **Label katalog: "Interaktif" / "Interactive".** Ada di kamus sebagai
+   `catalog.typeInteractive`, satu tempat untuk kedua bahasa.
 
-Dua hal sudah diputuskan dan tidak perlu ditanya lagi:
+Dua hal sudah diputuskan sejak awal dan tidak berubah:
+
 
 - **Penyelesaian pelajaran tidak dihitung dari interaktifnya.** Tombol
   "Selesai & lanjut" tetap seperti sekarang. Alasannya: satu berkas yang lupa
@@ -335,3 +343,47 @@ berkas utuh dalam bahasa lain dengan struktur sama persis. `lang="id"` →
 
 Satu pelajaran interaktif contoh dimasukkan ke `docs/DATA-DEMO.md` supaya
 gerbang punya sesuatu yang nyata untuk diperiksa.
+
+---
+
+## 11. Apa yang sudah dibangun (14 Nov 2026)
+
+Fitur ini sudah jalan di produksi. Daftar ini ada supaya tidak ada yang
+mengira bagian yang belum dibangun sudah ada.
+
+**Sudah ada:**
+
+| Bagian | Tempatnya |
+| --- | --- |
+| Jenis pelajaran `interactive` | `supabase/migrations/20261114010000_lesson_interactive.sql` |
+| Pembersih profil kedua | `lib/sanitize-interactive.ts` |
+| Tetapan aman-peramban | `lib/interactive-lesson.ts` |
+| Pemilihan profil saat simpan | `lib/courses-admin.ts` |
+| Aksi pembersih untuk penyunting | `bersihkanMateriAction` di `app/admin/courses/actions.ts` |
+| Penyunting (unggah, laporan buangan, perbaikan kecil, pratinjau) | `components/admin/courses/InteractiveMaterialEditor.tsx` |
+| Pembungkus bersama penyunting dan pemutar | `components/learn/InteractiveMaterial.tsx` |
+| Pemutar | `InteractiveContent` di `components/learn/LessonPane.tsx` |
+| Gerbang 36 uji | `npm run test:interaktif` |
+| Berkas contoh untuk penyusun | `docs/TEMPLATE-MATERI-INTERAKTIF.html` |
+| Pelajaran demo | Modul 2 kursus demo keuangan |
+
+**Yang diukur di aplikasi hasil build, bukan diasumsikan** (14 Nov 2026,
+sebagai peserta sungguhan yang terdaftar, di `/learn/<kursus>`):
+
+- axe melihat 54 simpul materi, **0 pelanggaran** WCAG 2.2 A/AA di seluruh
+  halaman pemutar;
+- latihan pilih-jawaban bekerja **tanpa satu baris JavaScript**
+  (`display: none` → `block` setelah pilihan diklik), begitu juga `<details>`;
+- lebar dokumen di layar 320px tetap **320px**, tidak meluber;
+- tidak ada error konsol;
+- di `/kelas` tanpa masuk, judul dan label "Interaktif" tampil sementara isi
+  materinya **tidak bocor** — RLS yang menahannya, bukan komponennya.
+
+**Belum dibangun, sengaja:**
+
+- **Teks hasil ekstraksi belum disimpan.** §7 memutuskan ia sebaiknya
+  disimpan; saat ini `keTeks()` menghitungnya setiap kali asisten dipanggil.
+  Itu pilihan kecepatan, bukan kebenaran, dan sama dengan perilaku pelajaran
+  teks hari ini. Kalau nanti terasa lambat, tambahkan kolom, jangan ubah
+  pembersihnya.
+- **Jalan keluar iframe** (§3) tetap tidak dibangun, sesuai keputusan di sana.

@@ -59,6 +59,7 @@ const TYPE_TO_MD: Record<LessonContentType, string> = {
   ppt: "slide",
   quiz: "kuis",
   mixed: "teks",
+  interactive: "interaktif",
 }
 
 const MD_TO_TYPE: Record<string, LessonContentType> = {
@@ -67,6 +68,8 @@ const MD_TO_TYPE: Record<string, LessonContentType> = {
   video: "video",
   slide: "ppt",
   ppt: "ppt",
+  interaktif: "interactive",
+  interactive: "interactive",
   kuis: "quiz",
   quiz: "quiz",
   // Studi kasus juga pelajaran kuis; bedanya ada pada bendera is_assessment.

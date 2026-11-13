@@ -2,7 +2,17 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ChevronDown, CircleCheck, Circle, FileText, HelpCircle, Presentation, Video, Lock} from "lucide-react"
+import {
+  ChevronDown,
+  CircleCheck,
+  Circle,
+  FileText,
+  HelpCircle,
+  MousePointerClick,
+  Presentation,
+  Video,
+  Lock,
+} from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { formatDuration, type CourseSection, type LessonContentType } from "@/lib/courses"
@@ -16,6 +26,7 @@ const typeIcon: Record<LessonContentType, typeof Video> = {
   quiz: HelpCircle,
   mixed: Video,
   ppt: Presentation,
+  interactive: MousePointerClick,
 }
 
 const typeLabel: Record<LessonContentType, string> = {
@@ -24,6 +35,7 @@ const typeLabel: Record<LessonContentType, string> = {
   quiz: "Kuis",
   mixed: "Campuran",
   ppt: "Slide",
+  interactive: "Interaktif",
 }
 
 export function LearnSidebar({

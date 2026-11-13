@@ -20,7 +20,7 @@
 
 create type public.user_role as enum ('learner', 'admin', 'superadmin');
 create type public.course_status as enum ('draft', 'published');
-create type public.lesson_content_type as enum ('video', 'text', 'quiz', 'mixed', 'ppt');
+create type public.lesson_content_type as enum ('video', 'text', 'quiz', 'mixed', 'ppt', 'interactive');
 create type public.enrollment_status as enum ('active', 'completed');
 create type public.transaction_status as enum ('completed', 'pending', 'refunded', 'free');
 

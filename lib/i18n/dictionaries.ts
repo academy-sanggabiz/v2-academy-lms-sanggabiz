@@ -599,6 +599,20 @@ export type Dictionary = {
     lessonTypeTextDesc: string
     lessonTypePpt: string
     lessonTypePptDesc: string
+    lessonTypeInteractive: string
+    lessonTypeInteractiveDesc: string
+    interactiveUpload: string
+    interactiveReplace: string
+    interactiveHint: string
+    interactiveEmpty: string
+    interactiveTooBig: string
+    interactiveWrongType: string
+    interactiveRemoved: string
+    interactiveNotes: string
+    interactiveSource: string
+    interactiveSourceHint: string
+    interactivePreview: string
+    interactiveClear: string
     lessonTypeQuiz: string
     lessonTypeQuizDesc: string
     courseLessons: string
@@ -1258,6 +1272,7 @@ export type Dictionary = {
     typeText: string
     typeQuiz: string
     typeSlides: string
+    typeInteractive: string
     /** `{n}` jumlah soal. */
     nQuestions: string
     nQuestionsOne: string
@@ -2264,6 +2279,20 @@ const id: Dictionary = {
     lessonTypeTextDesc: "Konten pelajaran berupa teks",
     lessonTypePpt: "Pelajaran Slide",
     lessonTypePptDesc: "Konten pelajaran berupa presentasi Google Slides",
+    lessonTypeInteractive: "Materi Interaktif",
+    lessonTypeInteractiveDesc: "Satu berkas HTML tanpa JavaScript yang bisa diklik dan dibuka-tutup",
+    interactiveUpload: "Unggah berkas HTML",
+    interactiveReplace: "Ganti berkas",
+    interactiveHint: "Satu berkas .html, maksimal 512 KB. JavaScript akan dibuang, jadi buat interaksinya dengan HTML dan CSS saja. Contohnya ada di docs/TEMPLATE-MATERI-INTERAKTIF.html.",
+    interactiveEmpty: "Belum ada materi interaktif pada pelajaran ini.",
+    interactiveTooBig: "Berkasnya lebih besar dari 512 KB. Perkecil dulu, biasanya karena ada gambar yang ditempel ke dalam berkas.",
+    interactiveWrongType: "Pilih berkas berakhiran .html.",
+    interactiveRemoved: "Dibuang saat dibersihkan",
+    interactiveNotes: "Yang perlu Anda tahu",
+    interactiveSource: "Perbaikan kecil",
+    interactiveSourceHint: "Sunting HTML-nya di sini kalau hanya perlu ganti satu-dua kata. Untuk perubahan besar, perbaiki di berkas aslinya lalu unggah ulang.",
+    interactivePreview: "Pratinjau",
+    interactiveClear: "Hapus materi",
     lessonTypeQuiz: "Pelajaran Kuis",
     lessonTypeQuizDesc: "Pelajaran berupa kuis untuk menguji materi sebelumnya",
     courseLessons: "Pelajaran Kursus",
@@ -2885,6 +2914,7 @@ const id: Dictionary = {
     typeText: "Bacaan",
     typeQuiz: "Kuis",
     typeSlides: "Slide",
+    typeInteractive: "Interaktif",
     nQuestions: "{n} soal",
     nQuestionsOne: "{n} soal",
     typeMixed: "Campuran",
@@ -3912,6 +3942,20 @@ const en: Dictionary = {
     lessonTypeTextDesc: "Lesson content as text",
     lessonTypePpt: "Slides Lesson",
     lessonTypePptDesc: "Lesson content as a Google Slides presentation",
+    lessonTypeInteractive: "Interactive Material",
+    lessonTypeInteractiveDesc: "A single HTML file with no JavaScript that learners can click and expand",
+    interactiveUpload: "Upload HTML file",
+    interactiveReplace: "Replace file",
+    interactiveHint: "One .html file, 512 KB at most. JavaScript is removed, so build the interaction with HTML and CSS alone. There is an example in docs/TEMPLATE-MATERI-INTERAKTIF.html.",
+    interactiveEmpty: "This lesson has no interactive material yet.",
+    interactiveTooBig: "The file is larger than 512 KB. Make it smaller first — usually an image has been embedded into the file.",
+    interactiveWrongType: "Choose a file ending in .html.",
+    interactiveRemoved: "Removed while cleaning",
+    interactiveNotes: "What you should know",
+    interactiveSource: "Small fixes",
+    interactiveSourceHint: "Edit the HTML here if you only need to change a word or two. For larger changes, fix the original file and upload it again.",
+    interactivePreview: "Preview",
+    interactiveClear: "Remove material",
     lessonTypeQuiz: "Quiz Lesson",
     lessonTypeQuizDesc: "A quiz lesson to test the preceding material",
     courseLessons: "Course Lessons",
@@ -4531,6 +4575,7 @@ const en: Dictionary = {
     typeText: "Reading",
     typeQuiz: "Quiz",
     typeSlides: "Slides",
+    typeInteractive: "Interactive",
     nQuestions: "{n} questions",
     nQuestionsOne: "{n} question",
     typeMixed: "Mixed",

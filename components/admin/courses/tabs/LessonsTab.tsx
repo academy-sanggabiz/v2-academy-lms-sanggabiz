@@ -61,6 +61,7 @@ import {
   GripVertical,
   HelpCircle,
   Link2,
+  MousePointerClick,
   Plus,
   Presentation,
   Trash2,
@@ -71,6 +72,7 @@ import {
 import { useCourseDraft } from "../CourseDraftContext"
 import { QuizIssuesProvider, useLessonQuizIssues } from "../QuizIssuesContext"
 import { QuizEditor } from "./QuizEditor"
+import { InteractiveMaterialEditor } from "@/components/admin/courses/InteractiveMaterialEditor"
 import { RichTextEditor } from "../RichTextEditor"
 import { LessonWritingGuide } from "../LessonWritingGuide"
 import { dndAnnouncements } from "@/lib/dnd-announcements"
@@ -82,6 +84,11 @@ function lessonTypes(t: Dictionary): { value: LessonContentType; label: string; 
     { value: "video", label: t.editor.lessonTypeVideo, description: t.editor.lessonTypeVideoDesc },
     { value: "text", label: t.editor.lessonTypeText, description: t.editor.lessonTypeTextDesc },
     { value: "ppt", label: t.editor.lessonTypePpt, description: t.editor.lessonTypePptDesc },
+    {
+      value: "interactive",
+      label: t.editor.lessonTypeInteractive,
+      description: t.editor.lessonTypeInteractiveDesc,
+    },
     { value: "quiz", label: t.editor.lessonTypeQuiz, description: t.editor.lessonTypeQuizDesc },
   ]
 }
@@ -92,6 +99,7 @@ const TYPE_ICON: Record<LessonContentType, React.ComponentType<{ className?: str
   quiz: HelpCircle,
   mixed: FileText,
   ppt: Presentation,
+  interactive: MousePointerClick,
 }
 
 /**
@@ -652,6 +660,16 @@ const LessonCard = memo(function LessonCard({
                   }}
                 />
               </>
+            )}
+            {contentType === "interactive" && (
+              <InteractiveMaterialEditor
+                lessonId={lesson.id}
+                value={content}
+                onChange={(html) => {
+                  setContent(html)
+                  save({ content: html || null })
+                }}
+              />
             )}
             {contentType === "ppt" && (
               <div className="space-y-1.5">

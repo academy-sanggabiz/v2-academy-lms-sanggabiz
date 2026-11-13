@@ -4,6 +4,7 @@ import { paginated, rangeFor, type ListParams, type Paginated } from "@/lib/pagi
 import { describeQuizIssue, linesToArray, validateQuizzes, type CourseDraft } from "@/lib/course-draft"
 import { QUESTION_TYPE_POINTS } from "@/lib/courses"
 import { sanitizeRichText, toPlainText } from "@/lib/sanitize-content"
+import { bersihkanMateriInteraktif } from "@/lib/sanitize-interactive"
 import type {
   AuthorableQuestionType,
   Course,
@@ -632,7 +633,20 @@ export async function saveCourseDraft(
           // Disanitasi di sini, bukan saat dirender: ini satu-satunya pintu
           // masuk HTML buatan admin ke database, dan sanitasi di titik simpan
           // berarti tidak ada lagi baris berbahaya yang bisa tersimpan (C-09).
-          content: sanitizeRichText(lesson.content),
+          //
+          // Profilnya ditentukan jenis pelajarannya. Materi interaktif TIDAK
+          // boleh lewat `sanitizeRichText`: profil 34 tag itu membuang
+          // `<details>`, `<input>`, dan seluruh `<style>`, jadi materinya
+          // tersimpan sebagai teks mati tanpa ada yang memberi tahu. Dan
+          // sebaliknya -- profil interaktif tidak boleh menyentuh pelajaran
+          // teks, karena itu akan melebarkan permukaannya.
+          //
+          // Dijalankan ulang di sini walaupun penyunting sudah
+          // membersihkannya: yang dikirim peramban tidak pernah jadi jaminan.
+          content:
+            lesson.content_type === "interactive"
+              ? bersihkanMateriInteraktif(lesson.content).html || null
+              : sanitizeRichText(lesson.content),
           // Teks biasa, bukan HTML: transkrip memang kalimat, dan menyimpannya
           // sebagai teks menghapus seluruh permukaan serangan yang baru ditutup
           // untuk isi pelajaran.

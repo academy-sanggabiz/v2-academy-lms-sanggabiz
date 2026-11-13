@@ -1,4 +1,12 @@
-import { FileText, HelpCircle, Lock, Presentation, Video, type LucideIcon } from "lucide-react"
+import {
+  FileText,
+  HelpCircle,
+  Lock,
+  MousePointerClick,
+  Presentation,
+  Video,
+  type LucideIcon,
+} from "lucide-react"
 
 import { getDictionary } from "@/lib/i18n/dictionaries"
 import type { Locale } from "@/lib/i18n/config"
@@ -11,6 +19,7 @@ const IKON: Record<LessonContentType, LucideIcon> = {
   quiz: HelpCircle,
   mixed: FileText,
   ppt: Presentation,
+  interactive: MousePointerClick,
 }
 
 /**
@@ -48,6 +57,7 @@ export function PublicCurriculum({
     quiz: t.catalog.typeQuiz,
     mixed: t.catalog.typeText,
     ppt: t.catalog.typeSlides,
+    interactive: t.catalog.typeInteractive,
   }
 
   return (
