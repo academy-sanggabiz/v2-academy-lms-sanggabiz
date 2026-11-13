@@ -149,11 +149,11 @@ export function LessonNotes({ lessonId, initialNote }: { lessonId: string; initi
         </h2>
         <p id={hintId} className="mb-3 flex items-start gap-1.5 text-sm text-muted-foreground">
           <Lock className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-          Hanya Anda yang dapat melihat catatan ini. Catatan tersimpan otomatis saat Anda berhenti mengetik.
+          {t.player.notesHint}
         </p>
 
         <label htmlFor={textareaId} className="mb-1.5 block text-sm font-semibold">
-          Catatan untuk pelajaran ini
+          {t.player.notesPlaceholder}
         </label>
         <Textarea
           id={textareaId}

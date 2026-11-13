@@ -159,10 +159,16 @@ export default async function AdminCoursePreviewPage({
               <Globe className="size-4" />
               {course.language}
             </div>
-            <div className="flex items-center gap-2.5">
-              <Users className="size-4" />
-              {t.courseDetail.nEnrolled.replace("{n}", String(course.enrolled_count))}
-            </div>
+            {/* Ditampilkan hanya bila angkanya boleh diceritakan: di bawah
+                ambang anonimitas `enrolled_count` bernilai null, dan "0
+                peserta terdaftar" adalah pernyataan yang justru tidak boleh
+                dibuat tentang kelompok sekecil itu. */}
+            {course.enrolled_count !== null && (
+              <div className="flex items-center gap-2.5">
+                <Users className="size-4" />
+                {t.courseDetail.nEnrolled.replace("{n}", String(course.enrolled_count))}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -54,6 +54,46 @@ export async function toggleLessonComplete({
     }
   }
 
+  /*
+   * Pelajarannya benar-benar milik kursus ini, dan bukan pelajaran kuis.
+   *
+   * Temuan C-13 di docs/SECURITY-REVIEW.md. Sebelumnya aksi ini hanya
+   * memeriksa bahwa penekannya terdaftar di `courseId`, lalu menulis
+   * `lesson_progress` untuk `lessonId` apa pun yang dikirim. Dua akibatnya:
+   *
+   * 1. Peserta yang terdaftar di dua kursus bisa mencatat kemajuan pelajaran
+   *    kursus A pada pendaftaran kursus B. Barisnya tidak menerbitkan
+   *    sertifikat palsu -- syaratnya dihitung ulang di server -- tetapi
+   *    persentase kemajuan dan kartu "Lanjutkan belajar" membaca baris itu,
+   *    jadi angkanya berbohong.
+   * 2. Pelajaran kuis bisa dicentang selesai TANPA dikerjakan, apalagi lulus.
+   *
+   * Kuis biasa diselesaikan dengan LULUS, dan kuis ukur (pretest/posttest)
+   * ditandai selesai oleh `submitQuiz` saat dikirim -- keduanya jalur lain,
+   * bukan kotak centang ini. Karena itu di sini ditolak, dan `LearnSidebar`
+   * tidak lagi menawarkan kotak centang pada pelajaran kuis.
+   */
+  const { data: pelajaran } = await supabase
+    .from("lessons")
+    .select("id, content_type, section:course_sections!inner(course_id)")
+    .eq("id", lessonId)
+    .maybeSingle<{
+      id: string
+      content_type: string
+      section: { course_id: string } | { course_id: string }[]
+    }>()
+
+  const bagian = Array.isArray(pelajaran?.section) ? pelajaran?.section[0] : pelajaran?.section
+  if (!pelajaran || bagian?.course_id !== courseId) {
+    return { ok: false, error: "Pelajaran itu bukan bagian dari kursus ini." }
+  }
+  if (pelajaran.content_type === "quiz") {
+    return {
+      ok: false,
+      error: "Pelajaran kuis ditandai selesai setelah Anda mengerjakannya, bukan dengan mencentang.",
+    }
+  }
+
   const { error } = await supabase.from("lesson_progress").upsert(
     {
       enrollment_id: enrollment.id,

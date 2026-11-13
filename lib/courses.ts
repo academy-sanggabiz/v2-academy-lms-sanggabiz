@@ -200,7 +200,13 @@ export type CourseDetail = Course & {
   sections: CourseSection[]
   instructor: Instructor | null
   resource_count: number
-  enrolled_count: number
+  /**
+   * null ketika jumlahnya tidak boleh diceritakan -- di bawah ambang
+   * anonimitas, atau tidak terbaca. Layar menampilkannya hanya bila ada
+   * angkanya; nol adalah pernyataan ("belum ada yang mengikuti") dan itu
+   * justru pernyataan yang tidak boleh dibuat tentang kelompok sekecil itu.
+   */
+  enrolled_count: number | null
 }
 
 export function getYouTubeEmbedUrl(url: string | null): string | null {

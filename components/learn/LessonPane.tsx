@@ -745,10 +745,10 @@ function LessonFooter({
             type="button"
             onClick={onComplete}
             pending={completing}
-            pendingLabel="Menyimpan…"
+            pendingLabel={t.common.saving}
             className="bg-brand-gradient text-white hover:brightness-105"
           >
-            {nextLessonId ? "Selesai & lanjut" : "Selesaikan pelajaran"}
+            {nextLessonId ? t.player.completeAndContinue : t.player.finishLesson}
             <ArrowRight className="size-4" aria-hidden />
           </Button>
         ) : nextHref ? (
@@ -783,7 +783,7 @@ function AboutCourse({ course }: { course: Course }) {
     <section aria-labelledby="about-course-heading" className="bg-card">
       <div className="max-w-[840px] p-5 sm:p-7">
         <h2 id="about-course-heading" className="mb-3 text-lg font-bold">
-          Tentang kursus ini
+          {t.player.aboutThisCourse}
         </h2>
         <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">{course.description}</p>
         <div className="mt-4 flex flex-wrap gap-2 text-sm text-muted-foreground">
