@@ -74,7 +74,7 @@ export function formatCourseAccess(
   return formatPrice(course.price)
 }
 
-export type LessonContentType = "video" | "text" | "quiz" | "mixed" | "ppt"
+export type LessonContentType = "video" | "text" | "quiz" | "mixed" | "ppt" | "interactive"
 
 export type QuestionType =
   | "multiple_choice"

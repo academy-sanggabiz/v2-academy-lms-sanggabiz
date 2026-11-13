@@ -309,6 +309,25 @@
   .lesson-prose img {
     @apply rounded-lg;
   }
+
+  /*
+    Materi interaktif. Pembungkusnya memakai `.lesson-prose` juga, supaya
+    materi yang TIDAK membawa CSS sendiri tetap terbaca -- tanpa itu reset
+    Tailwind membuat <h2> seukuran <p> dan daftar kehilangan butirnya.
+
+    Yang dikembalikan di sini cuma warna teksnya. `.lesson-prose` memakai
+    `muted-foreground` karena isinya selalu di atas kartu putih; materi
+    interaktif memasang latarnya sendiri, dan abu-abu di atas latar penulis
+    bisa jatuh di bawah 4.5:1 tanpa ada yang mengukurnya. Warna penuh aman di
+    kedua keadaan.
+
+    CSS penulis menang atas keduanya: ia disisipkan sebagai <style> di dalam
+    isinya, jadi datang belakangan pada kekhususan yang sama.
+  */
+  .materi-interaktif {
+    color: var(--foreground);
+    --tw-prose-body: var(--foreground);
+  }
   /* Tiptap's table extension renders its own DOM structure (wrapper, resize
      handle, cell-selection overlay) that Tailwind Typography doesn't know
      about — these classes only ever appear inside the editor, not in static

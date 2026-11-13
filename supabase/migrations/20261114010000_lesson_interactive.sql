@@ -1,0 +1,15 @@
+-- Jenis pelajaran kelima: materi interaktif.
+-- Standar: docs/STANDAR-MATERI-INTERAKTIF.md
+--
+-- Satu berkas HTML tanpa JavaScript, disimpan di `lessons.content` seperti
+-- pelajaran teks, dan digambar langsung di halaman (bukan iframe).
+--
+-- Kenapa nilai enum BARU dan bukan memakai 'mixed' yang 0 baris:
+-- `LessonPane` sudah memperlakukan 'mixed' sebagai kuis. Memakai ulang nilai
+-- itu berarti satu nilai punya dua arti, dan yang membedakannya hanya
+-- kebetulan isi kolom lain.
+--
+-- Tidak ada kolom baru. Materi interaktif adalah HTML, dan `lessons.content`
+-- sudah kolom HTML -- menambah kolom kedua berarti dua tempat yang harus
+-- ditanya setiap kali seseorang membaca isi pelajaran.
+alter type public.lesson_content_type add value if not exists 'interactive';

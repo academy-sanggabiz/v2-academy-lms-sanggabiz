@@ -22,10 +22,26 @@ import path from "node:path"
 import { fileURLToPath } from "node:url"
 
 const AKAR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
+/**
+ * Melepas tanda kutip pembungkus nilai .env.
+ *
+ * Harus ada karena dotenv dan pembaca buatan sendiri ini HARUS sepakat. Nilai
+ * tanpa kutip yang memuat `#` dipotong dotenv di tanda itu, sedangkan pembaca
+ * ini menyimpannya utuh -- dua skrip membaca kata sandi yang sama dan
+ * mendapat dua nilai berbeda. Terukur 14 Nov 2026: kata sandi akun demo
+ * dibaca `DemoSanggabiz` oleh satu gerbang dan `DemoSanggabiz#2026` oleh
+ * gerbang lain, dan gerbang yang salah menyimpulkan kredensialnya keliru.
+ * Nilainya kini dikutip di .env.local; baris ini yang membuat kutipnya tidak
+ * ikut terbaca sebagai bagian dari nilai.
+ */
+function lepasKutip(v) {
+  return /^(["']).*\1$/s.test(v) ? v.slice(1, -1) : v
+}
+
 const env = Object.fromEntries(
   fs.readFileSync(path.join(AKAR, ".env.local"), "utf8").split("\n")
     .filter((l) => /^[A-Z_]+=/.test(l))
-    .map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1).trim()])
+    .map((l) => [l.slice(0, l.indexOf("=")), lepasKutip(l.slice(l.indexOf("=") + 1).trim())])
 )
 const U = env.NEXT_PUBLIC_SUPABASE_URL
 const K = env.SUPABASE_SERVICE_ROLE_KEY

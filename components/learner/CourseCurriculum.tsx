@@ -2,7 +2,14 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ChevronDown, CircleHelp, FileText, PlayCircle, Presentation } from "lucide-react"
+import {
+  ChevronDown,
+  CircleHelp,
+  FileText,
+  MousePointerClick,
+  PlayCircle,
+  Presentation,
+} from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import type { CourseSection, LessonContentType } from "@/lib/courses"
@@ -18,6 +25,7 @@ function typeLabels(t: Dictionary): Record<LessonContentType, string> {
     quiz: t.catalog.typeQuiz,
     mixed: t.catalog.typeMixed,
     ppt: t.catalog.typeSlides,
+    interactive: t.catalog.typeInteractive,
   }
 }
 
@@ -27,6 +35,7 @@ const typeIcon: Record<LessonContentType, typeof PlayCircle> = {
   quiz: CircleHelp,
   mixed: PlayCircle,
   ppt: Presentation,
+  interactive: MousePointerClick,
 }
 
 export function CourseCurriculum({

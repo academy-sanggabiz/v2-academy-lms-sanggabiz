@@ -17,6 +17,8 @@ import { courseDraftSchema, type CourseDraft } from "@/lib/course-draft"
 import { describeDraftIssue, describeDraftIssues } from "@/lib/course-draft-issues"
 import { parseCourseMarkdown, type ParsedCourse } from "@/lib/course-markdown"
 import { createClient } from "@/lib/supabase/server"
+import { BATAS_BERKAS, type HasilBersih } from "@/lib/interactive-lesson"
+import { bersihkanMateriInteraktif } from "@/lib/sanitize-interactive"
 
 export type ActionResult<T = undefined> = { ok: true; data: T } | { ok: false; error: string }
 
@@ -232,4 +234,34 @@ export async function importCourseMarkdownAction(
   }
 
   return { ok: true, data: parseCourseMarkdown(markdown) }
+}
+
+/**
+ * Membersihkan satu berkas materi interaktif dan melaporkan apa yang hilang.
+ *
+ * Aksi server, bukan fungsi di peramban, karena `lib/sanitize-interactive.ts`
+ * mengimpor postcss -- menariknya ke klien berarti menyeret pengurai CSS ke
+ * dalam bundel setiap orang yang membuka penyunting.
+ *
+ * Ini BUKAN penjagaan keamanannya. Penjagaannya ada di `saveCourseDraft`,
+ * yang membersihkan ulang apa pun yang dikirim peramban. Fungsi ini ada
+ * supaya penyusun melihat hasilnya sebelum menyimpan, bukan sesudahnya.
+ */
+export async function bersihkanMateriAction(
+  berkas: string
+): Promise<ActionResult<HasilBersih>> {
+  try {
+    await requireAdmin()
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Anda tidak berwenang" }
+  }
+
+  if (berkas.length > BATAS_BERKAS) {
+    return {
+      ok: false,
+      error: "Berkasnya lebih besar dari 512 KB. Perkecil dulu sebelum diunggah.",
+    }
+  }
+
+  return { ok: true, data: bersihkanMateriInteraktif(berkas) }
 }

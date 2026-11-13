@@ -25,7 +25,7 @@ begin
     'kursus-demo-dasar-keuangan-usaha-kecil',
     'Pisahkan uang usaha dari uang pribadi, baca laporan sederhana, dan tahu apakah usaha Anda benar-benar untung. Untuk pemilik usaha yang mencatat sendiri keuangannya.',
     'Pemula', 'Bahasa Indonesia', 'published', false, 0,
-    5, 2, 70,
+    6, 2, 70,
     array['Pemilik usaha kecil yang mencatat keuangannya sendiri','Calon wirausaha yang belum pernah menyusun pembukuan'],
     array['Tidak perlu latar belakang akuntansi','Siapkan catatan penjualan satu bulan terakhir bila ada'],
     v_admin
@@ -58,8 +58,89 @@ begin
     '<h2>Berapa yang harus terjual agar tidak rugi</h2><p>Titik impas adalah jumlah penjualan saat usaha tidak untung dan tidak rugi. Di bawah angka itu Anda menombok; di atasnya barulah untung.</p><p><strong>Rumusnya:</strong> biaya tetap dibagi (harga jual dikurangi biaya per unit).</p><h3>Contoh</h3><p>Sewa dan gaji Rp 6.000.000 per bulan. Satu porsi dijual Rp 20.000 dengan biaya bahan Rp 12.000, jadi setiap porsi menyumbang Rp 8.000.</p><p>Rp 6.000.000 dibagi Rp 8.000 sama dengan <strong>750 porsi sebulan</strong>, atau sekitar 25 porsi sehari. Di bawah itu, usaha rugi meski kelihatan ramai.</p><p>Angka ini berguna karena mengubah pertanyaan "apakah hari ini ramai?" menjadi "apakah hari ini lewat 25 porsi?" — pertanyaan yang bisa dijawab dengan pasti.</p>',
     420);
 
+  -- Materi interaktif (docs/STANDAR-MATERI-INTERAKTIF.md). Disimpan sudah
+  -- bersih: HTML ini adalah KELUARAN `bersihkanMateriInteraktif`, bukan berkas
+  -- aslinya. Berkas yang belum dibersihkan tidak pernah boleh masuk ke kolom
+  -- ini, lewat seed sekalipun.
+  insert into public.lessons (section_id, title, position, content_type, content, duration_seconds)
+  values (s, 'Latihan interaktif: titik impas', 3, 'interactive',
+    '<style>.materi-interaktif { --utama: #13707f; --garis: #d6e2e5; --redup: #566a70; }
+.materi-interaktif .sampul { border-left: 4px solid var(--utama); padding: 0.25rem 0 0.25rem 0.9rem; margin-bottom: 1.4rem; }
+.materi-interaktif .kisi { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(13rem,100%),1fr)); gap: 0.7rem; margin-bottom: 1.4rem; }
+.materi-interaktif .kartu { border: 1px solid var(--garis); border-radius: 0.6rem; padding: 0.85rem; }
+.materi-interaktif .kartu h3 { margin: 0 0 0.3rem; font-size: 0.95rem; }
+.materi-interaktif .kartu p { margin: 0; font-size: 0.88rem; color: var(--redup); }
+.materi-interaktif details { border: 1px solid var(--garis); border-radius: 0.6rem; padding: 0.7rem 0.9rem; margin-bottom: 0.55rem; }
+.materi-interaktif summary { cursor: pointer; font-weight: 600; min-height: 24px; display: flex; align-items: center; }
+.materi-interaktif details[open] summary { margin-bottom: 0.55rem; }
+.materi-interaktif .latihan { border: 1px solid var(--garis); border-radius: 0.6rem; padding: 1rem; margin-top: 1rem; }
+.materi-interaktif .latihan input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.materi-interaktif .pilihan { display: block; border: 1px solid var(--garis); border-radius: 0.5rem; padding: 0.55rem 0.75rem; margin-bottom: 0.45rem; cursor: pointer; min-height: 24px; }
+.materi-interaktif .latihan input:focus-visible + .pilihan { outline: 2px solid var(--utama); outline-offset: 2px; }
+.materi-interaktif .latihan input:checked + .pilihan { border-color: var(--utama); background: #eef6f7; }
+.materi-interaktif .umpan { display: none; margin-top: 0.7rem; font-size: 0.9rem; }
+.materi-interaktif #a1:checked ~ .salah, .materi-interaktif #a3:checked ~ .salah, .materi-interaktif #a2:checked ~ .benar { display: block; }
+.materi-interaktif .benar { color: #0f5c3f; } .materi-interaktif .salah { color: #8a2b2b; }
+.materi-interaktif table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+.materi-interaktif th, .materi-interaktif td { border: 1px solid var(--garis); padding: 0.45rem 0.6rem; text-align: left; }
+.materi-interaktif th { background: #f2f7f8; }
+@media (prefers-reduced-motion: reduce) { .materi-interaktif * { transition: none !important; animation: none !important; } }</style>
+
+
+<div class="sampul">
+  <h2>Titik impas: berapa harus terjual sebelum untung</h2>
+  <p>Klik untuk membuka penjelasan, lalu coba latihannya di bawah.</p>
+</div>
+
+<div class="kisi">
+  <div class="kartu"><h3>Biaya tetap</h3><p>Dibayar walau tidak ada penjualan: sewa, gaji tetap, langganan.</p></div>
+  <div class="kartu"><h3>Biaya variabel</h3><p>Ikut naik tiap satu barang terjual: bahan, kemasan, ongkos kirim.</p></div>
+  <div class="kartu"><h3>Margin per unit</h3><p>Harga jual dikurangi biaya variabel. Inilah yang menutup biaya tetap.</p></div>
+</div>
+
+<h3>Buka satu per satu</h3>
+
+<details>
+  <summary>Rumusnya</summary>
+  <p>Titik impas (unit) = biaya tetap dibagi margin per unit. Kalau biaya tetap
+  Rp 6.000.000 dan margin per unit Rp 15.000, titik impasnya 400 unit sebulan.</p>
+</details>
+
+<details>
+  <summary>Kenapa laba kotor saja tidak cukup</summary>
+  <p>Laba kotor hanya mengurangi biaya bahan. Sewa dan gaji belum terhitung,
+  jadi usaha bisa terlihat untung padahal kasnya menipis tiap bulan.</p>
+</details>
+
+<details>
+  <summary>Contoh angka</summary>
+  <table>
+    <caption>Warung dengan biaya tetap Rp 6.000.000 per bulan</caption>
+    <thead><tr><th scope="col">Terjual</th><th scope="col">Margin total</th><th scope="col">Hasil</th></tr></thead>
+    <tbody>
+      <tr><td>300 unit</td><td>Rp 4.500.000</td><td>Rugi Rp 1.500.000</td></tr>
+      <tr><td>400 unit</td><td>Rp 6.000.000</td><td>Impas</td></tr>
+      <tr><td>500 unit</td><td>Rp 7.500.000</td><td>Untung Rp 1.500.000</td></tr>
+    </tbody>
+  </table>
+</details>
+
+<div class="latihan">
+  <fieldset>
+    <legend>Biaya tetap Rp 9.000.000. Harga jual Rp 50.000, biaya variabel Rp 20.000. Berapa titik impasnya?</legend>
+    <input type="radio" name="s1" id="a1" /><label class="pilihan" for="a1">180 unit</label>
+    <input type="radio" name="s1" id="a2" /><label class="pilihan" for="a2">300 unit</label>
+    <input type="radio" name="s1" id="a3" /><label class="pilihan" for="a3">450 unit</label>
+    <p class="umpan benar">Tepat. Marginnya Rp 30.000 per unit, dan Rp 9.000.000 dibagi Rp 30.000 sama dengan 300 unit.</p>
+    <p class="umpan salah">Belum tepat. Hitung dulu marginnya: Rp 50.000 dikurangi Rp 20.000. Baru bagi biaya tetapnya dengan angka itu.</p>
+  </fieldset>
+</div>
+
+',
+    360);
+
   insert into public.lessons (section_id, title, position, content_type, duration_seconds)
-  values (s, 'Latihan: membaca angka usaha', 3, 'quiz', 300) returning id into l;
+  values (s, 'Latihan: membaca angka usaha', 4, 'quiz', 300) returning id into l;
 
   insert into public.quizzes (lesson_id, title, pass_score, max_attempts, shuffle, is_assessment)
   values (l, 'Latihan: membaca angka usaha', 70, 3, false, false) returning id into q;
