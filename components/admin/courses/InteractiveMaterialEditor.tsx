@@ -1,7 +1,8 @@
 "use client"
 
 import { useRef, useState, useTransition } from "react"
-import { AlertTriangle, Trash2, Upload } from "lucide-react"
+import Link from "next/link"
+import { AlertTriangle, BookOpen, Trash2, Upload } from "lucide-react"
 
 import { bersihkanMateriAction } from "@/app/admin/courses/actions"
 import { Button } from "@/components/ui/button"
@@ -127,20 +128,24 @@ export function InteractiveMaterialEditor({
         )}
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        {t.editor.interactiveHint}{" "}
-        {/*
-          Tautan unduh, bukan nama berkas di repositori. Petunjuk ini dulu
-          menyebut `docs/TEMPLATE-MATERI-INTERAKTIF.html` -- jalan yang tidak
-          bisa dibuka siapa pun di tim penyusun materi.
-        */}
-        <a
-          href="/admin/courses/panduan-interaktif"
-          className="font-medium text-primary underline underline-offset-2"
-        >
-          {t.editor.interactiveGuide}
-        </a>
-      </p>
+      <p className="text-xs text-muted-foreground">{t.editor.interactiveHint}</p>
+
+      {/*
+        Menuju HALAMAN panduan, bukan langsung ke berkas `.md`. Berkas itu
+        ditujukan untuk asisten AI penyusun, bukan untuk dibaca orang --
+        halamannya yang bergambar dan berlangkah, dan dari situ berkasnya bisa
+        diunduh. Sebelumnya ini tautan teks di ujung kalimat abu-abu, dan hal
+        pertama yang ditanyakan orang adalah "tombol yang mana".
+      */}
+      <Button
+        variant="outline"
+        size="sm"
+        render={<Link href="/admin/courses/panduan-interaktif" />}
+        nativeButton={false}
+      >
+        <BookOpen className="size-4" aria-hidden="true" />
+        {t.editor.interactiveGuide}
+      </Button>
       <StatusMessage>{galat}</StatusMessage>
 
       {hasil && hasil.dibuang.length > 0 && (

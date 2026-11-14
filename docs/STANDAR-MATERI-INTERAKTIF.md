@@ -365,7 +365,10 @@ mengira bagian yang belum dibangun sudah ada.
 | Pembungkus bersama penyunting dan pemutar | `components/learn/InteractiveMaterial.tsx` |
 | Pemutar | `InteractiveContent` di `components/learn/LessonPane.tsx` |
 | Gerbang 36 uji | `npm run test:interaktif` |
-| Panduan tim + contohnya | `lib/interactive-guide.ts`, diunduh dari `/admin/courses/panduan-interaktif` |
+| Sumber panduan (perintah AI, aturan, contoh) | `lib/interactive-guide.ts` |
+| Halaman panduan untuk dibaca orang | `/admin/courses/panduan-interaktif` |
+| Berkas `.md` untuk asisten AI penyusun | `/admin/courses/panduan-interaktif/unduh` |
+| Gambar langkah | `public/panduan/` |
 | Pelajaran demo | Modul 2 kursus demo keuangan |
 
 **Yang diukur di aplikasi hasil build, bukan diasumsikan** (14 Nov 2026,

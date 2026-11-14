@@ -396,6 +396,9 @@ try {
     ])
       await visit(page, path)
     if (page) {
+    // Panduan materi interaktif: halaman penuh yang dibaca tim penyusun.
+    await visit(page, "/admin/courses/panduan-interaktif")
+
     await page.goto(BASE + "/admin/courses")
     const editHref = await page.locator('a[href$="/edit"]').first().getAttribute("href").catch(() => null)
     if (editHref) {

@@ -227,25 +227,15 @@ details[open] summary { margin-bottom: 0.6rem; }
 </html>
 `
 
-export const PANDUAN_MATERI_INTERAKTIF = `# Panduan singkat: menyusun materi interaktif
-
-Untuk tim penyusun materi Sanggabiz Academy. Materi interaktif adalah satu
-berkas HTML yang bisa diklik peserta: bagian yang dibuka-tutup, latihan pilih
-jawaban yang langsung memberi tanggapan, daftar periksa yang menandai dirinya
-sendiri.
-
-Anda membuatnya di luar LMS, lalu mengunggahnya ke salah satu pelajaran. Satu
-kursus boleh berisi campuran video, teks, slide, kuis, dan materi interaktif.
-
-## 1. Cara tercepat: minta AI yang membuat
-
-Buka asisten AI Anda (ChatGPT, Claude, Gemini). Unggah berkas panduan ini,
-lalu unggah bahan Anda sendiri: SOP, catatan pelatihan, salindia lama. Setelah
-itu salin perintah di bawah ini apa adanya.
-
----
-
-Buatkan satu berkas HTML materi interaktif dari bahan yang saya unggah.
+/**
+ * Perintah yang disalin penyusun ke asisten AI mereka.
+ *
+ * Satu salinan, dipakai DUA tempat: berkas `.md` yang diunduh dan halaman
+ * panduan yang dibaca. Kalau masing-masing punya salinannya sendiri, yang
+ * satu akan menua tanpa ada yang menyadarinya -- dan yang menua itu justru
+ * bagian yang paling menentukan mutu keluaran AI-nya.
+ */
+export const PERINTAH_AI = `Buatkan satu berkas HTML materi interaktif dari bahan yang saya unggah.
 
 Patuhi seluruh aturan di berkas panduan yang saya unggah. Yang paling penting:
 
@@ -272,7 +262,45 @@ Isinya:
 - Tutup dengan daftar periksa berisi tiga pernyataan yang bisa dicentang
   peserta sendiri.
 
-Keluarkan satu berkas HTML lengkap, siap saya simpan sebagai .html.
+Keluarkan satu berkas HTML lengkap, siap saya simpan sebagai .html.`
+
+/**
+ * Aturan yang ditegakkan pembersih, berikut alasannya.
+ *
+ * Alasannya ikut dibawa dengan sengaja. Daftar larangan tanpa sebab akan
+ * dilanggar begitu terasa menghalangi; aturan yang alasannya diketahui
+ * dipatuhi bahkan pada kasus yang tidak disebut daftarnya.
+ */
+export const ATURAN_SISTEM: { aturan: string; kenapa: string }[] = [
+  { aturan: "Tanpa JavaScript", kenapa: "Satu baris yang salah bisa mencuri sesi peserta." },
+  { aturan: "Tanpa position: fixed atau sticky", kenapa: "Terukur menutupi menu LMS, termasuk tombol Keluar." },
+  { aturan: "Tanpa @import dan @font-face", kenapa: "Keduanya menarik berkas dari server orang lain." },
+  { aturan: "Tanpa url() ke alamat internet", kenapa: "Pemilik berkas itu jadi tahu siapa saja peserta kita." },
+  { aturan: "Tanpa form dan iframe", kenapa: "Tidak ada gunanya tanpa JavaScript, dan keduanya bisa menyesatkan." },
+  { aturan: "input hanya checkbox dan radio", kenapa: "Kotak kata sandi di tengah pelajaran adalah jebakan yang sempurna." },
+  { aturan: "Maksimal 512 KB", kenapa: "Hampir selalu terlampaui karena gambar ditempel ke dalam berkas." },
+]
+
+
+export const PANDUAN_MATERI_INTERAKTIF = `# Panduan singkat: menyusun materi interaktif
+
+Untuk tim penyusun materi Sanggabiz Academy. Materi interaktif adalah satu
+berkas HTML yang bisa diklik peserta: bagian yang dibuka-tutup, latihan pilih
+jawaban yang langsung memberi tanggapan, daftar periksa yang menandai dirinya
+sendiri.
+
+Anda membuatnya di luar LMS, lalu mengunggahnya ke salah satu pelajaran. Satu
+kursus boleh berisi campuran video, teks, slide, kuis, dan materi interaktif.
+
+## 1. Cara tercepat: minta AI yang membuat
+
+Buka asisten AI Anda (ChatGPT, Claude, Gemini). Unggah berkas panduan ini,
+lalu unggah bahan Anda sendiri: SOP, catatan pelatihan, salindia lama. Setelah
+itu salin perintah di bawah ini apa adanya.
+
+---
+
+${PERINTAH_AI}
 
 ---
 
@@ -287,13 +315,7 @@ membuangnya lebih dulu dan memberi tahu Anda apa saja yang hilang.
 
 | Aturan | Kenapa |
 | --- | --- |
-| Tanpa JavaScript | Satu baris yang salah bisa mencuri sesi peserta. |
-| Tanpa position: fixed atau sticky | Terukur menutupi menu LMS, termasuk tombol Keluar. |
-| Tanpa @import dan @font-face | Keduanya menarik berkas dari server orang lain. |
-| Tanpa url() ke alamat internet | Pemilik berkas itu jadi tahu siapa saja peserta kita. |
-| Tanpa form dan iframe | Tidak ada gunanya tanpa JavaScript, dan keduanya bisa menyesatkan. |
-| input hanya checkbox dan radio | Kotak kata sandi di tengah pelajaran adalah jebakan yang sempurna. |
-| Maksimal 512 KB | Hampir selalu terlampaui karena gambar ditempel ke dalam berkas. |
+${ATURAN_SISTEM.map((a) => `| ${a.aturan} | ${a.kenapa} |`).join("\n")}
 
 Dua hal yang perlu Anda ingat saat menulis CSS:
 

@@ -328,6 +328,44 @@
     color: var(--foreground);
     --tw-prose-body: var(--foreground);
   }
+
+  /*
+    Cetak panduan: menghasilkan PDF, bukan tangkapan layar aplikasi.
+    "Simpan sebagai PDF" di dialog cetak peramban adalah satu-satunya jalan ke
+    PDF yang tidak menuntut pustaka pembuat PDF di server. Yang dibutuhkannya
+    hanya halaman yang tahu cara mencetak dirinya.
+
+    Dilingkupi `body:has(.panduan-cetak)` supaya aturan ini tidak menyentuh
+    layar lain -- menyembunyikan sidebar dan header secara global akan merusak
+    cetakan setiap halaman pengelola.
+  */
+  @media print {
+    /* `header` tanpa pembatas anak: headernya sticky dan bukan anak
+       langsung body, jadi selector berjenjang melewatkannya dan ia ikut
+       tercetak di tengah halaman. */
+    body:has(.panduan-cetak) aside,
+    body:has(.panduan-cetak) header,
+    body:has(.panduan-cetak) .tanpa-cetak {
+      display: none !important;
+    }
+    body:has(.panduan-cetak) main {
+      padding: 0 !important;
+      overflow: visible !important;
+    }
+    .panduan-cetak {
+      max-width: none;
+    }
+    /* Satu langkah tidak boleh terbelah dua halaman. */
+    .panduan-cetak section,
+    .panduan-cetak figure,
+    .panduan-cetak table {
+      break-inside: avoid;
+    }
+    .panduan-cetak pre {
+      max-height: none !important;
+      overflow: visible !important;
+    }
+  }
   /* Tiptap's table extension renders its own DOM structure (wrapper, resize
      handle, cell-selection overlay) that Tailwind Typography doesn't know
      about — these classes only ever appear inside the editor, not in static
