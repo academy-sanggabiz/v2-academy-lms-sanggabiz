@@ -77,6 +77,41 @@ Bukan contoh kasus yang ditempel di akhir bacaan. Satu kejadian utuh:
 - Tutup dengan menghubungkannya kembali ke konsep di pelajaran sebelumnya.
 - Nama orang dan perusahaan dibuat-buat, dan katakan itu di kalimat terakhir.
 
+## Cara menulis supaya dibaca
+
+Aturan ini yang membedakan materi yang dibaca dari materi yang dilewati.
+
+- **Buka dengan kejadian, bukan dengan pernyataan.** Kalimat pertama memuat
+  sesuatu yang terjadi: sebuah jam, seseorang, sebuah angka, atau akibatnya.
+  Jangan membuka dengan mengatakan topiknya penting -- itu meminta pembaca
+  percaya, bukan menunjukkan.
+- **Setiap aturan disertai ongkosnya.** Bukan "hal ini penting", melainkan
+  "hari itu dihitung alpa dan memotong jatah cuti satu hari".
+- **Satu gagasan per paragraf**, satu sampai tiga kalimat. Panjangnya
+  divariasikan, dan sedikitnya satu paragraf hanya berisi satu kalimat.
+- **Tutup dengan pertanyaan berikutnya**, bukan dengan ringkasan isi yang baru
+  saja ditulis.
+- **Cerita dimulai, tidak diminta izin dulu.** Jangan membuka dengan
+  "Bayangkan" atau "Sebagai contoh". Langsung sebut orangnya.
+
+Frasa yang membuat tulisan terdengar seperti borang, jangan dipakai: "penting
+bagi Anda", "perlu dipahami", "merupakan", "Perhatikan bahwa", "Dengan
+demikian", "Hal ini bertujuan untuk", "Adapun", "Dalam hal ini", "Memahami hal
+ini", "Oleh karena itu".
+
+Perhatikan bedanya:
+
+> **Buruk.** Pengajuan yang benar lewat sistem adalah satu-satunya cara agar
+> permintaan Anda tercatat dan diproses, jadi memahami langkahnya penting bagi
+> Anda.
+>
+> **Baik.** Pukul 16.50 Anda menekan Kirim, lalu pulang. Senin pagi statusnya
+> masih Menunggu, dan hari Jumat itu tercatat alpa.
+
+Judul pelajaran juga: sependek mungkin, paling banyak tujuh kata, dan jangan
+menumpuk kata benda. "Mengirim permintaan dan menunggu persetujuan" lebih baik
+daripada "Pelaksanaan Pengiriman Permintaan serta Proses Menunggu Status".
+
 ## Menulis pelajaran simulasi
 
 Isinya satu blok kode \`html\` di bawah kepala pelajaran. **Tanpa JavaScript**
