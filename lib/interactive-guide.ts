@@ -267,10 +267,18 @@ Isinya:
   "benar" atau "salah".
 - Sediakan tombol "Ulangi dari awal". Caranya: satu radio tambahan dengan
   atribut checked yang menampilkan layar awal.
-- Tambahkan dua sampai tiga KEADAAN yang bisa dinyalakan dan benar-benar
-  mengubah tampilannya: sedang diburu waktu, layar kena matahari, ponsel
-  kecil. Pakai filter CSS, lebar yang mengecil, atau pesan tambahan yang
-  menutupi. Tandanya jangan dihilangkan, cukup dibuat lebih sulit dilihat.
+- Tambahkan dua sampai tiga VARIAN SITUASI yang bisa dipilih, dan pastikan
+  tiap varian mengubah KEPUTUSANNYA, bukan hanya tampilannya. Ujilah begini:
+  kalau tindakan yang menyelamatkan tetap sama di semua varian, variannya
+  tidak mengajarkan apa-apa dan lebih baik dihapus.
+- Cara membuat varian yang berguna: hilangkan satu tanda yang tadinya
+  menolong, atau tutup salah satu jalan keluar. Contoh pada kasus penipuan:
+  pesannya datang dari nomor yang tersimpan, atau orang yang biasa dimintai
+  konfirmasi sedang cuti.
+- JANGAN membuat varian yang hanya mengaburkan layar, menurunkan kontras,
+  atau mempersempit lebar, kecuali pelajarannya memang tentang keterbacaan.
+  Pada pelajaran yang melatih penilaian, varian seperti itu terlihat canggih
+  tetapi tidak mengubah jawabannya sama sekali.
 - Sertakan juga satu bagian buka-tutup untuk penjelasan yang panjang.
 - Tutup dengan daftar periksa berisi tiga pernyataan yang bisa dicentang
   peserta sendiri.

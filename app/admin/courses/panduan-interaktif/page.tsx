@@ -116,7 +116,17 @@ export default async function PanduanInteraktifPage() {
         <p>
           Tiga hal yang membuatnya terasa hidup: satu <strong>tugas</strong> yang jelas di awal,
           <strong> akibat</strong> yang berbeda untuk tiap tindakan, dan beberapa{" "}
-          <strong>keadaan</strong> yang bisa dinyalakan dan benar-benar mengubah tampilannya.
+          <strong>varian situasi</strong> yang bisa dipilih.
+        </p>
+        <p>
+          Varian itu ada ujiannya, dan mudah gagal. <strong>Kalau tindakan yang menyelamatkan
+          tetap sama di semua varian, variannya tidak mengajarkan apa-apa.</strong> Varian yang
+          baik menghilangkan satu tanda, atau menutup salah satu jalan keluar.
+        </p>
+        <p>
+          Versi pertama simulasi di atas punya tombol untuk mengaburkan layar dan menurunkan
+          kontras. Terlihat canggih, dan tidak ada gunanya: jawaban yang benar tetap sama. Varian
+          seperti itu hanya pantas kalau pelajarannya memang tentang keterbacaan.
         </p>
         <p>
           Satu hal yang tidak bisa: penghitung waktu dan penghitung salah-tekan. Keduanya menuntut
