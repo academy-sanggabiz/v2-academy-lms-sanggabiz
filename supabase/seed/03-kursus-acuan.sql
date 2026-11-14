@@ -205,9 +205,14 @@ begin
 .materi-interaktif .akibat b { display: block; margin-bottom: 0.2rem; }
 .materi-interaktif .sim-akibat .akibat { display: none; }
 .materi-interaktif .sim:has(#t1:checked) .akibat-t1,
-.materi-interaktif .sim:has(#t2:checked) .akibat-t2,
-.materi-interaktif .sim:has(#t3:checked) .akibat-t3,
-.materi-interaktif .sim:has(#t4:checked) .akibat-t4 { display: block; }
+.materi-interaktif .sim:has(#t2:checked) .akibat-t2 { display: block; }
+/* Telepon: di varian "akun diambil alih" tandanya hilang, tetapi jalurnya
+   tetap bekerja -- itu justru pelajarannya. */
+.materi-interaktif .sim:has(#t3:checked):not(:has(#v2:checked)) .akibat-t3,
+.materi-interaktif .sim:has(#t3:checked):has(#v2:checked) .akibat-t3v2 { display: block; }
+/* Grup: di varian "Pak Agus cuti" jalan ini tertutup hari itu. */
+.materi-interaktif .sim:has(#t4:checked):not(:has(#v3:checked)) .akibat-t4,
+.materi-interaktif .sim:has(#t4:checked):has(#v3:checked) .akibat-t4v3 { display: block; }
 
 .materi-interaktif .struk { background: #fff; border: 1px dashed var(--garis); border-radius: 0.5rem; padding: 0.7rem; font-size: 0.8rem; margin-bottom: 0.5rem; }
 .materi-interaktif .struk .jml { font-size: 1.15rem; font-weight: 700; display: block; margin: 0.2rem 0; }
@@ -221,19 +226,17 @@ begin
 .materi-interaktif .keadaan label:focus-within { outline: 2px solid var(--utama); outline-offset: 2px; }
 .materi-interaktif .catatan { font-size: 0.8rem; color: var(--redup); line-height: 1.6; margin: 0.7rem 0 0; }
 
-/* Buru-buru: pesan pendesak menyusul, dan tanda kuncinya tenggelam. */
-.materi-interaktif .desakan { display: none; }
-.materi-interaktif .sim:has(#k1:checked) .desakan { display: block; }
-.materi-interaktif .sim:has(#k1:checked) .kunci { background: #fff; }
-
-/* Silau: kontras turun, persis seperti layar kena matahari. */
-.materi-interaktif .sim:has(#k2:checked) .layar { filter: contrast(0.42) brightness(1.22); }
-
-/* Layar kecil: teks panjang terpotong, seperti ponsel sempit. */
-.materi-interaktif .sim:has(#k3:checked) .telepon { max-width: 14.5rem; }
-.materi-interaktif .sim:has(#k3:checked) .gelembung { font-size: 0.78rem; max-height: 4.6rem; overflow: hidden; }
-.materi-interaktif .sim:has(#k3:checked) .potong { display: block; font-size: 0.7rem; color: var(--redup); font-style: italic; }
-.materi-interaktif .potong { display: none; }
+/* ---------- varian situasi ----------
+   Yang diubah BUKAN tampilannya, melainkan keadaannya: satu tanda hilang, atau
+   satu jalan keluar tertutup. Versi pertama panel ini mengubah kontras dan
+   lebar layar, meniru stress test di acuan -- tetapi di sana tugasnya soal
+   persepsi, sedangkan di sini soal penilaian. Nyalakan ketiganya, jawabannya
+   tetap sama. Yang tidak mengubah keputusan tidak mengajarkan apa-apa. */
+.materi-interaktif .v-khusus { display: none; }
+.materi-interaktif .sim:has(#v1:checked) .v1,
+.materi-interaktif .sim:has(#v2:checked) .v2,
+.materi-interaktif .sim:has(#v3:checked) .v3 { display: block; }
+.materi-interaktif .sim:has(#v2:checked) .hanya-v1 { display: none; }
 
 @media (prefers-reduced-motion: reduce) { .materi-interaktif * { transition: none !important; animation: none !important; } }</style>
 
@@ -250,13 +253,21 @@ begin
 
   <div class="telepon">
     <div class="bar"><span>16.47</span><span>WiFi</span></div>
-    <div class="kontak"><b>Pak Hendra</b><span>+62 812-xxxx-9931 · nomor baru</span></div>
+    <div class="kontak">
+      <b>Pak Hendra</b>
+      <span class="v-khusus v1 v3">+62 812-xxxx-9931 · nomor baru</span>
+      <span class="v-khusus v2">+62 811-xxxx-4420 · nomor tersimpan</span>
+    </div>
 
     <div class="layar">
 
       <div class="adegan adegan-awal">
-        <div class="gelembung">
+        <div class="gelembung v-khusus v1 v3">
           Selamat sore Bu Rina. Ini Pak Hendra, pakai nomor baru, yang lama rusak kemarin.
+          <span class="jam">16.47</span>
+        </div>
+        <div class="gelembung v-khusus v2">
+          Selamat sore Bu Rina.
           <span class="jam">16.47</span>
         </div>
         <div class="gelembung">
@@ -264,14 +275,13 @@ begin
           Rp 46.200.000. Invoice saya kirim besok pagi.
           <span class="jam">16.47</span>
         </div>
-        <div class="gelembung kunci">
+        <div class="gelembung kunci v-khusus v1 v2">
           Ini jangan lewat Pak Agus dulu ya, beliau lagi di lapangan. Langsung ke saya aja.
           <span class="jam">16.48</span>
-          <span class="potong">(terpotong di layar sempit)</span>
         </div>
-        <div class="gelembung desakan">
-          Bu, ini bank mau tutup. Saya lagi rapat, tolong sekarang ya.
-          <span class="jam">16.51</span>
+        <div class="gelembung kunci v-khusus v3">
+          Pak Agus cuti sampai Senin, jadi langsung ke saya saja ya.
+          <span class="jam">16.48</span>
         </div>
       </div>
 
@@ -305,9 +315,10 @@ begin
       </div>
 
       <div class="adegan adegan-grup">
-        <div class="gelembung"><b>Grup Keuangan</b><br />Rina: Pak Agus, ada permintaan transfer 46,2 jt dari nomor baru Pak Hendra. Benar? <span class="jam">16.49</span></div>
-        <div class="gelembung">Pak Agus: Saya tidak tahu apa-apa. Jangan diproses. <span class="jam">16.50</span></div>
-        <div class="gelembung">Pak Agus: Saya umumkan ke semua staf sekarang. <span class="jam">16.51</span></div>
+        <div class="gelembung"><b>Grup Keuangan</b><br />Rina: Pak Agus, ada permintaan transfer 46,2 jt dari Pak Hendra. Benar? <span class="jam">16.49</span></div>
+        <div class="gelembung v-khusus v1 v2">Pak Agus: Saya tidak tahu apa-apa. Jangan diproses. <span class="jam">16.50</span></div>
+        <div class="gelembung v-khusus v1 v2">Pak Agus: Saya umumkan ke semua staf sekarang. <span class="jam">16.51</span></div>
+        <div class="gelembung v-khusus v3">Pak Agus: Di luar jangkauan sampai Senin. Hubungi Bu Rina. <span class="jam">balasan otomatis</span></div>
       </div>
 
     </div>
@@ -325,12 +336,12 @@ begin
 
   <div>
     <div class="keadaan">
-      <h3>Ubah keadaannya</h3>
-      <p>Nyalakan satu, lalu coba lagi. Inilah yang membedakan orang yang tertipu dan yang tidak.</p>
-      <label><input type="checkbox" id="k1" /><span>Anda sedang diburu waktu</span></label>
-      <label><input type="checkbox" id="k2" /><span>Layar kena matahari</span></label>
-      <label><input type="checkbox" id="k3" /><span>Ponsel kecil</span></label>
-      <p class="catatan">Tandanya tidak hilang. Ia cuma jadi lebih sulit dilihat, persis seperti di hari kerja yang sibuk.</p>
+      <h3>Ganti situasinya</h3>
+      <p>Pilih satu, lalu kerjakan lagi dari awal. Tiap situasi mengubah tandanya, dan satu di antaranya menutup salah satu jalan keluar.</p>
+      <label><input type="radio" name="v" id="v1" checked /><span><b>Seperti biasa</b><br />Nomor baru, invoice menyusul besok.</span></label>
+      <label><input type="radio" name="v" id="v2" /><span><b>Akun Pak Hendra diambil alih</b><br />Pesannya datang dari nomor yang sudah lama Anda simpan.</span></label>
+      <label><input type="radio" name="v" id="v3" /><span><b>Pak Agus sedang cuti</b><br />Manajer keuangan tidak bisa dihubungi sampai Senin.</span></label>
+      <p class="catatan">Yang berubah bukan tampilannya, melainkan keadaannya. Perhatikan bahwa tindakan yang menyelamatkan Anda tidak selalu sama.</p>
     </div>
 
     <div class="sim-akibat">
@@ -338,6 +349,8 @@ begin
       <div class="akibat netral akibat-t2"><b>Anda masih di tangan dia.</b> Invoice palsu dibuat dalam satu menit. Bertanya kepada penipu selalu dijawab penipu, dan jawabannya selalu meyakinkan. Tekanan justru naik.</div>
       <div class="akibat selamat akibat-t3"><b>Berhenti di sini.</b> Nomor lama itu satu-satunya yang tidak bisa ditiru. Empat puluh tujuh detik menahan Rp 46.200.000.</div>
       <div class="akibat selamat akibat-t4"><b>Berhenti, dan tidak cuma untuk Anda.</b> Pak Agus memperingatkan semua staf sore itu juga. Satu pertanyaan melindungi dua puluh dua orang.</div>
+      <div class="akibat selamat akibat-t3v2"><b>Tetap berhenti di sini.</b> Nomornya memang nomor yang Anda simpan, jadi tanda "nomor baru" tidak ada. Tetapi telepon adalah jalur yang berbeda dari chat, dan yang memegang akun WhatsApp belum tentu memegang teleponnya. Pak Hendra mengangkat dan tidak pernah meminta apa pun.</div>
+      <div class="akibat netral akibat-t4v3"><b>Tidak ada jawaban sampai besok.</b> Pak Agus cuti, dan grup hanya berisi pertanyaan Anda yang menggantung. Bertanya tetap benar, hanya saja hari itu ia tidak menolong. Masih ada satu jalan lagi yang tidak bergantung pada siapa pun yang sedang ada.</div>
     </div>
   </div>
 
