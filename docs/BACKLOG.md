@@ -7,6 +7,56 @@ alasannya. Diperbarui 13 November 2026.
 
 ## Belum dikerjakan
 
+### F. Kemajuan dan emblem selesai di daftar kursus peserta — belum dikerjakan
+
+Diminta pemilik 14 November 2026, dicatat untuk dikerjakan nanti.
+
+**Yang diminta.** Di `/learner/courses`, setiap kursus yang diambil peserta
+menampilkan berapa persen sudah selesai, dan kursus yang sudah 100% mendapat
+emblem selesai.
+
+**Kenapa.** Kartu kursus hari ini hanya menyebut harga/akses dan satu tombol
+yang berbunyi "Lanjutkan belajar" atau "Mulai belajar". Peserta yang mengambil
+beberapa kursus tidak bisa melihat mana yang tinggal sedikit lagi tanpa
+membuka satu per satu, dan kursus yang sudah tuntas tidak terlihat berbeda
+dari yang baru dibuka. Ini pasangan alami dari ucapan selamat yang baru
+ditambahkan (`CourseCompleteDialog`): pencapaiannya diakui di pemutar, tetapi
+hilang lagi begitu peserta kembali ke daftar.
+
+**Yang sudah ada, jangan dibangun ulang.**
+
+- `enrollments.status` sudah bernilai `completed` dan ditulis
+  `checkAndIssueCertificate()`. Itu sumber yang andal untuk emblemnya; jangan
+  menghitung ulang kelulusan di komponen.
+- `getContinueLearning()` (`lib/enrollments-server.ts`) SUDAH menghitung
+  `doneCount` dan `totalCount` per kursus — tetapi hanya untuk dasbor, dibatasi
+  tiga baris, dan hanya untuk enrollment yang masih aktif. Yang dibutuhkan
+  daftar kursus adalah angka yang sama untuk SEMUA enrollment.
+- `getEnrolledCoursesWithDetails()` mengembalikan `status` tetapi belum
+  membawa angka kemajuan sama sekali.
+
+**Pilihan pengerjaan.** Menambahkan `doneCount`/`totalCount` ke
+`getEnrolledCoursesWithDetails()` lebih murah daripada memanggil dua pembaca
+dari satu halaman. Kalau ditempuh, satukan perhitungannya dengan yang dipakai
+`getContinueLearning()` — dua tempat yang menghitung kemajuan akan segera
+berbeda, persis seperti yang terjadi pada nilai akhir kursus sebelum
+`computeCourseGrade()` menjadi satu-satunya tempat.
+
+**Jebakan yang sudah pernah menggigit.** Jangan menurunkan daftar kursus
+peserta dari `getPublishedCourses()`: pembaca itu menyaring `is_private = false`,
+jadi kursus privat yang diikuti peserta hilang diam-diam. Ini pernah terjadi
+pada tab Terdaftar/Selesai di `CoursesBrowser.tsx`. Lewati `enrollments`.
+
+**Catatan tampilan.** Emblem tidak boleh hanya warna — standar digital
+learning menuntut status punya teks, bukan sekadar hijau. Angka persennya juga
+perlu bentuk teks untuk pembaca layar, bukan hanya lebar bilah.
+
+Sekalian pertimbangkan jalan pintas sertifikat pada kartu yang sudah 100%:
+sertifikatnya sudah bisa dibaca per kursus lewat
+`getLearnerCertificateForCourse()`.
+
+---
+
 ### Y. API integrasi dan rekomendasi dari pengerjaan — ✅ selesai 12 November 2026
 
 Dua celah yang ditemukan saat pemilik memeriksa daftar fitur terhadap kode
