@@ -604,6 +604,7 @@ export type Dictionary = {
     interactiveUpload: string
     interactiveReplace: string
     interactiveHint: string
+    interactiveGuide: string
     interactiveEmpty: string
     interactiveTooBig: string
     interactiveWrongType: string
@@ -2283,7 +2284,8 @@ const id: Dictionary = {
     lessonTypeInteractiveDesc: "Satu berkas HTML tanpa JavaScript yang bisa diklik dan dibuka-tutup",
     interactiveUpload: "Unggah berkas HTML",
     interactiveReplace: "Ganti berkas",
-    interactiveHint: "Satu berkas .html, maksimal 512 KB. JavaScript akan dibuang, jadi buat interaksinya dengan HTML dan CSS saja. Contohnya ada di docs/TEMPLATE-MATERI-INTERAKTIF.html.",
+    interactiveHint: "Satu berkas .html, maksimal 512 KB. JavaScript akan dibuang, jadi buat interaksinya dengan HTML dan CSS saja.",
+    interactiveGuide: "Unduh panduan singkat dan contohnya",
     interactiveEmpty: "Belum ada materi interaktif pada pelajaran ini.",
     interactiveTooBig: "Berkasnya lebih besar dari 512 KB. Perkecil dulu, biasanya karena ada gambar yang ditempel ke dalam berkas.",
     interactiveWrongType: "Pilih berkas berakhiran .html.",
@@ -3946,7 +3948,8 @@ const en: Dictionary = {
     lessonTypeInteractiveDesc: "A single HTML file with no JavaScript that learners can click and expand",
     interactiveUpload: "Upload HTML file",
     interactiveReplace: "Replace file",
-    interactiveHint: "One .html file, 512 KB at most. JavaScript is removed, so build the interaction with HTML and CSS alone. There is an example in docs/TEMPLATE-MATERI-INTERAKTIF.html.",
+    interactiveHint: "One .html file, 512 KB at most. JavaScript is removed, so build the interaction with HTML and CSS alone.",
+    interactiveGuide: "Download the short guide and example",
     interactiveEmpty: "This lesson has no interactive material yet.",
     interactiveTooBig: "The file is larger than 512 KB. Make it smaller first — usually an image has been embedded into the file.",
     interactiveWrongType: "Choose a file ending in .html.",
