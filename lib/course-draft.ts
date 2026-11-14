@@ -463,7 +463,31 @@ const resourceSchema = z.object({
   type: z.string().max(50).nullable(),
 })
 
-const lessonContentType = z.enum(["video", "text", "quiz", "mixed", "ppt"])
+/**
+ * Daftar jenis pelajaran untuk zod, diturunkan dari `LessonContentType`.
+ *
+ * Ditulis sebagai `Record<LessonContentType, true>` lebih dulu, BUKAN sebagai
+ * larik literal. Larik literal adalah daftar runtime yang TypeScript tidak
+ * bisa periksa kelengkapannya: saat `interactive` ditambahkan, delapan peta
+ * `Record<LessonContentType, …>` menolak kompilasi sampai diisi, sedangkan
+ * baris ini diam saja. Akibatnya kursus berisi pelajaran interaktif gagal
+ * disimpan dari penyunting dengan pesan "Pilihannya tidak dikenali", jauh dari
+ * sebabnya.
+ *
+ * Dengan bentuk Record, jenis ke-sepuluh akan menolak kompilasi di sini juga.
+ */
+const SEMUA_JENIS: Record<LessonContentType, true> = {
+  video: true,
+  text: true,
+  quiz: true,
+  mixed: true,
+  ppt: true,
+  interactive: true,
+}
+
+const lessonContentType = z.enum(
+  Object.keys(SEMUA_JENIS) as [LessonContentType, ...LessonContentType[]]
+)
 
 const lessonSchema = z.object({
   id: z.string().uuid(),

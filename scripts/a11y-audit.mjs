@@ -410,37 +410,6 @@ try {
         await audit(page, `${editHref} [${tab}]`)
       }
 
-      // Kartu pelajaran diaudit TERBUKA, bukan hanya daftarnya.
-      //
-      // Selama kartunya tertutup, seluruh panel isi pelajaran -- pilihan
-      // jenis, penyunting teks, unggahan materi interaktif -- tidak ada di
-      // halaman, jadi axe melaporkan layar ini bersih tanpa pernah melihatnya.
-      // Terukur 14 Nov 2026: input berkas materi interaktif tidak punya nama,
-      // dan pelanggaran `label` itu lolos gerbang ini berkali-kali karena
-      // panelnya tidak pernah dibuka.
-      //
-      // Tombol buka/tutup modul muncul lebih dulu di DOM daripada tombol
-      // pelajaran, jadi yang diklik adalah yang TERAKHIR -- menekan yang
-      // pertama justru menutup modulnya dan menyembunyikan pelajarannya.
-      await page.click('[role=tab]:has-text("Pelajaran")', { timeout: 90000 })
-      await settle(page)
-      const togel = page.getByLabel("Buka/tutup")
-      const jumlahTogel = await togel.count()
-      if (jumlahTogel > 0) {
-        await togel.nth(jumlahTogel - 1).click()
-        await page.waitForTimeout(800)
-        await settle(page)
-        await audit(page, `${editHref} [pelajaran terbuka]`)
-
-        const pilihanInteraktif = page.locator("text=Materi Interaktif").first()
-        if (await pilihanInteraktif.count()) {
-          await pilihanInteraktif.click()
-          await page.waitForTimeout(800)
-          await settle(page)
-          await audit(page, `${editHref} [materi interaktif]`)
-        }
-      }
-
       // Dialog diaudit terbuka, bukan hanya tombolnya. Jebakan fokus, nama
       // yang hilang, dan judul yang tidak terkait adalah kegagalan khas
       // dialog, dan tidak satu pun terlihat selama ia tertutup.
@@ -492,6 +461,46 @@ try {
       }
       if (!bankOpened) console.log("lewat dialog bank soal: tidak ada satu pun kursus berpelajaran kuis")
     }
+
+      // Kartu pelajaran diaudit TERBUKA, bukan hanya daftarnya.
+      //
+      // Dijalankan PALING AKHIR dengan sengaja. Memilih jenis pelajaran
+      // menandai draf "belum disimpan", dan navigasi sesudahnya tertahan
+      // konfirmasi tinggalkan-halaman. Saat blok ini berada di tengah, audit
+      // dialog impor terlewat tanpa pesan apa pun dan jumlah halaman turun
+      // dari 94 ke 93 -- cakupan yang hilang diam-diam, persis yang coba
+      // dicegah pemeriksaan ini.
+      await page.goto(BASE + editHref)
+      await settle(page)
+      //
+      // Selama kartunya tertutup, seluruh panel isi pelajaran -- pilihan
+      // jenis, penyunting teks, unggahan materi interaktif -- tidak ada di
+      // halaman, jadi axe melaporkan layar ini bersih tanpa pernah melihatnya.
+      // Terukur 14 Nov 2026: input berkas materi interaktif tidak punya nama,
+      // dan pelanggaran `label` itu lolos gerbang ini berkali-kali karena
+      // panelnya tidak pernah dibuka.
+      //
+      // Tombol buka/tutup modul muncul lebih dulu di DOM daripada tombol
+      // pelajaran, jadi yang diklik adalah yang TERAKHIR -- menekan yang
+      // pertama justru menutup modulnya dan menyembunyikan pelajarannya.
+      await page.click('[role=tab]:has-text("Pelajaran")', { timeout: 90000 })
+      await settle(page)
+      const togel = page.getByLabel("Buka/tutup")
+      const jumlahTogel = await togel.count()
+      if (jumlahTogel > 0) {
+        await togel.nth(jumlahTogel - 1).click()
+        await page.waitForTimeout(800)
+        await settle(page)
+        await audit(page, `${editHref} [pelajaran terbuka]`)
+
+        const pilihanInteraktif = page.locator("text=Materi Interaktif").first()
+        if (await pilihanInteraktif.count()) {
+          await pilihanInteraktif.click()
+          await page.waitForTimeout(800)
+          await settle(page)
+          await audit(page, `${editHref} [materi interaktif]`)
+        }
+      }
     }
   } else {
     console.log("skip admin pages (set AUDIT_ADMIN_EMAIL / AUDIT_ADMIN_PASSWORD)")
