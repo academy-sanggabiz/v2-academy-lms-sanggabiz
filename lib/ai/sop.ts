@@ -449,15 +449,23 @@ async function isiSimulasi(
 
 const PENANDA_SIMULASI = "<!--SIMULASI-->"
 
-/** Membuang pagar kode yang kadang ikut dikembalikan model. */
+/**
+ * Mengambil HTML dari balasan model.
+ *
+ * Blok kodenya DICARI di mana pun ia berada, bukan hanya dipangkas dari ujung.
+ * Perintahnya sudah menyuruh "tanpa penjelasan apa pun", dan modelnya tetap
+ * kadang menambahkan satu paragraf sesudah pagar penutup. Versi pertama
+ * memangkas ujung saja, jadi balasan seperti itu tidak berakhir dengan tanda
+ * `>` dan DITOLAK seluruhnya -- simulasinya hilang padahal HTML-nya utuh.
+ *
+ * Yang benar-benar terpotong tetap dibuang: `bersihkanMateriInteraktif` akan
+ * menambal tag yang menggantung menjadi markah aneh yang tampil berantakan ke
+ * peserta, dan itu lebih buruk daripada pelajaran kosong yang jelas.
+ */
 function rapikanHtml(teksAsli: string): string {
-  const t = teksAsli
-    .replace(/^\s*```(?:html)?\s*\n/i, "")
-    .replace(/\n```\s*$/i, "")
-    .trim()
-  // HTML yang terpotong di tengah tag lebih baik dibuang: `bersihkanMateri`
-  // akan menambalnya jadi markah aneh yang tampil berantakan ke peserta.
-  return /<\/(div|body|html|p|section)>\s*$/i.test(t) || t.endsWith(">") ? t : ""
+  const blok = /```(?:html)?\s*\n([\s\S]*?)\n?```/i.exec(teksAsli)
+  const t = (blok ? blok[1] : teksAsli).trim()
+  return t.endsWith(">") ? t : ""
 }
 
 function promptSimulasi(
@@ -517,6 +525,15 @@ function promptSimulasi(
     "YANG DILARANG, karena akan dibuang sistem:",
     ...ATURAN_SISTEM.map((a) => `- ${a.aturan}. ${a.kenapa}`),
     "- Atribut style sebaris. Pakai <style> di atas, selectornya akan dilingkupi sendiri.",
+    "",
+    "WARNA -- pakai HANYA daftar ini, semuanya sudah diukur cukup kontras:",
+    "- teks utama #14252a",
+    "- teks samar #566a70 (jangan lebih terang dari ini)",
+    "- garis dan batas #d6e2e5",
+    "- latar lembut #f4f7f8, aksen #13707f",
+    "- akibat baik #0f5c3f, akibat buruk #8a2b2b",
+    "JANGAN memakai abu-abu seperti #777, #888, atau #999 untuk teks. Semuanya",
+    "gagal ambang kontras 4.5:1 dan ditolak pemeriksaan aksesibilitas.",
     "",
     "AKSESIBILITAS: mulai judul dari <h2>, tiap kotak pilihan dibungkus <label>,",
     "tiap tabel punya <th>, tiap gambar punya alt, dan harus terbaca di layar 320 piksel.",
