@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import {
+  Award,
   ChevronDown,
   CircleCheck,
   Circle,
@@ -49,6 +50,7 @@ export function LearnSidebar({
   aiAktif = false,
   currentIsQuiz = false,
   currentHasTranscript = false,
+  hasCertificate = false,
 }: {
   courseId: string
   sections: CourseSection[]
@@ -71,6 +73,8 @@ export function LearnSidebar({
   /** Pelajaran yang sedang dibuka: kuis tidak punya asisten. */
   currentIsQuiz?: boolean
   currentHasTranscript?: boolean
+  /** Benar bila peserta sudah punya sertifikat untuk kursus ini. */
+  hasCertificate?: boolean
 }) {
   const { t } = useI18n()
   const [tab, setTab] = useState<"isi" | "asisten">("isi")
@@ -142,6 +146,22 @@ export function LearnSidebar({
         className="flex min-h-0 flex-1 flex-col"
       >
         {isi}
+
+      {/*
+      Jalan pintas ke sertifikat, di bawah daftar pelajaran. Tanpa ini
+      satu-satunya jalan adalah menebak bahwa sertifikatnya ada di tab
+      profil -- dan peserta yang baru saja menyelesaikan kursus justru
+      sedang berada di layar ini.
+      */}
+      {hasCertificate && mode === "learner" && (
+      <Link
+        href="/learner/profile?tab=certificates"
+        className="mx-3 mt-3 mb-4 flex items-center gap-2.5 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2.5 text-sm font-semibold text-primary hover:bg-primary/10"
+      >
+        <Award className="size-4 shrink-0" aria-hidden />
+        {t.player.certificateShortcut}
+      </Link>
+      )}
       </div>
       <div
         role="tabpanel"
@@ -304,6 +324,7 @@ function ContentTab({
           </div>
         )
       })}
+
     </div>
   )
 }

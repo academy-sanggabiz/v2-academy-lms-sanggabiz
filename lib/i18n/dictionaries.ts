@@ -1672,6 +1672,12 @@ export type Dictionary = {
     lastLessonDone: string
     certificateReady: string
     viewCertificate: string
+    congratsTitle: string
+    congratsBody: string
+    congratsCertificate: string
+    congratsClose: string
+    certificateShortcut: string
+    certificateIssued: string
     findAnotherCourse: string
     almostDone: string
     almostDoneHint: string
@@ -3340,6 +3346,12 @@ const id: Dictionary = {
     lastLessonDone: "Anda telah menyelesaikan pelajaran terakhir di kursus ini.",
     certificateReady: "Sertifikat Anda siap diunduh.",
     viewCertificate: "Lihat Sertifikat Anda",
+    congratsTitle: "Selamat, kursusnya selesai",
+    congratsBody: "Anda sudah menuntaskan {kursus}. Semua pelajaran selesai dan semua kuisnya lulus.",
+    congratsCertificate: "Sertifikat Anda sudah terbit dan bisa diunduh kapan saja dari halaman profil.",
+    congratsClose: "Nanti saja",
+    certificateShortcut: "Lihat sertifikat",
+    certificateIssued: "Terbit {tanggal} · Nomor {nomor}",
     findAnotherCourse: "Cari kursus lain",
     almostDone: "Pelajarannya sudah selesai semua. Satu langkah lagi.",
     almostDoneHint:
@@ -5009,6 +5021,12 @@ const en: Dictionary = {
     lastLessonDone: "You have finished the last lesson in this course.",
     certificateReady: "Your certificate is ready to download.",
     viewCertificate: "View your certificate",
+    congratsTitle: "Congratulations, you finished the course",
+    congratsBody: "You have completed {kursus}. Every lesson is done and every quiz is passed.",
+    congratsCertificate: "Your certificate has been issued and can be downloaded from your profile at any time.",
+    congratsClose: "Later",
+    certificateShortcut: "View certificate",
+    certificateIssued: "Issued {tanggal} · Number {nomor}",
     findAnotherCourse: "Find another course",
     almostDone: "All lessons done. One step to go.",
     almostDoneHint:

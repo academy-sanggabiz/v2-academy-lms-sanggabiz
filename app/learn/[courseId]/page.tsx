@@ -12,6 +12,7 @@ import { createClient } from "@/lib/supabase/server"
 import { formatDuration, isMeasureQuiz } from "@/lib/courses"
 import { LearnShell } from "@/components/learn/LearnShell"
 import { LearnSidebar } from "@/components/learn/LearnSidebar"
+import { CourseCompleteDialog } from "@/components/learn/CourseCompleteDialog"
 import { LessonPane } from "@/components/learn/LessonPane"
 import { getTranslations } from "@/lib/i18n/server"
 import { computeUnlockedLessons } from "@/lib/lesson-access"
@@ -209,6 +210,19 @@ export default async function LearnPage({
         </>
       }
       pane={
+        <>
+          {/*
+            Ucapan selamat muncul di momen selesainya, bukan hanya di panel
+            yang harus dicari. Sertifikat yang terbit tanpa ada yang memberi
+            tahu sama saja dengan tidak terbit bagi orangnya.
+          */}
+          {isCourseComplete && (
+            <CourseCompleteDialog
+              courseId={courseId}
+              courseTitle={course.title}
+              hasCertificate={certificate !== null}
+            />
+          )}
         <LessonPane
           aiAktif={aiAktif()}
           key={currentLesson.id}
@@ -226,9 +240,11 @@ export default async function LearnPage({
           note={note}
           reviewLessons={reviewLessons}
         />
+        </>
       }
       sidebar={
         <LearnSidebar
+          hasCertificate={certificate !== null}
           courseId={courseId}
           sections={course.sections}
           currentLessonId={currentLesson.id}
