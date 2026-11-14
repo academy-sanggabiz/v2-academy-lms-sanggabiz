@@ -76,12 +76,22 @@ export function InteractiveMaterialEditor({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
+        {/*
+          Disembunyikan dari pohon aksesibilitas, bukan sekadar dari mata.
+          `sr-only` menyisakannya sebagai kotak isian tanpa nama -- axe
+          melaporkannya sebagai pelanggaran `label`, dan pengguna pembaca layar
+          mendengar dua kontrol untuk satu pekerjaan. Tombol di bawahnya yang
+          menjadi kontrolnya; input ini hanya alat yang dipanggil tombol itu.
+          `tabIndex={-1}` wajib menyertai `aria-hidden`: elemen tersembunyi
+          yang masih bisa difokus adalah pelanggaran tersendiri.
+        */}
         <input
           ref={berkasRef}
           type="file"
           accept=".html,.htm,text/html"
           className="sr-only"
-          id={`materi-berkas-${lessonId}`}
+          tabIndex={-1}
+          aria-hidden="true"
           onChange={(e) => {
             pilihBerkas(e.target.files?.[0])
             // Dikosongkan supaya mengunggah berkas dengan nama yang sama dua
@@ -117,7 +127,20 @@ export function InteractiveMaterialEditor({
         )}
       </div>
 
-      <p className="text-xs text-muted-foreground">{t.editor.interactiveHint}</p>
+      <p className="text-xs text-muted-foreground">
+        {t.editor.interactiveHint}{" "}
+        {/*
+          Tautan unduh, bukan nama berkas di repositori. Petunjuk ini dulu
+          menyebut `docs/TEMPLATE-MATERI-INTERAKTIF.html` -- jalan yang tidak
+          bisa dibuka siapa pun di tim penyusun materi.
+        */}
+        <a
+          href="/admin/courses/panduan-interaktif"
+          className="font-medium text-primary underline underline-offset-2"
+        >
+          {t.editor.interactiveGuide}
+        </a>
+      </p>
       <StatusMessage>{galat}</StatusMessage>
 
       {hasil && hasil.dibuang.length > 0 && (

@@ -215,7 +215,8 @@ anjuran: materi yang gagal axe diberi peringatan dengan daftar temuannya.
 **Yang sebenarnya jadi standar bukan perenderannya — itu beberapa puluh baris.
 Standarnya adalah brief yang diberikan ke pembuat materi.**
 
-Bangun `docs/TEMPLATE-MATERI-INTERAKTIF.html`: satu berkas kosong yang sudah
+Bangun contoh untuk penyusun (kini `CONTOH_MATERI_INTERAKTIF` di
+`lib/interactive-guide.ts`): satu berkas yang sudah
 benar, yang tinggal dilampirkan ke asisten AI mana pun bersama aturan ini.
 
 Aturan yang harus ada di brief:
@@ -364,7 +365,7 @@ mengira bagian yang belum dibangun sudah ada.
 | Pembungkus bersama penyunting dan pemutar | `components/learn/InteractiveMaterial.tsx` |
 | Pemutar | `InteractiveContent` di `components/learn/LessonPane.tsx` |
 | Gerbang 36 uji | `npm run test:interaktif` |
-| Berkas contoh untuk penyusun | `docs/TEMPLATE-MATERI-INTERAKTIF.html` |
+| Panduan tim + contohnya | `lib/interactive-guide.ts`, diunduh dari `/admin/courses/panduan-interaktif` |
 | Pelajaran demo | Modul 2 kursus demo keuangan |
 
 **Yang diukur di aplikasi hasil build, bukan diasumsikan** (14 Nov 2026,

@@ -13,6 +13,7 @@
  * data-*, @media, @keyframes, dan selector ber-koma di dalam [attr]. Pembersih
  * yang membuang segalanya memang aman, tetapi membuat fiturnya tidak ada.
  */
+import { CONTOH_MATERI_INTERAKTIF } from "@/lib/interactive-guide"
 import { bersihkanMateriInteraktif } from "@/lib/sanitize-interactive"
 import { KELAS_MATERI } from "@/lib/interactive-lesson"
 
@@ -132,6 +133,25 @@ const b = bersihkanMateriInteraktif(`
 cek("label pembungkus tidak ditegur", !b.peringatan.some((p) => /kotak pilihan/.test(p)), b.peringatan.join(" | "))
 cek("komentar HTML tidak dikira skrip", !bersihkanMateriInteraktif("<!-- jangan pakai <script> --><p>a</p>").peringatan.some((p) => /JavaScript/.test(p)))
 cek("materi rapi tidak ditegur", bersihkanMateriInteraktif("<h2>Oke</h2><p>Isi.</p>").peringatan.length === 0)
+
+/*
+  Bagian ketiga: contoh di dalam panduan tim.
+
+  Panduan yang mengajarkan pola yang sudah tidak berlaku lebih buruk daripada
+  tidak ada panduan -- penyusun mengikutinya, lalu materinya hilang sebagian
+  dan mereka tidak tahu kenapa. Uji ini yang membuat itu tidak bisa terjadi
+  diam-diam: contohnya harus lolos tanpa SATU pun bagian dibuang.
+*/
+console.log("\n--- CONTOH DI PANDUAN TIM ---")
+const c = bersihkanMateriInteraktif(CONTOH_MATERI_INTERAKTIF)
+cek("tidak ada bagian yang dibuang", c.dibuang.length === 0, c.dibuang.join(" · "))
+cek("tidak ada peringatan aksesibilitas", !c.peringatan.some((p) => !/diarahkan ke kotak materi/.test(p)), c.peringatan.join(" | "))
+cek("buka-tutup selamat", /<details>/.test(c.html))
+cek("latihan pilih jawaban selamat", (c.html.match(/type="radio"/g) ?? []).length >= 3)
+cek("daftar periksa selamat", (c.html.match(/type="checkbox"/g) ?? []).length >= 3)
+cek("tanggapan latihan tersambung", /#j2:checked ~ \.benar/.test(c.html))
+cek("wadah latihan selamat", /\.materi-interaktif \.latihan input/.test(c.html))
+cek("hormat prefers-reduced-motion", /prefers-reduced-motion/.test(c.html))
 
 console.log(`\n${lulus} lulus, ${gagal} gagal`)
 process.exit(gagal > 0 ? 1 : 0)
