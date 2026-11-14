@@ -65,10 +65,19 @@ export function markdownToHtml(markdown: string): string {
     const heading = /^(#{1,6})\s+(.*)$/.exec(line)
     if (heading) {
       flushAll()
-      // Subjudul di dalam pelajaran tidak boleh naik sampai h1/h2: judul
-      // pelajaran sudah memakai tingkat itu di halaman peserta, dan dua h1
-      // dalam satu halaman merusak urutan heading bagi pembaca layar.
-      const level = Math.min(6, heading[1].length + 2)
+      /*
+        Satu pagar = h2, dua = h3, dan seterusnya. Subjudul pelajaran tidak
+        boleh naik sampai h1: judul pelajaran sudah memakainya di halaman
+        peserta, dan dua h1 dalam satu halaman merusak urutan heading bagi
+        pembaca layar.
+
+        Pemetaannya harus CERMIN dari `htmlToMarkdown`. Sebelumnya tulis
+        memakai N-2 sementara baca memakai n+2, dan karena N-2 dijepit minimal
+        satu pagar, `h2` dan `h3` sama-sama jatuh ke `h3`. Akibatnya setiap
+        kursus yang diekspor lalu diimpor kehilangan satu tingkat judulnya,
+        diam-diam.
+      */
+      const level = Math.min(6, heading[1].length + 1)
       out.push(`<h${level}>${inlineToHtml(heading[2].trim())}</h${level}>`)
       continue
     }
@@ -114,7 +123,8 @@ export function htmlToMarkdown(html: string): string {
     .replace(/\r\n/g, "\n")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/(p|div)>/gi, "\n\n")
-    .replace(/<h([1-6])[^>]*>/gi, (_m, level) => `\n\n${"#".repeat(Math.max(1, Number(level) - 2))} `)
+    // Cermin dari pembacanya di atas: h2 -> satu pagar, h3 -> dua, dst.
+    .replace(/<h([1-6])[^>]*>/gi, (_m, level) => `\n\n${"#".repeat(Math.max(1, Number(level) - 1))} `)
     .replace(/<\/h[1-6]>/gi, "\n\n")
     .replace(/<li[^>]*>/gi, "\n- ")
     .replace(/<\/li>/gi, "")

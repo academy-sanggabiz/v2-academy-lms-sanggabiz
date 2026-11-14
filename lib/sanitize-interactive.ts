@@ -131,6 +131,43 @@ function kotakTanpaLabel(html: string): number {
   return tanpa
 }
 
+/**
+ * Aturan CSS yang menunjuk kelas yang tidak ada di markahnya.
+ *
+ * Kegagalan paling berbahaya pada materi interaktif bukan yang merusak
+ * halaman, melainkan yang tidak melakukan apa-apa: tombol yang bisa ditekan
+ * dan tidak mengubah apa pun. Tidak ada galat, tidak ada peringatan peramban,
+ * dan penyusunnya mengira materinya bekerja.
+ *
+ * Terukur 14 Nov 2026 pada simulasi buatan AI: dua aturan varian menunjuk
+ * `.tanda-salinan` dan `.jalan-supervisor` yang tidak pernah ditulis di
+ * markahnya. Ketiga tombol variannya bisa ditekan, dan tidak satu pun
+ * mengubah layar.
+ *
+ * Hanya kelas yang diperiksa, bukan id: `#t0` dan `#v1` yang tidak dirujuk
+ * CSS justru benar -- keduanya keadaan awal, dan menuduhnya mati akan
+ * menghasilkan peringatan palsu pada materi yang baik.
+ */
+function kelasYatim(html: string, css: string): string[] {
+  const dipakai = new Set<string>()
+  for (const m of html.matchAll(/\bclass="([^"]*)"/g)) {
+    for (const k of m[1].split(/\s+/)) if (k) dipakai.add(k)
+  }
+
+  const yatim = new Set<string>()
+  // Selector dibaca dari bagian di luar kurung deklarasi, supaya nilai seperti
+  // `content: ".x"` tidak terbaca sebagai kelas.
+  for (const aturan of css.split("}")) {
+    const bagian = aturan.split("{")[0]
+    if (!bagian || bagian.trim().startsWith("@")) continue
+    for (const m of bagian.matchAll(/\.([A-Za-z_][\w-]*)/g)) {
+      const k = m[1]
+      if (k !== KELAS_MATERI && !dipakai.has(k)) yatim.add(k)
+    }
+  }
+  return [...yatim]
+}
+
 function periksaAksesibilitas(st: Struktur, html: string): string[] {
   const pesan: string[] = []
 
@@ -283,6 +320,21 @@ function lingkupiCss(css: string, dibuang: Set<string>, peringatan: string[]): s
     r.selectors = r.selectors.map((s) => {
       const bersih = s.trim()
       if (!bersih) return bersih
+      /*
+        Selector yang SUDAH berawalan dibiarkan. Fungsi ini dijalankan lebih
+        dari sekali pada isi yang sama -- penyunting membersihkan saat
+        mengunggah, lalu `saveCourseDraft` membersihkan lagi di pintu simpan,
+        dan impor `.md` membersihkan sekali lagi. Tanpa penjagaan ini,
+        pembersihan kedua menghasilkan `.materi-interaktif .materi-interaktif`
+        yang tidak cocok dengan apa pun.
+
+        Terukur 14 Nov 2026: 56 selector rusak pada satu berkas, dan materinya
+        tampil tanpa gaya sama sekali. Tidak ada yang gagal, tidak ada
+        peringatan -- hanya halaman polos.
+      */
+      if (bersih === bungkus || bersih.startsWith(bungkus + " ") || bersih.startsWith(bungkus + ":")) {
+        return bersih
+      }
       // `:root`, `html` dan `body` menunjuk ke LUAR materi. Diarahkan ulang
       // ke pembungkusnya supaya variabel CSS yang ditulis penulis tetap
       // berlaku untuk materinya sendiri, tanpa menyentuh halaman.
@@ -351,10 +403,22 @@ export function bersihkanMateriInteraktif(berkas: string | null | undefined): Ha
   if (body) isi = body[1]
   isi = isi.replace(/<\/?(html|head|body|title|meta|link|base)\b[^>]*>/gi, " ")
 
-  const html = sanitizeHtml(isi, opsiHtml(dibuang, struktur))
-  peringatan.push(...periksaAksesibilitas(struktur, html))
+  // Dipangkas supaya pembersihan kedua menghasilkan yang persis sama. Tanpa
+  // ini, `<style>` yang dicabut meninggalkan satu spasi di depan isinya, dan
+  // spasi itu bertambah setiap kali fungsi ini dijalankan ulang.
+  const html = sanitizeHtml(isi, opsiHtml(dibuang, struktur)).trim()
   const css = gaya.length > 0 ? lingkupiCss(gaya.join("\n"), dibuang, peringatan) : ""
+  peringatan.push(...periksaAksesibilitas(struktur, html))
 
+  const yatim = kelasYatim(html, css)
+  if (yatim.length > 0) {
+    peringatan.push(
+      `Ada aturan gaya yang menunjuk kelas yang tidak ada di materinya: ${yatim
+        .slice(0, 6)
+        .map((k) => `.${k}`)
+        .join(", ")}${yatim.length > 6 ? `, dan ${yatim.length - 6} lagi` : ""}. Biasanya ini berarti ada tombol yang bisa ditekan tetapi tidak mengubah apa pun.`
+    )
+  }
   if (!html.trim()) {
     peringatan.push("Setelah dibersihkan tidak ada isi yang tersisa.")
   }

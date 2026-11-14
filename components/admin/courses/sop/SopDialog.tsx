@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils"
 import { useI18n } from "@/components/i18n/LocaleProvider"
 import type { CourseDraft } from "@/lib/course-draft"
 import type { ParseReport } from "@/lib/course-markdown"
+import type { JenisPelajaran } from "@/lib/ai/sop"
 import type { KerangkaKursus, ModulKerangka } from "@/lib/ai/sop"
 import {
   ambilHasilPekerjaan,
@@ -298,16 +299,20 @@ export function SopDialog({
   const tambahModul = () =>
     ubahKerangka((k) => ({
       ...k,
-      modul: [...k.modul, { judul: "", tujuan: "", pelajaran: [{ judul: "", inti: "" }] }],
+      modul: [...k.modul, { judul: "", tujuan: "", pelajaran: [{ judul: "", inti: "", jenis: "teks" }] }],
     }))
   const gantiPelajaran = (i: number, j: number, judul: string) =>
     gantiModul(i, {
       pelajaran: (kerangka?.modul[i].pelajaran ?? []).map((p, x) => (x === j ? { ...p, judul } : p)),
     })
+  const gantiJenis = (i: number, j: number, jenis: JenisPelajaran) =>
+    gantiModul(i, {
+      pelajaran: (kerangka?.modul[i].pelajaran ?? []).map((p, x) => (x === j ? { ...p, jenis } : p)),
+    })
   const hapusPelajaran = (i: number, j: number) =>
     gantiModul(i, { pelajaran: (kerangka?.modul[i].pelajaran ?? []).filter((_, x) => x !== j) })
   const tambahPelajaran = (i: number) =>
-    gantiModul(i, { pelajaran: [...(kerangka?.modul[i].pelajaran ?? []), { judul: "", inti: "" }] })
+    gantiModul(i, { pelajaran: [...(kerangka?.modul[i].pelajaran ?? []), { judul: "", inti: "", jenis: "teks" }] })
 
   const totalPelajaran = kerangka?.modul.reduce((n, m) => n + m.pelajaran.length, 0) ?? 0
   /*
@@ -650,6 +655,22 @@ export function SopDialog({
                               onChange={(e) => gantiPelajaran(i, j, e.target.value)}
                               className="h-8 flex-1 text-sm"
                             />
+                            {/*
+                              Jenis ditampilkan di sini supaya penyusun melihat
+                              -- dan bisa mengubah -- pelajaran mana yang akan
+                              jadi simulasi, SEBELUM biaya penulisannya keluar.
+                              Itu seluruh gunanya tahap kerangka.
+                            */}
+                            <select
+                              aria-label={t.sop.lessonKind.replace("{n}", String(j + 1))}
+                              value={p.jenis}
+                              onChange={(e) => gantiJenis(i, j, e.target.value as JenisPelajaran)}
+                              className="h-8 rounded-md border border-input bg-card px-2 text-xs"
+                            >
+                              <option value="teks">{t.sop.kindText}</option>
+                              <option value="cerita">{t.sop.kindStory}</option>
+                              <option value="simulasi">{t.sop.kindSim}</option>
+                            </select>
                             <Button
                               size="icon-sm"
                               variant="ghost"

@@ -16,6 +16,7 @@ import { requireAdmin } from "@/lib/auth/require-admin"
 import { courseDraftSchema, type CourseDraft } from "@/lib/course-draft"
 import { describeDraftIssue, describeDraftIssues } from "@/lib/course-draft-issues"
 import { parseCourseMarkdown, type ParsedCourse } from "@/lib/course-markdown"
+import { bersihkanDrafInteraktif } from "@/lib/course-markdown/sanitize-draft"
 import { createClient } from "@/lib/supabase/server"
 import { BATAS_BERKAS, type HasilBersih } from "@/lib/interactive-lesson"
 import { bersihkanMateriInteraktif } from "@/lib/sanitize-interactive"
@@ -233,7 +234,10 @@ export async function importCourseMarkdownAction(
     }
   }
 
-  return { ok: true, data: parseCourseMarkdown(markdown) }
+  // Dibersihkan di sini, SEBELUM draf sampai ke peramban: pratinjau materi
+  // interaktif merender isinya langsung, jadi berkas nakal akan berjalan di
+  // peramban pengelola sebelum apa pun disimpan.
+  return { ok: true, data: bersihkanDrafInteraktif(parseCourseMarkdown(markdown)) }
 }
 
 /**
