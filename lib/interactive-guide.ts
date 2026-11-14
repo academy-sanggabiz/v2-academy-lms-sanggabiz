@@ -256,9 +256,22 @@ Isinya:
 - Bahasa Indonesia, kalimat pendek, sapaan "Anda". Tanpa tanda seru dan tanpa
   emoji.
 - Mulai dengan satu paragraf yang menjawab "kenapa ini penting bagi saya".
-- Sertakan minimal satu bagian buka-tutup dan satu latihan pilih jawaban.
-- Tanggapan latihan harus menjelaskan KENAPA sebuah jawaban benar atau salah,
-  bukan sekadar menyatakan benar atau salah.
+- Buat SIMULASI yang bisa dioperasikan, bukan kuis berhias. Bedanya: pada
+  kuis peserta menjawab pertanyaan tentang bahan; pada simulasi peserta
+  mengerjakan tugas di dalam tiruan layar, lalu melihat akibatnya.
+- Beri satu tugas yang jelas di awal, dalam kalimat perintah. Contoh: "Anda
+  Rina, staf keuangan. Pesan ini baru masuk. Lakukan apa yang akan Anda
+  lakukan sungguhan."
+- Setiap tindakan mengganti isi layar DAN memunculkan akibat yang berbeda.
+  Akibat diceritakan, bukan dinilai: tulis apa yang terjadi berikutnya, bukan
+  "benar" atau "salah".
+- Sediakan tombol "Ulangi dari awal". Caranya: satu radio tambahan dengan
+  atribut checked yang menampilkan layar awal.
+- Tambahkan dua sampai tiga KEADAAN yang bisa dinyalakan dan benar-benar
+  mengubah tampilannya: sedang diburu waktu, layar kena matahari, ponsel
+  kecil. Pakai filter CSS, lebar yang mengecil, atau pesan tambahan yang
+  menutupi. Tandanya jangan dihilangkan, cukup dibuat lebih sulit dilihat.
+- Sertakan juga satu bagian buka-tutup untuk penjelasan yang panjang.
 - Tutup dengan daftar periksa berisi tiga pernyataan yang bisa dicentang
   peserta sendiri.
 

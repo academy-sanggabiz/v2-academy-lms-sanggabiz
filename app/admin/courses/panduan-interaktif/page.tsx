@@ -95,6 +95,35 @@ export default async function PanduanInteraktifPage() {
         </p>
       </Bagian>
 
+      <Bagian judul="Yang membedakan materi interaktif dari kuis">
+        <p>
+          Ini bagian yang paling mudah salah. Pada <strong>kuis</strong>, peserta menjawab
+          pertanyaan tentang bahan. Pada <strong>simulasi</strong>, peserta mengerjakan tugas di
+          dalam tiruan layar, lalu melihat akibatnya.
+        </p>
+        <p>
+          Keduanya berguna, tetapi hanya yang kedua yang tidak bisa dibuat dengan kuis biasa. Kalau
+          materi interaktif Anda isinya pertanyaan berhias, pakai saja jenis Kuis: lebih sederhana,
+          dan nilainya tercatat.
+        </p>
+        <Gambar
+          src="/panduan/5-simulasi.png"
+          alt="Simulasi di layar peserta: tiruan percakapan di ponsel, daftar tindakan yang bisa dipilih, dan kotak akibat di sebelahnya."
+          lebar={900}
+          tinggi={560}
+          keterangan="Peserta memilih tindakan. Layar ponselnya berganti, dan akibatnya diceritakan — bukan dinilai benar atau salah."
+        />
+        <p>
+          Tiga hal yang membuatnya terasa hidup: satu <strong>tugas</strong> yang jelas di awal,
+          <strong> akibat</strong> yang berbeda untuk tiap tindakan, dan beberapa{" "}
+          <strong>keadaan</strong> yang bisa dinyalakan dan benar-benar mengubah tampilannya.
+        </p>
+        <p>
+          Satu hal yang tidak bisa: penghitung waktu dan penghitung salah-tekan. Keduanya menuntut
+          JavaScript, dan materi interaktif berjalan tanpa itu.
+        </p>
+      </Bagian>
+
       <Bagian judul="Langkah 1 · Minta AI membuatkan berkasnya">
         <ol className="list-decimal space-y-1.5 pl-5">
           <li>Buka asisten AI Anda: ChatGPT, Claude, atau Gemini.</li>

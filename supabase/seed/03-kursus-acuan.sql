@@ -158,129 +158,193 @@ begin
 <p>Pelajaran berikutnya akan melatih mata Anda: tiga pesan, dan Anda yang menebak mana yang palsu.</p>', 420);
 
   insert into public.lessons (section_id, title, position, content_type, content, duration_seconds)
-  values (s, 'Latihan: mana yang palsu?', 2, 'interactive', '<style>.materi-interaktif { --utama: #13707f; --garis: #d6e2e5; --redup: #566a70; --benar: #0f5c3f; --salah: #8a2b2b; }
-.materi-interaktif .sampul { border-left: 4px solid var(--utama); padding: 0.2rem 0 0.2rem 0.9rem; margin-bottom: 1.4rem; }
-.materi-interaktif .sampul p { margin: 0.3rem 0 0; color: var(--redup); }
-.materi-interaktif .soal { border: 1px solid var(--garis); border-radius: 0.7rem; padding: 1rem; margin-bottom: 1.1rem; }
-.materi-interaktif .soal > h3 { margin: 0 0 0.7rem; font-size: 0.95rem; color: var(--redup); font-weight: 600; }
-.materi-interaktif .pesan { background: #f4f7f8; border-radius: 0.6rem; padding: 0.8rem 0.9rem; margin-bottom: 0.9rem; font-size: 0.92rem; line-height: 1.6; }
-.materi-interaktif .pesan .dari { display: block; font-weight: 700; margin-bottom: 0.35rem; }
-.materi-interaktif .pesan .waktu { display: block; margin-top: 0.4rem; font-size: 0.78rem; color: var(--redup); }
-.materi-interaktif .jawab { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.materi-interaktif .soal input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.materi-interaktif .tombol { display: inline-block; border: 1px solid var(--garis); border-radius: 0.5rem; padding: 0.5rem 1.1rem; cursor: pointer; min-height: 24px; font-weight: 600; font-size: 0.9rem; }
-.materi-interaktif .soal input:focus-visible + .tombol { outline: 2px solid var(--utama); outline-offset: 2px; }
-.materi-interaktif .soal input:checked + .tombol { border-color: var(--utama); background: #eef6f7; }
-.materi-interaktif .umpan { display: none; margin-top: 0.85rem; font-size: 0.9rem; line-height: 1.65; border-top: 1px solid var(--garis); padding-top: 0.75rem; }
-.materi-interaktif .umpan b { display: block; margin-bottom: 0.2rem; }
-.materi-interaktif .benar { color: var(--benar); } .materi-interaktif .salah { color: var(--salah); }
-/* `:has()` pada wadahnya, BUKAN selector saudara `~`. Radionya ada di dalam
-   .jawab sementara umpan baliknya di luar, jadi keduanya bukan bersaudara dan
-   `~` tidak pernah cocok -- CSS-nya sah, hanya tidak mengenai apa pun, dan
-   pembersih tidak bisa menangkap yang seperti itu. Terukur: tanggapan tetap
-   tersembunyi walau jawabannya sudah diklik. */
-.materi-interaktif .soal:has(#a1:checked) .u1salah, .materi-interaktif .soal:has(#b1:checked) .u1benar, .materi-interaktif .soal:has(#a2:checked) .u2benar, .materi-interaktif .soal:has(#b2:checked) .u2salah, .materi-interaktif .soal:has(#a3:checked) .u3salah, .materi-interaktif .soal:has(#b3:checked) .u3benar { display: block; }
-.materi-interaktif .tutup { margin-top: 1.6rem; border: 1px solid var(--garis); border-radius: 0.7rem; padding: 1rem; background: #f9fbfb; }
-.materi-interaktif .tutup h3 { margin: 0 0 0.5rem; font-size: 1rem; }
-.materi-interaktif .tutup ul { margin: 0; padding-left: 1.1rem; }
-.materi-interaktif .tutup li { margin-bottom: 0.35rem; }
+  values (s, 'Simulasi: sore itu, di meja Anda', 2, 'interactive', '<style>.materi-interaktif { --utama:#13707f; --garis:#d6e2e5; --redup:#566a70; --gelap:#14252a; --bahaya:#8a2b2b; --aman:#0f5c3f; }
+
+.materi-interaktif .tugas { background: var(--gelap); color: #fff; border-radius: 0.7rem; padding: 0.9rem 1.1rem; margin-bottom: 1rem; }
+.materi-interaktif .tugas b { display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.75; margin-bottom: 0.3rem; }
+.materi-interaktif .tugas p { margin: 0; font-size: 0.97rem; line-height: 1.55; }
+
+.materi-interaktif .panggung { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(17rem,100%),1fr)); gap: 1rem; align-items: start; }
+
+/* ---------- telepon ---------- */
+.materi-interaktif .telepon { border: 10px solid #1b1b1f; border-radius: 1.6rem; overflow: hidden; background: #fff; max-width: 21rem; margin: 0 auto; }
+.materi-interaktif .bar { background: #075e54; color: #fff; padding: 0.45rem 0.8rem; font-size: 0.72rem; display: flex; justify-content: space-between; }
+.materi-interaktif .kontak { background: #075e54; color: #fff; padding: 0 0.8rem 0.6rem; }
+.materi-interaktif .kontak b { display: block; font-size: 0.9rem; }
+.materi-interaktif .kontak span { font-size: 0.72rem; opacity: 0.85; }
+.materi-interaktif .layar { background: #ece5dd; padding: 0.8rem; min-height: 17rem; position: relative; }
+
+.materi-interaktif .gelembung { background: #fff; border-radius: 0.6rem; padding: 0.6rem 0.7rem; margin-bottom: 0.5rem; font-size: 0.85rem; line-height: 1.55; box-shadow: 0 1px 1px rgba(0,0,0,0.08); }
+.materi-interaktif .gelembung .jam { display: block; text-align: right; font-size: 0.65rem; color: var(--redup); margin-top: 0.25rem; }
+.materi-interaktif .kunci { background: #fff8d6; }
+.materi-interaktif .saya { background: #dcf8c6; }
+
+/* Layar diganti sesuai tindakan. Semua ada di DOM, yang tampil diatur :has(). */
+.materi-interaktif .layar > .adegan { display: none; }
+.materi-interaktif .sim:has(#t0:checked) .adegan-awal,
+.materi-interaktif .sim:has(#t1:checked) .adegan-transfer,
+.materi-interaktif .sim:has(#t2:checked) .adegan-balas,
+.materi-interaktif .sim:has(#t3:checked) .adegan-telepon,
+.materi-interaktif .sim:has(#t4:checked) .adegan-grup { display: block; }
+
+/* ---------- tindakan ---------- */
+.materi-interaktif .tindakan { background: #f4f7f8; padding: 0.7rem; border-top: 1px solid var(--garis); }
+.materi-interaktif .tindakan > p { margin: 0 0 0.5rem; font-size: 0.72rem; color: var(--redup); text-transform: uppercase; letter-spacing: 0.05em; }
+.materi-interaktif .tindakan input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.materi-interaktif .tindakan label { display: block; background: #fff; border: 1px solid var(--garis); border-radius: 0.5rem; padding: 0.55rem 0.7rem; margin-bottom: 0.4rem; cursor: pointer; font-size: 0.85rem; min-height: 24px; }
+.materi-interaktif .tindakan input:focus-visible + label { outline: 2px solid var(--utama); outline-offset: 2px; }
+.materi-interaktif .tindakan input:checked + label { border-color: var(--utama); background: #eef6f7; font-weight: 600; }
+.materi-interaktif .ulang { display: none; }
+.materi-interaktif .sim:not(:has(#t0:checked)) .ulang { display: block; background: var(--gelap); color: #fff; border-color: var(--gelap); text-align: center; font-weight: 600; margin-top: 0.6rem; }
+
+/* ---------- akibat ---------- */
+.materi-interaktif .akibat { border-radius: 0.6rem; padding: 0.7rem 0.8rem; margin-top: 0.6rem; font-size: 0.84rem; line-height: 1.6; }
+.materi-interaktif .rugi { background: #fdf0f0; border: 1px solid #e8c4c4; color: var(--bahaya); }
+.materi-interaktif .selamat { background: #eef6f7; border: 1px solid var(--utama); color: var(--aman); }
+.materi-interaktif .netral { background: #fff8e8; border: 1px solid #e6d5a8; color: #6b4e13; }
+.materi-interaktif .akibat b { display: block; margin-bottom: 0.2rem; }
+.materi-interaktif .sim-akibat .akibat { display: none; }
+.materi-interaktif .sim:has(#t1:checked) .akibat-t1,
+.materi-interaktif .sim:has(#t2:checked) .akibat-t2,
+.materi-interaktif .sim:has(#t3:checked) .akibat-t3,
+.materi-interaktif .sim:has(#t4:checked) .akibat-t4 { display: block; }
+
+.materi-interaktif .struk { background: #fff; border: 1px dashed var(--garis); border-radius: 0.5rem; padding: 0.7rem; font-size: 0.8rem; margin-bottom: 0.5rem; }
+.materi-interaktif .struk .jml { font-size: 1.15rem; font-weight: 700; display: block; margin: 0.2rem 0; }
+
+/* ---------- keadaan ---------- */
+.materi-interaktif .keadaan { border: 1px solid var(--garis); border-radius: 0.7rem; padding: 0.9rem 1rem; }
+.materi-interaktif .keadaan h3 { margin: 0 0 0.2rem; font-size: 0.97rem; }
+.materi-interaktif .keadaan > p { margin: 0 0 0.7rem; font-size: 0.83rem; color: var(--redup); }
+.materi-interaktif .keadaan label { display: flex; gap: 0.55rem; align-items: flex-start; border: 1px solid var(--garis); border-radius: 0.5rem; padding: 0.55rem 0.7rem; margin-bottom: 0.45rem; cursor: pointer; font-size: 0.87rem; line-height: 1.5; min-height: 24px; }
+.materi-interaktif .keadaan input { margin-top: 0.15rem; width: 1rem; height: 1rem; flex-shrink: 0; accent-color: var(--utama); }
+.materi-interaktif .keadaan label:focus-within { outline: 2px solid var(--utama); outline-offset: 2px; }
+.materi-interaktif .catatan { font-size: 0.8rem; color: var(--redup); line-height: 1.6; margin: 0.7rem 0 0; }
+
+/* Buru-buru: pesan pendesak menyusul, dan tanda kuncinya tenggelam. */
+.materi-interaktif .desakan { display: none; }
+.materi-interaktif .sim:has(#k1:checked) .desakan { display: block; }
+.materi-interaktif .sim:has(#k1:checked) .kunci { background: #fff; }
+
+/* Silau: kontras turun, persis seperti layar kena matahari. */
+.materi-interaktif .sim:has(#k2:checked) .layar { filter: contrast(0.42) brightness(1.22); }
+
+/* Layar kecil: teks panjang terpotong, seperti ponsel sempit. */
+.materi-interaktif .sim:has(#k3:checked) .telepon { max-width: 14.5rem; }
+.materi-interaktif .sim:has(#k3:checked) .gelembung { font-size: 0.78rem; max-height: 4.6rem; overflow: hidden; }
+.materi-interaktif .sim:has(#k3:checked) .potong { display: block; font-size: 0.7rem; color: var(--redup); font-style: italic; }
+.materi-interaktif .potong { display: none; }
+
 @media (prefers-reduced-motion: reduce) { .materi-interaktif * { transition: none !important; animation: none !important; } }</style>
 
 
-<div class="sampul">
-  <h2>Mana yang palsu?</h2>
-  <p>Tiga pesan di bawah ini. Tebak dulu, baru lihat jawabannya. Tidak apa-apa salah: yang penting Anda tahu tandanya.</p>
+<h2>Simulasi: sore itu, di meja Anda</h2>
+
+<div class="tugas">
+  <b>Tugas Anda</b>
+  <p>Anda Rina, staf keuangan. Pesan ini baru masuk. Lakukan apa yang akan Anda lakukan sungguhan, lalu lihat akibatnya.</p>
 </div>
 
-<div class="soal">
-  <h3>Pesan 1 · WhatsApp</h3>
-  <div class="pesan">
-    <span class="dari">+62 812-xxxx-9931</span>
-    Selamat siang Ibu. Saya Pak Hendra, Direktur Operasional. Ini nomor baru saya,
-    yang lama hilang. Tolong bantu transfer Rp 48.500.000 ke rekening vendor hari ini
-    juga, invoice menyusul. Jangan hubungi siapa-siapa dulu ya, ini masih rahasia
-    sampai kontraknya tanda tangan.
-    <span class="waktu">16.47 · Jumat</span>
+<div class="sim">
+<div class="panggung">
+
+  <div class="telepon">
+    <div class="bar"><span>16.47</span><span>WiFi</span></div>
+    <div class="kontak"><b>Pak Hendra</b><span>+62 812-xxxx-9931 · nomor baru</span></div>
+
+    <div class="layar">
+
+      <div class="adegan adegan-awal">
+        <div class="gelembung">
+          Selamat sore Bu Rina. Ini Pak Hendra, pakai nomor baru, yang lama rusak kemarin.
+          <span class="jam">16.47</span>
+        </div>
+        <div class="gelembung">
+          Tolong dibantu ya, ada pembayaran vendor yang harus masuk sore ini juga.
+          Rp 46.200.000. Invoice saya kirim besok pagi.
+          <span class="jam">16.47</span>
+        </div>
+        <div class="gelembung kunci">
+          Ini jangan lewat Pak Agus dulu ya, beliau lagi di lapangan. Langsung ke saya aja.
+          <span class="jam">16.48</span>
+          <span class="potong">(terpotong di layar sempit)</span>
+        </div>
+        <div class="gelembung desakan">
+          Bu, ini bank mau tutup. Saya lagi rapat, tolong sekarang ya.
+          <span class="jam">16.51</span>
+        </div>
+      </div>
+
+      <div class="adegan adegan-transfer">
+        <div class="struk">
+          Transfer berhasil
+          <span class="jml">Rp 46.200.000</span>
+          ke PT Sumber Rejeki Abadi · 16.58
+        </div>
+        <div class="gelembung">Terima kasih Bu Rina. <span class="jam">16.59</span></div>
+        <div class="gelembung">
+          <b>Jumat, 09.12 — Pak Hendra (nomor lama)</b><br />
+          Bu Rina, transfer apa ya kemarin? Saya tidak pernah minta.
+          <span class="jam">09.12</span>
+        </div>
+      </div>
+
+      <div class="adegan adegan-balas">
+        <div class="gelembung saya">Baik Pak, boleh invoicenya dulu? <span class="jam">16.49</span></div>
+        <div class="gelembung">Ini Bu, invoice_nordwind_046.pdf <span class="jam">16.50</span></div>
+        <div class="gelembung">Sudah ya Bu, tinggal 8 menit lagi sebelum bank tutup. <span class="jam">16.52</span></div>
+      </div>
+
+      <div class="adegan adegan-telepon">
+        <div class="struk">
+          Menelepon Pak Hendra
+          <span class="jml">nomor tersimpan sejak 2021</span>
+          tersambung 47 detik
+        </div>
+        <div class="gelembung">"Nomor baru apa, Bu? Nomor saya ya yang ini."<span class="jam">16.50</span></div>
+      </div>
+
+      <div class="adegan adegan-grup">
+        <div class="gelembung"><b>Grup Keuangan</b><br />Rina: Pak Agus, ada permintaan transfer 46,2 jt dari nomor baru Pak Hendra. Benar? <span class="jam">16.49</span></div>
+        <div class="gelembung">Pak Agus: Saya tidak tahu apa-apa. Jangan diproses. <span class="jam">16.50</span></div>
+        <div class="gelembung">Pak Agus: Saya umumkan ke semua staf sekarang. <span class="jam">16.51</span></div>
+      </div>
+
+    </div>
+
+    <div class="tindakan">
+      <p>Apa yang Anda lakukan?</p>
+      <input type="radio" name="t" id="t0" checked /><label for="t0" class="ulang">Ulangi dari awal</label>
+      <input type="radio" name="t" id="t1" /><label for="t1">Siapkan transfernya sekarang</label>
+      <input type="radio" name="t" id="t2" /><label for="t2">Balas, minta invoice dulu</label>
+      <input type="radio" name="t" id="t3" /><label for="t3">Telepon nomor lama Pak Hendra</label>
+      <input type="radio" name="t" id="t4" />
+      <label for="t4">Tanya Pak Agus di grup keuangan</label>
+    </div>
   </div>
-  <div class="jawab">
-    <input type="radio" name="s1" id="a1" /><label class="tombol" for="a1">Asli</label>
-    <input type="radio" name="s1" id="b1" /><label class="tombol" for="b1">Palsu</label>
+
+  <div>
+    <div class="keadaan">
+      <h3>Ubah keadaannya</h3>
+      <p>Nyalakan satu, lalu coba lagi. Inilah yang membedakan orang yang tertipu dan yang tidak.</p>
+      <label><input type="checkbox" id="k1" /><span>Anda sedang diburu waktu</span></label>
+      <label><input type="checkbox" id="k2" /><span>Layar kena matahari</span></label>
+      <label><input type="checkbox" id="k3" /><span>Ponsel kecil</span></label>
+      <p class="catatan">Tandanya tidak hilang. Ia cuma jadi lebih sulit dilihat, persis seperti di hari kerja yang sibuk.</p>
+    </div>
+
+    <div class="sim-akibat">
+      <div class="akibat rugi akibat-t1"><b>Uangnya hilang.</b> Rp 46.200.000 keluar dalam sebelas menit. Yang Anda lewatkan bukan tanda yang rumit, hanya satu kalimat: pembayaran yang melompati Pak Agus. Perusahaan menanggung, dan Anda menanggung ceritanya.</div>
+      <div class="akibat netral akibat-t2"><b>Anda masih di tangan dia.</b> Invoice palsu dibuat dalam satu menit. Bertanya kepada penipu selalu dijawab penipu, dan jawabannya selalu meyakinkan. Tekanan justru naik.</div>
+      <div class="akibat selamat akibat-t3"><b>Berhenti di sini.</b> Nomor lama itu satu-satunya yang tidak bisa ditiru. Empat puluh tujuh detik menahan Rp 46.200.000.</div>
+      <div class="akibat selamat akibat-t4"><b>Berhenti, dan tidak cuma untuk Anda.</b> Pak Agus memperingatkan semua staf sore itu juga. Satu pertanyaan melindungi dua puluh dua orang.</div>
+    </div>
   </div>
-  <div class="umpan u1benar benar">
-    <b>Benar, ini palsu.</b>
-    Empat tanda sekaligus: nomor baru, uang besar, batas waktu hari ini, dan larangan
-    bertanya ke orang lain. Yang terakhir itu paling menentukan. Atasan yang benar tidak
-    pernah melarang Anda memastikan. Larangan itu ada supaya Anda tidak sempat mengecek.
-  </div>
-  <div class="umpan u1salah salah">
-    <b>Bukan, ini palsu.</b>
-    Lihat kalimat terakhirnya: "jangan hubungi siapa-siapa dulu". Itu bukan permintaan
-    kerahasiaan, itu penguncian. Atasan yang benar tidak pernah melarang Anda memastikan.
-    Tanda lain: nomor baru, nominal besar, dan tenggat hari ini juga.
-  </div>
+
+</div>
 </div>
 
-<div class="soal">
-  <h3>Pesan 2 · Surel</h3>
-  <div class="pesan">
-    <span class="dari">it-support@perusahaan-anda.co.id</span>
-    Pemberitahuan: kata sandi akun Anda akan kedaluwarsa dalam 14 hari. Perpanjangan
-    bisa dilakukan sendiri lewat menu Pengaturan di portal karyawan. Kami tidak
-    menyertakan tautan pada surel ini. Bila ragu, hubungi meja layanan di ekstensi 2200.
-    <span class="waktu">09.12 · Senin</span>
-  </div>
-  <div class="jawab">
-    <input type="radio" name="s2" id="a2" /><label class="tombol" for="a2">Asli</label>
-    <input type="radio" name="s2" id="b2" /><label class="tombol" for="b2">Palsu</label>
-  </div>
-  <div class="umpan u2benar benar">
-    <b>Benar, ini asli.</b>
-    Perhatikan apa yang TIDAK ada: tidak ada tautan, tidak ada ancaman, tidak ada
-    tenggat hari ini. Ia menyuruh Anda masuk lewat jalan yang sudah Anda tahu, dan
-    memberi nomor yang bisa Anda hubungi. Pesan yang jujur tidak takut Anda cek.
-  </div>
-  <div class="umpan u2salah salah">
-    <b>Sebenarnya ini asli.</b>
-    Wajar curiga, dan curiga itu tidak merugikan. Tetapi lihat apa yang tidak ada di
-    sini: tidak ada tautan, tidak ada ancaman, tidak ada tenggat hari ini. Ia justru
-    menyuruh Anda lewat jalan yang sudah Anda tahu.
-  </div>
-</div>
-
-<div class="soal">
-  <h3>Pesan 3 · SMS</h3>
-  <div class="pesan">
-    <span class="dari">BANK-INFO</span>
-    Transaksi Rp 3.750.000 terdeteksi di akun Anda. Bila bukan Anda, batalkan dalam
-    5 menit melalui bit.ly/batal-trx-aman atau dana akan diteruskan.
-    <span class="waktu">22.31 · Sabtu</span>
-  </div>
-  <div class="jawab">
-    <input type="radio" name="s3" id="a3" /><label class="tombol" for="a3">Asli</label>
-    <input type="radio" name="s3" id="b3" /><label class="tombol" for="b3">Palsu</label>
-  </div>
-  <div class="umpan u3benar benar">
-    <b>Benar, ini palsu.</b>
-    Lima menit adalah intinya. Panik membuat orang berhenti berpikir, dan itu memang
-    tujuannya. Tambahan: bank tidak pernah memakai tautan pemendek. Kalau ragu, tutup
-    pesannya dan telepon nomor di balik kartu Anda sendiri.
-  </div>
-  <div class="umpan u3salah salah">
-    <b>Bukan, ini palsu.</b>
-    Lima menit itu intinya. Panik membuat orang berhenti berpikir, dan itu memang
-    tujuannya. Bank juga tidak pernah memakai tautan pemendek seperti bit.ly. Tutup
-    pesannya, telepon nomor di balik kartu Anda sendiri.
-  </div>
-</div>
-
-<div class="tutup">
-  <h3>Benang merahnya</h3>
-  <ul>
-    <li><strong>Yang palsu selalu memburu waktu.</strong> Hari ini juga, lima menit, sebelum tutup.</li>
-    <li><strong>Yang palsu memutus Anda dari orang lain.</strong> Jangan bilang siapa-siapa.</li>
-    <li><strong>Yang asli tidak takut dicek.</strong> Ia memberi nomor, dan menyuruh lewat jalan yang Anda kenal.</li>
-  </ul>
-</div>', 360);
+<p class="catatan">Semua nama dan perusahaan di simulasi ini dibuat untuk pelajaran ini.</p>', 420);
 
   insert into public.lessons (section_id, title, position, content_type, content, duration_seconds)
   values (s, 'Alat bantu: pesan mencurigakan masuk', 3, 'interactive', '<style>.materi-interaktif { --utama: #13707f; --garis: #d6e2e5; --redup: #566a70; --aman: #0f5c3f; --awas: #8a2b2b; }
