@@ -1474,6 +1474,10 @@ export type Dictionary = {
     addLesson: string
     deleteModule: string
     deleteLesson: string
+    lessonKind: string
+    kindText: string
+    kindStory: string
+    kindSim: string
     moduleTitle: string
     lessonTitle: string
     unsaved: string
@@ -3122,6 +3126,10 @@ const id: Dictionary = {
     addLesson: "Tambah pelajaran",
     deleteModule: "Hapus modul {n}",
     deleteLesson: "Hapus pelajaran {n}",
+    lessonKind: "Jenis pelajaran {n}",
+    kindText: "Teks",
+    kindStory: "Cerita",
+    kindSim: "Simulasi",
     moduleTitle: "Judul modul {n}",
     lessonTitle: "Judul pelajaran {n}",
     unsaved: "Perubahan belum disimpan",
@@ -4785,6 +4793,10 @@ const en: Dictionary = {
     addLesson: "Add lesson",
     deleteModule: "Delete module {n}",
     deleteLesson: "Delete lesson {n}",
+    lessonKind: "Lesson {n} type",
+    kindText: "Text",
+    kindStory: "Story",
+    kindSim: "Simulation",
     moduleTitle: "Module {n} title",
     lessonTitle: "Lesson {n} title",
     unsaved: "Changes not saved yet",

@@ -49,6 +49,68 @@ kerja yang bisa diamati: *"Setelah pelajaran ini Anda akan mampu menghitung
 titik impas usaha Anda."* Bukan *"memahami"* atau *"mengetahui"* — keduanya
 tidak bisa dilihat.
 
+## Bentuk satu modul
+
+Satu modul yang baik tidak berisi lima bacaan berturut-turut. Urutannya:
+
+1. **Teks** — jelaskan konsepnya. Satu sampai dua pelajaran.
+2. **Cerita** — satu kejadian yang bisa dibayangkan, dengan orang, tempat, dan
+   waktu yang jelas, memperlihatkan konsep itu bekerja atau gagal. Tetap
+   \`tipe: teks\`; yang berbeda cara menulisnya, bukan jenisnya.
+3. **Simulasi** — \`tipe: interaktif\`. Satu hal yang harus dikerjakan, bukan
+   dihafal.
+4. **Kuis** — \`tipe: kuis\`, menutup modul.
+
+Simulasi dipakai **hanya** bila bahannya memuat tindakan yang punya pilihan dan
+akibat berbeda: memutuskan, memilih, menangani, melaporkan, memeriksa. Bila
+isinya hanya definisi, daftar, atau angka, cukup teks. Simulasi yang
+dipaksakan di atas bahan yang tidak punya pilihan akan terasa kosong.
+
+## Menulis pelajaran cerita
+
+Bukan contoh kasus yang ditempel di akhir bacaan. Satu kejadian utuh:
+
+- Sebutkan orangnya, pekerjaannya, dan jamnya. "Pukul empat lewat. Rina sedang
+  menutup rekap mingguan."
+- Perlihatkan keputusannya diambil bagaimana, termasuk yang sempat salah.
+- Sebutkan akibatnya dengan angka atau kejadian, bukan dengan penilaian.
+- Tutup dengan menghubungkannya kembali ke konsep di pelajaran sebelumnya.
+- Nama orang dan perusahaan dibuat-buat, dan katakan itu di kalimat terakhir.
+
+## Menulis pelajaran simulasi
+
+Isinya satu blok kode \`html\` di bawah kepala pelajaran. **Tanpa JavaScript**
+— seluruh interaksinya dibuat dengan radio, checkbox, dan CSS.
+
+Yang membedakannya dari kuis: pada kuis peserta menjawab pertanyaan *tentang*
+bahan; pada simulasi peserta mengerjakan tugas *di dalam* tiruan layar, lalu
+melihat akibatnya.
+
+Bentuknya:
+
+- Satu **tugas** yang jelas di awal, dalam kalimat perintah.
+- Tiga sampai empat **tindakan**. Tiap tindakan mengganti isi layar dan
+  memunculkan akibat yang berbeda.
+- Akibat **diceritakan, bukan dinilai**: tulis apa yang terjadi berikutnya.
+- Tombol **Ulangi dari awal**, berupa satu radio bertanda \`checked\`.
+- Dua sampai tiga **varian situasi**. Ujinya: kalau tindakan yang
+  menyelamatkan tetap sama di semua varian, variannya tidak mengajarkan
+  apa-apa dan lebih baik dihapus.
+
+Aturan lengkap dan contoh utuhnya ada di panduan materi interaktif, yang bisa
+diunduh dari layar penyunting pelajaran.
+
+\`\`\`
+### Pelajaran: Simulasi menerima barang
+tipe: interaktif
+durasi: 7 menit
+
+\`\`\`html
+<style>.sim:has(#t1:checked) .akibat-t1{display:block}</style>
+<div class="sim">...</div>
+\`\`\`
+\`\`\`
+
 ## Panjang yang wajar
 
 Satu pelajaran sebaiknya selesai dalam 5–10 menit. Pelajaran teks sekitar
@@ -162,9 +224,10 @@ judul pelajaran tanpa baris kosong di antaranya.
 
 | \`tipe\` | Untuk apa | Atribut tambahan |
 |---|---|---|
-| \`teks\` | Bacaan | — |
+| \`teks\` | Bacaan, termasuk cerita | — |
 | \`video\` | Video YouTube | \`video:\` berisi tautan YouTube |
 | \`slide\` | Google Slides | \`video:\` berisi tautan slide |
+| \`interaktif\` | Simulasi yang bisa dioperasikan | isinya satu blok kode \`html\` |
 | \`kuis\` | Latihan soal pilihan ganda | \`nilai_lulus:\` 0–100 |
 | \`studi-kasus\` | Satu soal esai, dinilai pengajar | — |
 

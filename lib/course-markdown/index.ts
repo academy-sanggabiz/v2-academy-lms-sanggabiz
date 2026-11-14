@@ -139,8 +139,20 @@ export function courseToMarkdown(draft: CourseDraft): string {
       }
       out.push("")
 
-      const body = htmlToMarkdown(lesson.content ?? "")
-      if (body) out.push(body, "")
+      if (lesson.content_type === "interactive") {
+        /*
+          Materi interaktif dibawa UTUH di dalam blok kode html, tidak lewat
+          `htmlToMarkdown`. Pengubah itu sengaja hanya mengenal subset kecil
+          -- paragraf, subjudul, daftar -- dan akan membuang seluruh `<style>`,
+          `<details>`, dan `<input>` yang justru membuat materinya interaktif.
+          Hasilnya pelajaran yang berangkat utuh dan tiba sebagai teks mati.
+        */
+        const html = (lesson.content ?? "").trim()
+        if (html) out.push("```html", html, "```", "")
+      } else {
+        const body = htmlToMarkdown(lesson.content ?? "")
+        if (body) out.push(body, "")
+      }
 
       if (lesson.transcript?.trim()) {
         out.push("#### Transkrip", "", lesson.transcript.trim(), "")
@@ -322,7 +334,29 @@ export function parseCourseMarkdown(raw: string): ParsedCourse {
   const finishLesson = () => {
     if (!currentLesson) return
     finishQuestion()
-    currentLesson.content = markdownToHtml(lessonBody.join("\n").trim()) || null
+    const badan = lessonBody.join("\n").trim()
+    if (currentLesson.content_type === "interactive") {
+      /*
+        Diambil MENTAH, dan sengaja TIDAK dibersihkan di sini: berkas ini ikut
+        terbundel ke peramban (`courseToMarkdown` dipakai dialog impor yang
+        sebuah Client Component), dan mengimpor pembersih berarti menyeret
+        postcss ke bundel setiap pengelola.
+
+        Pembersihannya dijalankan `bersihkanDrafInteraktif()` di sisi server,
+        tepat sesudah fungsi ini dipanggil, jadi HTML mentah tidak pernah
+        sampai ke peramban siapa pun. `saveCourseDraft` membersihkannya sekali
+        lagi di pintu simpan.
+      */
+      const kode = /^```(?:html)?\s*\n([\s\S]*?)\n```\s*$/m.exec(badan)
+      currentLesson.content = (kode ? kode[1] : badan).trim() || null
+      if (!kode && badan) {
+        warnings.push(
+          `Pelajaran interaktif "${currentLesson.title}" tidak memakai blok kode html; isinya dibaca apa adanya.`
+        )
+      }
+    } else {
+      currentLesson.content = markdownToHtml(badan) || null
+    }
     currentLesson.transcript = transcript.join("\n").trim() || null
     if (currentLesson.content_type === "quiz" && (currentLesson.quiz?.questions.length ?? 0) === 0) {
       warnings.push(`Pelajaran kuis "${currentLesson.title}" tidak punya satu soal pun.`)

@@ -142,6 +142,41 @@ cek("materi rapi tidak ditegur", bersihkanMateriInteraktif("<h2>Oke</h2><p>Isi.<
   dan mereka tidak tahu kenapa. Uji ini yang membuat itu tidak bisa terjadi
   diam-diam: contohnya harus lolos tanpa SATU pun bagian dibuang.
 */
+/*
+  Bagian: membersihkan dua kali harus menghasilkan yang sama.
+
+  Isi yang sama melewati pembersih lebih dari sekali -- penyunting saat
+  mengunggah, `saveCourseDraft` di pintu simpan, dan impor `.md` sekali lagi.
+  Pembersih yang tidak idempoten merusak CSS penulis pada simpanan KEDUA,
+  tanpa pesan apa pun: materinya cuma tampil polos.
+*/
+/*
+  Bagian: tombol yang tidak mengubah apa pun.
+
+  Kegagalan paling berbahaya bukan yang merusak halaman, melainkan yang diam.
+  Diukur pada simulasi buatan AI: dua aturan varian menunjuk kelas yang tidak
+  pernah ditulis di markahnya, dan ketiga tombolnya bisa ditekan tanpa
+  mengubah layar sama sekali.
+*/
+console.log("\n--- ATURAN GAYA YANG MATI ---")
+const mati = bersihkanMateriInteraktif(`
+  <style>.sim:has(#a:checked) .ada{display:block}.sim:has(#b:checked) .tidak-ada{display:block}</style>
+  <div class="sim"><input type="checkbox" id="a"><label for="a">A</label>
+  <input type="checkbox" id="b"><label for="b">B</label><p class="ada">Isi</p></div>
+`)
+cek("kelas yatim ditegur", mati.peringatan.some((p) => /\.tidak-ada/.test(p)), mati.peringatan.join(" | ").slice(0, 90))
+cek("kelas yang ada tidak ditegur", !mati.peringatan.some((p) => /\.ada\b/.test(p)))
+cek("pembungkus sendiri tidak dituduh", !mati.peringatan.some((p) => /materi-interaktif/.test(p)))
+const sehat = bersihkanMateriInteraktif(CONTOH_MATERI_INTERAKTIF)
+cek("contoh panduan bebas kelas yatim", !sehat.peringatan.some((p) => /aturan gaya/.test(p)), sehat.peringatan.join(" | ").slice(0, 80))
+
+console.log("\n--- DIBERSIHKAN DUA KALI ---")
+const sekali = bersihkanMateriInteraktif(CONTOH_MATERI_INTERAKTIF).html
+const dua = bersihkanMateriInteraktif(sekali).html
+cek("hasilnya identik", sekali === dua, `${sekali.length} vs ${dua.length}`)
+cek("tidak ada awalan ganda", !/\.materi-interaktif \.materi-interaktif/.test(dua))
+cek("tiga kali pun tetap sama", bersihkanMateriInteraktif(dua).html === sekali)
+
 console.log("\n--- CONTOH DI PANDUAN TIM ---")
 const c = bersihkanMateriInteraktif(CONTOH_MATERI_INTERAKTIF)
 cek("tidak ada bagian yang dibuang", c.dibuang.length === 0, c.dibuang.join(" · "))

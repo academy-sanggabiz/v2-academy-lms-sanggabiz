@@ -16,6 +16,7 @@ import {
   type KerangkaKursus,
 } from "@/lib/ai/sop"
 import { parseCourseMarkdown, type ParsedCourse } from "@/lib/course-markdown"
+import { bersihkanDrafInteraktif } from "@/lib/course-markdown/sanitize-draft"
 import { BATAS_TOKEN_SOP_HARIAN, FITUR_SOP, formatToken } from "@/lib/ai-usage"
 import { tokenHariIni } from "@/lib/ai-usage-server"
 
@@ -530,7 +531,7 @@ async function selesaikan(
     data: {
       selesai: true,
       pekerjaan: keKeadaan(data as BarisGenerasi),
-      parsed: parseCourseMarkdown(markdown),
+      parsed: bersihkanDrafInteraktif(parseCourseMarkdown(markdown)),
     },
   }
 }
@@ -577,7 +578,7 @@ export async function ambilHasilPekerjaan(
     return { ok: false, error: "Pekerjaannya belum selesai." }
   }
 
-  return { ok: true, data: parseCourseMarkdown(rakitMarkdown(kerangka, bagian)) }
+  return { ok: true, data: bersihkanDrafInteraktif(parseCourseMarkdown(rakitMarkdown(kerangka, bagian))) }
 }
 
 /** Membuang pekerjaan supaya layar tidak menawarkannya lagi. */

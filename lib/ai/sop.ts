@@ -2,6 +2,7 @@ import "server-only"
 
 import { tanyaJson, tanyaTeks } from "@/lib/ai/client"
 import { COURSE_MARKDOWN_FORMAT } from "@/lib/course-markdown"
+import { ATURAN_SISTEM } from "@/lib/interactive-guide"
 
 /**
  * Dari dokumen apa pun menjadi draf kursus (F1).
@@ -31,10 +32,12 @@ import { COURSE_MARKDOWN_FORMAT } from "@/lib/course-markdown"
  * Lihat docs/STANDAR-IMPOR-KURSUS.md §8.
  */
 
+export type JenisPelajaran = "teks" | "cerita" | "simulasi"
+
 export type ModulKerangka = {
   judul: string
   tujuan: string
-  pelajaran: { judul: string; inti: string }[]
+  pelajaran: { judul: string; inti: string; jenis: JenisPelajaran }[]
 }
 
 export type KerangkaKursus = {
@@ -68,6 +71,29 @@ const SISTEM =
   "Anda tidak menambahkan prosedur, angka, nama sistem, atau nama orang yang tidak ada di dokumen. " +
   "Bila dokumen tidak menyebut sesuatu, Anda menghilangkannya, bukan mengarangnya."
 
+/**
+ * Bentuk modul baku (`docs/STANDAR-MODUL.md`).
+ *
+ * Diberikan ke tahap kerangka, bukan tahap penulisan: jenis tiap pelajaran
+ * harus sudah diputuskan sebelum satu kalimat pun ditulis, karena jenisnya
+ * menentukan cara menulisnya. Memutuskannya belakangan menghasilkan teks biasa
+ * yang dipaksa jadi simulasi.
+ */
+const BENTUK_MODUL = [
+  "Tiap pelajaran diberi ruas \"jenis\", dan satu modul mengikuti bentuk ini:",
+  "- \"teks\" untuk menjelaskan konsepnya. Satu modul punya satu sampai dua.",
+  "- \"cerita\" untuk satu kejadian nyata yang memperlihatkan konsep itu bekerja",
+  "  atau gagal. Satu modul punya paling banyak satu.",
+  "- \"simulasi\" untuk satu hal yang harus DIKERJAKAN, bukan dihafal. Satu modul",
+  "  punya paling banyak satu.",
+  "Pelajaran kuis ditambahkan otomatis, jadi jangan memasukkannya ke kerangka.",
+  "",
+  "Pakai \"simulasi\" HANYA bila dokumen memuat tindakan yang punya pilihan dan",
+  "akibat berbeda: memutuskan, memilih, menangani, melaporkan, memeriksa.",
+  "Bila isinya hanya definisi, daftar, atau angka, pakai \"teks\" -- simulasi yang",
+  "dipaksakan di atas bahan yang tidak punya pilihan akan terasa kosong.",
+].join("\n")
+
 const SKEMA_KERANGKA = {
   type: "object",
   properties: {
@@ -87,8 +113,12 @@ const SKEMA_KERANGKA = {
             type: "array",
             items: {
               type: "object",
-              properties: { judul: { type: "string" }, inti: { type: "string" } },
-              required: ["judul", "inti"],
+              properties: {
+                judul: { type: "string" },
+                inti: { type: "string" },
+                jenis: { type: "string", enum: ["teks", "cerita", "simulasi"] },
+              },
+              required: ["judul", "inti", "jenis"],
             },
           },
         },
@@ -135,9 +165,15 @@ export function periksaKerangka(nilai: unknown): KerangkaKursus | null {
                   if (!p || typeof p !== "object") return null
                   const po = p as Record<string, unknown>
                   const judul = teks(po.judul)
-                  return judul ? { judul, inti: teks(po.inti) } : null
+                  // Jatuh ke "teks" bila modelnya mengarang jenis lain: teks
+                  // selalu bisa ditulis, sedangkan simulasi yang salah tempat
+                  // menghasilkan pelajaran kosong.
+                  const j = teks(po.jenis)
+                  const jenis: JenisPelajaran =
+                    j === "cerita" || j === "simulasi" ? j : "teks"
+                  return judul ? { judul, inti: teks(po.inti), jenis } : null
                 })
-                .filter((p): p is { judul: string; inti: string } => p !== null)
+                .filter((p): p is { judul: string; inti: string; jenis: JenisPelajaran } => p !== null)
                 .slice(0, MAKS_PELAJARAN)
             : []
           const judul = teks(mo.judul)
@@ -228,6 +264,8 @@ export async function buatKerangka(sop: string, namaBerkas: string) {
         `maksimal ${MAKS_PELAJARAN} pelajaran per modul.`,
         "Judul pelajaran menyebut hal yang dikerjakan, bukan \"Pengantar\" atau \"Penutup\".",
         "Ruas \"inti\" berisi satu kalimat tentang apa yang harus bisa dilakukan peserta setelah pelajaran itu.",
+        "",
+        BENTUK_MODUL,
         "Jawab dalam format json.",
         "",
         "--- DOKUMEN ---",
@@ -265,7 +303,9 @@ export async function tulisModul(
   kerangka: KerangkaKursus,
   modul: ModulKerangka
 ): Promise<{ ok: true; data: string; token: number } | { ok: false; error: string }> {
-  const daftarPelajaran = modul.pelajaran.map((p, i) => `${i + 1}. ${p.judul} -- ${p.inti}`).join("\n")
+  const daftarPelajaran = modul.pelajaran
+    .map((p, i) => `${i + 1}. [${p.jenis}] ${p.judul} -- ${p.inti}`)
+    .join("\n")
 
   const hasil = await tanyaTeks({
     sistem: SISTEM,
@@ -280,7 +320,27 @@ export async function tulisModul(
       "tipe: teks",
       "durasi: <angka> menit",
       "",
-      "<isi pelajaran, 3-6 paragraf pendek, boleh memakai daftar berpoin>",
+      "<isi pelajaran>",
+      "",
+      "Tiap pelajaran ditandai jenisnya di daftar bawah. Cara menulisnya berbeda:",
+      "",
+      "[teks] -- 3 sampai 6 paragraf pendek yang menjelaskan konsepnya. Tulis",
+      "  \"tipe: teks\". Boleh memakai subjudul dengan satu pagar dan daftar berpoin.",
+      "  Mulai dengan satu paragraf yang menjawab \"kenapa ini penting bagi saya\".",
+      "",
+      "[cerita] -- satu kejadian yang bisa dibayangkan, dengan orang, tempat, dan",
+      "  waktu yang jelas. Tulis \"tipe: teks\" juga. Tunjukkan keputusannya diambil",
+      "  bagaimana dan akibatnya apa, lalu tutup dengan menghubungkannya kembali ke",
+      "  konsep di pelajaran sebelumnya. Nama orang dan perusahaan dibuat-buat, dan",
+      "  sebutkan itu di kalimat terakhir.",
+      "",
+      "[simulasi] -- JANGAN ditulis isinya. Tulis HANYA kepalanya, persis begini:",
+      "",
+      "### Pelajaran: <judul pelajaran>",
+      "tipe: interaktif",
+      "durasi: <angka> menit",
+      "",
+      "<!--SIMULASI-->",
       "",
       "Pelajaran yang harus ditulis, berurutan:",
       daftarPelajaran,
@@ -334,7 +394,139 @@ export async function tulisModul(
    */
   const rapi = hasil.terpotong ? buangSoalTakUtuh(bersih) : bersih
 
-  return { ok: true, data: acakOpsi(rapi), token: hasil.token }
+  const simulasi = await isiSimulasi(sop, kerangka, modul, acakOpsi(rapi))
+  return { ok: true, data: simulasi.markdown, token: hasil.token + simulasi.token }
+}
+
+/**
+ * Mengisi tiap penanda `<!--SIMULASI-->` dengan satu panggilan tersendiri.
+ *
+ * Bukan ditulis bersama modulnya, karena tidak muat. Satu simulasi berukuran
+ * enam sampai tiga belas kilobita HTML -- dua sampai empat ribu token sendiri
+ * -- sedangkan satu modul dijatah 4.200 token untuk SELURUH isinya. Digabung,
+ * yang terpotong adalah simulasinya, dan HTML yang terpotong di tengah tidak
+ * menyisakan apa pun yang bisa diselamatkan.
+ *
+ * Kegagalan satu simulasi tidak menggagalkan modulnya: penandanya diganti
+ * kalimat yang memberi tahu penyusun, dan pelajarannya tetap ada untuk diisi
+ * sendiri. Modul tanpa satu pelajaran lebih buruk daripada modul dengan satu
+ * pelajaran yang perlu dikerjakan tangan.
+ */
+async function isiSimulasi(
+  sop: string,
+  kerangka: KerangkaKursus,
+  modul: ModulKerangka,
+  markdown: string
+): Promise<{ markdown: string; token: number }> {
+  if (!markdown.includes(PENANDA_SIMULASI)) return { markdown, token: 0 }
+
+  const daftar = modul.pelajaran.filter((p) => p.jenis === "simulasi")
+  let keluar = markdown
+  let token = 0
+
+  for (const pelajaran of daftar) {
+    if (!keluar.includes(PENANDA_SIMULASI)) break
+    const hasil = await tanyaTeks({
+      sistem: SISTEM,
+      maxOutputTokens: 4000,
+      prompt: promptSimulasi(sop, kerangka, modul, pelajaran),
+    })
+    token += hasil.ok ? hasil.token : 0
+
+    const html = hasil.ok ? rapikanHtml(hasil.data) : ""
+    keluar = keluar.replace(
+      PENANDA_SIMULASI,
+      html
+        ? ["```html", html, "```"].join("\n")
+        : "Simulasi untuk pelajaran ini belum terbentuk. Susun sendiri di penyunting."
+    )
+  }
+
+  // Penanda yang tersisa -- misalnya model menulis lebih banyak dari yang ada
+  // di kerangka -- tidak boleh ikut terbaca sebagai isi pelajaran.
+  return { markdown: keluar.split(PENANDA_SIMULASI).join(""), token }
+}
+
+const PENANDA_SIMULASI = "<!--SIMULASI-->"
+
+/** Membuang pagar kode yang kadang ikut dikembalikan model. */
+function rapikanHtml(teksAsli: string): string {
+  const t = teksAsli
+    .replace(/^\s*```(?:html)?\s*\n/i, "")
+    .replace(/\n```\s*$/i, "")
+    .trim()
+  // HTML yang terpotong di tengah tag lebih baik dibuang: `bersihkanMateri`
+  // akan menambalnya jadi markah aneh yang tampil berantakan ke peserta.
+  return /<\/(div|body|html|p|section)>\s*$/i.test(t) || t.endsWith(">") ? t : ""
+}
+
+function promptSimulasi(
+  sop: string,
+  kerangka: KerangkaKursus,
+  modul: ModulKerangka,
+  pelajaran: { judul: string; inti: string }
+): string {
+  return [
+    `Kursus: "${kerangka.judul}". Modul: "${modul.judul}".`,
+    `Buat satu simulasi untuk pelajaran "${pelajaran.judul}".`,
+    `Yang harus bisa dilakukan peserta sesudahnya: ${pelajaran.inti}`,
+    "",
+    "Keluarkan HANYA satu berkas HTML, tanpa penjelasan apa pun sebelum atau sesudahnya.",
+    "",
+    "BENTUKNYA:",
+    "- Mulai dengan <h2> judul, lalu satu kotak tugas berisi perintah yang jelas.",
+    "  Contoh: \"Anda petugas gudang. Barang ini baru datang. Lakukan apa yang akan",
+    "  Anda lakukan sungguhan.\"",
+    "- Buat tiruan layar atau formulir yang relevan dengan dokumen.",
+    "- Beri 3 sampai 4 tindakan sebagai radio dengan name yang sama. Tiap tindakan",
+    "  mengganti isi layar DAN memunculkan akibat yang berbeda.",
+    "- Akibat DICERITAKAN, bukan dinilai: tulis apa yang terjadi berikutnya, bukan",
+    "  \"benar\" atau \"salah\".",
+    "- Sediakan satu radio tambahan bertanda checked untuk \"Ulangi dari awal\".",
+    "- Tambahkan 2 sampai 3 varian situasi sebagai radio terpisah. Tiap varian harus",
+    "  mengubah KEPUTUSANNYA: hilangkan satu tanda yang tadinya menolong, atau tutup",
+    "  salah satu jalan keluar. Kalau tindakan yang menyelamatkan tetap sama di semua",
+    "  varian, variannya tidak berguna dan lebih baik tidak ada.",
+    "",
+    "CARANYA, karena JavaScript tidak dijalankan sama sekali:",
+    "- Semua interaksi memakai radio, checkbox, dan selector CSS.",
+    "- Pakai :has() pada wadahnya, misalnya .sim:has(#t1:checked) .akibat-t1 { display: block }.",
+    "- JANGAN memakai selector saudara ~ untuk menghubungkan radio dengan akibatnya",
+    "  kalau keduanya tidak bersaudara langsung; selectornya tetap sah tetapi tidak",
+    "  mengenai apa pun.",
+    "- SETIAP kelas yang disebut di dalam <style> WAJIB benar-benar ada di markahnya.",
+    "  Aturan yang menunjuk kelas yang tidak pernah ditulis tidak menimbulkan galat",
+    "  apa pun -- tombolnya tetap bisa ditekan dan tidak mengubah apa-apa. Sebelum",
+    "  selesai, periksa ulang satu per satu.",
+    "",
+    "CONTOH POLA YANG BENAR, tiru bentuknya:",
+    "",
+    "<style>",
+    ".sim .akibat { display: none }",
+    ".sim:has(#t1:checked) .akibat-t1 { display: block }",
+    ".sim:has(#v2:checked) .hanya-v1 { display: none }",
+    ".sim:has(#v2:checked) .hanya-v2 { display: block }",
+    "</style>",
+    "<div class=\"sim\">",
+    "  <p class=\"hanya-v1\">Keterangan yang ada di situasi biasa</p>",
+    "  <p class=\"hanya-v2\">Keterangan pengganti di situasi kedua</p>",
+    "  <input type=\"radio\" name=\"t\" id=\"t1\"><label for=\"t1\">Tindakan pertama</label>",
+    "  <div class=\"akibat akibat-t1\">Yang terjadi berikutnya.</div>",
+    "</div>",
+    "",
+    "YANG DILARANG, karena akan dibuang sistem:",
+    ...ATURAN_SISTEM.map((a) => `- ${a.aturan}. ${a.kenapa}`),
+    "- Atribut style sebaris. Pakai <style> di atas, selectornya akan dilingkupi sendiri.",
+    "",
+    "AKSESIBILITAS: mulai judul dari <h2>, tiap kotak pilihan dibungkus <label>,",
+    "tiap tabel punya <th>, tiap gambar punya alt, dan harus terbaca di layar 320 piksel.",
+    "",
+    "Bahasa Indonesia, kalimat pendek, sapaan \"Anda\". Nama orang dan perusahaan",
+    "dibuat-buat. Hanya memakai isi dokumen di bawah.",
+    "",
+    "--- DOKUMEN ---",
+    sop.slice(0, MAKS_HURUF_SOP),
+  ].join("\n")
 }
 
 /**
