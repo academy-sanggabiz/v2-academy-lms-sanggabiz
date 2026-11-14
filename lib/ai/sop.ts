@@ -80,6 +80,12 @@ const SISTEM =
  * yang dipaksa jadi simulasi.
  */
 const BENTUK_MODUL = [
+  "JUMLAH MODUL MENGIKUTI ISI DOKUMEN, bukan jumlah subjudulnya.",
+  "Satu modul wajib berisi MINIMAL TIGA pelajaran di luar kuis. Kalau bahannya",
+  "tidak cukup untuk itu, kurangi jumlah modulnya dan gabungkan isinya --",
+  "jangan membuat modul tipis berisi satu atau dua pelajaran.",
+  "Dokumen pendek yang membahas satu topik cukup SATU modul.",
+  "",
   "Tiap pelajaran diberi ruas \"jenis\", dan satu modul mengikuti bentuk ini:",
   "- \"teks\" untuk menjelaskan konsepnya. Satu modul punya satu sampai dua.",
   "- \"cerita\" untuk satu kejadian nyata yang memperlihatkan konsep itu bekerja",
