@@ -1,11 +1,12 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ArrowLeft, FileText, Globe, Users } from "lucide-react"
+import { ArrowLeft, Award, FileText, Globe, Users } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { CourseThumb } from "@/components/CourseThumb"
 import { CourseCurriculumGate } from "@/components/learner/CourseCurriculumGate"
+import { getLearnerCertificateForCourse } from "@/lib/certificates-server"
 import { EnrollButton } from "@/components/learner/EnrollButton"
 import { CourseNotes } from "@/components/learner/CourseNotes"
 import { PerkembanganPesertaCard } from "@/components/perkembangan/PerkembanganPesertaCard"
@@ -38,6 +39,10 @@ export default async function CourseDetailPage({
   const { enrolled, started, completedLessonIds } = await getEnrollmentProgress(course.id)
   const { t } = await getTranslations()
   const courseGrade = enrolled ? await getLearnerCourseGrade(course.id) : null
+  // Jalan pintas ke sertifikat. Sebelumnya satu-satunya jalan adalah menebak
+  // bahwa ia ada di tab profil -- peserta yang sudah menyelesaikan kursus
+  // tidak melihat satu pun petunjuk di halaman kursusnya sendiri.
+  const sertifikat = enrolled ? await getLearnerCertificateForCourse(course.id) : null
   const notes = enrolled ? await getCourseNotes(course.id) : null
   // null bila kursusnya tidak punya kuis ukur sama sekali; kartunya lalu
   // tidak dirender, jadi halaman kursus lama tidak berubah sebaris pun.
@@ -173,6 +178,17 @@ export default async function CourseDetailPage({
             size="xl"
             className="w-full"
           />
+
+          {sertifikat && (
+            <Button
+              className="mt-3 w-full bg-brand-gradient text-white hover:brightness-105"
+              render={<Link href="/learner/profile?tab=certificates" />}
+              nativeButton={false}
+            >
+              <Award className="size-4" aria-hidden />
+              {t.player.certificateShortcut}
+            </Button>
+          )}
 
           {courseGrade && courseGrade.available > 0 && (
             <div className="mt-4 rounded-lg border border-border bg-muted/30 p-3">
