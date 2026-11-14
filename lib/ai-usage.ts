@@ -145,3 +145,32 @@ export function formatRupiah(n: number, locale: string): string {
     maximumFractionDigits: 0,
   }).format(n)
 }
+
+/**
+ * Batas ukuran dokumen yang diubah jadi kursus (F1).
+ *
+ * Ditaruh di sini, bukan di `app/admin/courses/sop-actions.ts`, karena
+ * dibutuhkan DUA sisi: aksi server menolak berkas kelewat besar, dan dialog
+ * perlu menolaknya lebih dulu saat dilepas supaya orang tidak menunggu
+ * unggahan 40 MB hanya untuk ditolak di ujung. Berkas aksi server tidak bisa
+ * mengekspor tetapan -- "use server" hanya membolehkan fungsi async.
+ */
+export const MAKS_BERKAS_SOP = 10 * 1024 * 1024
+
+/**
+ * Jenis dokumen yang diterima, satu daftar untuk atribut `accept` dan untuk
+ * pemeriksaan saat berkas DILEPAS. Keduanya harus sama: `accept` sama sekali
+ * tidak berlaku pada seret-lepas, jadi tanpa pemeriksaan sendiri berkas apa
+ * pun bisa masuk lewat jalur itu.
+ */
+export const EKSTENSI_DOKUMEN_SOP = [".pdf", ".docx", ".md", ".txt"] as const
+
+export const ACCEPT_DOKUMEN_SOP =
+  ".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document," +
+  ".pdf,application/pdf,.md,.txt,text/plain,text/markdown"
+
+/** Benar bila nama berkasnya berakhiran salah satu jenis yang diterima. */
+export function jenisDokumenDiterima(nama: string): boolean {
+  const n = nama.toLowerCase()
+  return EKSTENSI_DOKUMEN_SOP.some((e) => n.endsWith(e))
+}

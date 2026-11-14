@@ -17,7 +17,7 @@ import {
 } from "@/lib/ai/sop"
 import { parseCourseMarkdown, type ParsedCourse } from "@/lib/course-markdown"
 import { bersihkanDrafInteraktif } from "@/lib/course-markdown/sanitize-draft"
-import { BATAS_TOKEN_SOP_HARIAN, FITUR_SOP, formatToken } from "@/lib/ai-usage"
+import { BATAS_TOKEN_SOP_HARIAN, FITUR_SOP, formatToken, MAKS_BERKAS_SOP } from "@/lib/ai-usage"
 import { tokenHariIni } from "@/lib/ai-usage-server"
 
 /**
@@ -48,7 +48,8 @@ import { tokenHariIni } from "@/lib/ai-usage-server"
 
 export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string }
 
-const MAKS_BERKAS = 10 * 1024 * 1024
+// Tetapannya di lib/ai-usage.ts supaya dialog memakai angka yang sama.
+const MAKS_BERKAS = MAKS_BERKAS_SOP
 const MIN_HURUF = 200
 const MAKS_PERMINTAAN = 500
 
