@@ -1491,6 +1491,9 @@ export type Dictionary = {
     sampleHint: string
     sampleFile: string
     pickFile: string
+    dropDoc: string
+    dropWrongType: string
+    dropTooBig: string
     reading: string
     privacy: string
     step2: string
@@ -3144,6 +3147,9 @@ const id: Dictionary = {
     sampleHint: "Belum punya dokumennya? Coba contoh ini dulu.",
     sampleFile: "Unduh contoh SOP",
     pickFile: "Pilih dokumen",
+    dropDoc: "Atau seret berkasnya ke kotak ini. PDF, Word, teks, atau Markdown.",
+    dropWrongType: "Jenis berkasnya belum didukung. Pakai PDF, Word, teks, atau Markdown.",
+    dropTooBig: "Berkas lebih dari 10 MB. Pakai dokumen yang lebih ringkas.",
     reading: "Membaca dokumen…",
     privacy:
       "Isi dokumen dikirim ke penyedia AI pihak ketiga untuk diproses. Jangan unggah dokumen rahasia.",
@@ -4811,6 +4817,9 @@ const en: Dictionary = {
     sampleHint: "No document yet? Try this example first.",
     sampleFile: "Download a sample SOP",
     pickFile: "Choose a document",
+    dropDoc: "Or drag a file into this box. PDF, Word, text, or Markdown.",
+    dropWrongType: "That file type is not supported yet. Use PDF, Word, text, or Markdown.",
+    dropTooBig: "The file is larger than 10 MB. Use a shorter document.",
     reading: "Reading the document…",
     privacy:
       "The document is sent to a third-party AI provider for processing. Do not upload confidential documents.",

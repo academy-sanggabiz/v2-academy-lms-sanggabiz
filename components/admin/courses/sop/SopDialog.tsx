@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, useTransition } from "react"
-import { Download, Plus, Sparkles, Trash2, Upload } from "lucide-react"
+import { Download, Plus, Sparkles, Trash2, Upload, UploadCloud } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -29,6 +29,11 @@ import { useI18n } from "@/components/i18n/LocaleProvider"
 import type { CourseDraft } from "@/lib/course-draft"
 import type { ParseReport } from "@/lib/course-markdown"
 import type { JenisPelajaran } from "@/lib/ai/sop"
+import {
+  ACCEPT_DOKUMEN_SOP,
+  jenisDokumenDiterima,
+  MAKS_BERKAS_SOP,
+} from "@/lib/ai-usage"
 import type { KerangkaKursus, ModulKerangka } from "@/lib/ai/sop"
 import {
   ambilHasilPekerjaan,
@@ -104,6 +109,29 @@ export function SopDialog({
   const [permintaan, setPermintaan] = useState("")
   const [report, setReport] = useState<ParseReport | null>(null)
   const [galat, setGalat] = useState<string | null>(null)
+  const [diseret, setDiseret] = useState(false)
+
+  /**
+   * Satu pintu untuk berkas, dari pemilih maupun dari seret-lepas.
+   *
+   * Pemeriksaannya WAJIB ada di sini, bukan hanya pada atribut `accept`:
+   * `accept` sama sekali tidak berlaku pada berkas yang dilepas, jadi tanpa
+   * ini berkas apa pun bisa masuk lewat jalur seret dan baru ditolak jauh di
+   * ujung, sesudah orang menunggu.
+   */
+  function terimaBerkas(file: File | undefined) {
+    if (!file) return
+    if (!jenisDokumenDiterima(file.name)) {
+      setGalat(t.sop.dropWrongType)
+      return
+    }
+    if (file.size > MAKS_BERKAS_SOP) {
+      setGalat(t.sop.dropTooBig)
+      return
+    }
+    setBerkas(file)
+    setGalat(null)
+  }
   const [sibuk, setSibuk] = useState<null | "membaca" | "menulis" | "revisi">(null)
   const [tawaran, setTawaran] = useState<Pekerjaan | null>(null)
 
@@ -390,53 +418,83 @@ export function SopDialog({
                 <h3 className="text-sm font-semibold">{t.sop.step1}</h3>
                 <p className="mt-1 mb-2.5 text-sm text-muted-foreground">{t.sop.step1Desc}</p>
 
-                {berkas ? (
-                  <div className="flex items-center gap-3 rounded-lg border border-input p-2.5">
-                    <Upload className="size-5 shrink-0 text-muted-foreground" aria-hidden />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium">{berkas.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {t.sop.fileMeta
-                          .replace("{ukuran}", ukuran(berkas.size))
-                          .replace("{jenis}", berkas.type || "teks")}
+                {/*
+                  Zona seret TIDAK diberi onClick, role, atau tabIndex.
+                  Jalan papan ketiknya tetap <label> berisi input di dalamnya:
+                  satu kontrol, punya nama, satu perhentian tab. Menjadikan
+                  wadah ini sendiri sebuah tombol akan membuat tombol di
+                  dalamnya bersarang di dalam tombol -- pelanggaran
+                  nested-interactive, dan pola itulah yang dulu ditemukan pada
+                  ImageDropzone.
+                */}
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault()
+                    if (sibuk === null) setDiseret(true)
+                  }}
+                  onDragLeave={() => setDiseret(false)}
+                  onDrop={(e) => {
+                    e.preventDefault()
+                    setDiseret(false)
+                    if (sibuk === null) terimaBerkas(e.dataTransfer.files?.[0])
+                  }}
+                  className={cn(
+                    "rounded-xl border-2 border-dashed px-4 py-5 transition-colors",
+                    diseret ? "border-ring bg-muted/50" : "border-border",
+                    sibuk !== null && "opacity-60"
+                  )}
+                >
+                  {berkas ? (
+                    <div className="flex items-center gap-3 rounded-lg border border-input p-2.5">
+                      <Upload className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium">{berkas.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {t.sop.fileMeta
+                            .replace("{ukuran}", ukuran(berkas.size))
+                            .replace("{jenis}", berkas.type || "teks")}
+                        </div>
                       </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={sibuk !== null}
+                        onClick={() => setBerkas(null)}
+                      >
+                        {t.sop.changeFile}
+                      </Button>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={sibuk !== null}
-                      onClick={() => setBerkas(null)}
+                  ) : (
+                    /* Label yang membungkus input berkas, bukan tombol yang
+                       mengklik input tersembunyi: pola itu meninggalkan input
+                       tanpa nama terbaca dan satu perhentian tab tak terlihat. */
+                    <label
+                      className={cn(
+                        "inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-lg border border-input bg-card px-3 text-sm font-medium",
+                        "hover:bg-muted focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
+                      )}
                     >
-                      {t.sop.changeFile}
-                    </Button>
-                  </div>
-                ) : (
-                  /* Label yang membungkus input berkas, bukan tombol yang
-                     mengklik input tersembunyi: pola itu meninggalkan input
-                     tanpa nama terbaca dan satu perhentian tab tak terlihat. */
-                  <label
-                    className={cn(
-                      "inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-lg border border-input bg-card px-3 text-sm font-medium",
-                      "hover:bg-muted focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
-                    )}
-                  >
-                    <Upload className="size-4" aria-hidden />
-                    {t.sop.pickFile}
-                    <input
-                      type="file"
-                      accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,application/pdf,.md,.txt,text/plain,text/markdown"
-                      className="sr-only"
-                      onChange={(event) => {
-                        const file = event.target.files?.[0]
-                        if (file) {
-                          setBerkas(file)
-                          setGalat(null)
-                        }
-                        event.target.value = ""
-                      }}
-                    />
-                  </label>
-                )}
+                      <Upload className="size-4" aria-hidden />
+                      {t.sop.pickFile}
+                      <input
+                        type="file"
+                        accept={ACCEPT_DOKUMEN_SOP}
+                        className="sr-only"
+                        onChange={(event) => {
+                          terimaBerkas(event.target.files?.[0])
+                          event.target.value = ""
+                        }}
+                      />
+                    </label>
+                  )}
+
+                  {!berkas && (
+                    <p className="mt-2.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <UploadCloud className="size-3.5 shrink-0" aria-hidden />
+                      {t.sop.dropDoc}
+                    </p>
+                  )}
+                </div>
 
                 {berkas && (
                   <div className="mt-3 flex flex-wrap items-center gap-2.5">
