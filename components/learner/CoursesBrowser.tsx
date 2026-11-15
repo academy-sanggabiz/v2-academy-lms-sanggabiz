@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { CourseGridCard } from "@/components/learner/CourseGridCard"
 import type { Course } from "@/lib/courses"
+import type { KemajuanKursus } from "@/lib/enrollments-server"
 import { useI18n } from "@/components/i18n/LocaleProvider"
 
 type SortKey = "newest" | "title" | "price"
@@ -33,6 +34,7 @@ export function CoursesBrowser({
   enrolledIds,
   completedIds,
   startedIds,
+  kemajuan,
 }: {
   /** Catalog: published + public only. Drives the All tab. */
   courses: Course[]
@@ -41,6 +43,8 @@ export function CoursesBrowser({
   enrolledIds: string[]
   completedIds: string[]
   startedIds: string[]
+  /** Kemajuan per id kursus; kosong untuk kursus yang belum diikuti. */
+  kemajuan: Record<string, KemajuanKursus>
 }) {
   const { t } = useI18n()
   const [query, setQuery] = useState("")
@@ -132,6 +136,7 @@ export function CoursesBrowser({
                   course={course}
                   enrolled={enrolledIds.includes(course.id)}
                   started={startedIds.includes(course.id)}
+                  kemajuan={kemajuan[course.id]}
                 />
               ))}
             </div>
@@ -144,7 +149,13 @@ export function CoursesBrowser({
           {enrolledList.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {enrolledList.map((course) => (
-                <CourseGridCard key={course.id} course={course} enrolled started={startedIds.includes(course.id)} />
+                <CourseGridCard
+                  key={course.id}
+                  course={course}
+                  enrolled
+                  started={startedIds.includes(course.id)}
+                  kemajuan={kemajuan[course.id]}
+                />
               ))}
             </div>
           ) : (
@@ -156,7 +167,7 @@ export function CoursesBrowser({
           {completedList.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {completedList.map((course) => (
-                <CourseGridCard key={course.id} course={course} enrolled started />
+                <CourseGridCard key={course.id} course={course} enrolled started kemajuan={kemajuan[course.id]} />
               ))}
             </div>
           ) : (

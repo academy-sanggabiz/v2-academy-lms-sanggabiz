@@ -145,6 +145,10 @@ export type Dictionary = {
     completed: string
     noneEnrolled: string
     noneCompleted: string
+    progressOf: string
+    progressPercent: string
+    finishedBadge: string
+    notStartedYet: string
     noMatches: string
     preview: string
     lessons: string
@@ -186,6 +190,7 @@ export type Dictionary = {
   enroll: {
     join: string
     continueLearning: string
+    openAgain: string
     startLearning: string
     enrolledStartLearning: string
   }
@@ -1851,6 +1856,10 @@ const id: Dictionary = {
     completed: "Selesai",
     noneEnrolled: "Anda belum terdaftar di kursus mana pun.",
     noneCompleted: "Anda belum menyelesaikan kursus apa pun.",
+    progressOf: "{selesai} dari {total} pelajaran",
+    progressPercent: "{persen}% selesai",
+    finishedBadge: "Selesai",
+    notStartedYet: "Belum dimulai",
     noMatches: "Tidak ada kursus yang cocok dengan pencarian Anda.",
     preview: "Pratinjau",
     lessons: "pelajaran",
@@ -1891,6 +1900,7 @@ const id: Dictionary = {
   enroll: {
     join: "Ikuti kursus",
     continueLearning: "Lanjutkan belajar",
+    openAgain: "Buka lagi",
     startLearning: "Mulai belajar",
     enrolledStartLearning: "Terdaftar ✓ Mulai belajar",
   },
@@ -3528,6 +3538,10 @@ const en: Dictionary = {
     completed: "Completed",
     noneEnrolled: "You are not enrolled in any course yet.",
     noneCompleted: "You have not completed any course yet.",
+    progressOf: "{selesai} of {total} lessons",
+    progressPercent: "{persen}% done",
+    finishedBadge: "Finished",
+    notStartedYet: "Not started",
     noMatches: "No course matches your search.",
     preview: "Preview",
     lessons: "lessons",
@@ -3568,6 +3582,7 @@ const en: Dictionary = {
   enroll: {
     join: "Enrol in course",
     continueLearning: "Continue learning",
+    openAgain: "Open again",
     startLearning: "Start learning",
     enrolledStartLearning: "Enrolled ✓ Start learning",
   },
