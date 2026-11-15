@@ -7,9 +7,20 @@ alasannya. Diperbarui 13 November 2026.
 
 ## Belum dikerjakan
 
-### F. Kemajuan dan emblem selesai di daftar kursus peserta — belum dikerjakan
+### F. Kemajuan dan emblem selesai di daftar kursus peserta — ✅ selesai 15 November 2026
 
-Diminta pemilik 14 November 2026, dicatat untuk dikerjakan nanti.
+Diminta pemilik 14 November 2026, dikerjakan 15 November.
+
+**Hasilnya.** Kartu kursus yang diikuti peserta menampilkan bilah kemajuan
+dengan angkanya sebagai teks ("1 dari 5 pelajaran · 20% selesai"), dan kursus
+yang sudah tuntas mendapat emblem **Selesai** berikon. Perhitungannya
+disatukan: `bacaKemajuan()` di `lib/enrollments-server.ts` kini dipakai
+`getContinueLearning()` DAN `getKemajuanKursus()`, jadi tidak ada dua tempat
+yang menghitung kemajuan.
+
+**Satu hal yang baru kelihatan sesudah emblemnya ada:** tombol pada kursus
+selesai masih berbunyi "Lanjutkan belajar", membantah emblem di kartu yang
+sama. `EnrollState` mendapat nilai `completed` dan labelnya jadi "Buka lagi".
 
 **Yang diminta.** Di `/learner/courses`, setiap kursus yang diambil peserta
 menampilkan berapa persen sudah selesai, dan kursus yang sudah 100% mendapat

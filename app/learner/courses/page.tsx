@@ -1,17 +1,23 @@
 import { CoursesBrowser } from "@/components/learner/CoursesBrowser"
 import { getEnrolledCourses, getPublishedCourses } from "@/lib/courses-server"
-import { getCompletedCourseIds, getEnrolledCourseIds, getStartedCourseIds } from "@/lib/enrollments-server"
+import {
+  getCompletedCourseIds,
+  getEnrolledCourseIds,
+  getKemajuanKursus,
+  getStartedCourseIds,
+} from "@/lib/enrollments-server"
 
 export default async function LearnerCoursesPage() {
   // Two separate lists on purpose: the catalog (`courses`, public only) drives
   // the All tab, while `enrolledCourses` drives Enrolled/Completed so private
   // courses the learner was invited to still show up there.
-  const [courses, enrolledCourses, enrolledIds, completedIds, startedIds] = await Promise.all([
+  const [courses, enrolledCourses, enrolledIds, completedIds, startedIds, kemajuan] = await Promise.all([
     getPublishedCourses(),
     getEnrolledCourses(),
     getEnrolledCourseIds(),
     getCompletedCourseIds(),
     getStartedCourseIds(),
+    getKemajuanKursus(),
   ])
 
   return (
@@ -23,6 +29,8 @@ export default async function LearnerCoursesPage() {
         enrolledIds={enrolledIds}
         completedIds={completedIds}
         startedIds={startedIds}
+        // Map tidak bisa menyeberang ke Client Component; diubah jadi objek.
+        kemajuan={Object.fromEntries(kemajuan)}
       />
     </div>
   )

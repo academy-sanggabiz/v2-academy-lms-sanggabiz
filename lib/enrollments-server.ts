@@ -1,3 +1,5 @@
+import type { SupabaseClient } from "@supabase/supabase-js"
+
 import { createClient } from "@/lib/supabase/server"
 import { computeCourseGrade, quizGradeWeight, type CourseGrade } from "@/lib/course-grade"
 import { pickRepresentativeAttempt } from "@/lib/quiz-attempt-selection"
@@ -211,6 +213,134 @@ export async function getStartedCourseIds(): Promise<string[]> {
   return [...courseIds]
 }
 
+/**
+ * Satu baris kemajuan per enrollment: pelajarannya terurut, dan mana saja yang
+ * sudah selesai.
+ *
+ * Dipakai BERSAMA oleh `getContinueLearning()` dan `getKemajuanKursus()`.
+ * Keduanya dulu akan menghitung hal yang sama dengan kueri sendiri-sendiri,
+ * dan dua tempat yang menghitung kemajuan segera berbeda -- persis yang
+ * terjadi pada nilai akhir kursus sebelum `computeCourseGrade()` dijadikan
+ * satu-satunya tempat.
+ *
+ * Lewat `enrollments`, BUKAN lewat katalog: `getPublishedCourses()` menyaring
+ * `is_private = false`, jadi kursus privat yang diikuti peserta akan hilang
+ * diam-diam. Itu pernah benar-benar terjadi pada tab Terdaftar/Selesai.
+ */
+type BarisKemajuan = {
+  enrollmentId: string
+  enrolledAt: string
+  status: "active" | "completed"
+  course: { id: string; title: string; thumbnail_url: string | null }
+  /** Terurut: bagian dulu, lalu pelajaran di dalamnya. */
+  lessons: { id: string; title: string; position: number }[]
+  selesaiIds: Set<string>
+  /** Waktu pelajaran terakhir diselesaikan; "" bila belum ada. */
+  terakhirAt: string
+}
+
+async function bacaKemajuan(
+  supabase: SupabaseClient,
+  userId: string,
+  { hanyaAktif = false }: { hanyaAktif?: boolean } = {}
+): Promise<BarisKemajuan[]> {
+  let kueri = supabase
+    .from("enrollments")
+    .select(
+      `id, enrolled_at, status,
+      course:courses(id, title, thumbnail_url,
+        sections:course_sections(position, lessons(id, title, position)))`
+    )
+    .eq("learner_id", userId)
+    .order("enrolled_at", { ascending: false })
+
+  if (hanyaAktif) kueri = kueri.eq("status", "active")
+
+  const { data: enrollments, error } = await kueri
+  if (error) {
+    console.error("bacaKemajuan failed:", error.message)
+    return []
+  }
+  if (!enrollments?.length) return []
+
+  const { data: progress, error: progressError } = await supabase
+    .from("lesson_progress")
+    .select("enrollment_id, lesson_id, completed_at")
+    .in(
+      "enrollment_id",
+      enrollments.map((e) => e.id)
+    )
+    .eq("completed", true)
+
+  if (progressError) console.error("bacaKemajuan progress lookup failed:", progressError.message)
+
+  const perEnrollment = new Map<string, { lessons: Set<string>; lastAt: string }>()
+  for (const row of progress ?? []) {
+    const entry = perEnrollment.get(row.enrollment_id) ?? { lessons: new Set<string>(), lastAt: "" }
+    entry.lessons.add(row.lesson_id)
+    if (row.completed_at && row.completed_at > entry.lastAt) entry.lastAt = row.completed_at
+    perEnrollment.set(row.enrollment_id, entry)
+  }
+
+  type RawSection = { position: number; lessons: { id: string; title: string; position: number }[] }
+
+  return enrollments.flatMap((enrollment) => {
+    const course = Array.isArray(enrollment.course) ? enrollment.course[0] : enrollment.course
+    if (!course) return []
+    const lessons = [...((course.sections ?? []) as RawSection[])]
+      .sort((a, b) => a.position - b.position)
+      .flatMap((s) => [...s.lessons].sort((a, b) => a.position - b.position))
+    const done = perEnrollment.get(enrollment.id)
+    return [
+      {
+        enrollmentId: enrollment.id,
+        enrolledAt: enrollment.enrolled_at,
+        status: enrollment.status as "active" | "completed",
+        course: { id: course.id, title: course.title, thumbnail_url: course.thumbnail_url },
+        lessons,
+        selesaiIds: done?.lessons ?? new Set<string>(),
+        terakhirAt: done?.lastAt ?? "",
+      },
+    ]
+  })
+}
+
+export type KemajuanKursus = {
+  courseId: string
+  doneCount: number
+  totalCount: number
+  /** `enrollments.status === "completed"`, bukan hitungan ulang. */
+  selesai: boolean
+}
+
+/**
+ * Kemajuan setiap kursus yang diikuti peserta, dipetakan per id kursus.
+ *
+ * `selesai` diambil dari `enrollments.status`, bukan dihitung ulang dari
+ * jumlah pelajaran: status itu ditulis `checkAndIssueCertificate()` sesudah
+ * memeriksa pelajaran DAN kelulusan kuis, jadi "semua pelajaran dibuka" saja
+ * belum tentu selesai.
+ */
+export async function getKemajuanKursus(): Promise<Map<string, KemajuanKursus>> {
+  const supabase = await createClient()
+  const { data: claimsData } = await supabase.auth.getClaims()
+  const userId = claimsData?.claims?.sub
+  if (!userId) return new Map()
+
+  const baris = await bacaKemajuan(supabase, userId)
+  return new Map(
+    baris.map((b) => [
+      b.course.id,
+      {
+        courseId: b.course.id,
+        doneCount: b.lessons.filter((l) => b.selesaiIds.has(l.id)).length,
+        totalCount: b.lessons.length,
+        selesai: b.status === "completed",
+      },
+    ])
+  )
+}
+
 export type ContinueLearningItem = {
   courseId: string
   title: string
@@ -233,65 +363,24 @@ export async function getContinueLearning(limit = 3): Promise<ContinueLearningIt
   const userId = claimsData?.claims?.sub
   if (!userId) return []
 
-  const { data: enrollments, error } = await supabase
-    .from("enrollments")
-    .select(
-      `id, enrolled_at,
-      course:courses(id, title, thumbnail_url,
-        sections:course_sections(position, lessons(id, title, position)))`
-    )
-    .eq("learner_id", userId)
-    .eq("status", "active")
-    .order("enrolled_at", { ascending: false })
+  const baris = await bacaKemajuan(supabase, userId, { hanyaAktif: true })
 
-  if (error) {
-    console.error("getContinueLearning failed:", error.message)
-    return []
-  }
-  if (!enrollments?.length) return []
-
-  const { data: progress, error: progressError } = await supabase
-    .from("lesson_progress")
-    .select("enrollment_id, lesson_id, completed_at")
-    .in(
-      "enrollment_id",
-      enrollments.map((e) => e.id)
-    )
-    .eq("completed", true)
-
-  if (progressError) console.error("getContinueLearning progress lookup failed:", progressError.message)
-
-  const doneByEnrollment = new Map<string, { lessons: Set<string>; lastAt: string }>()
-  for (const row of progress ?? []) {
-    const entry = doneByEnrollment.get(row.enrollment_id) ?? { lessons: new Set<string>(), lastAt: "" }
-    entry.lessons.add(row.lesson_id)
-    if (row.completed_at && row.completed_at > entry.lastAt) entry.lastAt = row.completed_at
-    doneByEnrollment.set(row.enrollment_id, entry)
-  }
-
-  type RawSection = { position: number; lessons: { id: string; title: string; position: number }[] }
-
-  const items = enrollments.flatMap((enrollment) => {
-    const course = Array.isArray(enrollment.course) ? enrollment.course[0] : enrollment.course
-    if (!course) return []
-    const lessons = [...((course.sections ?? []) as RawSection[])]
-      .sort((a, b) => a.position - b.position)
-      .flatMap((s) => [...s.lessons].sort((a, b) => a.position - b.position))
-    if (lessons.length === 0) return []
-    const done = doneByEnrollment.get(enrollment.id)
-    const nextIndex = lessons.findIndex((l) => !done?.lessons.has(l.id))
+  const items = baris.flatMap((b) => {
+    if (b.lessons.length === 0) return []
+    const nextIndex = b.lessons.findIndex((l) => !b.selesaiIds.has(l.id))
     return [
       {
         item: {
-          courseId: course.id,
-          title: course.title,
-          thumbnailUrl: course.thumbnail_url,
-          doneCount: lessons.filter((l) => done?.lessons.has(l.id)).length,
-          totalCount: lessons.length,
-          nextLesson: nextIndex === -1 ? null : { ...lessons[nextIndex], position: nextIndex + 1 },
+          courseId: b.course.id,
+          title: b.course.title,
+          thumbnailUrl: b.course.thumbnail_url,
+          doneCount: b.lessons.filter((l) => b.selesaiIds.has(l.id)).length,
+          totalCount: b.lessons.length,
+          nextLesson:
+            nextIndex === -1 ? null : { ...b.lessons[nextIndex], position: nextIndex + 1 },
         } satisfies ContinueLearningItem,
-        // Most recently studied first, then most recently enrolled.
-        sortKey: done?.lastAt || enrollment.enrolled_at,
+        // Yang terakhir dipelajari lebih dulu, lalu yang terakhir didaftar.
+        sortKey: b.terakhirAt || b.enrolledAt,
       },
     ]
   })
@@ -301,3 +390,4 @@ export async function getContinueLearning(limit = 3): Promise<ContinueLearningIt
     .slice(0, limit)
     .map((x) => x.item)
 }
+

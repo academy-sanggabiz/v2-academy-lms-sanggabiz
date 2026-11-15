@@ -9,7 +9,12 @@ import { useI18n } from "@/components/i18n/LocaleProvider"
 import { enroll } from "@/app/learner/courses/actions"
 import { cn } from "@/lib/utils"
 
-export type EnrollState = "not_enrolled" | "not_started" | "in_progress"
+/**
+ * `completed` ada karena kartu kursus sekarang memakai emblem Selesai, dan
+ * emblem bertuliskan "Selesai" di atas tombol bertuliskan "Lanjutkan belajar"
+ * saling membantah di kartu yang sama.
+ */
+export type EnrollState = "not_enrolled" | "not_started" | "in_progress" | "completed"
 
 /**
  * Shared enroll/start/continue button for the course-detail sidebar,
@@ -37,11 +42,13 @@ export function EnrollButton({
     // The full "Enrolled ✓" prefix only fits the wide xl sidebar button; the
     // compact grid-card size sits next to a Preview button in the same row.
     const label =
-      state === "in_progress"
-        ? t.enroll.continueLearning
-        : size === "xl"
-          ? t.enroll.enrolledStartLearning
-          : t.enroll.startLearning
+      state === "completed"
+        ? t.enroll.openAgain
+        : state === "in_progress"
+          ? t.enroll.continueLearning
+          : size === "xl"
+            ? t.enroll.enrolledStartLearning
+            : t.enroll.startLearning
     return (
       <Button
         size={size}
