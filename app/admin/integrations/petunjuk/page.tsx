@@ -55,7 +55,7 @@ export default async function PetunjukApiPage() {
           baris={[
             ["GET", "/api/v1/courses", "Kursus yang sudah terbit."],
             ["GET", "/api/v1/learners", "Peserta. Bisa disaring ?externalId= atau ?email="],
-            ["GET", "/api/v1/enrollments", "Pendaftaran beserta kemajuannya. Bisa disaring ?learnerId=, ?courseId=, ?status="],
+            ["GET", "/api/v1/enrollments", "Pendaftaran beserta kemajuan dan nilainya. Bisa disaring ?learnerId=, ?courseId=, ?status="],
             ["POST", "/api/v1/enrollments", "Mendaftarkan peserta ke kursus. Perlu hak write."],
             ["GET", "/api/v1/certificates", "Sertifikat yang sudah terbit."],
           ]}
@@ -68,6 +68,38 @@ export default async function PetunjukApiPage() {
   "data": [ ... ],
   "pagination": { "limit": 50, "offset": 0, "total": 128 }
 }`}</Blok>
+      </Bagian>
+
+      <Bagian judul="Membaca nilai peserta">
+        <p>
+          <Kode>/api/v1/enrollments</Kode> membawa kemajuan dan nilai sekaligus:
+        </p>
+        <Blok>{`{
+  "lessonsCompleted": 4,
+  "lessonsTotal": 5,
+  "progressPercent": 80,
+  "grade": 75,
+  "quizzesAttempted": 1,
+  "quizzesTotal": 1,
+  "gradePending": 0
+}`}</Blok>
+        <p>
+          Nilainya dihitung dengan rumus yang sama persis dengan yang dilihat peserta di layarnya
+          dan pengajar di matriks penilaian. Tidak ada salinan berkala: tiap permintaan membaca
+          keadaan saat itu juga.
+        </p>
+        <p>
+          <strong>Baca <Kode>grade</Kode> bersama <Kode>quizzesAttempted</Kode>.</strong> Nilai 0
+          dengan <Kode>quizzesAttempted</Kode> nol berarti pesertanya belum mulai, bukan gagal.
+          Nilai 0 dengan <Kode>quizzesAttempted</Kode> penuh berarti benar-benar gagal. Laporan
+          yang hanya membaca <Kode>grade</Kode> akan menyebut orang yang belum mulai sebagai orang
+          yang gagal.
+        </p>
+        <p>
+          <Kode>gradePending</Kode> di atas nol berarti masih ada jawaban esai yang menunggu
+          dinilai pengajar, jadi nilainya belum final dan masih bisa naik. <Kode>grade</Kode>
+          bernilai <Kode>null</Kode> bila kursusnya memang tidak punya kuis yang dinilai.
+        </p>
       </Bagian>
 
       <Bagian judul="Mendaftarkan peserta">

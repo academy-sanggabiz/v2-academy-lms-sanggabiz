@@ -1561,6 +1561,8 @@ export type Dictionary = {
     docsTitle: string
     docsDesc: string
     openDocs: string
+    postman: string
+    postmanDesc: string
     privacyWarn: string
   }
   aiUsage: {
@@ -3238,6 +3240,8 @@ const id: Dictionary = {
     docsTitle: "Petunjuk untuk tim IT",
     docsDesc: "Daftar alamat, contoh permintaan, dan cara memeriksa tanda tangan webhook.",
     openDocs: "Buka petunjuk",
+    postman: "Koleksi Postman",
+    postmanDesc: "Berkas untuk diimpor ke Postman. Tim IT pelanggan cukup mengisi kuncinya sendiri, lalu bisa langsung mencoba semua permintaan.",
     privacyWarn:
       "Webhook mengirim nama dan email peserta ke alamat yang Anda daftarkan. Pastikan alamatnya milik organisasi Anda.",
   },
@@ -4926,6 +4930,8 @@ const en: Dictionary = {
     docsTitle: "Guide for the IT team",
     docsDesc: "Endpoint list, example requests, and how to check a webhook signature.",
     openDocs: "Open the guide",
+    postman: "Postman collection",
+    postmanDesc: "A file to import into Postman. The customer IT team only fills in their own key, then can try every request.",
     privacyWarn:
       "Webhooks send learner names and emails to the address you register. Make sure it belongs to your organisation.",
   },
