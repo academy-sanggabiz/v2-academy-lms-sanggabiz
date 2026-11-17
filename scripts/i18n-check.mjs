@@ -150,7 +150,7 @@ async function ambilIsi() {
     const r = await fetch(`${U}/rest/v1/${p}`, { headers: h })
     return r.ok ? r.json() : []
   }
-  const [kursus, pelajaran, modul, notif, soal, halamanDepan, pengajar] = await Promise.all([
+  const [kursus, pelajaran, modul, notif, soal, halamanDepan, pengajar, kategori] = await Promise.all([
     ambil("courses?select=title,description,who_for,requirements"),
     // Judul DAN badan pelajaran. Isi pelajaran adalah materi ajar -- paragraf
     // yang ditulis penyusun kursus, bukan kalimat antarmuka. Tanpa `content`
@@ -172,6 +172,13 @@ async function ambilIsi() {
     // antarmuka yang dipakai ulang di banyak layar. Blok "Pengajar kami" di
     // halaman depan menampilkannya apa adanya, di kedua bahasa.
     ambil("instructors?select=title,bio&limit=200"),
+    // Nama dan keterangan bidang minat adalah ISI, sekelas profil pengajar.
+    // Keduanya data BERSAMA: dipakai kartu halaman depan dan saringan katalog
+    // /kelas sekaligus, dan saringan itu tidak dwibahasa. Membuat
+    // keterangannya dwibahasa berarti satu permukaan penyusunan lagi untuk
+    // tiap bidang -- alasan yang sama yang dulu menolak bio pengajar
+    // dwibahasa.
+    ambil("categories?select=name,description&limit=200"),
   ])
   return [
     ...kursus.flatMap((x) => [x.title, x.description, ...(x.who_for ?? []), ...(x.requirements ?? [])]),
@@ -184,6 +191,7 @@ async function ambilIsi() {
     ...notif.flatMap((x) => [x.title, x.body]),
     ...soal.map((x) => String(x.prompt ?? "").replace(/<[^>]*>/g, " ")),
     ...pengajar.flatMap((x) => [x.title, x.bio]),
+    ...kategori.flatMap((x) => [x.name, x.description]),
     ...halamanDepan.flatMap((row) =>
       [row.blocks, row.blocks_en].flatMap((blok) =>
         ambilTeksBlok(blok).map((teks) => teks.replace(/<[^>]*>/g, " "))

@@ -53,7 +53,7 @@ export type CatalogFacets = {
   gratis: number
   berbayar: number
   /** Kategori yang benar-benar punya kursus terbit, beserta jumlahnya. */
-  categories: { category: Category; count: number }[]
+  categories: { category: Category; count: number; lessons: number }[]
 }
 
 function cocokDurasi(jam: number, durasi: CatalogFilters["durasi"]): boolean {
@@ -84,7 +84,7 @@ export async function getCatalogCourses(
     .eq("is_private", false)
     .order("created_at", { ascending: false })
 
-  const { data: kategoriRows } = await supabase.from("categories").select("id, name, slug").order("position")
+  const { data: kategoriRows } = await supabase.from("categories").select("id, name, slug, image_url, description").order("position")
   const kategoriById = new Map(((kategoriRows ?? []) as Category[]).map((k) => [k.id, k]))
 
   if (error) {
@@ -105,15 +105,21 @@ export async function getCatalogCourses(
   // Hanya kategori yang punya isi yang ditawarkan sebagai saringan: pilihan
   // yang pasti menghasilkan nol hasil adalah jalan buntu yang baru terlihat
   // setelah ditekan.
-  const hitungKategori = new Map<string, number>()
+  const hitungKategori = new Map<string, { count: number; lessons: number }>()
   for (const course of semua) {
-    if (course.category_id) {
-      hitungKategori.set(course.category_id, (hitungKategori.get(course.category_id) ?? 0) + 1)
-    }
+    if (!course.category_id) continue
+    const k = hitungKategori.get(course.category_id) ?? { count: 0, lessons: 0 }
+    k.count += 1
+    // Dijumlahkan dari `courses.lesson_count`, kolom yang sama yang sudah
+    // ditampilkan kartu kursus sebagai "N pelajaran". Menghitung ulang dari
+    // tabel `lessons` butuh kueri sendiri dan akan memberi angka yang berbeda
+    // dari yang dilihat orang di kartu -- dua angka untuk satu hal.
+    k.lessons += course.lesson_count ?? 0
+    hitungKategori.set(course.category_id, k)
   }
   facets.categories = [...hitungKategori.entries()]
-    .map(([id, count]) => ({ category: kategoriById.get(id), count }))
-    .filter((x): x is { category: Category; count: number } => Boolean(x.category))
+    .map(([id, k]) => ({ category: kategoriById.get(id), ...k }))
+    .filter((x): x is { category: Category; count: number; lessons: number } => Boolean(x.category))
   for (const course of semua) {
     const level = normalizeLevel(course.level)
     if (level) facets.perLevel[level] += 1

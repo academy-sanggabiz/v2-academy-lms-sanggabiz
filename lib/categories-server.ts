@@ -17,7 +17,7 @@ export async function listCategories(): Promise<Category[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("categories")
-    .select("id, name, slug")
+    .select("id, name, slug, image_url, description")
     .order("position")
     .order("name")
 
@@ -52,7 +52,7 @@ export async function createCategory(
   const { data, error } = await supabase
     .from("categories")
     .insert({ name: bersih, slug })
-    .select("id, name, slug")
+    .select("id, name, slug, image_url, description")
     .single<Category>()
 
   if (error) {
@@ -64,5 +64,38 @@ export async function createCategory(
     return { error: dbErrorMessage(error.message, "Gagal membuat kategori. Coba lagi.") }
   }
 
+  return { category: data }
+}
+
+/**
+ * Menyimpan gambar dan keterangan satu kategori.
+ *
+ * Langsung berlaku, TIDAK lewat draf. Kategori bukan isi halaman depan: ia
+ * juga dipakai saringan katalog `/kelas`, jadi menunda perubahannya sampai
+ * halaman depan diterbitkan akan membuat dua layar menampilkan kategori yang
+ * sama dengan wajah berbeda. Penyuntingnya menyebutkan ini di layar.
+ */
+export async function updateCategory(
+  id: string,
+  patch: { image_url?: string | null; description?: string | null }
+): Promise<{ category: Category } | { error: string }> {
+  const bersih: { image_url?: string | null; description?: string | null } = {}
+  if ("image_url" in patch) bersih.image_url = patch.image_url?.trim() || null
+  if ("description" in patch) {
+    const d = patch.description?.trim() || null
+    if (d && d.length > 160) return { error: "Keterangan maksimal 160 karakter." }
+    bersih.description = d
+  }
+  if (Object.keys(bersih).length === 0) return { error: "Tidak ada yang diubah." }
+
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("categories")
+    .update(bersih)
+    .eq("id", id)
+    .select("id, name, slug, image_url, description")
+    .single<Category>()
+
+  if (error) return { error: dbErrorMessage(error.message, "Gagal menyimpan kategori. Coba lagi.") }
   return { category: data }
 }

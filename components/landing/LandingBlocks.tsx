@@ -6,6 +6,7 @@ import { FeaturedCoursesCarousel } from "@/components/FeaturedCoursesCarousel"
 import type { LandingBlock } from "@/lib/landing-blocks"
 import type { LandingTestimonial, PlatformTotals } from "@/lib/landing"
 import type { Category, CourseCardData, Instructor } from "@/lib/courses"
+import { CourseThumb } from "@/components/CourseThumb"
 import { plural } from "@/lib/i18n/plural"
 import { getDictionary } from "@/lib/i18n/dictionaries"
 import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config"
@@ -43,7 +44,7 @@ export function LandingBlocks({
   courses: CourseCardData[]
   testimonials: LandingTestimonial[]
   totals: PlatformTotals
-  categories: { category: Category; count: number }[]
+  categories: { category: Category; count: number; lessons: number }[]
   instructors: Instructor[]
   /** Dioper dari halaman, bukan dibaca dari cookie: pratinjau /admin/landing
    *  menimpa bahasa lewat ?bahasa= dan blok harus mengikutinya. */
@@ -147,7 +148,7 @@ export function LandingBlockView({
   courses: CourseCardData[]
   testimonials: LandingTestimonial[]
   totals: PlatformTotals
-  categories: { category: Category; count: number }[]
+  categories: { category: Category; count: number; lessons: number }[]
   instructors: Instructor[]
   locale: Locale
 }) {
@@ -400,17 +401,47 @@ export function LandingBlockView({
           <div className={cn(CONTAINER, "py-20")}>
             <SectionHeading heading={block.heading} subheading={block.subheading} />
             <ul className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {categories.map(({ category, count }) => (
+              {categories.map(({ category, count, lessons }) => (
                 <li key={category.id}>
                   <Link
                     href={`/kelas?kategori=${encodeURIComponent(category.slug)}`}
-                    className="group flex h-full flex-col justify-between gap-6 rounded-2xl bg-background p-6 transition-shadow hover:shadow-float focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+                    className="group flex h-full flex-col gap-4 overflow-hidden rounded-2xl bg-background p-4 transition-shadow hover:shadow-float focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
                   >
-                    <span className="block text-lg font-bold group-hover:underline">{category.name}</span>
-                    <span className="flex items-center justify-between text-sm text-muted-foreground">
-                      {plural(count, t.catalog.categoryCoursesOne, t.catalog.categoryCourses)}
-                      <ArrowRight className="size-4 shrink-0" aria-hidden />
-                    </span>
+                    {/*
+                      `CourseThumb` juga dipakai di sini, bukan <img> telanjang.
+                      Bidang yang belum punya gambar lalu tetap memperlihatkan
+                      bidang warna berinisial, bukan ruang kosong -- tanpa itu
+                      satu kartu bergambar membuat seluruh barisnya tidak rata,
+                      dan judul kartu bergambar terdorong jauh ke bawah
+                      dibanding tetangganya.
+
+                      Gambarnya hiasan (`alt=""` di dalam CourseThumb): nama
+                      bidangnya sudah ada sebagai teks tepat di bawahnya, jadi
+                      membacakannya ulang hanya mengulang hal yang sama.
+                    */}
+                    <CourseThumb
+                      src={category.image_url}
+                      title={category.name}
+                      seed={category.id}
+                      className="h-36 rounded-xl"
+                    />
+                    <div className="flex flex-1 flex-col gap-2 px-2 pb-1">
+                      <span className="block text-lg leading-snug font-bold group-hover:underline">
+                        {category.name}
+                      </span>
+                      {category.description && (
+                        <span className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                          {category.description}
+                        </span>
+                      )}
+                      <span className="mt-auto flex items-center justify-between gap-3 pt-2 text-sm text-muted-foreground">
+                        <span>
+                          {plural(count, t.catalog.categoryCoursesOne, t.catalog.categoryCourses)}
+                          {lessons > 0 && ` · ${t.catalog.categoryLessons.replace("{n}", String(lessons))}`}
+                        </span>
+                        <ArrowRight className="size-4 shrink-0" aria-hidden />
+                      </span>
+                    </div>
                   </Link>
                 </li>
               ))}
