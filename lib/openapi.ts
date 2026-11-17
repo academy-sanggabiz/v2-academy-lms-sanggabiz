@@ -124,7 +124,31 @@ function operasiOpenApi(op: Operasi): Skema {
             in: "query",
             required: false,
             description: q.keterangan,
-            schema: { type: "string", ...(q.contoh ? { examples: [q.contoh] } : {}) },
+            /*
+             * Tipe sesungguhnya, bukan "string" untuk semuanya.
+             *
+             * Dari sinilah Swagger memutuskan bentuk isiannya: integer
+             * dengan batas menjadi kotak angka yang menolak huruf sebelum
+             * permintaan dikirim, dan `pilihan` menjadi daftar pilihan.
+             * Selama semuanya string, setiap isian adalah kotak teks bebas
+             * yang menerima apa saja -- dan itu yang membuat "digital"
+             * bisa masuk ke kolom offset tanpa satu pun peringatan.
+             */
+            schema: {
+              type: q.tipe ?? "string",
+              ...(q.format ? { format: q.format } : {}),
+              ...(q.pilihan ? { enum: q.pilihan } : {}),
+              ...(q.minimum !== undefined ? { minimum: q.minimum } : {}),
+              ...(q.maximum !== undefined ? { maximum: q.maximum } : {}),
+              /*
+               * Contohnya ikut tipenya: "50" pada skema integer adalah
+               * contoh yang TIDAK SAH menurut skemanya sendiri, dan
+               * perkakas pembuat kode klien membacanya sebagai cacat.
+               */
+              ...(q.contoh
+                ? { examples: [q.tipe === "integer" ? Number(q.contoh) : q.contoh] }
+                : {}),
+            },
           })),
         }
       : {}),

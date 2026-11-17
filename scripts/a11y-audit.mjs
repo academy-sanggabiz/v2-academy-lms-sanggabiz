@@ -370,6 +370,22 @@ try {
       await anon.waitForTimeout(3000)
       await audit(anon, "/api-docs [jawaban berisi data]")
 
+      /*
+       * Keadaan ISIAN SALAH.
+       *
+       * Ada karena pemilik mengetik "digital" ke kolom offset, mengira itu
+       * pencarian. Dulu kolom itu bertipe string, jadi diterima tanpa
+       * keberatan dan diam-diam dibaca sebagai 0. Sekarang ia integer dan
+       * Swagger menolaknya -- dan layar penolakan itu, seperti layar lain,
+       * harus ikut diperiksa.
+       */
+      await anon.click('[id*="daftarKursus"] .opblock-summary-control')
+      await anon.waitForTimeout(600)
+      await anon.fill('[id*="daftarKursus"] tr[data-param-name="offset"] input', "digital")
+      await anon.click('[id*="daftarKursus"] button.execute')
+      await anon.waitForTimeout(1500)
+      await audit(anon, "/api-docs [isian salah ditolak]")
+
       await anon.click("button.authorize")
       await anon.waitForTimeout(800)
       await audit(anon, "/api-docs [dialog Authorize]")
