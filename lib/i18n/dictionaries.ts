@@ -1562,6 +1562,19 @@ export type Dictionary = {
     docsDesc: string
     openDocs: string
     postman: string
+    consoleTitle: string
+    consoleDesc: string
+    consoleEndpoint: string
+    consoleKey: string
+    consoleSend: string
+    consoleSending: string
+    consoleNote: string
+    consoleStatus: string
+    consoleResult: string
+    consoleNoKey: string
+    consoleNotNeeded: string
+    consoleUnauthorized: string
+    consoleFailed: string
     postmanDesc: string
     privacyWarn: string
   }
@@ -3241,6 +3254,19 @@ const id: Dictionary = {
     docsDesc: "Daftar alamat, contoh permintaan, dan cara memeriksa tanda tangan webhook.",
     openDocs: "Buka petunjuk",
     postman: "Koleksi Postman",
+    consoleTitle: "Coba API dari sini",
+    consoleDesc: "Pilih alamatnya, tempel kunci Anda, lalu kirim. Tanpa Terminal dan tanpa memasang apa pun.",
+    consoleEndpoint: "Alamat",
+    consoleKey: "Kunci API",
+    consoleSend: "Kirim",
+    consoleSending: "Mengirim…",
+    consoleNote: "Kunci yang Anda tempel tidak disimpan di mana pun. Ia hilang begitu halaman ini ditutup.",
+    consoleStatus: "Jawaban {kode}",
+    consoleResult: "Jawaban dari API",
+    consoleNoKey: "tanpa kunci",
+    consoleNotNeeded: "tidak perlu kunci",
+    consoleUnauthorized: "kuncinya salah atau sudah dicabut",
+    consoleFailed: "Permintaannya gagal dikirim.",
     postmanDesc: "Berkas untuk diimpor ke Postman. Tim IT pelanggan cukup mengisi kuncinya sendiri, lalu bisa langsung mencoba semua permintaan.",
     privacyWarn:
       "Webhook mengirim nama dan email peserta ke alamat yang Anda daftarkan. Pastikan alamatnya milik organisasi Anda.",
@@ -4931,6 +4957,19 @@ const en: Dictionary = {
     docsDesc: "Endpoint list, example requests, and how to check a webhook signature.",
     openDocs: "Open the guide",
     postman: "Postman collection",
+    consoleTitle: "Try the API here",
+    consoleDesc: "Pick an address, paste your key, then send. No terminal and nothing to install.",
+    consoleEndpoint: "Address",
+    consoleKey: "API key",
+    consoleSend: "Send",
+    consoleSending: "Sending…",
+    consoleNote: "The key you paste is not stored anywhere. It is gone once this page is closed.",
+    consoleStatus: "Response {kode}",
+    consoleResult: "Response from the API",
+    consoleNoKey: "no key needed",
+    consoleNotNeeded: "no key needed",
+    consoleUnauthorized: "the key is wrong or has been revoked",
+    consoleFailed: "The request could not be sent.",
     postmanDesc: "A file to import into Postman. The customer IT team only fills in their own key, then can try every request.",
     privacyWarn:
       "Webhooks send learner names and emails to the address you register. Make sure it belongs to your organisation.",
