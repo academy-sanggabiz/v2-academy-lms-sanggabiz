@@ -1,4 +1,5 @@
 import { KEJADIAN_WEBHOOK } from "@/lib/api-keys"
+import { KATALOG_API, type Operasi } from "@/lib/api-katalog"
 
 /**
  * Koleksi Postman untuk API Sanggabiz.
@@ -8,42 +9,43 @@ import { KEJADIAN_WEBHOOK } from "@/lib/api-keys"
  * bagi tim IT pelanggan, dan koleksi yang menunjuk produksi tidak berguna
  * saat menguji di pratinjau.
  *
+ * Daftar endpoint-nya TIDAK lagi ditulis di sini. Ia dibaca dari
+ * lib/api-katalog, yang juga dibaca pembuat dokumentasi OpenAPI -- supaya
+ * Swagger dan Postman tidak bisa menjelaskan API yang berbeda. Lihat komentar
+ * di kepala berkas itu.
+ *
  * Kuncinya TIDAK pernah ikut di dalam berkas. Ia variabel koleksi yang kosong
  * (`apiKey`), diisi sendiri oleh yang memakainya. Menyematkan kunci ke dalam
  * berkas yang lalu dikirim lewat surel dan disimpan di repositori pelanggan
  * adalah cara paling mudah membocorkannya.
  */
 export function koleksiPostman(dasar: string) {
-  const minta = (
-    nama: string,
-    metode: "GET" | "POST",
-    jalur: string,
-    keterangan: string,
-    kueri: { key: string; value: string; description: string; disabled?: boolean }[] = [],
-    badan?: Record<string, string>
-  ) => ({
-    name: nama,
+  const permintaan = (op: Operasi) => ({
+    name: op.nama,
     request: {
-      method: metode,
+      method: op.metode,
       header: [
         { key: "Authorization", value: "Bearer {{apiKey}}" },
-        ...(badan ? [{ key: "Content-Type", value: "application/json" }] : []),
+        ...(op.badan ? [{ key: "Content-Type", value: "application/json" }] : []),
       ],
-      ...(badan ? { body: { mode: "raw", raw: JSON.stringify(badan, null, 2) } } : {}),
+      ...(op.badan ? { body: { mode: "raw", raw: JSON.stringify(op.badan.contoh, null, 2) } } : {}),
       url: {
-        raw: `{{baseUrl}}${jalur}`,
+        raw: `{{baseUrl}}${op.jalur}`,
         host: ["{{baseUrl}}"],
-        path: jalur.replace(/^\//, "").split("/"),
-        query: kueri.map((q) => ({ ...q, disabled: q.disabled ?? true })),
+        path: op.jalur.replace(/^\//, "").split("/"),
+        // Parameter saringan dimatikan secara bawaan: koleksi yang langsung
+        // mengirim `email=` kosong menyaring ke nol baris, dan orang yang
+        // baru pertama membukanya menyimpulkan API-nya kosong.
+        query: (op.kueri ?? []).map((q) => ({
+          key: q.nama,
+          value: q.contoh,
+          description: q.keterangan,
+          disabled: !q.selaluAktif,
+        })),
       },
-      description: keterangan,
+      description: op.keterangan,
     },
   })
-
-  const halaman = [
-    { key: "limit", value: "50", description: "Jumlah baris per halaman, maksimal 200." },
-    { key: "offset", value: "0", description: "Baris yang dilewati, untuk halaman berikutnya." },
-  ]
 
   return {
     info: {
@@ -70,73 +72,6 @@ export function koleksiPostman(dasar: string) {
       { key: "baseUrl", value: dasar, type: "string" },
       { key: "apiKey", value: "", type: "string" },
     ],
-    item: [
-      minta(
-        "Daftar kursus",
-        "GET",
-        "/api/v1/courses",
-        "Kursus yang terbit. Kursus privat dan draf tidak ikut.",
-        halaman
-      ),
-      minta(
-        "Daftar peserta",
-        "GET",
-        "/api/v1/learners",
-        "Peserta beserta id karyawan, departemen, dan jabatannya bila sudah diisi.",
-        [
-          ...halaman,
-          { key: "email", value: "", description: "Saring berdasarkan alamat surel." },
-          { key: "externalId", value: "", description: "Saring berdasarkan id karyawan dari sistem Anda." },
-        ]
-      ),
-      minta(
-        "Daftar pendaftaran, kemajuan, dan nilai",
-        "GET",
-        "/api/v1/enrollments",
-        [
-          "Siapa mengikuti kursus apa, sudah sampai mana, dan nilainya berapa.",
-          "",
-          "grade            nilai akhir 0-100, atau null bila kursusnya tidak punya",
-          "                 kuis yang dinilai.",
-          "quizzesAttempted berapa kuis yang sudah dikerjakan peserta.",
-          "quizzesTotal     berapa kuis yang menentukan nilai di kursus itu.",
-          "gradePending     berapa jawaban esai yang masih menunggu dinilai pengajar.",
-          "                 Selama ini di atas nol, nilainya masih bisa naik.",
-          "",
-          "BACA grade BERSAMA quizzesAttempted. Nilai 0 dengan quizzesAttempted 0",
-          "berarti pesertanya BELUM MULAI, bukan gagal. Nilai 0 dengan",
-          "quizzesAttempted penuh berarti benar-benar gagal. Dasbor yang hanya",
-          "membaca grade akan melaporkan orang yang belum mulai sebagai orang",
-          "yang gagal.",
-        ].join("\n"),
-        [
-          ...halaman,
-          { key: "learnerId", value: "", description: "Saring satu peserta." },
-          { key: "courseId", value: "", description: "Saring satu kursus." },
-          { key: "status", value: "completed", description: "active atau completed." },
-        ]
-      ),
-      minta(
-        "Daftarkan peserta ke kursus",
-        "POST",
-        "/api/v1/enrollments",
-        [
-          "Memerlukan kunci berlingkup write.",
-          "",
-          "Peserta yang belum punya akun TIDAK dibuatkan otomatis: alamat yang",
-          "tidak dikenal dijawab 404. Satu salah ketik tidak boleh memunculkan",
-          "orang dengan riwayat belajar yang tidak bisa diklaim siapa pun.",
-        ].join("\n"),
-        [],
-        { learnerEmail: "peserta@perusahaan.co.id", courseId: "<id kursus>" }
-      ),
-      minta(
-        "Daftar sertifikat",
-        "GET",
-        "/api/v1/certificates",
-        "Sertifikat yang sudah terbit, beserta nomor serinya.",
-        halaman
-      ),
-    ],
+    item: KATALOG_API.map(permintaan),
   }
 }

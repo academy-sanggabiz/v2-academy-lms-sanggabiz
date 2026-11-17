@@ -17,6 +17,11 @@ const eslintConfig = defineConfig([
     // deploy membuat `npm run lint` melaporkan ribuan galat dari kode yang
     // bukan milik kita.
     ".vercel/**",
+    // Swagger UI, disalin dari node_modules oleh scripts/salin-swagger.mjs.
+    // Alasannya sama dengan .vercel di atas: ini kode pihak ketiga yang sudah
+    // dikompilasi, dan tanpa baris ini `npm run lint` melaporkan ribuan galat
+    // dari berkas yang tidak kita tulis dan tidak bisa kita perbaiki.
+    "public/swagger/**",
   ]),
 ]);
 
