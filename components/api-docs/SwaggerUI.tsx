@@ -116,6 +116,21 @@ export function SwaggerUI({ spekUrl }: { spekUrl: string }) {
        * semua blok kode menambah perhentian Tab yang tidak ada gunanya.
        */
       /*
+       * Daftar pilihan parameter diberi NAMA.
+       *
+       * Begitu sebuah parameter punya daftar nilai sah (`status`), Swagger
+       * menggantinya dari kotak teks menjadi <select> -- tanpa label apa pun
+       * (axe: select-name, KRITIS). Bagi pembaca layar ia daftar pilihan
+       * yang tidak diketahui untuk apa. Namanya diambil dari nama parameter
+       * yang sudah tertulis di baris yang sama.
+       */
+      for (const pilih of document.querySelectorAll("tr[data-param-name] select")) {
+        if (pilih.getAttribute("aria-label")) continue
+        const nama = pilih.closest("tr")?.getAttribute("data-param-name")
+        if (nama) pilih.setAttribute("aria-label", `Nilai untuk parameter ${nama}`)
+      }
+
+      /*
        * Tabel jawaban tiap operasi diberi NAMA.
        *
        * Swagger memasang role="region" pada tabel itu tanpa label apa pun.

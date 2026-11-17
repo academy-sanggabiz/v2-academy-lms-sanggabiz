@@ -36,6 +36,25 @@ export type ParameterKueri = {
   nama: string
   contoh: string
   keterangan: string
+  /**
+   * Tipe nilainya. WAJIB diisi dengan benar, bukan dibiarkan "string" untuk
+   * semuanya.
+   *
+   * Versi pertama katalog ini menandai SETIAP parameter sebagai string.
+   * Akibatnya Swagger menggambar kotak teks bebas untuk `offset`, dan ketika
+   * pemilik mengetik "digital" di sana -- mengira itu pencarian -- kotak itu
+   * menerimanya tanpa keberatan apa pun, mengirimkannya, lalu server
+   * membacanya sebagai 0 dan mengembalikan halaman pertama seperti biasa.
+   * Yang salah bukan orangnya: layarnya memang tidak pernah memberi tahu
+   * bahwa isian itu harus angka.
+   */
+  tipe?: "string" | "integer"
+  minimum?: number
+  maximum?: number
+  /** Nilai yang sah, bila memang terbatas. Swagger menggambarnya sebagai
+   *  daftar pilihan, bukan kotak teks. */
+  pilihan?: string[]
+  format?: string
   /** Ditandai di Postman sebagai baris yang aktif, bukan yang dimatikan. */
   selaluAktif?: boolean
 }
@@ -64,8 +83,22 @@ export type Operasi = {
 }
 
 const HALAMAN: ParameterKueri[] = [
-  { nama: "limit", contoh: "50", keterangan: "Jumlah baris per halaman, maksimal 200." },
-  { nama: "offset", contoh: "0", keterangan: "Baris yang dilewati, untuk halaman berikutnya." },
+  {
+    nama: "limit",
+    contoh: "50",
+    tipe: "integer",
+    minimum: 1,
+    maximum: 200,
+    keterangan: "Jumlah baris per halaman, maksimal 200.",
+  },
+  {
+    nama: "offset",
+    contoh: "0",
+    tipe: "integer",
+    minimum: 0,
+    keterangan:
+      "Berapa baris yang DILEWATI sebelum mulai menghitung -- ini penomoran halaman, bukan pencarian. Dengan limit 20, halaman kedua adalah offset 20. Tidak ada penyaringan kata kunci di endpoint ini.",
+  },
 ]
 
 const RUAS_KURSUS: RuasJawaban[] = [
@@ -182,8 +215,8 @@ export const KATALOG_API: Operasi[] = [
     lingkup: "read",
     kueri: [
       ...HALAMAN,
-      { nama: "email", contoh: "", keterangan: "Saring berdasarkan alamat surel." },
-      { nama: "externalId", contoh: "", keterangan: "Saring berdasarkan id karyawan dari sistem Anda." },
+      { nama: "email", contoh: "", format: "email", keterangan: "Saring berdasarkan alamat surel. Harus sama persis, bukan sebagian." },
+      { nama: "externalId", contoh: "", keterangan: "Saring berdasarkan id karyawan dari sistem Anda. Harus sama persis." },
     ],
     ruas: RUAS_PESERTA,
     amplop: "halaman",
@@ -202,9 +235,9 @@ export const KATALOG_API: Operasi[] = [
     lingkup: "read",
     kueri: [
       ...HALAMAN,
-      { nama: "learnerId", contoh: "", keterangan: "Saring satu peserta." },
-      { nama: "courseId", contoh: "", keterangan: "Saring satu kursus." },
-      { nama: "status", contoh: "completed", keterangan: "active atau completed." },
+      { nama: "learnerId", contoh: "", format: "uuid", keterangan: "Saring satu peserta, memakai id dari /api/v1/learners." },
+      { nama: "courseId", contoh: "", format: "uuid", keterangan: "Saring satu kursus, memakai id dari /api/v1/courses." },
+      { nama: "status", contoh: "completed", pilihan: ["active", "completed"], keterangan: "Saring berdasarkan status pendaftaran." },
     ],
     ruas: RUAS_PENDAFTARAN,
     amplop: "halaman",
