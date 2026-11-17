@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { after } from "next/server"
 
 import { galat, halaman, jagaApi, jawab } from "@/lib/api-v1"
+import { hitungNilaiBorongan } from "@/lib/course-grade-batch"
 import { kirimAntrean } from "@/lib/webhook-kirim"
 
 /**
@@ -83,10 +84,26 @@ export async function GET(request: Request) {
     totalPer.set(s.course_id, (totalPer.get(s.course_id) ?? 0) + 1)
   }
 
+  /*
+    Nilai dihitung untuk seluruh halaman dalam dua kueri, bukan per baris.
+    Satu halaman bisa memuat dua ratus pendaftaran dari banyak kursus; memanggil
+    penghitung satu-peserta per baris berarti empat ratus kueri untuk satu
+    permintaan.
+
+    Rumusnya tetap `computeCourseGrade()` yang sama dengan yang dilihat peserta
+    di layarnya dan admin di matriks penilaian. Angka berbeda untuk hal yang
+    sama adalah cacat yang paling sulit dipercaya ketika ditemukan klien.
+  */
+  const nilai = await hitungNilaiBorongan(
+    admin,
+    baris.map((e) => ({ learnerId: e.learner_id, courseId: e.course_id }))
+  )
+
   return jawab(
     baris.map((e) => {
       const total = totalPer.get(e.course_id) ?? 0
       const selesai = selesaiPer.get(e.id) ?? 0
+      const n = nilai.get(`${e.learner_id}:${e.course_id}`) ?? null
       return {
         id: e.id,
         learnerId: e.learner_id,
@@ -97,6 +114,18 @@ export async function GET(request: Request) {
         lessonsCompleted: selesai,
         lessonsTotal: total,
         progressPercent: total > 0 ? Math.round((selesai / total) * 100) : 0,
+        // null bila kursusnya tidak punya kuis yang dinilai. Nol akan terbaca
+        // sebagai "pesertanya gagal total", dan itu tuduhan yang salah.
+        grade: n ? n.grade : null,
+        // Berapa soal esai/studi kasus yang masih menunggu dinilai pengajar.
+        // Tanpa ini klien tidak bisa membedakan nilai yang sudah final dari
+        // nilai sementara yang masih akan naik.
+        gradePending: n ? n.pendingCount : 0,
+        // Dua angka ini yang membuat `grade` bisa dibaca dengan benar:
+        // nilai 0 dengan quizzesAttempted 0 berarti BELUM MULAI, sedangkan
+        // nilai 0 dengan quizzesAttempted penuh berarti benar-benar gagal.
+        quizzesTotal: n ? n.kuisTotal : 0,
+        quizzesAttempted: n ? n.kuisDikerjakan : 0,
       }
     }),
     h,

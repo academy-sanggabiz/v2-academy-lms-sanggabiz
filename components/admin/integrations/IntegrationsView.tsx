@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import Link from "next/link"
-import { Copy, ExternalLink, Plus, Trash2 } from "lucide-react"
+import { Copy, ExternalLink, Plus, Trash2, Download } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -101,12 +101,29 @@ export function IntegrationsView({ data }: { data: Integrasi }) {
         <CardContent>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="text-lg font-bold">{t.integrasi.docsTitle}</h2>
-            <Button variant="outline" size="sm" render={<Link href="/admin/integrations/petunjuk" />} nativeButton={false}>
-              <ExternalLink className="size-4" aria-hidden />
-              {t.integrasi.openDocs}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" render={<Link href="/admin/integrations/petunjuk" />} nativeButton={false}>
+                <ExternalLink className="size-4" aria-hidden />
+                {t.integrasi.openDocs}
+              </Button>
+              {/*
+                Koleksi Postman: tim IT pelanggan bisa mencobanya sendiri tanpa
+                menulis satu baris kode. Kuncinya TIDAK ada di dalam berkas --
+                mereka mengisinya sendiri di tab Variables.
+              */}
+              <Button
+                variant="outline"
+                size="sm"
+                render={<a href="/admin/integrations/postman" download />}
+                nativeButton={false}
+              >
+                <Download className="size-4" aria-hidden />
+                {t.integrasi.postman}
+              </Button>
+            </div>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">{t.integrasi.docsDesc}</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">{t.integrasi.postmanDesc}</p>
         </CardContent>
       </Card>
 
