@@ -17,7 +17,7 @@ export type PreviewData = {
   courses: CourseCardData[]
   testimonials: LandingTestimonial[]
   totals: PlatformTotals
-  categories: { category: Category; count: number }[]
+  categories: { category: Category; count: number; lessons: number }[]
   instructors: Instructor[]
   theme: LandingTheme
 }

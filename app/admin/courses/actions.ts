@@ -1,6 +1,6 @@
 "use server"
 
-import { createCategory } from "@/lib/categories-server"
+import { createCategory, updateCategory } from "@/lib/categories-server"
 import type { Category } from "@/lib/courses"
 import { revalidatePath } from "next/cache"
 
@@ -154,6 +154,31 @@ export async function createCategoryAction(name: string): Promise<ActionResult<C
   if ("error" in result) return { ok: false, error: result.error }
 
   revalidatePath("/kelas")
+  return { ok: true, data: result.category }
+}
+
+/**
+ * Menyimpan gambar dan keterangan satu kategori.
+ *
+ * Berlaku SEKETIKA, tidak ikut draf halaman depan: kategori juga dipakai
+ * saringan katalog `/kelas`, dan menundanya sampai halaman depan diterbitkan
+ * akan membuat dua layar menampilkan kategori yang sama dengan wajah berbeda.
+ */
+export async function updateCategoryAction(
+  id: string,
+  patch: { image_url?: string | null; description?: string | null }
+): Promise<ActionResult<Category>> {
+  try {
+    await requireAdmin()
+  } catch {
+    return { ok: false, error: "Anda tidak berwenang" }
+  }
+
+  const result = await updateCategory(id, patch)
+  if ("error" in result) return { ok: false, error: result.error }
+
+  revalidatePath("/kelas")
+  revalidatePath("/")
   return { ok: true, data: result.category }
 }
 

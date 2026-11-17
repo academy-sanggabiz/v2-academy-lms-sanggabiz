@@ -42,6 +42,9 @@ import {
 import { LivePreview, type PreviewData } from "./LivePreview";
 import { dndAnnouncements } from "@/lib/dnd-announcements";
 import { ImageDropzone } from "@/components/admin/courses/ImageDropzone";
+import { StatusMessage } from "@/components/ui/status-message";
+import { updateCategoryAction } from "@/app/admin/courses/actions";
+import type { Category } from "@/lib/courses";
 import { BulkImageDropzone, type UploadedImage } from "./BulkImageDropzone";
 import { uploadLandingImage } from "@/lib/storage";
 import { Label } from "@/components/ui/label";
@@ -468,6 +471,7 @@ export function BlockEditor({
                   onPatch={(changes) => patch(terpilih.id, changes)}
                   disabled={pending}
                   availableCourses={availableCourses}
+                  categories={previewData.categories.map((c) => c.category)}
                 />
               </div>
             ) : (
@@ -659,11 +663,14 @@ function Field({
   label,
   value,
   onChange,
+  onBlur,
   disabled,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  /** Dipakai isian yang menyimpan sendiri, bukan lewat draf halaman. */
+  onBlur?: () => void;
   disabled: boolean;
 }) {
   // useId, bukan Math.random(): id yang berbeda antara render server dan
@@ -678,6 +685,7 @@ function Field({
         value={value}
         disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
       />
     </div>
   );
@@ -688,11 +696,14 @@ function BlockFields({
   onPatch,
   disabled,
   availableCourses,
+  categories,
 }: {
   block: LandingBlock;
   onPatch: (changes: Partial<LandingBlock>) => void;
   disabled: boolean;
   availableCourses: PickableCourse[];
+  /** Kategori yang benar-benar punya kelas terbit; itu yang tampil di kartu. */
+  categories: Category[];
 }) {
   const { t } = useI18n();
   switch (block.type) {
@@ -900,6 +911,9 @@ function BlockFields({
           <p className="text-xs text-muted-foreground sm:col-span-2">
             {t.superadmin.categoriesNote}
           </p>
+          <div className="sm:col-span-2">
+            <KategoriEditor categories={categories} disabled={disabled} />
+          </div>
         </div>
       );
 
@@ -2067,6 +2081,84 @@ function ItemList<T>({
         <Plus className="size-4" aria-hidden />
         {addLabel}
       </Button>
+    </div>
+  );
+}
+
+/**
+ * Gambar dan keterangan tiap bidang minat.
+ *
+ * Disunting dari sini, bukan dari layar tersendiri: menu pengelola sudah
+ * tiga belas entri, dan kartu-kartu ini hanya muncul di satu tempat -- blok
+ * yang sedang dibuka. Menyuntingnya sambil melihat pratinjaunya lebih baik
+ * daripada berpindah layar untuk mengisi data yang hasilnya ada di sini.
+ *
+ * TIDAK ikut draf, dan itu disebutkan di layar. Kategori adalah data bersama
+ * yang juga dipakai saringan katalog `/kelas`; menahannya sampai halaman
+ * depan diterbitkan akan membuat dua layar menampilkan kategori yang sama
+ * dengan wajah berbeda.
+ */
+function KategoriEditor({
+  categories,
+  disabled,
+}: {
+  categories: Category[];
+  disabled: boolean;
+}) {
+  const { t } = useI18n();
+  const [daftar, setDaftar] = useState(categories);
+  const [sibukId, setSibukId] = useState<string | null>(null);
+  const [galat, setGalat] = useState("");
+
+  async function simpan(id: string, patch: { image_url?: string | null; description?: string | null }) {
+    setSibukId(id);
+    setGalat("");
+    const hasil = await updateCategoryAction(id, patch);
+    setSibukId(null);
+    if (!hasil.ok) {
+      setGalat(hasil.error);
+      return;
+    }
+    setDaftar((lama) => lama.map((k) => (k.id === id ? hasil.data : k)));
+  }
+
+  if (daftar.length === 0) return null;
+
+  return (
+    <div className="mt-2 space-y-3 rounded-xl border border-border p-4">
+      <div>
+        <h4 className="text-sm font-semibold">{t.superadmin.categoryCards}</h4>
+        <p className="mt-0.5 text-xs text-muted-foreground">{t.superadmin.categoryCardsNote}</p>
+      </div>
+      <StatusMessage>{galat}</StatusMessage>
+
+      {daftar.map((k) => (
+        <div key={k.id} className="grid gap-3 rounded-lg bg-muted/30 p-3 sm:grid-cols-[11rem_1fr]">
+          <ImageDropzone
+            value={k.image_url}
+            onChange={(url) => simpan(k.id, { image_url: url })}
+            uploadFn={uploadLandingImage}
+            label={k.name}
+            hint={t.superadmin.categoryImageHint}
+          />
+          <div className="space-y-1.5">
+            <Field
+              label={t.superadmin.categoryDescription}
+              value={k.description ?? ""}
+              disabled={disabled || sibukId === k.id}
+              onChange={(description) => {
+                setDaftar((lama) =>
+                  lama.map((x) => (x.id === k.id ? { ...x, description } : x))
+                );
+              }}
+              onBlur={() => simpan(k.id, { description: k.description ?? "" })}
+            />
+            <p className="text-xs text-muted-foreground">
+              {sibukId === k.id ? t.superadmin.categorySaving : t.superadmin.categoryDescriptionHint}
+            </p>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

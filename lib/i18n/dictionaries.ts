@@ -1032,6 +1032,12 @@ export type Dictionary = {
     deleteLogoN: string
     logoNameRequired: string
     categoriesNote: string
+    categoryCards: string
+    categoryCardsNote: string
+    categoryImageHint: string
+    categoryDescription: string
+    categoryDescriptionHint: string
+    categorySaving: string
     instructorsNote: string
     statLearners: string
     statCourses: string
@@ -1200,6 +1206,7 @@ export type Dictionary = {
     /** `{n}` jumlah kelas. */
     categoryCourses: string
     categoryCoursesOne: string
+    categoryLessons: string
     allLevels: string
     levelNotSet: string
     filterAccess: string
@@ -2703,6 +2710,12 @@ const id: Dictionary = {
     deleteLogoN: "Hapus mitra {n}",
     logoNameRequired: "Nama mitra wajib diisi; logonya boleh kosong.",
     categoriesNote: "Kategori dan jumlah kelasnya dibaca dari basis data. Yang kosong tidak ditampilkan.",
+    categoryCards: "Gambar dan keterangan tiap bidang",
+    categoryCardsNote: "Perubahan di sini langsung berlaku, tidak menunggu Terbitkan. Bidang ini juga dipakai saringan di halaman katalog.",
+    categoryImageHint: "Gambar kartu. Format JPG atau PNG, maksimal 5 MB.",
+    categoryDescription: "Keterangan singkat",
+    categoryDescriptionHint: "Satu kalimat tentang isi bidang ini. Maksimal 160 karakter.",
+    categorySaving: "Menyimpan…",
     instructorsNote: "Daftar pengajar dibaca dari basis data. Tambahkan pengajar dari editor kursus.",
     statLearners: "Peserta terdaftar",
     statCourses: "Kelas terbit",
@@ -2867,6 +2880,7 @@ const id: Dictionary = {
     allCategories: "Semua kategori",
     categoryCourses: "{n} kelas",
     categoryCoursesOne: "{n} kelas",
+    categoryLessons: "{n} materi",
     allLevels: "Semua tingkat",
     levelNotSet: "Belum diisi",
     filterAccess: "Akses",
@@ -4383,6 +4397,12 @@ const en: Dictionary = {
     deleteLogoN: "Delete partner {n}",
     logoNameRequired: "The partner name is required; the logo is optional.",
     categoriesNote: "Categories and their class counts are read from the database. Empty ones are not shown.",
+    categoryCards: "Image and description for each field",
+    categoryCardsNote: "Changes here apply immediately, without waiting for Publish. These fields are also used by the catalogue filter.",
+    categoryImageHint: "Card image. JPG or PNG, 5 MB at most.",
+    categoryDescription: "Short description",
+    categoryDescriptionHint: "One sentence about what this field covers. 160 characters at most.",
+    categorySaving: "Saving…",
     instructorsNote: "The instructor list is read from the database. Add instructors from the course editor.",
     statLearners: "Registered learners",
     statCourses: "Published classes",
@@ -4547,6 +4567,7 @@ const en: Dictionary = {
     allCategories: "All categories",
     categoryCourses: "{n} classes",
     categoryCoursesOne: "{n} class",
+    categoryLessons: "{n} lessons",
     allLevels: "All levels",
     levelNotSet: "Not set",
     filterAccess: "Access",

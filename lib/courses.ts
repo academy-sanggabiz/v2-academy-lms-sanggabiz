@@ -3,6 +3,10 @@ export type Category = {
   id: string
   name: string
   slug: string
+  /** Gambar kartu bidang minat di halaman depan; null bila belum diisi. */
+  image_url: string | null
+  /** Satu kalimat tentang isi bidang ini; null bila belum diisi. */
+  description: string | null
 }
 
 /**
