@@ -13,6 +13,7 @@ import { StatusMessage } from "@/components/ui/status-message"
 import { useI18n } from "@/components/i18n/LocaleProvider"
 import { KEJADIAN_WEBHOOK, type Lingkup } from "@/lib/api-keys"
 import type { Integrasi } from "@/lib/integrations-server"
+import { ApiConsole } from "@/components/admin/integrations/ApiConsole"
 import {
   buatEndpointAction,
   buatKunciAction,
@@ -96,6 +97,18 @@ export function IntegrationsView({ data }: { data: Integrasi }) {
       <p className="mt-1 text-sm text-muted-foreground">{t.integrasi.subtitle}</p>
 
       <StatusMessage className="mt-3">{galat}</StatusMessage>
+
+      {/*
+        Konsol diletakkan DI ATAS kartu petunjuk: orang yang baru membuat
+        kunci ingin segera melihat kunci itu bekerja, bukan membaca dulu.
+      */}
+      <Card className="mt-6">
+        <CardContent>
+          <h2 className="text-lg font-bold">{t.integrasi.consoleTitle}</h2>
+          <p className="mt-1 mb-4 text-sm text-muted-foreground">{t.integrasi.consoleDesc}</p>
+          <ApiConsole />
+        </CardContent>
+      </Card>
 
       <Card className="mt-6">
         <CardContent>
