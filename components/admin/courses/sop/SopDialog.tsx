@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useRef, useState, useTransition } from "react"
-import { Download, Plus, Sparkles, Trash2, Upload, UploadCloud } from "lucide-react"
+import { useEffect, useRef, useState, useSyncExternalStore, useTransition } from "react"
+import { ArrowRight, Download, Plus, Sparkles, Trash2, Upload, UploadCloud } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { Spinner } from "@/components/ui/spinner"
 import { StatusMessage } from "@/components/ui/status-message"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/components/i18n/LocaleProvider"
@@ -50,6 +51,34 @@ type Diimpor = Pick<
   CourseDraft,
   "title" | "description" | "requirementsText" | "audienceText" | "level" | "passingGrade" | "sections"
 >
+
+/*
+ * Jam untuk penghitung "sudah berjalan".
+ *
+ * useSyncExternalStore, bukan efek + setState: waktu adalah sumber di luar
+ * React, dan React Compiler menolak setState di dalam efek (aturan yang sama
+ * dengan ConsentNudge). Snapshot server dikunci 0 supaya tidak ada
+ * ketidakcocokan hidrasi.
+ *
+ * Kedua fungsi langganan ini WAJIB di lingkup modul: kalau dibuat ulang tiap
+ * render, React berhenti dan berlangganan lagi tiap render juga.
+ */
+function berlanggananDetik(ubah: () => void) {
+  const id = setInterval(ubah, 1000)
+  return () => clearInterval(id)
+}
+/** Dipakai saat tidak ada yang berjalan -- satu detak per detik untuk setiap
+ *  admin yang membuka editor kursus terlalu mahal untuk sesuatu yang tidak
+ *  sedang ditampilkan. */
+function tanpaJam() {
+  return () => {}
+}
+const detikSekarang = () => Math.floor(Date.now() / 1000)
+
+/** "1:07". Bukan kalimat, jadi tidak perlu penjamakan di dua bahasa. */
+function jamHenti(detik: number): string {
+  return `${Math.floor(detik / 60)}:${String(detik % 60).padStart(2, "0")}`
+}
 
 /**
  * Membuat kursus dari dokumen, dengan AI.
@@ -85,6 +114,7 @@ export function SopDialog({
   aiAktif,
   openOnMount = false,
   onImported,
+  onBukaHasil,
 }: {
   courseId: string
   canImport: boolean
@@ -96,6 +126,11 @@ export function SopDialog({
    *  daftar kursus. Pola yang sama dengan CourseMarkdownDialog. */
   openOnMount?: boolean
   onImported: (patch: Diimpor) => void
+  /** Jalan keluar sesudah selesai: menutup dialog dan membawa layar ke tempat
+   *  hasilnya berada. Wajib, bukan opsional -- tombolnya menjanjikan
+   *  perpindahan ke tab Pelajaran, dan janji itu harus diperiksa pengetikan,
+   *  bukan diam-diam tidak terjadi. */
+  onBukaHasil: () => void
 }) {
   const { t } = useI18n()
   const [open, setOpen] = useState(openOnMount)
@@ -141,6 +176,26 @@ export function SopDialog({
    * bernilai seperti saat gelung dimulai.
    */
   const jeda = useRef(false)
+
+  /*
+   * Penghitung waktu penulisan.
+   *
+   * Ada karena satu keluhan: pada kursus satu modul, batangnya diam di 0%
+   * selama satu menit penuh lalu langsung selesai -- layarnya tampak
+   * menggantung. Angka modul tidak boleh dikarang (lihat butir 2 di atas),
+   * jadi yang ditambahkan bukan persen palsu melainkan satu-satunya besaran
+   * yang memang terukur: berapa lama ini sudah berjalan.
+   *
+   * Ini juga penanda "masih hidup" yang tidak bergantung pada gerak: di bawah
+   * prefers-reduced-motion semua animasi dibekukan, dan angka yang bertambah
+   * tetap terbaca (STANDAR-UMPAN-BALIK-UI.md R5).
+   */
+  const [mulaiTulis, setMulaiTulis] = useState<number | null>(null)
+  const detik = useSyncExternalStore(
+    sibuk === "menulis" ? berlanggananDetik : tanpaJam,
+    detikSekarang,
+    () => 0
+  )
 
   /*
    * Menanyakan pekerjaan yang tertinggal, sekali saat dialog pertama dibuka.
@@ -261,6 +316,7 @@ export function SopDialog({
     if (!pekerjaan) return
     setGalat(null)
     jeda.current = false
+    setMulaiTulis(Date.now())
     setSibuk("menulis")
 
     startTransition(async () => {
@@ -293,6 +349,7 @@ export function SopDialog({
     setTawaran(null)
     pakaiKerangka(p)
     if (p.tahap === "selesai") {
+      setMulaiTulis(Date.now())
       setSibuk("menulis")
       startTransition(async () => {
         const hasil = await ambilHasilPekerjaan(courseId, p.id)
@@ -358,6 +415,20 @@ export function SopDialog({
     pekerjaan && pekerjaan.modulTotal > 0
       ? Math.round((pekerjaan.modulSelesai / pekerjaan.modulTotal) * 100)
       : 0
+  /*
+   * Lebar satu modul yang sedang ditulis: ruas berdenyut tepat selebar SATU
+   * modul di depan bagian padat. Yang dinyatakannya hanya "modul ini sedang
+   * dikerjakan" -- bukan sudah berapa jauh di dalamnya, karena memang tidak
+   * ada yang mengukurnya. Dibatasi sisa ruang supaya pada satu render di
+   * antara modul terakhir selesai dan laporan muncul, batangnya tidak
+   * melewati 100%.
+   */
+  const lebarModulBerjalan =
+    pekerjaan && pekerjaan.modulTotal > 0
+      ? Math.max(0, Math.min(100 - persen, Math.round(100 / pekerjaan.modulTotal)))
+      : 0
+  const lamaTulis =
+    mulaiTulis === null ? 0 : Math.max(0, detik - Math.floor(mulaiTulis / 1000))
 
   function ukuran(b: number): string {
     return b < 1024 * 1024 ? `${Math.round(b / 1024)} KB` : `${(b / 1024 / 1024).toFixed(1)} MB`
@@ -544,9 +615,18 @@ export function SopDialog({
                   aria-valuemin={0}
                   aria-valuemax={pekerjaan.modulTotal}
                   aria-valuenow={pekerjaan.modulSelesai}
-                  className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary"
+                  className="mt-2 flex h-1.5 overflow-hidden rounded-full bg-secondary"
                 >
-                  <div className="h-full bg-brand-gradient" style={{ width: `${persen}%` }} />
+                  <div
+                    className="h-full bg-brand-gradient transition-[width] duration-500"
+                    style={{ width: `${persen}%` }}
+                  />
+                  {sedangMenulis && (
+                    <div
+                      className="h-full animate-pulse bg-brand-gradient opacity-40"
+                      style={{ width: `${lebarModulBerjalan}%` }}
+                    />
+                  )}
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {sedangMenulis
@@ -557,13 +637,30 @@ export function SopDialog({
                     : t.sop.paused
                         .replace("{n}", String(pekerjaan.modulSelesai))
                         .replace("{total}", String(pekerjaan.modulTotal))}
+                  {sedangMenulis && mulaiTulis !== null && (
+                    <span className="tabular-nums">
+                      {" \u00b7 "}
+                      {t.sop.elapsed.replace("{waktu}", jamHenti(lamaTulis))}
+                    </span>
+                  )}
                 </p>
                 <ul className="mt-2.5 space-y-1 text-sm">
                   <li className="text-muted-foreground">✓ {t.sop.stageDoc}</li>
                   <li className="text-muted-foreground">
                     ✓ {t.sop.stageOutline.replace("{n}", String(pekerjaan.modulTotal))}
                   </li>
-                  <li className="text-muted-foreground">· {t.sop.stageWriting}</li>
+                  {/* Centang untuk yang sudah lewat, putaran untuk yang sedang
+                      jalan. Ikonnya tidak pernah sendirian -- ia membeku di
+                      bawah prefers-reduced-motion, dan yang membawa kabarnya
+                      tetap teksnya (lihat components/ui/spinner.tsx). */}
+                  <li className="flex items-center gap-1.5 text-muted-foreground">
+                    {sedangMenulis ? (
+                      <Spinner className="size-3.5 shrink-0" />
+                    ) : (
+                      <span aria-hidden>·</span>
+                    )}
+                    {t.sop.stageWriting}
+                  </li>
                 </ul>
                 {sedangMenulis ? (
                   <div className="mt-3 flex flex-wrap items-center gap-2.5">
@@ -828,6 +925,28 @@ export function SopDialog({
                 {/* Peringatan yang sama dibawa setiap keluaran AI di aplikasi
                     ini (lihat discussAiNote dan assistantAiNote). */}
                 <p className="mt-1 text-xs text-muted-foreground">{t.sop.aiNote}</p>
+                {/*
+                  * Jalan keluarnya, yang dulu tidak ada.
+                  *
+                  * Draf-nya sudah masuk ke editor di balik dialog ini sejak
+                  * detik laporan ini muncul, tetapi satu-satunya cara keluar
+                  * adalah tanda silang di pojok -- dan sesudahnya orang
+                  * ditinggal di tab Keterangan, bukan di tempat hasilnya ada.
+                  * reviewNote sudah MENYEBUT tab Pelajaran; ini yang
+                  * mengantarkannya ke sana.
+                  */}
+                <div className="mt-3">
+                  <Button
+                    className="bg-brand-gradient text-white hover:brightness-105"
+                    onClick={() => {
+                      setOpen(false)
+                      onBukaHasil()
+                    }}
+                  >
+                    {t.sop.seeResult}
+                    <ArrowRight className="size-4" aria-hidden />
+                  </Button>
+                </div>
               </div>
             )}
           </div>
