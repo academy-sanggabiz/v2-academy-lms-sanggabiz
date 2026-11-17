@@ -3,6 +3,7 @@ import "server-only"
 import { tanyaJson, tanyaTeks } from "@/lib/ai/client"
 import { COURSE_MARKDOWN_FORMAT } from "@/lib/course-markdown"
 import { ATURAN_SISTEM } from "@/lib/interactive-guide"
+import { ID_POLA, POLA, cariPola, periksaPola, type IdPola } from "@/lib/ai/pola-interaktif"
 
 /**
  * Dari dokumen apa pun menjadi draf kursus (F1).
@@ -34,10 +35,25 @@ import { ATURAN_SISTEM } from "@/lib/interactive-guide"
 
 export type JenisPelajaran = "teks" | "cerita" | "simulasi"
 
+export type PelajaranKerangka = {
+  judul: string
+  inti: string
+  jenis: JenisPelajaran
+  /**
+   * Bentuk simulasinya, dipilih dari katalog tertutup di
+   * `lib/ai/pola-interaktif.ts`. Hanya berarti untuk `jenis: "simulasi"`.
+   *
+   * Dipilih di tahap KERANGKA, bukan saat menulis: memilih bentuk itu
+   * penggolongan, dan model jauh lebih baik menggolongkan dari daftar
+   * tertutup daripada mengarang bentuk sambil menulis isinya.
+   */
+  pola?: IdPola
+}
+
 export type ModulKerangka = {
   judul: string
   tujuan: string
-  pelajaran: { judul: string; inti: string; jenis: JenisPelajaran }[]
+  pelajaran: PelajaranKerangka[]
 }
 
 export type KerangkaKursus = {
@@ -98,6 +114,10 @@ const BENTUK_MODUL = [
   "akibat berbeda: memutuskan, memilih, menangani, melaporkan, memeriksa.",
   "Bila isinya hanya definisi, daftar, atau angka, pakai \"teks\" -- simulasi yang",
   "dipaksakan di atas bahan yang tidak punya pilihan akan terasa kosong.",
+  "",
+  "Tiap pelajaran \"simulasi\" WAJIB memilih satu \"pola\" dari daftar ini,",
+  "dan hanya dari daftar ini:",
+  ...POLA.map((p) => `- "${p.id}" (${p.nama}): ${p.kapanDipakai}`),
 ].join("\n")
 
 const SKEMA_KERANGKA = {
@@ -123,6 +143,7 @@ const SKEMA_KERANGKA = {
                 judul: { type: "string" },
                 inti: { type: "string" },
                 jenis: { type: "string", enum: ["teks", "cerita", "simulasi"] },
+                pola: { type: "string", enum: [...ID_POLA] },
               },
               required: ["judul", "inti", "jenis"],
             },
@@ -177,9 +198,15 @@ export function periksaKerangka(nilai: unknown): KerangkaKursus | null {
                   const j = teks(po.jenis)
                   const jenis: JenisPelajaran =
                     j === "cerita" || j === "simulasi" ? j : "teks"
-                  return judul ? { judul, inti: teks(po.inti), jenis } : null
+                  // Pola hanya dibawa untuk simulasi. Nilai yang tidak dikenal
+                  // jatuh ke pola pertama lewat `cariPola()` saat dipakai,
+                  // bukan menggagalkan kerangkanya.
+                  const pola = ID_POLA.find((x) => x === teks(po.pola))
+                  return judul
+                    ? { judul, inti: teks(po.inti), jenis, ...(jenis === "simulasi" && pola ? { pola } : {}) }
+                    : null
                 })
-                .filter((p): p is { judul: string; inti: string; jenis: JenisPelajaran } => p !== null)
+                .filter((p): p is PelajaranKerangka => p !== null)
                 .slice(0, MAKS_PELAJARAN)
             : []
           const judul = teks(mo.judul)
@@ -469,14 +496,42 @@ async function isiSimulasi(
 
   for (const pelajaran of daftar) {
     if (!keluar.includes(PENANDA_SIMULASI)) break
-    const hasil = await tanyaTeks({
-      sistem: SISTEM,
-      maxOutputTokens: 4000,
-      prompt: promptSimulasi(sop, kerangka, modul, pelajaran),
-    })
-    token += hasil.ok ? hasil.token : 0
 
-    const html = hasil.ok ? rapikanHtml(hasil.data) : ""
+    /*
+     * Dicoba paling banyak dua kali, dan percobaan kedua DIBERI TAHU apa yang
+     * kurang. Tanpa itu, percobaan ulang hanya mengocok dadu yang sama.
+     *
+     * Dua, bukan tiga: tiap percobaan sekitar 2.000 token, dan simulasi yang
+     * masih meleset setelah diberi contoh utuh dan daftar kekurangannya lebih
+     * baik diserahkan ke penyusun daripada dibayar tiga kali.
+     */
+    const pola = cariPola(pelajaran.pola)
+    let html = ""
+    let keluhan: string[] = []
+
+    for (let percobaan = 0; percobaan < 2; percobaan++) {
+      const hasil = await tanyaTeks({
+        sistem: SISTEM,
+        maxOutputTokens: 4000,
+        prompt: promptSimulasi(sop, kerangka, modul, pelajaran, keluhan),
+      })
+      token += hasil.ok ? hasil.token : 0
+      if (!hasil.ok) break
+
+      const calon = rapikanHtml(hasil.data)
+      if (!calon) break
+
+      keluhan = periksaPola(calon, pola)
+      if (keluhan.length === 0) {
+        html = calon
+        break
+      }
+      // Simpan yang terakhir: simulasi yang kurang satu syarat tetap jauh
+      // lebih berguna bagi penyusun daripada kalimat "susun sendiri".
+      html = calon
+      console.warn(`simulasi "${pelajaran.judul}" belum memenuhi pola ${pola.id}:`, keluhan.join("; "))
+    }
+
     keluar = keluar.replace(
       PENANDA_SIMULASI,
       html
@@ -515,12 +570,32 @@ function promptSimulasi(
   sop: string,
   kerangka: KerangkaKursus,
   modul: ModulKerangka,
-  pelajaran: { judul: string; inti: string }
+  pelajaran: PelajaranKerangka,
+  keluhan: string[] = []
 ): string {
+  const pola = cariPola(pelajaran.pola)
   return [
     `Kursus: "${kerangka.judul}". Modul: "${modul.judul}".`,
     `Buat satu simulasi untuk pelajaran "${pelajaran.judul}".`,
     `Yang harus bisa dilakukan peserta sesudahnya: ${pelajaran.inti}`,
+    "",
+    `POLA YANG DIPAKAI: ${pola.nama}.`,
+    "Yang membuat pola ini bekerja:",
+    ...pola.kunci.map((k) => `- ${k}`),
+    "",
+    "CONTOH POLA INI, UTUH. Tiru BENTUKNYA -- susunan, kelas, dan aturan CSS-nya.",
+    "GANTI SELURUH ISINYA dengan isi dokumen di bawah: judul, nama, jam, angka,",
+    "layar, pilihan, dan akibat. Jangan menyisakan satu pun kata dari contoh.",
+    "",
+    pola.contoh,
+    ...(keluhan.length > 0
+      ? [
+          "",
+          "PERCOBAAN SEBELUMNYA DITOLAK karena:",
+          ...keluhan.map((k) => `- ${k}`),
+          "Perbaiki itu. Keluarkan berkas utuh lagi, bukan tambalan.",
+        ]
+      : []),
     "",
     "Keluarkan HANYA satu berkas HTML, tanpa penjelasan apa pun sebelum atau sesudahnya.",
     "",
@@ -549,21 +624,6 @@ function promptSimulasi(
     "  Aturan yang menunjuk kelas yang tidak pernah ditulis tidak menimbulkan galat",
     "  apa pun -- tombolnya tetap bisa ditekan dan tidak mengubah apa-apa. Sebelum",
     "  selesai, periksa ulang satu per satu.",
-    "",
-    "CONTOH POLA YANG BENAR, tiru bentuknya:",
-    "",
-    "<style>",
-    ".sim .akibat { display: none }",
-    ".sim:has(#t1:checked) .akibat-t1 { display: block }",
-    ".sim:has(#v2:checked) .hanya-v1 { display: none }",
-    ".sim:has(#v2:checked) .hanya-v2 { display: block }",
-    "</style>",
-    "<div class=\"sim\">",
-    "  <p class=\"hanya-v1\">Keterangan yang ada di situasi biasa</p>",
-    "  <p class=\"hanya-v2\">Keterangan pengganti di situasi kedua</p>",
-    "  <input type=\"radio\" name=\"t\" id=\"t1\"><label for=\"t1\">Tindakan pertama</label>",
-    "  <div class=\"akibat akibat-t1\">Yang terjadi berikutnya.</div>",
-    "</div>",
     "",
     "YANG DILARANG, karena akan dibuang sistem:",
     ...ATURAN_SISTEM.map((a) => `- ${a.aturan}. ${a.kenapa}`),
