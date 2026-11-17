@@ -352,7 +352,23 @@ try {
       // Jawabannya 401 -- memang begitu tanpa kunci, dan justru tampilan
       // galat itu yang perlu ikut diperiksa.
       await anon.waitForTimeout(2500)
-      await audit(anon, "/api-docs [jawaban tampil]")
+      await audit(anon, "/api-docs [jawaban 401]")
+
+      /*
+       * Jawaban BERISI DATA, bukan hanya galat.
+       *
+       * Badan 401 hanya dua untai teks, jadi pewarnaan sintaksnya nyaris
+       * tidak terpakai. Jawaban endpoint publik penuh angka dan tanda baca,
+       * dan di situlah warna angka Swagger (#d36363 di atas #333333, 3,45)
+       * terlihat. Versi pertama pemeriksaan ini hanya menjalankan yang 401,
+       * melaporkan bersih, dan cacatnya baru ketahuan saat dibuka di
+       * produksi -- 14 simpul sekaligus.
+       */
+      await anon.click('[id*="statistikPublik"] .opblock-summary-control')
+      await anon.waitForTimeout(600)
+      await anon.click('[id*="statistikPublik"] button.execute')
+      await anon.waitForTimeout(3000)
+      await audit(anon, "/api-docs [jawaban berisi data]")
 
       await anon.click("button.authorize")
       await anon.waitForTimeout(800)
