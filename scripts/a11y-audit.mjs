@@ -282,6 +282,8 @@ try {
     "/legal/privasi",
     // Katalog kelas publik: halaman pertama yang dilihat pengunjung yang
     // belum punya akun, jadi ia tidak boleh lolos hanya karena ada sesi.
+    // Dokumentasi API: terbuka untuk umum dan dibaca tim IT pelanggan.
+    "/api-docs",
     "/kelas",
   ])
     await visit(anon, path)
@@ -289,11 +291,73 @@ try {
   // Satu halaman detail kelas, id-nya diambil dari tautan di katalog supaya
   // tidak ada id yang membusuk di dalam skrip ini.
   {
+    /*
+     * Katalognya dibuka sendiri di sini, bukan diandaikan masih terbuka dari
+     * gelung di atas.
+     *
+     * Versi sebelumnya membaca halaman yang KEBETULAN sedang terbuka, jadi
+     * menambahkan satu alamat di akhir daftar itu -- sesuatu yang tampak
+     * sepenuhnya aman -- membuat blok ini mencetak "katalog publik masih
+     * kosong" dan melewati satu halaman, dengan gerbang tetap hijau. Itu
+     * terjadi sungguhan saat /api-docs ditambahkan.
+     */
+    await anon.setViewportSize(LEBAR_DESKTOP)
+    await anon.goto(BASE + "/kelas")
+    await settle(anon)
     const kelas = await anon
       .locator('a[href^="/kelas/"]')
       .evaluateAll((ns) => [...new Set(ns.map((n) => n.getAttribute("href")).filter(Boolean))])
     if (kelas[0]) await visit(anon, kelas[0])
     else console.log("lewat detail kelas: katalog publik masih kosong")
+  }
+
+  /*
+   * Dokumentasi API, dalam keadaan DIPAKAI.
+   *
+   * WAJIB sesudah blok detail kelas di atas. Blok itu mengambil tautan
+   * `/kelas/...` dari halaman yang sedang terbuka di `anon`; kalau langkah
+   * ini berjalan lebih dulu, halaman itu sudah berpindah ke /api-docs dan
+   * blok tersebut mencetak "katalog publik masih kosong" lalu melewati satu
+   * halaman tanpa menggagalkan apa pun. Diukur: jumlahnya turun dari 100
+   * ke 97 dengan status tetap hijau.
+   *
+   * Halaman ini memuat Swagger UI, yang membangun hampir seluruh antarmukanya
+   * hanya setelah disentuh. Saat dimuat saja ia bersih; begitu satu operasi
+   * dibuka, dijalankan, dan dialog Authorize dibuka, axe menemukan sepuluh
+   * pelanggaran lagi -- satu di antaranya kritis (tombol tutup tanpa nama).
+   * Memeriksa halamannya saja akan melaporkan "ok" untuk layar yang belum
+   * pernah dilihat, persis lubang yang sudah pernah terjadi pada kartu
+   * pelajaran di bawah.
+   */
+  {
+    await anon.setViewportSize(LEBAR_DESKTOP)
+    await anon.goto(BASE + "/api-docs")
+    await settle(anon)
+    // Swagger memasang dirinya sesudah bundelnya diunduh; tanpa menunggu
+    // tombolnya ada, langkah-langkah di bawah menembak ruang kosong.
+    const dibuka = await anon
+      .locator('[id*="daftarPendaftaran"] .opblock-summary-control')
+      .waitFor({ timeout: 20000 })
+      .then(() => true)
+      .catch(() => false)
+
+    if (!dibuka) {
+      console.log("lewat /api-docs [dipakai]: Swagger UI tidak termuat")
+    } else {
+      await anon.click('[id*="daftarPendaftaran"] .opblock-summary-control')
+      await anon.waitForTimeout(800)
+      await audit(anon, "/api-docs [operasi terbuka]")
+
+      await anon.click('[id*="daftarPendaftaran"] button.execute')
+      // Jawabannya 401 -- memang begitu tanpa kunci, dan justru tampilan
+      // galat itu yang perlu ikut diperiksa.
+      await anon.waitForTimeout(2500)
+      await audit(anon, "/api-docs [jawaban tampil]")
+
+      await anon.click("button.authorize")
+      await anon.waitForTimeout(800)
+      await audit(anon, "/api-docs [dialog Authorize]")
+    }
   }
 
   // Sampel halaman publik diaudit ulang pada tiap mode tampilan.

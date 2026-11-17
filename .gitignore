@@ -78,3 +78,6 @@ supabase/.temp/
 
 # Rekaman "sebelum" dari scripts/garis-dasar.mjs -- lokal, bukan milik repo.
 .garis-dasar.json
+
+# Disalin dari node_modules oleh scripts/salin-swagger.mjs saat install/build.
+public/swagger/

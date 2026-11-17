@@ -1,0 +1,150 @@
+/*
+ * Perbaikan aksesibilitas di atas gaya bawaan Swagger UI.
+ *
+ * Swagger UI versi 5.35.0 dikirim dengan paletnya sendiri, dan sepuluh
+ * tempat di dalamnya gagal rasio kontras WCAG 1.4.3 (diukur dengan axe pada
+ * 17 November 2026, bukan dikira-kira). Yang paling parah teks putih di atas
+ * hijau #89bf04: 2,2 banding 1, padahal syaratnya 4,5.
+ *
+ * Warna penggantinya diambil dari palet kita sendiri di app/globals.css dan
+ * tiap satunya dihitung ulang, bukan dipilih karena kelihatan cukup gelap.
+ * Angka di tiap baris adalah rasio sesungguhnya terhadap teks putih.
+ *
+ * Yang TIDAK diubah: biru untuk GET dan hijau untuk POST. Itu kosakata yang
+ * sama di semua dokumentasi API, jadi menggelapkannya boleh, menukarnya
+ * tidak.
+ */
+
+/* Lencana metode. 12px tebal masih di bawah ambang teks besar, jadi tetap
+   perlu 4,5 -- bukan 3,0. */
+.swagger-ui .opblock.opblock-get .opblock-summary-method {
+  background: #2a6d93; /* 5,66 */
+}
+.swagger-ui .opblock.opblock-post .opblock-summary-method {
+  background: #166534; /* 7,13 */
+}
+
+/* Lencana versi di kepala dokumen. */
+.swagger-ui .info .title small .version {
+  background: #475569; /* 7,58 */
+}
+.swagger-ui .info .title small.version-stamp .version {
+  background: #166534; /* 7,13 */
+}
+
+/* Tautan ke dokumen OpenAPI mentah. */
+.swagger-ui .info .base-url,
+.swagger-ui .info a,
+.swagger-ui .info .link {
+  color: #1f5f8b; /* 6,38 di atas #f2f8f9 */
+}
+
+/* Tulisan pada tombol Authorize. */
+.swagger-ui .btn.authorize,
+.swagger-ui .btn.authorize span,
+.swagger-ui .btn.authorize svg {
+  color: #115e59; /* 7,07 */
+  fill: #115e59;
+  border-color: #115e59;
+}
+
+/*
+ * Pemilih server disembunyikan.
+ *
+ * Dokumen ini hanya pernah punya SATU server -- alamat lingkungan yang sedang
+ * dibuka, diisi oleh lib/openapi.ts. Pemilih dengan satu pilihan tidak memberi
+ * siapa pun kemampuan apa pun, dan versi Swagger ini mengirimnya tanpa nama
+ * yang bisa dibaca pembaca layar (axe: select-name, kritis). Menyembunyikannya
+ * menghapus kendali mati sekaligus pelanggarannya; alamatnya sendiri tetap
+ * terbaca di tiap "Request URL" sesudah Execute.
+ */
+.swagger-ui .scheme-container .schemes > .schemes-server-container {
+  display: none;
+}
+
+/* Tanpa blok server, yang tersisa di bilah itu hanya tombol Authorize --
+   didorong ke kiri supaya tidak menggantung sendirian di ujung kanan. */
+.swagger-ui .scheme-container .schemes {
+  justify-content: flex-start;
+}
+
+/*
+ * CATATAN KEKHUSUSAN, dua kali tersandung saat menulis berkas ini.
+ *
+ * Gaya Swagger memakai pemilih panjang -- `.swagger-ui .scheme-container
+ * .schemes > .schemes-server-container` ada EMPAT kelas, dan `>` tidak
+ * menambah kekhususan sehingga mudah salah hitung. Pemilih tiga kelas di
+ * sini kalah dan hasilnya nol perubahan, tanpa galat apa pun: satu-satunya
+ * tanda adalah nilai di getComputedStyle tidak ikut berubah. Jadi untuk
+ * setiap aturan baru di berkas ini, cocokkan dulu pemilih aslinya di
+ * node_modules/swagger-ui-dist/swagger-ui.css, lalu periksa hasilnya di
+ * peramban -- bukan hanya dengan membaca.
+ */
+
+/*
+ * ---------------------------------------------------------------------------
+ * Bagian kedua: pelanggaran yang baru muncul SESUDAH halaman dipakai.
+ *
+ * Keadaan awal halaman ini bersih, dan itu sempat terbaca sebagai "beres".
+ * Begitu satu operasi dibuka, dijalankan, dan dialog Authorize dibuka, axe
+ * menemukan sepuluh pelanggaran lagi -- termasuk satu kritis. Gerbang
+ * `audit:a11y` hanya memeriksa halaman sebagaimana ia dimuat, jadi semua ini
+ * akan lolos tanpa pernah terlihat. Diukur dengan skrip interaksi, bukan
+ * dengan membuka halaman lalu menyimpulkan.
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * Tombol "Try it out"/"Cancel": merah #ff6060 hanya 2,87.
+ *
+ * Harus ditulis `.btn.cancel`, bukan `.try-out__btn` saja. Aturan Swagger-nya
+ * `.swagger-ui .btn.cancel{...}` -- dua kelas, jadi pemilih satu kelas kalah
+ * kekhususan dan warnanya tidak berubah sama sekali. Versi pertama perbaikan
+ * ini memang begitu, dan axe tetap melaporkannya.
+ */
+.swagger-ui .btn.cancel,
+.swagger-ui .btn.try-out__btn.cancel {
+  color: #b42318; /* 6,39 */
+  border-color: #b42318;
+}
+
+/* Label "(query)" di samping nama parameter: abu #808080 hanya 3,43. */
+.swagger-ui .parameter__in,
+.swagger-ui .parameter__extension {
+  color: #475569; /* 6,59 */
+}
+
+/* Tombol Execute: putih di atas biru #4990e2 hanya 3,29. */
+.swagger-ui .btn.execute {
+  background: #2a6d93; /* 5,66 */
+  border-color: #2a6d93;
+}
+
+/* Tombol Download pada badan jawaban. */
+.swagger-ui .download-contents {
+  background: #475569; /* 7,58 */
+}
+
+/* Pesan "Controls Accept header": hijau #008000 hanya 4,46 -- nyaris, dan
+   nyaris tetap gagal. */
+.swagger-ui .response-control-media-type__accept-message {
+  color: #166534; /* 6,20 */
+}
+
+/* `kode` di dalam keterangan yang ditulis Markdown: ungu #9012fe hanya 4,42. */
+.swagger-ui .renderedMarkdown code,
+.swagger-ui .markdown code {
+  color: #581c87; /* 8,49 */
+}
+
+/*
+ * Tab "Example Value" / "Schema": tingginya 13,8px, sedangkan WCAG 2.5.8
+ * meminta sasaran minimal 24x24. Ditinggikan, bukan diperbesar hurufnya --
+ * yang kurang adalah daerah yang bisa ditekan, bukan keterbacaannya.
+ */
+.swagger-ui .tab li,
+.swagger-ui .tab li button.tablinks {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
