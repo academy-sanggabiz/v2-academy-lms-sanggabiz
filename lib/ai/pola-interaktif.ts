@@ -379,7 +379,7 @@ export const POLA: Pola[] = [
     id: "alat-bantu",
     nama: "Alat bantu keputusan",
     kapanDipakai:
-      "Yang dibutuhkan peserta bukan latihan sekali jalan, melainkan halaman yang dibuka lagi saat ragu: ceklis singkat dan apa yang harus dilakukan kalau salah satunya tidak terpenuhi.",
+      "Yang dibutuhkan peserta bukan latihan sekali jalan, melainkan halaman yang dibuka lagi saat ragu. Isinya ceklis singkat dan apa yang harus dilakukan kalau salah satunya tidak terpenuhi.",
     kunci: [
       "Ceklis berisi pernyataan yang BISA DIPASTIKAN sendiri, bukan perasaan.",
       "Putusan muncul hanya setelah semua tercentang; sebelum itu ada kalimat 'berhenti dulu'.",
