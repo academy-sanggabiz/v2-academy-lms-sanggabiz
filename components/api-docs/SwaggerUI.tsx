@@ -115,18 +115,84 @@ export function SwaggerUI({ spekUrl }: { spekUrl: string }) {
        * tabindex hanya pada yang BENAR-BENAR meluber -- memberikannya ke
        * semua blok kode menambah perhentian Tab yang tidak ada gunanya.
        */
+      /*
+       * Tabel jawaban tiap operasi diberi NAMA.
+       *
+       * Swagger memasang role="region" pada tabel itu tanpa label apa pun.
+       * Selama hanya satu operasi dibuka hal itu tidak terlihat; begitu dua
+       * operasi dijalankan, ada dua landmark region tanpa nama di satu
+       * halaman -- tidak unik (axe: landmark-unique), dan bagi pembaca layar
+       * keduanya hanya "region", tidak bisa dibedakan.
+       *
+       * Namanya diambil dari ringkasan operasinya sendiri, bukan dari id,
+       * supaya yang terdengar sama dengan yang terbaca di layar.
+       */
+      for (const tabel of document.querySelectorAll('[id$="_responses"][role="region"]')) {
+        if (tabel.getAttribute("aria-label")) continue
+        const blok = tabel.closest(".opblock")
+        const metode = blok?.querySelector(".opblock-summary-method")?.textContent?.trim()
+        const jalur = blok?.querySelector(".opblock-summary-path")?.textContent?.trim()
+        if (metode && jalur) tabel.setAttribute("aria-label", `Jawaban ${metode} ${jalur}`)
+      }
+
+      /*
+       * Warna angka di dalam contoh JSON: #d36363 di atas #333333 hanya
+       * 3,45 banding 1 (WCAG 1.4.3 meminta 4,5).
+       *
+       * Diperbaiki di sini, bukan di berkas CSS, karena Swagger memasangnya
+       * sebagai gaya SEBARIS pada tiap <span> -- aturan lembar gaya tidak
+       * bisa menangnya, dan satu-satunya cara lewat CSS adalah menyeragamkan
+       * semua token dengan !important, yang menghapus pewarnaan sintaksnya.
+       * Tiga warna token lainnya (putih 21,0, hijau 10,2, jingga 8,0) sudah
+       * lolos dan sengaja tidak disentuh.
+       *
+       * Hanya terlihat pada jawaban yang BERISI angka. Uji lokal pertama
+       * tidak menemukannya karena satu-satunya jawaban yang dijalankan
+       * adalah 401, yang badannya hanya dua untai teks; ia baru muncul saat
+       * dicoba di produksi. Gerbangnya kini ikut menjalankan endpoint publik
+       * supaya jawaban berisi data benar-benar pernah diperiksa.
+       */
+      for (const angka of document.querySelectorAll<HTMLElement>(".microlight span")) {
+        if (angka.style.color === "rgb(211, 99, 99)") angka.style.color = "#f2a0a0" /* 6,20 */
+      }
+
       for (const kode of document.querySelectorAll<HTMLElement>(".microlight")) {
         const meluber = kode.scrollWidth > kode.clientWidth || kode.scrollHeight > kode.clientHeight
-        if (meluber && !kode.hasAttribute("tabindex")) {
-          kode.setAttribute("tabindex", "0")
-          kode.setAttribute("role", "region")
-          kode.setAttribute("aria-label", "Contoh JSON")
-        }
+        /*
+         * Hanya tabindex -- TANPA role="region".
+         *
+         * Versi pertama menambahkan role="region" dengan label "Contoh JSON"
+         * pada tiap blok. Begitu ada dua blok di layar, jadilah dua landmark
+         * bernama sama, yang melanggar aturan lain (landmark-unique). Aturan
+         * yang ingin dipenuhi di sini hanya meminta isinya bisa difokus,
+         * bukan diberi peran.
+         */
+        if (meluber && !kode.hasAttribute("tabindex")) kode.setAttribute("tabindex", "0")
       }
     }
     rapikan()
     const wadah = document.getElementById("swagger")
-    if (wadah) new MutationObserver(rapikan).observe(wadah, { childList: true, subtree: true })
+    /*
+     * `attributes` ikut diamati, bukan hanya `childList`.
+     *
+     * Pewarna sintaks Swagger menyisipkan <span> lebih dulu lalu MENYETEL
+     * `style.color` sesudahnya. Dengan childList saja, pengamat ini berjalan
+     * di antara kedua langkah itu, melihat span yang warnanya belum ada, dan
+     * tidak melakukan apa-apa -- perbaikan yang tampak terpasang tetapi tidak
+     * pernah mengubah satu piksel pun. Gerbang a11y yang menangkapnya.
+     *
+     * Tidak menjadi gelung tak berujung: tulisan balasannya mengubah warna
+     * menjadi nilai yang tidak lagi cocok dengan syaratnya, jadi lintasan
+     * berikutnya tidak menulis apa-apa.
+     */
+    if (wadah) {
+      new MutationObserver(rapikan).observe(wadah, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["style"],
+      })
+    }
   }
 
   return (
