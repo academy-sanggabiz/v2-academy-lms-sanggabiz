@@ -356,6 +356,10 @@ function CourseFormShellInner({
             aiAktif={aiAktif}
             openOnMount={openAi}
             onImported={(patch) => dispatch({ type: "setField", patch })}
+            /* Sesudah AI selesai, isinya ada di tab Pelajaran. Tanpa ini
+               dialog hanya bisa ditutup, dan orangnya ditinggal di tab
+               Keterangan tanpa tanda apa pun bahwa ada yang berubah. */
+            onBukaHasil={() => setTab("lessons")}
           />
           <SaveStatus
             state={saveState}

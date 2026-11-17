@@ -1463,6 +1463,8 @@ export type Dictionary = {
     estimateWrite: string
     progressTitle: string
     progressModule: string
+    elapsed: string
+    seeResult: string
     stageDoc: string
     stageOutline: string
     stageWriting: string
@@ -3151,6 +3153,8 @@ const id: Dictionary = {
     estimateWrite: "± 1 menit",
     progressTitle: "Menulis isi kursus",
     progressModule: "Modul {n} dari {total} — {judul}",
+    elapsed: "sudah berjalan {waktu}",
+    seeResult: "Lihat di tab Pelajaran",
     stageDoc: "Dokumen terbaca",
     stageOutline: "Kerangka dibuat — {n} modul",
     stageWriting: "Menulis isi tiap modul",
@@ -4854,6 +4858,8 @@ const en: Dictionary = {
     estimateWrite: "about a minute",
     progressTitle: "Writing the course content",
     progressModule: "Module {n} of {total} — {judul}",
+    elapsed: "running {waktu}",
+    seeResult: "Open the Lessons tab",
     stageDoc: "Document read",
     stageOutline: "Outline drafted — {n} modules",
     stageWriting: "Writing each module",
