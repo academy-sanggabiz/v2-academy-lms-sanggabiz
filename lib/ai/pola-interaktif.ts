@@ -49,8 +49,15 @@ export type SyaratPola = {
   minDetails?: number
   /** Potongan markah yang wajib ada, apa adanya. */
   wajibAda?: { potongan: string; alasan: string }[]
-  /** Berapa aturan `:has(...)` paling sedikit -- penanda interaksi sungguhan. */
-  minAturanHas?: number
+  /**
+   * Id yang WAJIB ada di markah, karena lembar gaya pola menunjuknya.
+   *
+   * Ini pengganti pemeriksaan "berapa aturan :has()": sejak CSS dipasang
+   * sistem, yang bisa salah bukan lagi aturannya melainkan sasarannya. Markah
+   * tanpa `#s2` membuat tab situasi kedua tidak pernah bisa dipilih, tanpa
+   * galat apa pun.
+   */
+  wajibId?: string[]
 }
 
 export type Pola = {
@@ -60,6 +67,23 @@ export type Pola = {
   kapanDipakai: string
   /** Yang membuat pola ini bekerja, dibaca tahap penulisan. */
   kunci: string[]
+  /**
+   * Lembar gaya pola ini, MILIK SISTEM -- tidak pernah ditulis model.
+   *
+   * Terukur 17 Nov 2026: model mengeluarkan markah yang sempurna (8 radio,
+   * 101 kelas, empat situasi) lalu MENGHILANGKAN seluruh blok <style>. Tanpa
+   * CSS, tiap `display:none` ikut hilang, jadi semua situasi dan semua akibat
+   * tercetak berurutan -- pelajaran interaktif yang terbaca sebagai tumpukan
+   * teks. Pemeriksa menangkapnya, tetapi kode penyimpan tetap memakai
+   * percobaan terakhir, jadi yang cacat ikut tersimpan.
+   *
+   * Karena CSS tiap pola SAMA PERSIS untuk semua kursus, memintanya ditulis
+   * ulang tiap kali hanya menambah satu cara gagal tanpa menambah apa pun.
+   * Sekarang model mengisi isinya saja, dan `bungkusDenganGaya()` memasang
+   * lembar gaya ini. Gaya karena itu tidak bisa hilang, tidak bisa salah
+   * warna, dan tidak bisa menunjuk kelas yang tidak ada.
+   */
+  css: string
   contoh: string
   syarat: SyaratPola
 }
@@ -80,8 +104,7 @@ export const JEJAK_CONTOH = [
   "Keadaan pertama",
 ]
 
-const CONTOH_BERCABANG = `<style>
-.sim-bcb{font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:16px;border:1px solid #d6e2e5;border-radius:14px;background:#fff;color:#14252a;line-height:1.5}
+const CSS_BERCABANG = `.sim-bcb{font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:16px;border:1px solid #d6e2e5;border-radius:14px;background:#fff;color:#14252a;line-height:1.5}
 .sim-bcb input{position:absolute;opacity:0;pointer-events:none}
 .sim-bcb h2{margin:0 0 6px;font-size:18px}
 .sim-bcb p{margin:0 0 10px}
@@ -112,10 +135,9 @@ const CONTOH_BERCABANG = `<style>
 .sim-bcb:has(#s3:checked):has(#a1:checked) .h3-1,
 .sim-bcb:has(#s3:checked):has(#a2:checked) .h3-2,
 .sim-bcb:has(#s3:checked):has(#a3:checked) .h3-3{display:block}
-.sim-bcb .ulang label{display:block;text-align:center;padding:10px;border-radius:10px;background:#13707f;color:#fff;cursor:pointer}
-</style>
+.sim-bcb .ulang label{display:block;text-align:center;padding:10px;border-radius:10px;background:#13707f;color:#fff;cursor:pointer}`
 
-<div class="sim-bcb">
+const CONTOH_BERCABANG = `<div class="sim-bcb">
   <input type="radio" name="s" id="s1" checked>
   <input type="radio" name="s" id="s2">
   <input type="radio" name="s" id="s3">
@@ -191,8 +213,7 @@ const CONTOH_BERCABANG = `<style>
   <div class="ulang"><label for="a0">Ulangi dari awal</label></div>
 </div>`
 
-const CONTOH_PERCAKAPAN = `<style>
-.sim-hp{font-family:system-ui,sans-serif;color:#14252a;line-height:1.5;display:flex;flex-wrap:wrap;gap:16px}
+const CSS_PERCAKAPAN = `.sim-hp{font-family:system-ui,sans-serif;color:#14252a;line-height:1.5;display:flex;flex-wrap:wrap;gap:16px}
 .sim-hp input{position:absolute;opacity:0;pointer-events:none}
 .sim-hp h2{margin:0 0 6px;font-size:18px;flex:1 1 100%}
 .sim-hp .tugas{flex:1 1 100%;background:#14252a;color:#fff;border-radius:10px;padding:10px 12px}
@@ -227,10 +248,12 @@ const CONTOH_PERCAKAPAN = `<style>
 .sim-hp:has(#v3:checked):has(#t1:checked) .k3-1,
 .sim-hp:has(#v3:checked):has(#t2:checked) .k3-2,
 .sim-hp:has(#v3:checked):has(#t3:checked) .k3-3{display:block}
-.sim-hp .catatan{flex:1 1 100%;font-size:12px;color:#566a70}
-</style>
+.sim-hp .ulang{flex:1 1 100%;display:none}
+.sim-hp:has(#t1:checked) .ulang,.sim-hp:has(#t2:checked) .ulang,.sim-hp:has(#t3:checked) .ulang{display:block}
+.sim-hp .ulang label{display:block;text-align:center;padding:10px;border-radius:10px;background:#13707f;color:#fff;cursor:pointer}
+.sim-hp .catatan{flex:1 1 100%;font-size:12px;color:#566a70}`
 
-<div class="sim-hp">
+const CONTOH_PERCAKAPAN = `<div class="sim-hp">
   <input type="radio" name="v" id="v1" checked>
   <input type="radio" name="v" id="v2">
   <input type="radio" name="v" id="v3">
@@ -276,11 +299,12 @@ const CONTOH_PERCAKAPAN = `<style>
   <div class="akibat k3-2"><p>Akibat tindakan 2 pada situasi 3.</p></div>
   <div class="akibat k3-3"><p>Akibat tindakan 3 pada situasi 3.</p></div>
 
+  <div class="ulang"><label for="t0">Ulangi dari awal</label></div>
+
   <p class="catatan">Semua nama dan perusahaan di simulasi ini dibuat untuk pelajaran ini.</p>
 </div>`
 
-const CONTOH_ALAT = `<style>
-.alat{font-family:system-ui,sans-serif;max-width:620px;color:#14252a;line-height:1.5}
+const CSS_ALAT = `.alat{font-family:system-ui,sans-serif;max-width:620px;color:#14252a;line-height:1.5}
 .alat h2{margin:0 0 4px;font-size:18px}
 .alat .ket{color:#566a70;margin:0 0 12px}
 .alat .kotak{border:1px solid #d6e2e5;border-radius:12px;padding:12px;margin-bottom:12px}
@@ -301,10 +325,9 @@ const CONTOH_ALAT = `<style>
 .alat summary:hover{background:#f4f7f8}
 .alat details .isi{padding:0 12px 12px;font-size:14px}
 .alat .darurat{border:1px solid #8a2b2b;border-radius:12px;padding:12px;background:#f4f7f8}
-.alat .darurat h3{margin:0 0 4px;font-size:15px;color:#8a2b2b}
-</style>
+.alat .darurat h3{margin:0 0 4px;font-size:15px;color:#8a2b2b}`
 
-<div class="alat">
+const CONTOH_ALAT = `<div class="alat">
   <h2>JUDUL ALAT BANTU</h2>
   <p class="ket">Halaman ini alat kerja, bukan bacaan. Buka lagi kapan pun Anda ragu.</p>
 
@@ -344,13 +367,15 @@ export const POLA: Pola[] = [
       "Begitu satu tindakan dipilih, daftar tindakan dan tab situasi disembunyikan, dan tombol Ulangi muncul.",
       "Radio disembunyikan; yang terlihat labelnya, dan label situasi yang aktif diberi warna.",
     ],
+    css: CSS_BERCABANG,
     contoh: CONTOH_BERCABANG,
     syarat: {
       minGrupRadio: 2,
       minRadio: 7,
-      minAturanHas: 9,
+      wajibId: ["s1", "s2", "s3", "a0", "a1", "a2", "a3"],
       wajibAda: [
         { potongan: "Ulangi", alasan: "Simulasi tanpa jalan mengulang hanya bisa dicoba sekali." },
+        { potongan: 'class="sim-bcb"', alasan: "Pembungkus yang dipegang seluruh lembar gaya pola." },
       ],
     },
   },
@@ -365,13 +390,16 @@ export const POLA: Pola[] = [
       "Pilihan tindakan berada DI DALAM ponsel, tepat di bawah percakapan.",
       "Panel 'Ganti situasinya' terpisah di samping, dan tiap situasi mengubah akibat tiap tindakan.",
     ],
+    css: CSS_PERCAKAPAN,
     contoh: CONTOH_PERCAKAPAN,
     syarat: {
       minGrupRadio: 2,
       minRadio: 7,
-      minAturanHas: 9,
+      wajibId: ["v1", "v2", "v3", "t0", "t1", "t2", "t3"],
       wajibAda: [
         { potongan: "dibuat untuk pelajaran ini", alasan: "Nama rekaan harus diakui di halamannya." },
+        { potongan: 'class="sim-hp"', alasan: "Pembungkus yang dipegang seluruh lembar gaya pola." },
+        { potongan: "Ulangi", alasan: "Simulasi tanpa jalan mengulang hanya bisa dicoba sekali." },
       ],
     },
   },
@@ -386,13 +414,15 @@ export const POLA: Pola[] = [
       "Tiap keadaan khusus jadi satu <details> yang KELIHATAN bisa dibuka (ada tulisan Buka/Tutup).",
       "Ditutup kotak 'Kalau terlanjur' berisi langkah berurutan.",
     ],
+    css: CSS_ALAT,
     contoh: CONTOH_ALAT,
     syarat: {
       minCheckbox: 3,
       minDetails: 3,
-      minAturanHas: 2,
+      wajibId: ["c1", "c2", "c3"],
       wajibAda: [
         { potongan: "<summary", alasan: "Bagian yang bisa dibuka wajib punya ringkasannya." },
+        { potongan: 'class="alat"', alasan: "Pembungkus yang dipegang seluruh lembar gaya pola." },
       ],
     },
   },
@@ -442,7 +472,6 @@ export function periksaStruktur(html: string, pola: Pola): string[] {
   const radio = (html.match(/<input[^>]*type=["']?radio/gi) ?? []).length
   const centang = (html.match(/<input[^>]*type=["']?checkbox/gi) ?? []).length
   const details = (html.match(/<details/gi) ?? []).length
-  const has = (html.match(/:has\(/gi) ?? []).length
 
   if (s.minGrupRadio && grupRadio(html) < s.minGrupRadio)
     masalah.push(`perlu ${s.minGrupRadio} grup radio berbeda, baru ada ${grupRadio(html)}`)
@@ -451,8 +480,10 @@ export function periksaStruktur(html: string, pola: Pola): string[] {
     masalah.push(`perlu ${s.minCheckbox} checkbox, baru ada ${centang}`)
   if (s.minDetails && details < s.minDetails)
     masalah.push(`perlu ${s.minDetails} bagian <details>, baru ada ${details}`)
-  if (s.minAturanHas && has < s.minAturanHas)
-    masalah.push(`perlu ${s.minAturanHas} aturan :has(), baru ada ${has}`)
+  for (const id of s.wajibId ?? []) {
+    if (!new RegExp(`id=["']?${id}["'\\s>]`).test(html))
+      masalah.push(`tidak ada id="${id}" -- lembar gaya pola menunjuknya`)
+  }
 
   for (const w of s.wajibAda ?? []) {
     if (!html.includes(w.potongan)) masalah.push(`tidak ada "${w.potongan}" -- ${w.alasan}`)
@@ -466,4 +497,16 @@ export function periksaStruktur(html: string, pola: Pola): string[] {
    * dua tempat berarti dua aturan yang cepat atau lambat berbeda.
    */
   return masalah
+}
+
+/**
+ * Memasang lembar gaya pola di depan markah dari model.
+ *
+ * Blok <style> apa pun yang terlanjur ditulis model dibuang lebih dulu: dua
+ * lembar gaya untuk kelas yang sama berarti yang belakangan menang, dan yang
+ * belakangan itu bukan milik kita.
+ */
+export function bungkusDenganGaya(markah: string, pola: Pola): string {
+  const bersih = markah.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "").trim()
+  return `<style>\n${pola.css}\n</style>\n\n${bersih}`
 }
