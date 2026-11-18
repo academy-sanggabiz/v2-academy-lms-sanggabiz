@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LayoutDashboard, BookOpen, ShoppingCart, PanelLeftClose, X } from "lucide-react"
+import { SEMBUNYIKAN_UNTUK_DEMO } from "@/lib/demo"
 
 import { cn } from "@/lib/utils"
 import { sidebarClasses } from "@/hooks/use-mobile-nav"
@@ -13,7 +14,11 @@ import { useI18n } from "@/components/i18n/LocaleProvider"
 const navItems = [
   { href: "/learner/dashboard", key: "dashboard", icon: LayoutDashboard },
   { href: "/learner/courses", key: "courses", icon: BookOpen },
-  { href: "/learner/purchase", key: "purchases", icon: ShoppingCart },
+  // Disembunyikan untuk acara 19 November -- lihat lib/demo.ts. Disaring di
+  // sini, bukan dihapus, supaya kembali dengan mengubah satu baris di sana.
+  ...(SEMBUNYIKAN_UNTUK_DEMO
+    ? []
+    : [{ href: "/learner/purchase", key: "purchases", icon: ShoppingCart } as const]),
 ] as const
 
 export function Sidebar({
