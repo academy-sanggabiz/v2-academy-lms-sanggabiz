@@ -3,7 +3,7 @@ import "server-only"
 import { tanyaJson, tanyaTeks } from "@/lib/ai/client"
 import { COURSE_MARKDOWN_FORMAT } from "@/lib/course-markdown"
 import { ATURAN_SISTEM } from "@/lib/interactive-guide"
-import { ID_POLA, POLA, cariPola, periksaPola, type IdPola } from "@/lib/ai/pola-interaktif"
+import { ID_POLA, POLA, bungkusDenganGaya, cariPola, periksaPola, type IdPola } from "@/lib/ai/pola-interaktif"
 
 /**
  * Dari dokumen apa pun menjadi draf kursus (F1).
@@ -518,18 +518,25 @@ async function isiSimulasi(
       token += hasil.ok ? hasil.token : 0
       if (!hasil.ok) break
 
-      const calon = rapikanHtml(hasil.data)
-      if (!calon) break
+      const markah = rapikanHtml(hasil.data)
+      if (!markah) break
 
-      keluhan = periksaPola(calon, pola)
+      keluhan = periksaPola(markah, pola)
       if (keluhan.length === 0) {
-        html = calon
+        html = bungkusDenganGaya(markah, pola)
         break
       }
-      // Simpan yang terakhir: simulasi yang kurang satu syarat tetap jauh
-      // lebih berguna bagi penyusun daripada kalimat "susun sendiri".
-      html = calon
-      console.warn(`simulasi "${pelajaran.judul}" belum memenuhi pola ${pola.id}:`, keluhan.join("; "))
+      /*
+       * Yang cacat TIDAK disimpan.
+       *
+       * Versi pertama menyimpan percobaan terakhir apa pun keadaannya, dengan
+       * alasan "kurang satu syarat tetap berguna". Terukur 17 Nov 2026 alasan
+       * itu salah: satu keluaran kehilangan seluruh <style>, lolos tersimpan,
+       * dan muncul di layar peserta sebagai tumpukan teks -- empat situasi dan
+       * dua belas akibat tercetak sekaligus. Pelajaran yang tidak ada lebih
+       * jujur daripada pelajaran yang tampak rusak.
+       */
+      console.warn(`simulasi "${pelajaran.judul}" ditolak (pola ${pola.id}):`, keluhan.join("; "))
     }
 
     keluar = keluar.replace(
@@ -583,7 +590,11 @@ function promptSimulasi(
     "Yang membuat pola ini bekerja:",
     ...pola.kunci.map((k) => `- ${k}`),
     "",
-    "CONTOH POLA INI, UTUH. Tiru BENTUKNYA -- susunan, kelas, dan aturan CSS-nya.",
+    "JANGAN MENULIS <style> SAMA SEKALI. Lembar gayanya dipasang sistem.",
+    "Tugas Anda HANYA markahnya: id, kelas, dan kalimatnya.",
+    "Kelas dan id WAJIB sama persis dengan contoh -- gaya kami menunjuk keduanya.",
+    "",
+    "CONTOH MARKAH POLA INI, UTUH. Tiru susunan, kelas, dan id-nya.",
     "GANTI SELURUH ISINYA dengan isi dokumen di bawah: judul, nama, jam, angka,",
     "layar, pilihan, dan akibat. Jangan menyisakan satu pun kata dari contoh.",
     "",
