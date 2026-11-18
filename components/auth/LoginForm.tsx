@@ -15,6 +15,7 @@ import { login, type LoginState } from "@/app/auth/login/actions"
 import { authErrorMessage } from "@/lib/auth/auth-error-message"
 import { createClient } from "@/lib/supabase/client"
 import { useI18n } from "@/components/i18n/LocaleProvider"
+import { SEMBUNYIKAN_UNTUK_DEMO } from "@/lib/demo"
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher"
 import { DisplaySettings } from "@/components/preferences/DisplaySettings"
 
@@ -223,12 +224,18 @@ export function LoginForm({ next }: { next?: string }) {
         <DisplaySettings />
       </div>
 
-      <p className="text-center text-sm text-muted-foreground">
-        {t.auth.noAccount}{" "}
-        <Link href="/auth/learner/signup" className="text-ring underline underline-offset-4">
-          {t.auth.register}
-        </Link>
-      </p>
+      {/* Disembunyikan untuk acara 19 November -- lihat lib/demo.ts. Tombol
+          "Masuk dengan Google" di atas sengaja TETAP ada: ia tidak mengirim
+          surel, jadi tidak bisa kena batas kuota yang menjadi alasan baris
+          ini disembunyikan. */}
+      {!SEMBUNYIKAN_UNTUK_DEMO && (
+        <p className="text-center text-sm text-muted-foreground">
+          {t.auth.noAccount}{" "}
+          <Link href="/auth/learner/signup" className="text-ring underline underline-offset-4">
+            {t.auth.register}
+          </Link>
+        </p>
+      )}
     </>
   )
 }
