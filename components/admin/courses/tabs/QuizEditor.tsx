@@ -317,8 +317,12 @@ function QuizSettings({ lessonId, quiz }: { lessonId: string; quiz: DraftQuiz })
             onBlur={() => save({ max_attempts: maxAttempts.trim() ? Number(maxAttempts) : null })}
           />
         ) : (
+          /* Pretest dikerjakan sekali; kuis biasa dan posttest tanpa batas.
+             Sebelumnya baris ini selalu berbunyi "Tidak terbatas", termasuk
+             untuk pretest yang justru dikunci sesudah satu percobaan -- layar
+             yang menjanjikan sesuatu yang tidak diberikan sistemnya. */
           <p className="flex h-9 items-center text-sm text-muted-foreground">
-            {t.editor.unlimited}
+            {quiz.measure_kind === "pretest" ? t.editor.onceOnly : t.editor.unlimited}
           </p>
         )}
       </div>
