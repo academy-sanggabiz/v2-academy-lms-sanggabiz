@@ -723,6 +723,7 @@ export type Dictionary = {
     qtEssay: string
     passScoreLabel: string
     maxAttemptsLabel: string
+    onceOnly: string
     unlimitedPh: string
     unlimited: string
     drawCountLabel: string
@@ -2436,6 +2437,7 @@ const id: Dictionary = {
     qtEssay: "Esai",
     passScoreLabel: "Nilai Lulus (%)",
     maxAttemptsLabel: "Maks. Percobaan",
+    onceOnly: "Sekali",
     unlimitedPh: "Tidak terbatas",
     unlimited: "Tanpa batas",
     drawCountLabel: "Soal per Percobaan",
@@ -2454,7 +2456,7 @@ const id: Dictionary = {
     measurePretest: "Pretest",
     measurePosttest: "Posttest",
     measureNote:
-      "Pretest dan posttest hanya mengukur. Nilainya tidak masuk nilai akhir dan bukan syarat sertifikat.",
+      "Pretest hanya mengukur; nilainya tidak masuk nilai akhir. Posttest menentukan kelulusan dan sertifikat, memakai ambang nilai di atas.",
     measureWarnLive:
       "Kuis ini sudah pernah dikerjakan. Mengubah jenisnya mengeluarkan nilainya dari nilai akhir peserta.",
     measuredSectionLabel: "Modul yang diukur",
@@ -3383,8 +3385,8 @@ const id: Dictionary = {
     pretestIntro:
       "Pretest. Gunanya melihat apa yang sudah Anda ketahui sebelum belajar. Nilainya tidak memengaruhi kelulusan maupun sertifikat.",
     posttestIntro:
-      "Posttest. Gunanya melihat apa yang berubah setelah Anda belajar. Nilainya tidak memengaruhi kelulusan maupun sertifikat.",
-    measureNoRetry: "Kuis ini dikerjakan satu kali. Anda sudah mengerjakannya.",
+      "Posttest. Nilainya menentukan kelulusan dan sertifikat Anda. Boleh diulang bila belum mencapai nilai minimum.",
+    measureNoRetry: "Pretest dikerjakan satu kali, dan Anda sudah mengerjakannya.",
     pretestResultNote:
       "Nilai ini titik awal Anda, bukan penilaian. Jawaban per soal ditahan sampai posttest supaya kenaikannya terukur jujur.",
     posttestResultNote: "Bandingkan dengan nilai pretest Anda di layar Perkembangan.",
@@ -4142,6 +4144,7 @@ const en: Dictionary = {
     qtEssay: "Essay",
     passScoreLabel: "Passing Score (%)",
     maxAttemptsLabel: "Max Attempts",
+    onceOnly: "Once",
     unlimitedPh: "Unlimited",
     unlimited: "Unlimited",
     drawCountLabel: "Questions per Attempt",
@@ -4160,7 +4163,7 @@ const en: Dictionary = {
     measurePretest: "Pre-test",
     measurePosttest: "Post-test",
     measureNote:
-      "A pre-test or post-test only measures. Its score stays out of the final grade and the certificate rules.",
+      "A pre-test only measures; its score stays out of the final grade. A post-test decides passing and the certificate, using the pass score above.",
     measureWarnLive:
       "Learners have already taken this quiz. Changing its kind removes its score from their final grade.",
     measuredSectionLabel: "Module measured",
@@ -5087,8 +5090,8 @@ const en: Dictionary = {
     pretestIntro:
       "Pre-test. It shows what you already know before studying. The score does not affect passing or your certificate.",
     posttestIntro:
-      "Post-test. It shows what changed after studying. The score does not affect passing or your certificate.",
-    measureNoRetry: "This quiz is taken once. You have already taken it.",
+      "Post-test. This score decides whether you pass and receive your certificate. You may retake it if you fall short.",
+    measureNoRetry: "A pre-test is taken once, and you have already taken it.",
     pretestResultNote:
       "This score is your starting point, not a judgement. Per-question answers are held back until the post-test so the gain stays honest.",
     posttestResultNote: "Compare it with your pre-test score on the Progress screen.",

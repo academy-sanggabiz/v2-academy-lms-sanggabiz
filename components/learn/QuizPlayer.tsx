@@ -88,9 +88,20 @@ export function QuizPlayer({
    * karena dinilai manusia (lihat EssayAssessmentPlayer).
    */
   /*
-   * Kuis ukur dikerjakan SEKALI. Pretest yang bisa diulang bukan lagi titik
-   * awal, dan posttest yang bisa diulang mengukur ketekunan mengulang, bukan
-   * hasil belajar.
+   * PRETEST dikerjakan SEKALI; posttest boleh diulang.
+   *
+   * Sampai 26 November 2026 barisnya `ukur !== null`, jadi posttest pun
+   * terkunci sesudah satu percobaan. Itu benar selama posttest sekadar alat
+   * ukur. Begitu ia menentukan kelulusan dan sertifikat, kuncinya berubah
+   * arti: peserta yang gagal sekali tidak akan pernah bisa lulus.
+   *
+   * Cacat ini sempat lolos karena perbaikan pertamanya salah sasaran --
+   * yang diperbaiki `canRetry` di layar HASIL, sedangkan gerbang yang
+   * sebenarnya ada di sini, di layar MULAI. Tombol "coba lagi" muncul,
+   * menekannya membawa kembali ke layar mulai, dan layar itu menolak.
+   *
+   * Pretest tetap sekali: titik awal yang bisa diulang sampai bagus bukan
+   * titik awal.
    *
    * Pagarnya di kode, bukan di basis data: menegakkannya di trigger berarti
    * menulis ulang `guard_quiz_attempt_write`, yang menjaga SETIAP percobaan
@@ -101,7 +112,7 @@ export function QuizPlayer({
    * tidak menyentuh kelulusan maupun sertifikat siapa pun.
    */
   const ukur = quiz.measure_kind
-  const sudahMengukur = ukur !== null && attemptsUsed > 0
+  const sudahMengukur = ukur === "pretest" && attemptsUsed > 0
   const canAttempt = !sudahMengukur
   const alreadyPassed = attemptInfo?.lastPassed === true
 
