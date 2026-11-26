@@ -7,7 +7,7 @@ import { after } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { kirimAntrean } from "@/lib/webhook-kirim"
 import { computeCourseGrade, quizGradeWeight } from "@/lib/course-grade"
-import { isMeasureQuiz } from "@/lib/courses"
+import { diabaikanSaatMenilai } from "@/lib/courses"
 import { pickRepresentativeAttempt } from "@/lib/quiz-attempt-selection"
 import { getCertificateDefaults } from "@/lib/certificate-defaults-server"
 import { resolveCertificateSettings, type ResolvedCertificateSettings } from "@/lib/certificate-settings"
@@ -91,7 +91,7 @@ export async function checkAndIssueCertificate(
    * Kursus tanpa kuis ukur melewati penyaring ini tanpa kehilangan satu baris
    * pun, jadi perhitungannya identik dengan sebelum fitur ini ada.
    */
-  const lessons = semuaPelajaran.filter((l) => !isMeasureQuiz(l.quiz))
+  const lessons = semuaPelajaran.filter((l) => !diabaikanSaatMenilai(l.quiz))
 
   if (lessons.length === 0) return null
 

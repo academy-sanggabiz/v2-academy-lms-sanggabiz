@@ -4,7 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 
 import { computeCourseGrade, quizGradeWeight, type CourseGrade } from "@/lib/course-grade"
 import { pickRepresentativeAttempt } from "@/lib/quiz-attempt-selection"
-import { isMeasureQuiz } from "@/lib/courses"
+import { diabaikanSaatMenilai } from "@/lib/courses"
 
 /**
  * Nilai akhir untuk BANYAK pendaftaran sekaligus, dua kueri untuk semuanya.
@@ -68,7 +68,7 @@ export async function hitungNilaiBorongan(
   // di `isMeasureQuiz`.
   const kuisPerKursus = new Map<string, BarisKuis[]>()
   for (const q of kuis as unknown as BarisKuis[]) {
-    if (isMeasureQuiz(q)) continue
+    if (diabaikanSaatMenilai(q)) continue
     const courseId = q.lesson?.section?.course_id
     if (!courseId) continue
     const bucket = kuisPerKursus.get(courseId) ?? []

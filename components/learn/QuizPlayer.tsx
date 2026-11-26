@@ -317,7 +317,19 @@ export function QuizPlayer({
   }
 
   if (stage === "results" && result) {
-    const canRetry = ukur === null
+    /*
+     * PRETEST sekali kerjakan; POSTTEST boleh diulang.
+     *
+     * Sebelum 26 November 2026 barisnya `ukur === null`, jadi posttest pun
+     * tidak punya tombol coba lagi. Selama posttest sekadar alat ukur itu
+     * benar. Begitu ia menentukan kelulusan dan sertifikat, satu kali gagal
+     * berarti tidak akan pernah lulus -- hukuman yang tidak pernah
+     * diputuskan siapa pun, hanya warisan dari aturan lama.
+     *
+     * Pretest tetap sekali: ia mengukur titik awal, dan titik awal yang bisa
+     * diulang sampai bagus bukan titik awal.
+     */
+    const canRetry = ukur !== "pretest"
 
     return (
       <div className="mx-auto flex max-w-2xl flex-col gap-5 p-10">
@@ -336,14 +348,22 @@ export function QuizPlayer({
           ) : (
             <>
               {/*
-                Kuis ukur tidak diwarnai lulus/gagal. Merahnya angka pretest
+                PRETEST tidak diwarnai lulus/gagal. Merahnya angka pretest
                 menyampaikan "Anda gagal" pada orang yang memang belum belajar
                 -- itu persis pesan yang salah di awal kursus.
+
+                POSTTEST diwarnai seperti kuis biasa, dan itu berubah pada
+                26 November 2026. Sebelumnya posttest ikut dibisukan karena
+                dianggap sekadar alat ukur, sehingga peserta dengan nilai 10
+                dari ambang 70 melihat angka netral tanpa satu kata pun yang
+                mengatakan ia belum lulus -- lalu tetap menerima sertifikat.
+                Sekarang posttest menentukan kelulusan, jadi layarnya wajib
+                mengatakannya.
               */}
               <div
                 className={cn(
                   "text-5xl font-bold",
-                  ukur !== null
+                  ukur === "pretest"
                     ? "text-foreground"
                     : result.passed
                       ? "text-emerald-700"
@@ -353,7 +373,7 @@ export function QuizPlayer({
                 {result.score}%
               </div>
               <div className="text-sm text-muted-foreground">
-                {ukur !== null
+                {ukur === "pretest"
                   ? `${result.correctCount} dari ${result.total} benar`
                   : `${result.correctCount} dari ${result.total} benar · ${result.passed ? "Lulus" : "Belum lulus"}`}
               </div>
@@ -361,7 +381,7 @@ export function QuizPlayer({
               <p className="mt-1 max-w-md text-sm text-muted-foreground">
                 {ukur === "pretest"
                   ? t.player.pretestResultNote
-                  : ukur === "posttest"
+                  : ukur === "posttest" && result.passed
                     ? t.player.posttestResultNote
                     : result.passed
                       ? "Anda lulus kuis ini. Lanjutkan ke pelajaran berikutnya."

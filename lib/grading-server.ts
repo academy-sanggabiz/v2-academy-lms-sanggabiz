@@ -3,7 +3,7 @@ import { getAdminProfile } from "@/lib/auth/require-admin"
 import { escapeForOrFilter, paginated, rangeFor, type ListParams, type Paginated } from "@/lib/pagination"
 import { pickRepresentativeAttempt } from "@/lib/quiz-attempt-selection"
 import { computeCourseGrade, quizGradeWeight, type CourseGrade } from "@/lib/course-grade"
-import { isMeasureQuiz, type QuizMeasureKind } from "@/lib/courses"
+import { diabaikanSaatMenilai, type QuizMeasureKind } from "@/lib/courses"
 
 /**
  * Whether a question type is left ungraded by public.grade_attempt() and
@@ -301,7 +301,7 @@ export async function getCourseGradingMatrix(
        * computeCourseGrade menambah `100 * bobot` ke penyebut dan
        * `skor * bobot` ke pembilang, dan keduanya nol.
        */
-      weight: isMeasureQuiz(quiz) ? 0 : quizGradeWeight(quiz.is_assessment),
+      weight: diabaikanSaatMenilai(quiz) ? 0 : quizGradeWeight(quiz.is_assessment),
       questionPrompts: questions.slice(0, COLUMN_PROMPT_PREVIEW).map((qq) => qq.prompt),
       extraPromptCount: Math.max(0, questions.length - COLUMN_PROMPT_PREVIEW),
     }
