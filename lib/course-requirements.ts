@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 
 import { computeCourseGrade, quizGradeWeight } from "@/lib/course-grade"
-import { isMeasureQuiz } from "@/lib/courses"
+import { diabaikanSaatMenilai } from "@/lib/courses"
 import { pickRepresentativeAttempt } from "@/lib/quiz-attempt-selection"
 
 /**
@@ -91,7 +91,7 @@ export async function getCourseRequirements(
    */
   const lessons = (sections as SectionRow[])
     .flatMap((s) => s.lessons ?? [])
-    .filter((l) => !isMeasureQuiz(Array.isArray(l.quiz) ? l.quiz[0] : l.quiz))
+    .filter((l) => !diabaikanSaatMenilai(Array.isArray(l.quiz) ? l.quiz[0] : l.quiz))
   if (lessons.length === 0) return null
 
   const quizLessons = lessons

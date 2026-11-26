@@ -168,6 +168,35 @@ export function isMeasureQuiz(
   return quiz?.measure_kind != null
 }
 
+/**
+ * Apakah kuis ini DIABAIKAN saat menghitung nilai, kelulusan, dan sertifikat?
+ *
+ * Dipisahkan dari `isMeasureQuiz` pada 26 November 2026, dan pemisahan itu
+ * lahir dari cacat yang sudah terjadi di produksi, bukan dari kerapian.
+ *
+ * Sampai hari itu keduanya satu pertanyaan: "kuis ukur" berarti sekaligus
+ * "tidak ikut menilai". Akibatnya pada kursus yang ujiannya HANYA pretest dan
+ * posttest, tidak ada satu pun kuis yang menjaga gerbang -- sertifikat terbit
+ * untuk siapa saja yang menggulir sampai habis. Terukur: satu peserta dengan
+ * nilai posttest 10 dari ambang 70 memegang sertifikat CERT-2026-79A60611.
+ *
+ * Sekarang keduanya beda pertanyaan:
+ *
+ *   isMeasureQuiz          -> ini alat ukur? (pretest DAN posttest)
+ *                             dipakai untuk layar Perkembangan dan wawasan.
+ *   diabaikanSaatMenilai   -> ini tidak ikut menilai? (HANYA pretest)
+ *
+ * Pretest diabaikan karena ia sengaja dikerjakan sebelum belajar; menilai
+ * orang atas sesuatu yang belum diajarkan tidak mengukur apa pun. Posttest
+ * dikerjakan sesudah belajar, jadi ia memang ujian -- dan `pass_score` yang
+ * disetel penyusun akhirnya berarti.
+ */
+export function diabaikanSaatMenilai(
+  quiz: { measure_kind?: QuizMeasureKind | string | null } | null | undefined
+): boolean {
+  return quiz?.measure_kind === "pretest"
+}
+
 export type Resource = {
   id: string
   lesson_id: string

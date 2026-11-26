@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/server"
 import { computeCourseGrade, quizGradeWeight, type CourseGrade } from "@/lib/course-grade"
 import { pickRepresentativeAttempt } from "@/lib/quiz-attempt-selection"
-import { isMeasureQuiz } from "@/lib/courses"
+import { diabaikanSaatMenilai } from "@/lib/courses"
 
 export async function getEnrolledCourseIds(): Promise<string[]> {
   const supabase = await createClient()
@@ -106,7 +106,7 @@ export async function getLearnerCourseGrade(courseId: string): Promise<CourseGra
   // Penyaringan dilakukan setelah kueri, bukan dengan `.is("measure_kind", null)`,
   // supaya jumlah kueri tidak berubah dan satu-satunya definisi "kuis ukur"
   // tetap `isMeasureQuiz`.
-  const quizRows = (quizzes as LearnerGradeQuiz[]).filter((q) => !isMeasureQuiz(q))
+  const quizRows = (quizzes as LearnerGradeQuiz[]).filter((q) => !diabaikanSaatMenilai(q))
   if (quizRows.length === 0) return null
 
   const quizIds = quizRows.map((q) => q.id)
